@@ -114,7 +114,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         price = body_data.get('price')
         wallet_address = body_data.get('walletAddress')
         
-        if not all([user_id, package_id, amount, price, wallet_address]):
+        if user_id is None or package_id is None or amount is None or price is None or not wallet_address:
             return {
                 'statusCode': 400,
                 'headers': {
