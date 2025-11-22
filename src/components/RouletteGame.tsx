@@ -264,12 +264,12 @@ const RouletteGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: Roulette
         </p>
       </div>
 
-      <Card className="p-8 bg-gradient-to-b from-red-950/40 via-red-900/30 to-red-950/40 border-red-800/30 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-red-800/5 via-transparent to-transparent"></div>
+      <Card className="p-8 bg-gradient-to-b from-green-950/40 via-green-900/30 to-green-950/40 border-green-800/30 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-green-800/5 via-transparent to-transparent"></div>
         
         <div className="relative space-y-8">
-          <div className="flex justify-center py-8">
-            <div className="relative w-64 h-64">
+          <div className="flex justify-center py-4">
+            <div className="relative w-48 h-48">
               <div 
                 className="absolute inset-0 rounded-full border-8 border-amber-600/80 bg-gradient-to-br from-amber-900/40 to-amber-950/60 shadow-2xl"
                 style={{
@@ -277,17 +277,17 @@ const RouletteGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: Roulette
                   transition: gameState === 'spinning' ? 'transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99)' : 'none'
                 }}
               >
-                <div className="absolute inset-8 rounded-full border-4 border-amber-700/60 bg-gradient-to-br from-green-900 to-green-950">
+                <div className="absolute inset-6 rounded-full border-4 border-amber-700/60 bg-gradient-to-br from-green-900 to-green-950">
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-8 h-8 bg-amber-500 rounded-full shadow-lg"></div>
+                    <div className="w-6 h-6 bg-amber-500 rounded-full shadow-lg"></div>
                   </div>
                 </div>
               </div>
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 w-0 h-0 border-l-8 border-r-8 border-t-12 border-l-transparent border-r-transparent border-t-red-500 z-10"></div>
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 w-0 h-0 border-l-6 border-r-6 border-t-8 border-l-transparent border-r-transparent border-t-yellow-500 z-10"></div>
               
               {winningNumber !== null && gameState !== 'betting' && (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className={`text-4xl font-bold px-6 py-3 rounded-lg ${
+                  <div className={`text-3xl font-bold px-4 py-2 rounded-lg ${
                     getNumberColor(winningNumber) === 'red' ? 'bg-red-600' :
                     getNumberColor(winningNumber) === 'black' ? 'bg-black' :
                     'bg-green-600'
@@ -296,6 +296,117 @@ const RouletteGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: Roulette
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+
+          <div className="bg-green-900/40 p-6 rounded-lg border-2 border-amber-700/30">
+            <div className="flex gap-2">
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => setSelectedBetType('green')}
+                  className={`w-12 h-36 bg-green-600 hover:bg-green-700 text-white font-bold rounded flex items-center justify-center text-2xl transition-all ${
+                    selectedBetType === 'green' ? 'ring-4 ring-yellow-400' : ''
+                  }`}
+                >
+                  0
+                </button>
+              </div>
+
+              <div className="grid grid-cols-12 gap-[2px]">
+                {[3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36].map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => setSelectedBetType(num)}
+                    className={`w-12 h-12 ${
+                      getNumberColor(num) === 'red' ? 'bg-red-600 hover:bg-red-700' : 'bg-black hover:bg-gray-900'
+                    } text-white font-bold rounded flex items-center justify-center transition-all ${
+                      selectedBetType === num ? 'ring-4 ring-yellow-400' : ''
+                    }`}
+                  >
+                    {num}
+                  </button>
+                ))}
+                {[2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35].map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => setSelectedBetType(num)}
+                    className={`w-12 h-12 ${
+                      getNumberColor(num) === 'red' ? 'bg-red-600 hover:bg-red-700' : 'bg-black hover:bg-gray-900'
+                    } text-white font-bold rounded flex items-center justify-center transition-all ${
+                      selectedBetType === num ? 'ring-4 ring-yellow-400' : ''
+                    }`}
+                  >
+                    {num}
+                  </button>
+                ))}
+                {[1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34].map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => setSelectedBetType(num)}
+                    className={`w-12 h-12 ${
+                      getNumberColor(num) === 'red' ? 'bg-red-600 hover:bg-red-700' : 'bg-black hover:bg-gray-900'
+                    } text-white font-bold rounded flex items-center justify-center transition-all ${
+                      selectedBetType === num ? 'ring-4 ring-yellow-400' : ''
+                    }`}
+                  >
+                    {num}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-6 gap-2 mt-4">
+              <button
+                onClick={() => setSelectedBetType('low')}
+                className={`col-span-2 py-3 bg-amber-800/40 hover:bg-amber-800/60 border-2 border-amber-600/50 text-white font-bold rounded transition-all ${
+                  selectedBetType === 'low' ? 'ring-4 ring-yellow-400' : ''
+                }`}
+              >
+                1-18
+              </button>
+              <button
+                onClick={() => setSelectedBetType('even')}
+                className={`py-3 bg-amber-800/40 hover:bg-amber-800/60 border-2 border-amber-600/50 text-white font-bold rounded transition-all ${
+                  selectedBetType === 'even' ? 'ring-4 ring-yellow-400' : ''
+                }`}
+              >
+                ЧЕТН
+              </button>
+              <button
+                onClick={() => setSelectedBetType('odd')}
+                className={`py-3 bg-amber-800/40 hover:bg-amber-800/60 border-2 border-amber-600/50 text-white font-bold rounded transition-all ${
+                  selectedBetType === 'odd' ? 'ring-4 ring-yellow-400' : ''
+                }`}
+              >
+                НЕЧТ
+              </button>
+              <button
+                onClick={() => setSelectedBetType('high')}
+                className={`col-span-2 py-3 bg-amber-800/40 hover:bg-amber-800/60 border-2 border-amber-600/50 text-white font-bold rounded transition-all ${
+                  selectedBetType === 'high' ? 'ring-4 ring-yellow-400' : ''
+                }`}
+              >
+                19-36
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 mt-4">
+              <button
+                onClick={() => setSelectedBetType('red')}
+                className={`py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded text-lg transition-all ${
+                  selectedBetType === 'red' ? 'ring-4 ring-yellow-400' : ''
+                }`}
+              >
+                🔴 КРАСНОЕ
+              </button>
+              <button
+                onClick={() => setSelectedBetType('black')}
+                className={`py-4 bg-black hover:bg-gray-900 text-white font-bold rounded text-lg transition-all ${
+                  selectedBetType === 'black' ? 'ring-4 ring-yellow-400' : ''
+                }`}
+              >
+                ⚫ ЧЕРНОЕ
+              </button>
             </div>
           </div>
 
@@ -309,55 +420,7 @@ const RouletteGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: Roulette
           )}
 
           {gameState === 'betting' && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <Button
-                  onClick={() => setSelectedBetType('red')}
-                  variant={selectedBetType === 'red' ? 'default' : 'outline'}
-                  className={selectedBetType === 'red' ? 'bg-red-600 hover:bg-red-700' : ''}
-                >
-                  🔴 Красное
-                </Button>
-                <Button
-                  onClick={() => setSelectedBetType('black')}
-                  variant={selectedBetType === 'black' ? 'default' : 'outline'}
-                  className={selectedBetType === 'black' ? 'bg-gray-900 hover:bg-black' : ''}
-                >
-                  ⚫ Черное
-                </Button>
-                <Button
-                  onClick={() => setSelectedBetType('even')}
-                  variant={selectedBetType === 'even' ? 'default' : 'outline'}
-                >
-                  Четное
-                </Button>
-                <Button
-                  onClick={() => setSelectedBetType('odd')}
-                  variant={selectedBetType === 'odd' ? 'default' : 'outline'}
-                >
-                  Нечетное
-                </Button>
-                <Button
-                  onClick={() => setSelectedBetType('low')}
-                  variant={selectedBetType === 'low' ? 'default' : 'outline'}
-                >
-                  1-18
-                </Button>
-                <Button
-                  onClick={() => setSelectedBetType('high')}
-                  variant={selectedBetType === 'high' ? 'default' : 'outline'}
-                >
-                  19-36
-                </Button>
-                <Button
-                  onClick={() => setSelectedBetType('green')}
-                  variant={selectedBetType === 'green' ? 'default' : 'outline'}
-                  className={selectedBetType === 'green' ? 'bg-green-600 hover:bg-green-700' : ''}
-                >
-                  🟢 Зеро (0)
-                </Button>
-              </div>
-
+            <div className="space-y-4">
               <div className="flex gap-3">
                 <Input
                   type="number"
