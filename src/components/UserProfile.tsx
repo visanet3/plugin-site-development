@@ -585,7 +585,7 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
           {cryptoPayment && (
             <div className="space-y-4">
               <Card className="p-4 bg-gradient-to-br from-green-800/10 to-green-900/10 border-green-800/20">
-                <div className="flex items-start gap-4">
+                <div className="flex items-start gap-3">
                   <div className="flex-1 space-y-3">
                     <div>
                       <Label className="text-xs text-muted-foreground">Сумма</Label>
@@ -598,7 +598,7 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
                     </div>
                   </div>
 
-                  <div className="bg-white p-3 rounded-lg shadow-md">
+                  <div className="bg-white p-3 rounded-lg shadow-md mt-2">
                     <QRCodeSVG 
                       value={cryptoPayment.wallet_address}
                       size={110}
