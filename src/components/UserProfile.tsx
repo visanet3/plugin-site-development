@@ -596,18 +596,25 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
                     <p className="text-lg font-semibold text-green-400">{cryptoPayment.network}</p>
                   </div>
 
-                  <div className="flex items-center justify-center py-4">
-                    <div className="relative p-3 bg-gradient-to-br from-green-800 to-green-900 rounded-xl shadow-lg border border-green-700/50">
-                      <QRCodeSVG 
-                        value={cryptoPayment.wallet_address} 
-                        size={110}
-                        level="H"
-                        includeMargin={false}
-                        fgColor="#ffffff"
-                        bgColor="transparent"
-                        style={{ display: 'block' }}
-                      />
+                  <div className="flex flex-col items-center justify-center py-6 space-y-3">
+                    <div className="relative p-5 bg-gradient-to-br from-green-800/90 to-green-900/90 rounded-2xl shadow-2xl border-2 border-green-600/40 backdrop-blur-sm">
+                      <div className="absolute inset-0 bg-gradient-to-br from-green-400/5 to-transparent rounded-2xl" />
+                      <div className="relative">
+                        <QRCodeSVG 
+                          value={cryptoPayment.wallet_address} 
+                          size={180}
+                          level="H"
+                          includeMargin={false}
+                          fgColor="#ffffff"
+                          bgColor="transparent"
+                          style={{ display: 'block' }}
+                        />
+                      </div>
                     </div>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Icon name="Scan" size={14} />
+                      Отсканируйте QR-код для быстрого перевода
+                    </p>
                   </div>
 
                   <div>
