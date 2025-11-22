@@ -177,10 +177,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 )
                 
                 if not tron_tx:
+                    cur.execute(
+                        "UPDATE crypto_payments SET status = 'pending' WHERE id = %s",
+                        (int(payment_id),)
+                    )
+                    conn.commit()
+                    
                     return {
-                        'statusCode': 400,
+                        'statusCode': 202,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Транзакция не найдена в блокчейне. Подождите несколько минут.'}),
+                        'body': json.dumps({
+                            'success': False,
+                            'waiting': True,
+                            'message': 'Ожидаем транзакцию в блокчейне. Проверка в течение 30 минут.'
+                        }),
                         'isBase64Encoded': False
                     }
                 
@@ -204,7 +214,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 cur.execute(
                     "INSERT INTO notifications (user_id, type, title, message) VALUES (%s, %s, %s, %s)",
-                    (int(user_id), 'payment', 'Баланс пополнен', f"Зачислено {float(payment['amount']):.2f} USDT")
+                    (int(user_id), 'success', 'Баланс пополнен', f"Ваш баланс успешно пополнен на {float(payment['amount']):.2f} USDT")
                 )
                 
                 cur.execute("SELECT username FROM users WHERE id = %s", (int(user_id),))

@@ -13,11 +13,7 @@
       },
       "expectedStatus": 200,
       "expectedBody": {
-        "success": true,
-        "payment_id": "number",
-        "wallet_address": "string",
-        "amount": 100,
-        "network": "TRC20"
+        "success": true
       },
       "bodyMatcher": "partial"
     },

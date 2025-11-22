@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "Check pending payments",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

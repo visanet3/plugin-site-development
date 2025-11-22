@@ -146,51 +146,78 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
     if (!cryptoPayment) return;
     
     setIsLoading(true);
-    try {
-      const response = await fetch(CRYPTO_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': user.id.toString()
-        },
-        body: JSON.stringify({
-          action: 'confirm_payment',
-          payment_id: cryptoPayment.payment_id
-        })
-      });
-      
-      const data = await response.json();
-      if (data.success) {
-        if (onTopUpBalance) {
-          const updatedUser = { ...user, balance: data.new_balance };
-          Object.assign(user, updatedUser);
-        }
-        setShowCryptoDialog(false);
-        setCryptoPayment(null);
-        if (activeTab === 'transactions') {
-          fetchTransactions();
-        }
-        toast({
-          title: 'Успешно',
-          description: 'Платёж подтверждён! Баланс пополнен.'
+    let checkAttempts = 0;
+    const maxAttempts = 60;
+    
+    const checkPayment = async (): Promise<boolean> => {
+      try {
+        const response = await fetch(CRYPTO_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Id': user.id.toString()
+          },
+          body: JSON.stringify({
+            action: 'confirm_payment',
+            payment_id: cryptoPayment.payment_id
+          })
         });
-      } else {
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          if (onTopUpBalance) {
+            const updatedUser = { ...user, balance: data.new_balance };
+            Object.assign(user, updatedUser);
+          }
+          setShowCryptoDialog(false);
+          setCryptoPayment(null);
+          if (activeTab === 'transactions') {
+            fetchTransactions();
+          }
+          toast({
+            title: 'Успешно',
+            description: 'Платёж подтверждён! Баланс пополнен.'
+          });
+          return true;
+        }
+        
+        if (data.waiting && checkAttempts < maxAttempts) {
+          checkAttempts++;
+          toast({
+            title: 'Ожидание',
+            description: `Ищем транзакцию в блокчейне... Попытка ${checkAttempts}/${maxAttempts}`
+          });
+          
+          await new Promise(resolve => setTimeout(resolve, 30000));
+          return await checkPayment();
+        }
+        
         toast({
           title: 'Ошибка',
-          description: 'Ошибка подтверждения платежа',
+          description: data.message || 'Транзакция не найдена. Проверьте данные и попробуйте позже.',
           variant: 'destructive'
         });
+        return false;
+        
+      } catch (error) {
+        console.error('Ошибка проверки платежа:', error);
+        toast({
+          title: 'Ошибка',
+          description: 'Ошибка проверки платежа',
+          variant: 'destructive'
+        });
+        return false;
       }
-    } catch (error) {
-      console.error('Ошибка подтверждения:', error);
-      toast({
-        title: 'Ошибка',
-        description: 'Ошибка подтверждения платежа',
-        variant: 'destructive'
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    };
+    
+    toast({
+      title: 'Проверка',
+      description: 'Начинаем поиск транзакции в блокчейне. Это может занять до 30 минут.'
+    });
+    
+    await checkPayment();
+    setIsLoading(false);
   };
 
   const copyToClipboard = (text: string) => {
