@@ -442,7 +442,12 @@ const Index = () => {
             categories={categories}
             user={user}
             onCategoryChange={handleCategoryChange}
-            onShowProfileDialog={() => setShowProfileDialog(true)}
+            onShowProfileDialog={() => {
+              if (user) {
+                setSelectedUserId(user.id);
+                setShowUserProfile(true);
+              }
+            }}
             onShowAdminPanel={() => setShowAdminPanel(true)}
             onShowMessagesPanel={() => setShowMessagesPanel(true)}
             messagesUnread={messagesUnread}
