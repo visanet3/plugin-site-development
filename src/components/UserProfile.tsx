@@ -26,7 +26,7 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
   const [topUpAmount, setTopUpAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [animatedBalance, setAnimatedBalance] = useState(user.balance || 0);
+  const [animatedBalance, setAnimatedBalance] = useState(Number(user.balance) || 0);
   const [isBalanceChanging, setIsBalanceChanging] = useState(false);
   const [transactionsLoading, setTransactionsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('settings');
@@ -44,21 +44,22 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
   }, [activeTab, isOwnProfile]);
 
   useEffect(() => {
-    if (user.balance !== animatedBalance) {
+    const currentBalance = Number(user.balance) || 0;
+    if (currentBalance !== animatedBalance) {
       setIsBalanceChanging(true);
       const duration = 800;
       const steps = 30;
-      const stepValue = (Number(user.balance) - Number(animatedBalance)) / steps;
+      const stepValue = (currentBalance - animatedBalance) / steps;
       let currentStep = 0;
 
       const timer = setInterval(() => {
         currentStep++;
         if (currentStep >= steps) {
-          setAnimatedBalance(Number(user.balance));
+          setAnimatedBalance(currentBalance);
           clearInterval(timer);
           setTimeout(() => setIsBalanceChanging(false), 300);
         } else {
-          setAnimatedBalance(prev => Number(prev) + stepValue);
+          setAnimatedBalance(prev => prev + stepValue);
         }
       }, duration / steps);
 
