@@ -79,7 +79,8 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
   const [result, setResult] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const startNewGame = () => {
+  const startNewGame = (e?: React.MouseEvent) => {
+    e?.preventDefault();
     if (!user) {
       onShowAuthDialog();
       return;
@@ -120,7 +121,8 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
     }
   };
 
-  const hit = () => {
+  const hit = (e?: React.MouseEvent) => {
+    e?.preventDefault();
     if (gameState !== 'playing' || deck.length === 0) return;
 
     const newDeck = [...deck];
@@ -219,7 +221,8 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
     setIsProcessing(false);
   };
 
-  const resetGame = () => {
+  const resetGame = (e?: React.MouseEvent) => {
+    e?.preventDefault();
     setPlayerHand([]);
     setDealerHand([]);
     setDeck([]);
@@ -369,7 +372,7 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
                 Взять карту
               </Button>
               <Button
-                onClick={() => stand()}
+                onClick={(e) => { e.preventDefault(); stand(); }}
                 className="flex-1 bg-orange-600 hover:bg-orange-700"
                 disabled={isProcessing}
               >

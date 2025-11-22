@@ -26,7 +26,8 @@ const DiceGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: DiceGameProp
   const [isProcessing, setIsProcessing] = useState(false);
   const [rotation, setRotation] = useState(0);
 
-  const rollDice = async () => {
+  const rollDice = async (e?: React.MouseEvent) => {
+    e?.preventDefault();
     if (!user) {
       onShowAuthDialog();
       return;
@@ -176,7 +177,8 @@ const DiceGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: DiceGameProp
     }
   };
 
-  const resetGame = () => {
+  const resetGame = (e?: React.MouseEvent) => {
+    e?.preventDefault();
     setDiceResult(null);
     setResult('');
     setGameState('betting');

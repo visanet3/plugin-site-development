@@ -64,7 +64,8 @@ const BaccaratGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: Baccarat
     setDeck(createDeck());
   }, []);
 
-  const startNewGame = async () => {
+  const startNewGame = async (e?: React.MouseEvent) => {
+    e?.preventDefault();
     if (!user) {
       onShowAuthDialog();
       return;
@@ -250,7 +251,8 @@ const BaccaratGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: Baccarat
     }
   };
 
-  const resetGame = () => {
+  const resetGame = (e?: React.MouseEvent) => {
+    e?.preventDefault();
     setPlayerHand([]);
     setBankerHand([]);
     setResult('');
