@@ -41,7 +41,7 @@ const Header = ({
     <header className="sticky top-0 z-20 bg-card border-b border-border backdrop-blur-sm bg-opacity-95">
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-4 flex-1">
-          <Button variant="ghost" size="icon" onClick={onToggleSidebar}>
+          <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="hover:text-orange-400 hover:bg-orange-400/10 transition-colors">
             <Icon name="Menu" size={20} />
           </Button>
 
@@ -98,7 +98,7 @@ const Header = ({
         <div className="flex items-center gap-3">
           {user ? (
             <>
-              <Button variant="ghost" size="icon" className="relative" onClick={onShowNotifications}>
+              <Button variant="ghost" size="icon" className="relative hover:text-orange-400 hover:bg-orange-400/10 transition-colors" onClick={onShowNotifications}>
                 <Icon name="Bell" size={20} />
                 {notificationsUnread > 0 && (
                   <span className="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs bg-red-500 text-white rounded-full min-w-[20px] text-center">
@@ -109,7 +109,7 @@ const Header = ({
               <div className="flex items-center gap-3">
                 <Button 
                   variant="ghost" 
-                  className="text-left flex items-center gap-3"
+                  className="text-left flex items-center gap-3 hover:text-orange-400 hover:bg-orange-400/10 transition-colors"
                   onClick={onShowProfile}
                 >
                   <div className="text-right">
@@ -120,7 +120,7 @@ const Header = ({
                   </div>
                   <Icon name="User" size={20} />
                 </Button>
-                <Button variant="outline" size="sm" onClick={onLogout}>
+                <Button variant="outline" size="sm" onClick={onLogout} className="hover:text-orange-400 hover:border-orange-400/50 transition-colors">
                   Выход
                 </Button>
               </div>
