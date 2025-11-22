@@ -28,7 +28,7 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
   const [isLoading, setIsLoading] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [transactionsLoading, setTransactionsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('settings');
   const [showCryptoDialog, setShowCryptoDialog] = useState(false);
   const [cryptoPayment, setCryptoPayment] = useState<any>(null);
   const [paymentNetwork, setPaymentNetwork] = useState('TRC20');
@@ -296,9 +296,9 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="settings">Настройки</TabsTrigger>
                 <TabsTrigger value="overview">Обзор</TabsTrigger>
                 <TabsTrigger value="transactions">Транзакции</TabsTrigger>
-                <TabsTrigger value="settings">Настройки</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="space-y-4 mt-4">
