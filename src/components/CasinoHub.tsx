@@ -6,6 +6,7 @@ import { User } from '@/types';
 import BlackjackGame from './BlackjackGame';
 import BaccaratGame from './BaccaratGame';
 import DiceGame from './DiceGame';
+import LotteryGame from './LotteryGame';
 
 interface CasinoHubProps {
   user: User | null;
@@ -13,7 +14,7 @@ interface CasinoHubProps {
   onRefreshUserBalance?: () => void;
 }
 
-type GameType = 'menu' | 'blackjack' | 'baccarat' | 'dice';
+type GameType = 'menu' | 'blackjack' | 'baccarat' | 'dice' | 'lottery';
 
 const CasinoHub = ({ user, onShowAuthDialog, onRefreshUserBalance }: CasinoHubProps) => {
   const [selectedGame, setSelectedGame] = useState<GameType>('menu');
@@ -42,6 +43,14 @@ const CasinoHub = ({ user, onShowAuthDialog, onRefreshUserBalance }: CasinoHubPr
       icon: 'Dices',
       description: 'Бросайте кубик и угадывайте результат',
       color: 'from-orange-600 to-orange-800',
+      available: true
+    },
+    {
+      id: 'lottery' as GameType,
+      name: 'Лотерея',
+      icon: 'Ticket',
+      description: '25 билетов по 50 USDT. Победитель получает всё',
+      color: 'from-indigo-600 to-indigo-800',
       available: true
     }
   ];
@@ -100,6 +109,26 @@ const CasinoHub = ({ user, onShowAuthDialog, onRefreshUserBalance }: CasinoHubPr
           Назад в казино
         </Button>
         <DiceGame 
+          user={user} 
+          onShowAuthDialog={onShowAuthDialog}
+          onRefreshUserBalance={onRefreshUserBalance}
+        />
+      </div>
+    );
+  }
+
+  if (selectedGame === 'lottery') {
+    return (
+      <div className="space-y-4">
+        <Button 
+          onClick={() => setSelectedGame('menu')}
+          variant="outline"
+          className="gap-2"
+        >
+          <Icon name="ArrowLeft" size={18} />
+          Назад в казино
+        </Button>
+        <LotteryGame 
           user={user} 
           onShowAuthDialog={onShowAuthDialog}
           onRefreshUserBalance={onRefreshUserBalance}
