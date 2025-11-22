@@ -51,19 +51,19 @@ export const PluginsView = ({
             
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-green-700 to-green-900 rounded-2xl flex items-center justify-center">
-                  <Icon name="Zap" size={32} className="text-white" />
+                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-700 rounded-2xl flex items-center justify-center">
+                  <Icon name="GitBranch" size={32} className="text-white" />
                 </div>
                 <div>
-                  <h1 className="text-4xl font-bold bg-gradient-to-r from-green-400 to-green-600 bg-clip-text text-transparent">
-                    USDT HUB
+                  <h1 className="text-4xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">
+                    GIT CRYPTO
                   </h1>
                   <p className="text-muted-foreground">Криптовалютное сообщество</p>
                 </div>
               </div>
 
               <p className="text-lg text-foreground/90 mb-6 leading-relaxed">
-                Добро пожаловать в <span className="text-green-400 font-semibold">USDT HUB</span> — сообщество энтузиастов, 
+                Добро пожаловать в <span className="text-green-400 font-semibold">GIT CRYPTO</span> — сообщество энтузиастов, 
                 увлечённых миром стейблкоинов и криптовалют. Сообщество создано с целью изучения информационной 
                 безопасности в сфере криптовалют. Здесь мы обсуждаем всё, что связано с USDT: 
                 от технических аспектов работы с различными блокчейн-сетями до практических советов 

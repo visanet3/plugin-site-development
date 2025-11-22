@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Category } from '@/types';
-import UsdtLogo from '@/components/UsdtLogo';
+import GitCryptoLogo from '@/components/GitCryptoLogo';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -32,8 +32,8 @@ const Sidebar = ({
     <aside className={`fixed top-0 left-0 h-full bg-sidebar border-r border-sidebar-border transition-all duration-300 z-30 overflow-hidden ${sidebarOpen ? 'w-64' : 'w-0'}`}>
       <div className={`p-4 w-64 transition-opacity duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}>
         <div className="flex items-center gap-3 mb-8">
-          <UsdtLogo />
-          <span className="text-xl font-bold bg-gradient-to-r from-green-700 to-green-900 bg-clip-text text-transparent">USDT HUB</span>
+          <GitCryptoLogo />
+          <span className="text-xl font-bold bg-gradient-to-r from-green-500 to-emerald-700 bg-clip-text text-transparent">GIT CRYPTO</span>
         </div>
 
         <nav className="space-y-1">
