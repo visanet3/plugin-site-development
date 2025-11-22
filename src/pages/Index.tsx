@@ -404,7 +404,7 @@ const Index = () => {
 
       {!user && (
         <>
-          <div className="fixed inset-0 backdrop-blur-md bg-background/30 z-40 pointer-events-none" />
+          <div className="fixed inset-0 backdrop-blur-sm bg-background/18 z-40 pointer-events-none" />
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="bg-background/95 backdrop-blur-xl border-2 border-primary/50 rounded-2xl shadow-2xl max-w-md w-full animate-scale-in">
               <Dialogs
