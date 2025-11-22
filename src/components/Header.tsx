@@ -120,7 +120,7 @@ const Header = ({
                   </div>
                   <Icon name="User" size={20} />
                 </Button>
-                <Button variant="outline" size="sm" onClick={onLogout} className="hover:text-orange-400 hover:border-orange-400/50 transition-colors">
+                <Button variant="ghost" size="sm" onClick={onLogout} className="hover:text-orange-400 hover:bg-orange-400/10 transition-colors">
                   Выход
                 </Button>
               </div>
