@@ -131,6 +131,8 @@ const NotificationsPanel = ({ open, onOpenChange, userId }: NotificationsPanelPr
                 className={`p-4 rounded-lg border cursor-pointer transition-colors ${
                   notification.is_read
                     ? 'bg-background border-border'
+                    : notification.type === 'payment'
+                    ? 'bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/30'
                     : 'bg-primary/5 border-primary/30'
                 }`}
                 onClick={() => !notification.is_read && markNotificationRead(notification.id)}
@@ -138,7 +140,13 @@ const NotificationsPanel = ({ open, onOpenChange, userId }: NotificationsPanelPr
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <Icon name="Bell" size={16} className="text-primary" />
+                      {notification.type === 'payment' ? (
+                        <Icon name="Wallet" size={16} className="text-green-400" />
+                      ) : notification.type === 'message' ? (
+                        <Icon name="Mail" size={16} className="text-blue-400" />
+                      ) : (
+                        <Icon name="Bell" size={16} className="text-primary" />
+                      )}
                       <h4 className="font-semibold">{notification.title}</h4>
                     </div>
                     <p className="text-sm text-muted-foreground">{notification.message}</p>

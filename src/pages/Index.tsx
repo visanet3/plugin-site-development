@@ -56,6 +56,10 @@ const Index = () => {
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
+    
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
   }, [activeCategory, activeView]);
 
   useEffect(() => {
@@ -103,10 +107,24 @@ const Index = () => {
             const savedUser = localStorage.getItem('user');
             if (savedUser) {
               const currentUser = JSON.parse(savedUser);
-              const updatedBalance = (currentUser.balance || 0) + data.auto_confirmed.reduce((sum: number, p: any) => sum + p.amount, 0);
+              const totalAmount = data.auto_confirmed.reduce((sum: number, p: any) => sum + p.amount, 0);
+              const updatedBalance = (currentUser.balance || 0) + totalAmount;
               const updatedUser = { ...currentUser, balance: updatedBalance };
               setUser(updatedUser);
               localStorage.setItem('user', JSON.stringify(updatedUser));
+              
+              if (totalAmount > 0) {
+                if (Notification.permission === 'granted') {
+                  new Notification('💰 Баланс пополнен!', {
+                    body: `Зачислено ${totalAmount.toFixed(2)} USDT`,
+                    icon: '/favicon.ico'
+                  });
+                }
+                
+                const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5a');
+                audio.volume = 0.3;
+                audio.play().catch(() => {});
+              }
             }
           }
         } catch (error) {

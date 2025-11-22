@@ -202,6 +202,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     (int(user_id), float(payment['amount']), 'crypto_deposit', f"Пополнение через {payment['network']}")
                 )
                 
+                cur.execute(
+                    "INSERT INTO notifications (user_id, type, title, message) VALUES (%s, %s, %s, %s)",
+                    (int(user_id), 'payment', 'Баланс пополнен', f"Зачислено {float(payment['amount']):.2f} USDT")
+                )
+                
                 conn.commit()
                 
                 return {
@@ -265,6 +270,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         cur.execute(
                             "INSERT INTO transactions (user_id, amount, type, description) VALUES (%s, %s, %s, %s)",
                             (int(user_id), float(payment['amount']), 'crypto_deposit', f"Автоматическое зачисление USDT {payment['network']}")
+                        )
+                        
+                        cur.execute(
+                            "INSERT INTO notifications (user_id, type, title, message) VALUES (%s, %s, %s, %s)",
+                            (int(user_id), 'payment', 'Баланс пополнен', f"Зачислено {float(payment['amount']):.2f} USDT")
                         )
                         
                         auto_confirmed.append({
