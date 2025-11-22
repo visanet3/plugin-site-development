@@ -441,6 +441,15 @@ const Index = () => {
       const response = await fetch(`${FORUM_URL}?topic_id=${topic.id}`);
       const data = await response.json();
       setTopicComments(data.comments || []);
+      
+      if (data.topic) {
+        const updatedTopic = { ...topic, views: data.topic.views };
+        setSelectedTopic(updatedTopic);
+        
+        setForumTopics(prevTopics => 
+          prevTopics.map(t => t.id === topic.id ? updatedTopic : t)
+        );
+      }
     } catch (error) {
       console.error('Ошибка загрузки комментариев:', error);
     }
