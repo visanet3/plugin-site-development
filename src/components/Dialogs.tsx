@@ -29,6 +29,7 @@ interface DialogsProps {
 }
 
 const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
+const PASSWORD_RESET_URL = 'https://functions.poehali.dev/d4973344-e5cd-411c-8957-4c1d4d0072ab';
 
 const Dialogs = ({
   authDialogOpen,
@@ -146,11 +147,11 @@ const Dialogs = ({
     }
 
     try {
-      const response = await fetch(AUTH_URL, {
+      const response = await fetch(PASSWORD_RESET_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          action: 'reset_password',
+          action: 'request_reset',
           email: resetEmail
         })
       });
@@ -159,9 +160,9 @@ const Dialogs = ({
 
       if (data.success) {
         toast({
-          title: 'Новый пароль создан',
-          description: data.message || `Новый пароль: ${data.new_password}`,
-          duration: 15000
+          title: 'Письмо отправлено',
+          description: 'Проверьте вашу почту. Мы отправили ссылку для сброса пароля.',
+          duration: 10000
         });
         setShowResetPassword(false);
         setResetEmail('');
@@ -184,14 +185,14 @@ const Dialogs = ({
   return (
     <>
       <Dialog open={authDialogOpen} onOpenChange={onAuthDialogChange}>
-        <DialogContent className="animate-scale-in">
+        <DialogContent className="animate-scale-in border-0">
           <DialogHeader>
-            <DialogTitle>{authMode === 'login' ? 'Вход' : 'Регистрация'}</DialogTitle>
+            <DialogTitle className="text-center text-2xl">{authMode === 'login' ? 'Добро пожаловать' : 'Регистрация'}</DialogTitle>
           </DialogHeader>
 
           {showResetPassword ? (
             <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">Введите email, указанный при регистрации. Мы отправим вам новый пароль.</p>
+              <p className="text-sm text-muted-foreground">Введите email, указанный при регистрации. Мы отправим вам ссылку для сброса пароля.</p>
               <div>
                 <label className="text-sm font-medium mb-1 block">Email</label>
                 <Input 
@@ -207,7 +208,8 @@ const Dialogs = ({
                   onClick={handleResetPassword}
                   className="flex-1 bg-primary hover:bg-primary/90"
                 >
-                  Отправить новый пароль
+                  <Icon name="Mail" size={16} className="mr-2" />
+                  Отправить ссылку
                 </Button>
                 <Button 
                   variant="outline"

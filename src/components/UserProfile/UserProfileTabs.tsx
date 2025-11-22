@@ -11,7 +11,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 
-const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
+const PASSWORD_RESET_URL = 'https://functions.poehali.dev/d4973344-e5cd-411c-8957-4c1d4d0072ab';
 
 interface UserProfileTabsProps {
   user: User;
@@ -43,14 +43,13 @@ export const UserProfileTabs = ({
   const handleResetPassword = async () => {
     setResetLoading(true);
     try {
-      const response = await fetch(AUTH_URL, {
+      const response = await fetch(PASSWORD_RESET_URL, {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json',
-          'X-User-Id': user.id.toString()
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          action: 'reset_password',
+          action: 'request_reset',
           email: user.email
         })
       });
@@ -59,9 +58,9 @@ export const UserProfileTabs = ({
 
       if (data.success) {
         toast({
-          title: 'Новый пароль создан',
-          description: data.message || `Новый пароль: ${data.new_password}. Сохраните его!`,
-          duration: 15000
+          title: 'Письмо отправлено',
+          description: `Ссылка для сброса пароля отправлена на ${user.email}`,
+          duration: 10000
         });
         setShowPasswordReset(false);
       } else {

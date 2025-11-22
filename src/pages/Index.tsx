@@ -255,33 +255,8 @@ const Index = () => {
     setShowMessagesPanel(true);
   };
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Dialogs
-          authDialogOpen={true}
-          authMode={authMode}
-          showTopicDialog={false}
-          showProfileDialog={false}
-          user={null}
-          newTopicTitle=""
-          newTopicContent=""
-          onAuthDialogChange={() => {}}
-          onAuthModeChange={setAuthMode}
-          onAuthSubmit={handleAuth}
-          onTopicDialogChange={() => {}}
-          onTopicTitleChange={() => {}}
-          onTopicContentChange={() => {}}
-          onCreateTopic={() => {}}
-          onProfileDialogChange={() => {}}
-          onUpdateProfile={() => {}}
-        />
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-background text-foreground flex" onClick={() => setShowSearchResults(false)}>
+    <div className="min-h-screen bg-background text-foreground flex relative" onClick={() => setShowSearchResults(false)}>
       {showAdminPanel && user?.role === 'admin' ? (
         <AdminPanel currentUser={user} onClose={() => setShowAdminPanel(false)} />
       ) : (
@@ -424,6 +399,34 @@ const Index = () => {
           />
         </>
       )}
+        </>
+      )}
+
+      {!user && (
+        <>
+          <div className="fixed inset-0 backdrop-blur-md bg-background/30 z-40 pointer-events-none" />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="bg-background/95 backdrop-blur-xl border-2 border-primary/50 rounded-2xl shadow-2xl max-w-md w-full animate-scale-in">
+              <Dialogs
+                authDialogOpen={true}
+                authMode={authMode}
+                showTopicDialog={false}
+                showProfileDialog={false}
+                user={null}
+                newTopicTitle=""
+                newTopicContent=""
+                onAuthDialogChange={() => {}}
+                onAuthModeChange={setAuthMode}
+                onAuthSubmit={handleAuth}
+                onTopicDialogChange={() => {}}
+                onTopicTitleChange={() => {}}
+                onTopicContentChange={() => {}}
+                onCreateTopic={() => {}}
+                onProfileDialogChange={() => {}}
+                onUpdateProfile={() => {}}
+              />
+            </div>
+          </div>
         </>
       )}
     </div>

@@ -1,0 +1,25 @@
+{
+  "tests": [
+    {
+      "name": "Request password reset",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "request_reset",
+        "email": "test@example.com"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Validate reset token",
+      "method": "GET",
+      "path": "/?token=test123",
+      "expectedStatus": 404,
+      "bodyMatcher": "partial"
+    }
+  ]
+}
