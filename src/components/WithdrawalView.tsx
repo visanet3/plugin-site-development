@@ -380,7 +380,7 @@ export const WithdrawalView = ({ user, onShowAuthDialog, onRefreshUserBalance }:
             </div>
 
             <div>
-              <Label htmlFor="wallet">USDT кошелек (TRC20/ERC20)</Label>
+              <Label htmlFor="wallet">USDT кошелек (TRC20)</Label>
               <Input
                 id="wallet"
                 type="text"
