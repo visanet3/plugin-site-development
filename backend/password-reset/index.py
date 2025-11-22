@@ -3,7 +3,7 @@ Business: Обработка сброса пароля через email с то�
 Args: event - dict с httpMethod, body, queryStringParameters
       context - объект с атрибутами: request_id, function_name
 Returns: HTTP response dict
-Version: 1.5
+Version: 1.6
 '''
 
 import json
@@ -40,7 +40,7 @@ def send_email(to_email: str, subject: str, html_content: str, custom_smtp: dict
             smtp_host = os.environ.get('SMTP_HOST', 'smtp.yandex.ru')
             smtp_port = int(os.environ.get('SMTP_PORT', '587'))
             smtp_user = os.environ.get('SMTP_USER', 'gitcrypto@yandex.ru')
-            smtp_password = os.environ.get('SMTP_PASSWORD', 'tlqhmdgkgwjhbnxc')
+            smtp_password = os.environ.get('SMTP_PASSWORD', 'tznbcenxhgpapbsi')
             from_email = os.environ.get('FROM_EMAIL', smtp_user)
         
         print(f'SMTP config: host={smtp_host}, port={smtp_port}, user={smtp_user}, from={from_email}')
