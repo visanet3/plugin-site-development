@@ -3,7 +3,7 @@ Business: Обработка сброса пароля через email с то�
 Args: event - dict с httpMethod, body, queryStringParameters
       context - объект с атрибутами: request_id, function_name
 Returns: HTTP response dict
-Version: 1.1
+Version: 1.2
 '''
 
 import json
