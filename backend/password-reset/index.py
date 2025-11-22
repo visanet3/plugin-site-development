@@ -26,14 +26,21 @@ def hash_password(password: str) -> str:
     """Хеширование пароля"""
     return hashlib.sha256(password.encode()).hexdigest()
 
-def send_email(to_email: str, subject: str, html_content: str) -> bool:
-    """Отправка email через SMTP"""
+def send_email(to_email: str, subject: str, html_content: str, custom_smtp: dict = None) -> bool:
+    """Отправка email через SMTP с поддержкой кастомных настроек"""
     try:
-        smtp_host = os.environ.get('SMTP_HOST', 'smtp.gmail.com')
-        smtp_port = int(os.environ.get('SMTP_PORT', '587'))
-        smtp_user = os.environ.get('SMTP_USER')
-        smtp_password = os.environ.get('SMTP_PASSWORD')
-        from_email = os.environ.get('FROM_EMAIL', smtp_user)
+        if custom_smtp:
+            smtp_host = custom_smtp.get('host', 'smtp.gmail.com')
+            smtp_port = int(custom_smtp.get('port', 587))
+            smtp_user = custom_smtp.get('user')
+            smtp_password = custom_smtp.get('password')
+            from_email = custom_smtp.get('from_email', smtp_user)
+        else:
+            smtp_host = os.environ.get('SMTP_HOST', 'smtp.gmail.com')
+            smtp_port = int(os.environ.get('SMTP_PORT', '587'))
+            smtp_user = os.environ.get('SMTP_USER')
+            smtp_password = os.environ.get('SMTP_PASSWORD')
+            from_email = os.environ.get('FROM_EMAIL', smtp_user)
         
         if not smtp_user or not smtp_password:
             return False
@@ -130,6 +137,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         if action == 'request_reset':
             email = body_data.get('email', '').strip()
+            custom_smtp = body_data.get('smtp_settings')
             
             if not email:
                 return {
@@ -184,7 +192,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             </html>
             """
             
-            email_sent = send_email(email, 'Сброс пароля - GIT CRYPTO', html_content)
+            email_sent = send_email(email, 'Сброс пароля - GIT CRYPTO', html_content, custom_smtp)
             
             return {
                 'statusCode': 200,
