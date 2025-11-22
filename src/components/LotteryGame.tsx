@@ -468,6 +468,7 @@ const LotteryGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: LotteryGa
           </p>
         </div>
         <Button
+          type="button"
           onClick={() => {
             setShowHistory(!showHistory);
             if (!showHistory) loadHistory();
@@ -575,6 +576,7 @@ const LotteryGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: LotteryGa
             )}
 
             <Button
+              type="button"
               onClick={buyTicket}
               className="w-full bg-gradient-to-r from-indigo-600 to-indigo-800 hover:from-indigo-700 hover:to-indigo-900 text-lg h-14"
               disabled={!user || isProcessing || availableTickets === 0 || isDrawing || isCompleted}
@@ -643,6 +645,7 @@ const LotteryGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: LotteryGa
               maxLength={500}
             />
             <Button
+              type="button"
               onClick={sendMessage}
               disabled={!user || isSendingMessage || !chatMessage.trim()}
               className="bg-indigo-600 hover:bg-indigo-700"
