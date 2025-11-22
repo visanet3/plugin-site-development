@@ -106,7 +106,7 @@ const MainContent = ({
                     по безопасному хранению и использованию цифровых активов.
                   </p>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                     <div className="bg-background/50 backdrop-blur-sm border border-green-800/20 rounded-xl p-4 hover:border-green-700/40 transition-colors">
                       <div className="flex items-center gap-3 mb-2">
                         <div className="w-10 h-10 bg-green-800/20 rounded-lg flex items-center justify-center">
@@ -116,6 +116,18 @@ const MainContent = ({
                       </div>
                       <p className="text-sm text-muted-foreground">
                         Делитесь опытом работы с USDT, задавайте вопросы и находите единомышленников
+                      </p>
+                    </div>
+
+                    <div className="bg-background/50 backdrop-blur-sm border border-green-800/20 rounded-xl p-4 hover:border-green-700/40 transition-colors">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-10 h-10 bg-green-800/20 rounded-lg flex items-center justify-center">
+                          <Icon name="ShieldCheck" size={20} className="text-green-400" />
+                        </div>
+                        <h3 className="font-semibold">Гарант-сервис</h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Наша платформа предоставляет услуги гарант-сервиса для безопасных сделок
                       </p>
                     </div>
 
