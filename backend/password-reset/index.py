@@ -42,7 +42,10 @@ def send_email(to_email: str, subject: str, html_content: str, custom_smtp: dict
             smtp_password = os.environ.get('SMTP_PASSWORD')
             from_email = os.environ.get('FROM_EMAIL', smtp_user)
         
+        print(f'SMTP config: host={smtp_host}, port={smtp_port}, user={smtp_user}, from={from_email}')
+        
         if not smtp_user or not smtp_password:
+            print('SMTP credentials missing!')
             return False
         
         msg = MIMEMultipart('alternative')
@@ -53,14 +56,20 @@ def send_email(to_email: str, subject: str, html_content: str, custom_smtp: dict
         html_part = MIMEText(html_content, 'html')
         msg.attach(html_part)
         
+        print(f'Connecting to SMTP server {smtp_host}:{smtp_port}...')
         with smtplib.SMTP(smtp_host, smtp_port) as server:
             server.starttls()
+            print('STARTTLS successful, logging in...')
             server.login(smtp_user, smtp_password)
+            print('Login successful, sending email...')
             server.send_message(msg)
+            print(f'Email sent successfully to {to_email}')
         
         return True
     except Exception as e:
-        print(f'Email error: {str(e)}')
+        print(f'Email error: {type(e).__name__}: {str(e)}')
+        import traceback
+        traceback.print_exc()
         return False
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
