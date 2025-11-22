@@ -11,6 +11,7 @@ interface MessagesPanelProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   userId: number;
+  initialRecipientId?: number | null;
 }
 
 interface Chat {
@@ -22,7 +23,7 @@ interface Chat {
   unreadCount: number;
 }
 
-const MessagesPanel = ({ open, onOpenChange, userId }: MessagesPanelProps) => {
+const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: MessagesPanelProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [chats, setChats] = useState<Chat[]>([]);
   const [selectedChat, setSelectedChat] = useState<number | null>(null);
@@ -36,8 +37,11 @@ const MessagesPanel = ({ open, onOpenChange, userId }: MessagesPanelProps) => {
   useEffect(() => {
     if (open) {
       fetchMessages();
+      if (initialRecipientId) {
+        setSelectedChat(initialRecipientId);
+      }
     }
-  }, [open]);
+  }, [open, initialRecipientId]);
 
   useEffect(() => {
     if (selectedChat && messages.length > 0) {

@@ -24,11 +24,13 @@ interface UserProfileDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   userId: number | null;
+  currentUserId?: number | null;
+  onSendMessage?: (recipientId: number) => void;
 }
 
 const ADMIN_URL = 'https://functions.poehali.dev/d4678b1c-2acd-40bb-b8c5-cefe8d14fad4';
 
-const UserProfileDialog = ({ open, onOpenChange, userId }: UserProfileDialogProps) => {
+const UserProfileDialog = ({ open, onOpenChange, userId, currentUserId, onSendMessage }: UserProfileDialogProps) => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -154,6 +156,19 @@ const UserProfileDialog = ({ open, onOpenChange, userId }: UserProfileDialogProp
                 <div className="text-sm text-muted-foreground">Комментариев</div>
               </div>
             </div>
+
+            {currentUserId && currentUserId !== profile.id && (
+              <Button
+                className="w-full gap-2"
+                onClick={() => {
+                  onOpenChange(false);
+                  onSendMessage?.(profile.id);
+                }}
+              >
+                <Icon name="Mail" size={18} />
+                Написать сообщение
+              </Button>
+            )}
 
             {(profile.vk_url || profile.telegram || profile.discord) && (
               <div className="space-y-2">

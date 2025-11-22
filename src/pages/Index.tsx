@@ -42,6 +42,7 @@ const Index = () => {
   const [showNotificationsPanel, setShowNotificationsPanel] = useState(false);
   const [notificationsUnread, setNotificationsUnread] = useState(0);
   const [messagesUnread, setMessagesUnread] = useState(0);
+  const [messageRecipientId, setMessageRecipientId] = useState<number | null>(null);
 
   useEffect(() => {
     if (activeView === 'plugins') {
@@ -367,6 +368,11 @@ const Index = () => {
     setShowUserProfile(true);
   };
 
+  const handleSendMessage = (recipientId: number) => {
+    setMessageRecipientId(recipientId);
+    setShowMessagesPanel(true);
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground flex" onClick={() => setShowSearchResults(false)}>
       {showAdminPanel && user?.role === 'admin' ? (
@@ -448,6 +454,8 @@ const Index = () => {
         open={showUserProfile}
         onOpenChange={setShowUserProfile}
         userId={selectedUserId}
+        currentUserId={user?.id}
+        onSendMessage={handleSendMessage}
       />
 
       {user && (
@@ -472,6 +480,7 @@ const Index = () => {
             onOpenChange={(open) => {
               setShowMessagesPanel(open);
               if (!open) {
+                setMessageRecipientId(null);
                 fetch(`${NOTIFICATIONS_URL}?action=messages`, {
                   headers: { 'X-User-Id': user.id.toString() }
                 }).then(res => res.json()).then(data => {
@@ -480,6 +489,7 @@ const Index = () => {
               }
             }}
             userId={user.id}
+            initialRecipientId={messageRecipientId}
           />
         </>
       )}
