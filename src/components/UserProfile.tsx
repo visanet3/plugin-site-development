@@ -77,7 +77,7 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance }: UserProfil
     }
   };
 
-  const quickAmounts = [100, 500, 1000, 5000];
+  const quickAmounts = [10, 50, 100, 500];
 
   return (
     <>
@@ -129,7 +129,7 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance }: UserProfil
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Баланс</p>
-                      <p className="text-3xl font-bold">{(user.balance || 0).toFixed(2)} ₽</p>
+                      <p className="text-3xl font-bold">{(user.balance || 0).toFixed(2)} USDT</p>
                     </div>
                   </div>
                   <Button 
@@ -141,7 +141,7 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance }: UserProfil
                   </Button>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Используйте баланс для покупки плагинов, премиум подписки и других услуг
+                  Используйте баланс в USDT для покупки плагинов, премиум подписки и других услуг
                 </p>
               </Card>
             )}
@@ -264,7 +264,7 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance }: UserProfil
                           <div className={`text-lg font-bold ${
                             transaction.amount > 0 ? 'text-green-400' : 'text-red-400'
                           }`}>
-                            {transaction.amount > 0 ? '+' : ''}{transaction.amount.toFixed(2)} ₽
+                            {transaction.amount > 0 ? '+' : ''}{transaction.amount.toFixed(2)} USDT
                           </div>
                         </div>
                       </Card>
@@ -295,7 +295,7 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance }: UserProfil
                   onClick={() => setTopUpAmount(amount.toString())}
                   className="h-16 text-lg font-semibold"
                 >
-                  {amount} ₽
+                  {amount} USDT
                 </Button>
               ))}
             </div>
@@ -326,7 +326,7 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance }: UserProfil
               ) : (
                 <>
                   <Icon name="CreditCard" size={18} className="mr-2" />
-                  Пополнить на {topUpAmount || '0'} ₽
+                  Пополнить на {topUpAmount || '0'} USDT
                 </>
               )}
             </Button>
