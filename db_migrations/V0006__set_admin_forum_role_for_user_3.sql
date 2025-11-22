@@ -1,0 +1,1 @@
+UPDATE users SET forum_role = 'admin' WHERE id = 3;
