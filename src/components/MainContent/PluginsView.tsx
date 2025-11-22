@@ -45,25 +45,25 @@ export const PluginsView = ({
 
       {activeCategory === 'all' ? (
         <div className="max-w-4xl mx-auto space-y-8 animate-scale-in">
-          <div className="relative overflow-hidden bg-gradient-to-br from-green-800/20 via-green-900/10 to-background border border-green-800/30 rounded-2xl p-8 md:p-12">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/5 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-green-600/5 rounded-full blur-3xl"></div>
+          <div className="relative overflow-hidden bg-gradient-to-br from-green-800/20 via-teal-800/10 to-cyan-900/10 border border-green-500/30 rounded-2xl p-8 md:p-12 shadow-xl">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-green-500/10 to-cyan-500/10 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-teal-500/10 to-green-600/10 rounded-full blur-3xl"></div>
             
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-700 rounded-2xl flex items-center justify-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-green-500 via-teal-500 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg">
                   <Icon name="GitBranch" size={32} className="text-white" />
                 </div>
                 <div>
-                  <h1 className="text-4xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">
+                  <h1 className="text-4xl font-bold bg-gradient-to-r from-green-400 via-teal-400 to-cyan-500 bg-clip-text text-transparent">
                     GIT CRYPTO
                   </h1>
-                  <p className="text-muted-foreground">Криптовалютное сообщество</p>
+                  <p className="text-muted-foreground font-medium">Криптовалютное сообщество</p>
                 </div>
               </div>
 
               <p className="text-lg text-foreground/90 mb-6 leading-relaxed">
-                Добро пожаловать в <span className="text-green-400 font-semibold">GIT CRYPTO</span> — сообщество энтузиастов, 
+                Добро пожаловать в <span className="bg-gradient-to-r from-green-400 via-teal-400 to-cyan-500 bg-clip-text text-transparent font-bold">GIT CRYPTO</span> — сообщество энтузиастов, 
                 увлечённых миром стейблкоинов и криптовалют. Сообщество создано с целью изучения информационной 
                 безопасности в сфере криптовалют. Здесь мы обсуждаем всё, что связано с USDT: 
                 от технических аспектов работы с различными блокчейн-сетями до практических советов 

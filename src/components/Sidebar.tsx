@@ -33,7 +33,7 @@ const Sidebar = ({
       <div className={`p-4 w-64 transition-opacity duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}>
         <div className="flex items-center gap-3 mb-8">
           <GitCryptoLogo />
-          <span className="text-xl font-bold bg-gradient-to-r from-green-500 to-emerald-700 bg-clip-text text-transparent">GIT CRYPTO</span>
+          <span className="text-xl font-bold bg-gradient-to-r from-green-500 via-teal-500 to-cyan-600 bg-clip-text text-transparent tracking-wide">GIT CRYPTO</span>
         </div>
 
         <nav className="space-y-1">

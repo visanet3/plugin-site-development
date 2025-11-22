@@ -2,11 +2,11 @@ const GitCryptoLogo = () => {
   return (
     <div className="relative w-10 h-10 flex items-center justify-center">
       <div className="absolute inset-0 animate-pulse">
-        <div className="w-full h-full rounded-full bg-gradient-to-br from-green-500 to-emerald-700 opacity-30 blur-sm"></div>
+        <div className="w-full h-full rounded-full bg-gradient-to-br from-green-500 via-teal-500 to-cyan-600 opacity-30 blur-sm"></div>
       </div>
       
-      <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-700 flex items-center justify-center overflow-hidden group">
-        <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+      <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-green-500 via-teal-500 to-cyan-600 flex items-center justify-center overflow-hidden group shadow-lg">
+        <div className="absolute inset-0 bg-gradient-to-br from-green-400 via-teal-400 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
         
         <div className="relative z-10 flex flex-col items-center justify-center">
           <div className="git-crypto-fragments">
@@ -20,31 +20,40 @@ const GitCryptoLogo = () => {
               />
               
               {/* Git branch symbol + crypto elements */}
+              {/* Gradient definition */}
+              <defs>
+                <linearGradient id="gitGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#10b981" />
+                  <stop offset="50%" stopColor="#14b8a6" />
+                  <stop offset="100%" stopColor="#06b6d4" />
+                </linearGradient>
+              </defs>
+              
               <g className="fragment-symbol">
                 {/* Main vertical line */}
                 <path 
                   d="M12 7V17" 
-                  stroke="#26a17b" 
-                  strokeWidth="1.5" 
+                  stroke="url(#gitGradient)" 
+                  strokeWidth="1.8" 
                   strokeLinecap="round"
                 />
                 {/* Branch circles */}
-                <circle cx="12" cy="8" r="1.5" fill="#26a17b" className="pulse-circle"/>
-                <circle cx="12" cy="16" r="1.5" fill="#26a17b" className="pulse-circle"/>
+                <circle cx="12" cy="8" r="1.8" fill="url(#gitGradient)" className="pulse-circle"/>
+                <circle cx="12" cy="16" r="1.8" fill="url(#gitGradient)" className="pulse-circle"/>
                 {/* Side branch */}
                 <path 
                   d="M12 12L15 12" 
-                  stroke="#26a17b" 
-                  strokeWidth="1.5" 
+                  stroke="url(#gitGradient)" 
+                  strokeWidth="1.8" 
                   strokeLinecap="round"
                 />
-                <circle cx="15" cy="12" r="1.2" fill="#26a17b" className="pulse-circle"/>
+                <circle cx="15" cy="12" r="1.5" fill="url(#gitGradient)" className="pulse-circle"/>
                 {/* Dollar sign overlay */}
                 <text 
-                  x="8.5" 
+                  x="8" 
                   y="13.5" 
-                  fontSize="6" 
-                  fill="#26a17b" 
+                  fontSize="7" 
+                  fill="url(#gitGradient)" 
                   fontWeight="bold"
                   className="dollar-sign"
                 >
