@@ -125,9 +125,6 @@ const LotteryGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: LotteryGa
   }, [currentRound]);
 
   useEffect(() => {
-    if (chatMessages.length > prevChatLength && prevChatLength > 0) {
-      chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
     setPrevChatLength(chatMessages.length);
   }, [chatMessages]);
 
