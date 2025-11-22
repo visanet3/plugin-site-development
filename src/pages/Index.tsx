@@ -22,8 +22,12 @@ const Index = () => {
   const { toast } = useToast();
   const [plugins, setPlugins] = useState<Plugin[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [activeCategory, setActiveCategory] = useState<string>('all');
-  const [activeView, setActiveView] = useState<'plugins' | 'forum'>('plugins');
+  const [activeCategory, setActiveCategory] = useState<string>(() => {
+    return localStorage.getItem('activeCategory') || 'all';
+  });
+  const [activeView, setActiveView] = useState<'plugins' | 'forum'>(() => {
+    return (localStorage.getItem('activeView') as 'plugins' | 'forum') || 'plugins';
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
@@ -214,8 +218,11 @@ const Index = () => {
 
   const handleCategoryChange = (category: string, view: 'plugins' | 'forum') => {
     setActiveView(view);
+    localStorage.setItem('activeView', view);
     if (view === 'plugins') {
-      setActiveCategory(category === 'categories' ? 'all' : category);
+      const finalCategory = category === 'categories' ? 'all' : category;
+      setActiveCategory(finalCategory);
+      localStorage.setItem('activeCategory', finalCategory);
     }
     setSelectedTopic(null);
   };
