@@ -205,6 +205,33 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 new_comment = cur.fetchone()
                 
+                cur.execute("""
+                    SELECT author_id FROM forum_topics WHERE id = %s
+                """, (topic_id,))
+                topic_result = cur.fetchone()
+                
+                if topic_result and topic_result['author_id'] != int(user_id):
+                    cur.execute("""
+                        SELECT username FROM users WHERE id = %s
+                    """, (user_id,))
+                    commenter = cur.fetchone()
+                    
+                    cur.execute("""
+                        SELECT title FROM forum_topics WHERE id = %s
+                    """, (topic_id,))
+                    topic_data = cur.fetchone()
+                    
+                    if commenter and topic_data:
+                        cur.execute("""
+                            INSERT INTO notifications (user_id, type, title, message, link)
+                            VALUES (%s, 'comment', %s, %s, %s)
+                        """, (
+                            topic_result['author_id'],
+                            'Новый комментарий',
+                            f'{commenter["username"]} оставил комментарий в теме "{topic_data["title"]}"',
+                            f'/forum/topic/{topic_id}'
+                        ))
+                
                 cur.execute("UPDATE forum_topics SET updated_at = CURRENT_TIMESTAMP WHERE id = %s", (topic_id,))
                 conn.commit()
                 

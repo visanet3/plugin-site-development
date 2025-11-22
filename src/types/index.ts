@@ -62,3 +62,26 @@ export interface SearchResult {
   title: string;
   description?: string;
 }
+
+export interface Notification {
+  id: number;
+  type: string;
+  title: string;
+  message: string;
+  link?: string;
+  is_read: boolean;
+  created_at: string;
+}
+
+export interface Message {
+  id: number;
+  from_user_id: number;
+  from_username: string;
+  from_avatar?: string;
+  to_user_id: number;
+  to_username: string;
+  subject: string;
+  content: string;
+  is_read: boolean;
+  created_at: string;
+}

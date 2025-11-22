@@ -1,5 +1,5 @@
 '''
-Business: Административные функции для управления пользователями и темами форума
+Business: Административные функции для управления пользователями, темами форума и профилями пользователей
 Args: event - dict с httpMethod, body, headers (X-User-Id для проверки прав)
       context - объект с атрибутами: request_id, function_name
 Returns: HTTP response dict с результатами операций или списком данных
@@ -102,6 +102,61 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'logs': [dict(l) for l in logs]}, default=str),
+                    'isBase64Encoded': False
+                }
+            
+            elif action == 'user_profile':
+                user_profile_id = params.get('user_id')
+                
+                if not user_profile_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'user_id required'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cur.execute("""
+                    SELECT 
+                        id, username, avatar_url, bio, 
+                        vk_url, telegram, discord, 
+                        forum_role, created_at, last_seen_at
+                    FROM users 
+                    WHERE id = %s AND is_blocked = FALSE
+                """, (user_profile_id,))
+                
+                user_profile = cur.fetchone()
+                
+                if not user_profile:
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Пользователь не найден'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cur.execute("""
+                    SELECT COUNT(*) as count
+                    FROM forum_topics
+                    WHERE author_id = %s AND removed_at IS NULL
+                """, (user_profile_id,))
+                topics_count = cur.fetchone()['count']
+                
+                cur.execute("""
+                    SELECT COUNT(*) as count
+                    FROM forum_comments
+                    WHERE author_id = %s AND removed_at IS NULL
+                """, (user_profile_id,))
+                comments_count = cur.fetchone()['count']
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'user': dict(user_profile),
+                        'topics_count': topics_count,
+                        'comments_count': comments_count
+                    }, default=str),
                     'isBase64Encoded': False
                 }
             

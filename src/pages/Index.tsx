@@ -5,12 +5,14 @@ import MainContent from '@/components/MainContent';
 import Dialogs from '@/components/Dialogs';
 import AdminPanel from '@/components/AdminPanel';
 import UserProfileDialog from '@/components/UserProfileDialog';
+import MessagesPanel from '@/components/MessagesPanel';
 import { Plugin, Category, User, ForumTopic, ForumComment, SearchResult } from '@/types';
 
 const BACKEND_URL = 'https://functions.poehali.dev/1e67c3bd-abb5-4647-aa02-57410816c1f0';
 const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
 const FORUM_URL = 'https://functions.poehali.dev/045d6571-633c-4239-ae69-8d76c933532c';
-const PROFILE_URL = 'https://functions.poehali.dev/74bcb5c3-ddb7-4f36-b172-909af29200f2';
+const ADMIN_URL = 'https://functions.poehali.dev/d4678b1c-2acd-40bb-b8c5-cefe8d14fad4';
+const NOTIFICATIONS_URL = 'https://functions.poehali.dev/6c968792-7d48-41a9-af0a-c92adb047acb';
 
 const Index = () => {
   const [plugins, setPlugins] = useState<Plugin[]>([]);
@@ -35,6 +37,8 @@ const Index = () => {
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showUserProfile, setShowUserProfile] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [showMessagesPanel, setShowMessagesPanel] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     if (activeView === 'plugins') {
@@ -61,10 +65,37 @@ const Index = () => {
         }).catch(() => {});
       };
 
+      const fetchUnreadCount = async () => {
+        try {
+          const [notifRes, msgRes] = await Promise.all([
+            fetch(`${NOTIFICATIONS_URL}?action=notifications`, {
+              headers: { 'X-User-Id': user.id.toString() }
+            }),
+            fetch(`${NOTIFICATIONS_URL}?action=messages`, {
+              headers: { 'X-User-Id': user.id.toString() }
+            })
+          ]);
+
+          if (notifRes.ok && msgRes.ok) {
+            const notifData = await notifRes.json();
+            const msgData = await msgRes.json();
+            setUnreadCount((notifData.unread_count || 0) + (msgData.unread_count || 0));
+          }
+        } catch (error) {
+          console.error('Failed to fetch unread count:', error);
+        }
+      };
+
       updateActivity();
-      const interval = setInterval(updateActivity, 2 * 60 * 1000);
+      fetchUnreadCount();
       
-      return () => clearInterval(interval);
+      const activityInterval = setInterval(updateActivity, 2 * 60 * 1000);
+      const unreadInterval = setInterval(fetchUnreadCount, 30 * 1000);
+      
+      return () => {
+        clearInterval(activityInterval);
+        clearInterval(unreadInterval);
+      };
     }
   }, [user]);
 
@@ -347,6 +378,8 @@ const Index = () => {
             onCategoryChange={handleCategoryChange}
             onShowProfileDialog={() => setShowProfileDialog(true)}
             onShowAdminPanel={() => setShowAdminPanel(true)}
+            onShowMessagesPanel={() => setShowMessagesPanel(true)}
+            unreadCount={unreadCount}
           />
 
       <div className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-0'}`}>
@@ -410,6 +443,39 @@ const Index = () => {
         onOpenChange={setShowUserProfile}
         userId={selectedUserId}
       />
+
+      {user && (
+        <MessagesPanel
+          open={showMessagesPanel}
+          onOpenChange={(open) => {
+            setShowMessagesPanel(open);
+            if (!open && user) {
+              const fetchUnreadCount = async () => {
+                try {
+                  const [notifRes, msgRes] = await Promise.all([
+                    fetch(`${NOTIFICATIONS_URL}?action=notifications`, {
+                      headers: { 'X-User-Id': user.id.toString() }
+                    }),
+                    fetch(`${NOTIFICATIONS_URL}?action=messages`, {
+                      headers: { 'X-User-Id': user.id.toString() }
+                    })
+                  ]);
+
+                  if (notifRes.ok && msgRes.ok) {
+                    const notifData = await notifRes.json();
+                    const msgData = await msgRes.json();
+                    setUnreadCount((notifData.unread_count || 0) + (msgData.unread_count || 0));
+                  }
+                } catch (error) {
+                  console.error('Failed to fetch unread count:', error);
+                }
+              };
+              fetchUnreadCount();
+            }
+          }}
+          userId={user.id}
+        />
+      )}
         </>
       )}
     </div>

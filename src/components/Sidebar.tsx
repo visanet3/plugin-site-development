@@ -11,6 +11,8 @@ interface SidebarProps {
   onCategoryChange: (category: string, view: 'plugins' | 'forum') => void;
   onShowProfileDialog: () => void;
   onShowAdminPanel?: () => void;
+  onShowMessagesPanel?: () => void;
+  unreadCount?: number;
 }
 
 const Sidebar = ({
@@ -22,6 +24,8 @@ const Sidebar = ({
   onCategoryChange,
   onShowProfileDialog,
   onShowAdminPanel,
+  onShowMessagesPanel,
+  unreadCount = 0,
 }: SidebarProps) => {
   return (
     <aside className={`fixed top-0 left-0 h-full bg-sidebar border-r border-sidebar-border transition-all duration-300 z-30 ${sidebarOpen ? 'w-64' : 'w-0 -translate-x-full'}`}>
@@ -56,8 +60,20 @@ const Sidebar = ({
           {user && (
             <>
               <button
+                onClick={onShowMessagesPanel}
+                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors hover:bg-sidebar-accent/50 mt-4 relative"
+              >
+                <Icon name="Mail" size={18} />
+                <span className="text-sm font-medium">Сообщения</span>
+                {unreadCount > 0 && (
+                  <span className="absolute right-4 px-1.5 py-0.5 text-xs bg-red-500 text-white rounded-full">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+              <button
                 onClick={onShowProfileDialog}
-                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors hover:bg-sidebar-accent/50 mt-4"
+                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors hover:bg-sidebar-accent/50"
               >
                 <Icon name="User" size={18} />
                 <span className="text-sm font-medium">Личный кабинет</span>
