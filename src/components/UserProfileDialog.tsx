@@ -15,6 +15,7 @@ interface UserProfile {
   discord?: string;
   forum_role?: string;
   created_at: string;
+  last_seen_at: string;
   topics_count: number;
   comments_count: number;
 }
@@ -62,6 +63,36 @@ const UserProfileDialog = ({ open, onOpenChange, userId }: UserProfileDialogProp
     });
   };
 
+  const getOnlineStatus = (lastSeenAt: string) => {
+    const lastSeen = new Date(lastSeenAt);
+    const now = new Date();
+    const diffMinutes = Math.floor((now.getTime() - lastSeen.getTime()) / (1000 * 60));
+
+    if (diffMinutes < 5) {
+      return { text: 'Онлайн', color: 'text-green-500', dot: 'bg-green-500' };
+    }
+
+    if (diffMinutes < 60) {
+      return { text: `Был(а) в сети ${diffMinutes} мин. назад`, color: 'text-muted-foreground', dot: 'bg-gray-400' };
+    }
+
+    const diffHours = Math.floor(diffMinutes / 60);
+    if (diffHours < 24) {
+      return { text: `Был(а) в сети ${diffHours} ч. назад`, color: 'text-muted-foreground', dot: 'bg-gray-400' };
+    }
+
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays === 1) {
+      return { text: 'Был(а) в сети вчера', color: 'text-muted-foreground', dot: 'bg-gray-400' };
+    }
+
+    if (diffDays < 7) {
+      return { text: `Был(а) в сети ${diffDays} дн. назад`, color: 'text-muted-foreground', dot: 'bg-gray-400' };
+    }
+
+    return { text: `Был(а) в сети ${formatDate(lastSeenAt)}`, color: 'text-muted-foreground', dot: 'bg-gray-400' };
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
@@ -88,6 +119,16 @@ const UserProfileDialog = ({ open, onOpenChange, userId }: UserProfileDialogProp
                   <h3 className="text-xl font-bold">{profile.username}</h3>
                   {profile.forum_role && <ForumRoleBadge role={profile.forum_role} />}
                 </div>
+
+                {profile.last_seen_at && (() => {
+                  const status = getOnlineStatus(profile.last_seen_at);
+                  return (
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className={`w-2 h-2 rounded-full ${status.dot}`} />
+                      <span className={`text-sm ${status.color}`}>{status.text}</span>
+                    </div>
+                  );
+                })()}
                 
                 {profile.bio && (
                   <p className="text-muted-foreground mb-3">{profile.bio}</p>

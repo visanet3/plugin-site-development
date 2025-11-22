@@ -49,6 +49,26 @@ const Index = () => {
   }, [activeCategory, activeView]);
 
   useEffect(() => {
+    if (user) {
+      const updateActivity = () => {
+        fetch(AUTH_URL, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-User-Id': user.id.toString()
+          },
+          body: JSON.stringify({ action: 'update_activity' })
+        }).catch(() => {});
+      };
+
+      updateActivity();
+      const interval = setInterval(updateActivity, 2 * 60 * 1000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [user]);
+
+  useEffect(() => {
     if (searchQuery.trim()) {
       handleSearch();
     } else {

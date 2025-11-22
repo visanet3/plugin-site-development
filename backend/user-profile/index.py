@@ -59,7 +59,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             SELECT 
                 id, username, avatar_url, bio, 
                 vk_url, telegram, discord, 
-                forum_role, created_at
+                forum_role, created_at, last_seen_at
             FROM users 
             WHERE id = %s AND is_blocked = FALSE
         """, (user_id,))

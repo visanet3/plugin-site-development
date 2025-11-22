@@ -145,6 +145,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
+            cur.execute("UPDATE users SET last_seen_at = CURRENT_TIMESTAMP WHERE id = %s", (user['id'],))
+            conn.commit()
+            
             token = generate_token()
             
             return {
@@ -155,6 +158,28 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'token': token,
                     'user': dict(user)
                 }, default=str),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'update_activity':
+            headers = event.get('headers', {})
+            user_id = headers.get('X-User-Id') or headers.get('x-user-id')
+            
+            if not user_id:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Требуется авторизация'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute("UPDATE users SET last_seen_at = CURRENT_TIMESTAMP WHERE id = %s", (user_id,))
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True}),
                 'isBase64Encoded': False
             }
         
