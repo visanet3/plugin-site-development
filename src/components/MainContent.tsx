@@ -63,10 +63,10 @@ const MainContent = ({
   };
 
   return (
-    <main className="p-6">
+    <main className="p-6 animate-fade-in">
       {activeView === 'plugins' ? (
         <>
-          <div className="mb-6">
+          <div className="mb-6 animate-slide-up">
             <h1 className="text-3xl font-bold mb-2">
               {activeCategory === 'all' ? 'Все разделы' : 
                activeCategory === 'new' ? 'Новинки' : 
@@ -79,9 +79,9 @@ const MainContent = ({
           </div>
 
           {activeCategory === 'all' ? (
-            <div className="flex items-center justify-center min-h-[400px]">
+            <div className="flex items-center justify-center min-h-[400px] animate-scale-in">
               <div className="text-center">
-                <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-scale-in">
                   <Icon name="Layers" size={40} className="text-white" />
                 </div>
                 <h2 className="text-2xl font-bold mb-2">Добро пожаловать!</h2>
@@ -90,10 +90,11 @@ const MainContent = ({
             </div>
           ) : (
             <div className="space-y-3">
-              {sortPlugins('newest').map((plugin) => (
+              {sortPlugins('newest').map((plugin, index) => (
             <div
               key={plugin.id}
-              className="bg-card border border-border rounded-xl p-4 hover:border-primary/50 transition-all cursor-pointer group"
+              className="bg-card border border-border rounded-xl p-4 hover:border-primary/50 transition-all cursor-pointer group animate-slide-up"
+              style={{ animationDelay: `${index * 0.05}s` }}
             >
               <div className="flex items-start gap-4">
                 <div 
@@ -158,12 +159,12 @@ const MainContent = ({
         </>
       ) : selectedTopic ? (
         <>
-          <div className="mb-6">
+          <div className="mb-6 animate-slide-up">
             <Button variant="ghost" onClick={onBackToTopics} className="mb-4">
               <Icon name="ArrowLeft" size={18} className="mr-2" />
               Назад к темам
             </Button>
-            <div className="bg-card border border-border rounded-xl p-6">
+            <div className="bg-card border border-border rounded-xl p-6 animate-scale-in">
               <div className="flex items-start gap-4 mb-6">
                 <div className="relative">
                   <Avatar 
@@ -218,8 +219,8 @@ const MainContent = ({
               </div>
             )}
 
-            {topicComments.map((comment) => (
-              <div key={comment.id} className="bg-card border border-border rounded-xl p-4">
+            {topicComments.map((comment, index) => (
+              <div key={comment.id} className="bg-card border border-border rounded-xl p-4 animate-slide-up" style={{ animationDelay: `${index * 0.05}s` }}
                 <div className="flex items-start gap-3">
                   <div className="relative">
                     <Avatar 
@@ -252,7 +253,7 @@ const MainContent = ({
         </>
       ) : (
         <>
-          <div className="mb-6">
+          <div className="mb-6 animate-slide-up">
             <h1 className="text-3xl font-bold mb-2">Форум</h1>
             <p className="text-muted-foreground">
               {forumTopics.length} {forumTopics.length === 1 ? 'тема' : 'тем'}
@@ -278,10 +279,11 @@ const MainContent = ({
           </div>
 
           <div className="space-y-3">
-            {forumTopics.map((topic) => (
+            {forumTopics.map((topic, index) => (
               <div
                 key={topic.id}
-                className="bg-card border border-border rounded-xl p-4 hover:border-primary/50 transition-all cursor-pointer group"
+                className="bg-card border border-border rounded-xl p-4 hover:border-primary/50 transition-all cursor-pointer group animate-slide-up"
+                style={{ animationDelay: `${index * 0.05}s` }}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-3 flex-1" onClick={() => onTopicSelect(topic)}>

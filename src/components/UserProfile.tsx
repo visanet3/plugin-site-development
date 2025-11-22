@@ -210,8 +210,8 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
 
   return (
     <>
-      <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <Card className="w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-card border-border">
+      <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+        <Card className="w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-card border-border animate-scale-in">
           <div className="p-6 space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold">Личный кабинет</h2>

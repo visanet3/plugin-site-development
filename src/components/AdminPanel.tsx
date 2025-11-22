@@ -153,8 +153,8 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-background/95 z-50 overflow-auto">
-      <div className="container max-w-7xl mx-auto p-6">
+    <div className="fixed inset-0 bg-background/95 z-50 overflow-auto animate-fade-in">
+      <div className="container max-w-7xl mx-auto p-6 animate-slide-up">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <Icon name="Shield" size={28} className="text-primary" />

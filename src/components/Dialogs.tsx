@@ -113,7 +113,7 @@ const Dialogs = ({
   return (
     <>
       <Dialog open={authDialogOpen} onOpenChange={onAuthDialogChange}>
-        <DialogContent>
+        <DialogContent className="animate-scale-in">
           <DialogHeader>
             <DialogTitle>{authMode === 'login' ? 'Вход' : 'Регистрация'}</DialogTitle>
           </DialogHeader>
@@ -152,7 +152,7 @@ const Dialogs = ({
       </Dialog>
 
       <Dialog open={showTopicDialog} onOpenChange={onTopicDialogChange}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl animate-scale-in">
           <DialogHeader>
             <DialogTitle>Создать новую тему</DialogTitle>
           </DialogHeader>
