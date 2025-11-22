@@ -36,7 +36,6 @@ const Sidebar = ({
         <nav className="space-y-1">
           {[
             { icon: 'Home', label: 'Главная', id: 'all', view: 'plugins' },
-            { icon: 'Package', label: 'Плагины', id: 'plugins', view: 'plugins' },
             { icon: 'Grid3x3', label: 'Категории', id: 'categories', view: 'plugins' },
             { icon: 'Sparkles', label: 'Новинки', id: 'new', view: 'plugins' },
             { icon: 'TrendingUp', label: 'Популярное', id: 'popular', view: 'plugins' },
