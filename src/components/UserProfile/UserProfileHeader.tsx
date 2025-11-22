@@ -115,7 +115,7 @@ export const UserProfileHeader = ({
             </div>
           </div>
           <p className="text-sm text-muted-foreground">
-            Используйте баланс в USDT для покупки плагинов, премиум подписки и других услуг
+            Используйте баланс в USDT для покупки товаров
           </p>
         </Card>
       )}
