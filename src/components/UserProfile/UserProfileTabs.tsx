@@ -28,81 +28,11 @@ export const UserProfileTabs = ({
 }: UserProfileTabsProps) => {
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-      <TabsList className="grid w-full grid-cols-4">
+      <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="settings">Настройки</TabsTrigger>
-        <TabsTrigger value="overview">Обзор</TabsTrigger>
         <TabsTrigger value="transactions">Транзакции</TabsTrigger>
         <TabsTrigger value="withdrawal">Вывод</TabsTrigger>
       </TabsList>
-
-      <TabsContent value="overview" className="space-y-4 mt-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="p-4 bg-card/50 border-border hover:border-green-800/50 transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-green-800/20 flex items-center justify-center">
-                <Icon name="Download" size={20} className="text-green-700" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Загрузок</p>
-                <p className="text-xl font-bold">0</p>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-4 bg-card/50 border-border hover:border-green-800/50 transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-green-800/20 flex items-center justify-center">
-                <Icon name="MessageSquare" size={20} className="text-green-700" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Сообщений</p>
-                <p className="text-xl font-bold">0</p>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-4 bg-card/50 border-border hover:border-cyan-500/50 transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center">
-                <Icon name="Star" size={20} className="text-cyan-400" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Рейтинг</p>
-                <p className="text-xl font-bold">0</p>
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Социальные сети</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {user.vk_url && (
-              <a 
-                href={user.vk_url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg hover:bg-blue-500/20 transition-colors"
-              >
-                <Icon name="ExternalLink" size={20} className="text-blue-400" />
-                <span className="text-blue-400">ВКонтакте</span>
-              </a>
-            )}
-            {user.telegram && (
-              <div className="flex items-center gap-3 p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
-                <Icon name="MessageCircle" size={20} className="text-cyan-400" />
-                <span className="text-cyan-400">{user.telegram}</span>
-              </div>
-            )}
-            {user.discord && (
-              <div className="flex items-center gap-3 p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-lg">
-                <Icon name="Hash" size={20} className="text-indigo-400" />
-                <span className="text-indigo-400">{user.discord}</span>
-              </div>
-            )}
-          </div>
-        </div>
-      </TabsContent>
 
       <TabsContent value="transactions" className="space-y-4 mt-4">
         {transactionsLoading ? (
