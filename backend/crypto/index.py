@@ -242,6 +242,57 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             headers = event.get('headers', {})
             user_id = headers.get('X-User-Id') or headers.get('x-user-id')
             
+            if action == 'all_deposits':
+                if not user_id:
+                    return {
+                        'statusCode': 401,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Требуется авторизация'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cur.execute("SELECT role FROM users WHERE id = %s", (int(user_id),))
+                user_role = cur.fetchone()
+                
+                if not user_role or user_role['role'] != 'admin':
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Access denied'}),
+                        'isBase64Encoded': False
+                    }
+                
+                status_filter = params.get('status', 'all')
+                
+                if status_filter == 'all':
+                    query = """
+                        SELECT cp.*, u.username, u.email
+                        FROM crypto_payments cp
+                        LEFT JOIN users u ON cp.user_id = u.id
+                        ORDER BY cp.created_at DESC
+                        LIMIT 100
+                    """
+                    cur.execute(query)
+                else:
+                    query = """
+                        SELECT cp.*, u.username, u.email
+                        FROM crypto_payments cp
+                        LEFT JOIN users u ON cp.user_id = u.id
+                        WHERE cp.status = %s
+                        ORDER BY cp.created_at DESC
+                        LIMIT 100
+                    """
+                    cur.execute(query, (status_filter,))
+                
+                deposits = cur.fetchall()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'deposits': [dict(d) for d in deposits]}, default=str),
+                    'isBase64Encoded': False
+                }
+            
             if action == 'check_pending':
                 if not user_id:
                     return {

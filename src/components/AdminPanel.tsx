@@ -8,6 +8,7 @@ import AdminBalanceDialog from '@/components/admin/AdminBalanceDialog';
 import AdminTopicEditDialog from '@/components/admin/AdminTopicEditDialog';
 import AdminDisputesTab from '@/components/admin/AdminDisputesTab';
 import AdminWithdrawalsTab from '@/components/admin/AdminWithdrawalsTab';
+import AdminDepositsTab from '@/components/admin/AdminDepositsTab';
 import { useToast } from '@/hooks/use-toast';
 
 interface AdminPanelProps {
@@ -20,6 +21,7 @@ const ADMIN_URL = 'https://functions.poehali.dev/d4678b1c-2acd-40bb-b8c5-cefe8d1
 const ESCROW_URL = 'https://functions.poehali.dev/82c75fbc-83e4-4448-9ff8-1c8ef9bbec09';
 const WITHDRAWAL_URL = 'https://functions.poehali.dev/09f16983-ec42-41fe-a7bd-695752ee11c5';
 const NOTIFICATIONS_URL = 'https://functions.poehali.dev/6c968792-7d48-41a9-af0a-c92adb047acb';
+const CRYPTO_URL = 'https://functions.poehali.dev/8caa3b76-72e5-42b5-9415-91d1f9b05210';
 
 const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
   const { toast } = useToast();
@@ -27,7 +29,8 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
   const [topics, setTopics] = useState<ForumTopic[]>([]);
   const [disputes, setDisputes] = useState<EscrowDeal[]>([]);
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'users' | 'topics' | 'disputes' | 'withdrawals'>('users');
+  const [deposits, setDeposits] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'users' | 'topics' | 'disputes' | 'deposits' | 'withdrawals'>('users');
   const [editingTopic, setEditingTopic] = useState<ForumTopic | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
@@ -48,6 +51,8 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
       fetchDisputes();
     } else if (activeTab === 'withdrawals') {
       fetchWithdrawals();
+    } else if (activeTab === 'deposits') {
+      fetchDeposits();
     }
     fetchAdminNotifications();
     
@@ -115,6 +120,18 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
       setWithdrawals(data.withdrawals || []);
     } catch (error) {
       console.error('Ошибка загрузки заявок на вывод:', error);
+    }
+  };
+
+  const fetchDeposits = async () => {
+    try {
+      const response = await fetch(`${CRYPTO_URL}?action=all_deposits&status=all`, {
+        headers: { 'X-User-Id': currentUser.id.toString() }
+      });
+      const data = await response.json();
+      setDeposits(data.deposits || []);
+    } catch (error) {
+      console.error('Ошибка загрузки пополнений:', error);
     }
   };
 
@@ -452,6 +469,16 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
               Споры гаранта
             </button>
             <button
+              onClick={() => setActiveTab('deposits')}
+              className={`px-6 py-2 rounded-lg transition-all ${
+                activeTab === 'deposits'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Ввод
+            </button>
+            <button
               onClick={() => setActiveTab('withdrawals')}
               className={`px-6 py-2 rounded-lg transition-all ${
                 activeTab === 'withdrawals'
@@ -459,7 +486,7 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              Выводы
+              Вывод
             </button>
           </div>
           {activeTab === 'users' && (
@@ -496,6 +523,14 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
             disputes={disputes}
             currentUser={currentUser}
             onUpdate={fetchDisputes}
+          />
+        )}
+
+        {activeTab === 'deposits' && (
+          <AdminDepositsTab
+            deposits={deposits}
+            currentUser={currentUser}
+            onUpdate={fetchDeposits}
           />
         )}
 
