@@ -23,6 +23,7 @@ interface MainContentProps {
   onCommentChange: (comment: string) => void;
   onCreateComment: () => void;
   onUserClick: (userId: number) => void;
+  onNavigateToForum?: () => void;
 }
 
 const MainContent = ({
@@ -41,6 +42,7 @@ const MainContent = ({
   onCommentChange,
   onCreateComment,
   onUserClick,
+  onNavigateToForum,
 }: MainContentProps) => {
   const filteredPlugins = plugins.filter(p => 
     activeCategory === 'all' || p.category_name === categories.find(c => c.slug === activeCategory)?.name
@@ -186,7 +188,10 @@ const MainContent = ({
                   Перейдите в раздел <span className="text-green-400 font-medium">Форум</span> в боковом меню, 
                   чтобы присоединиться к обсуждениям, задать вопросы или поделиться своим опытом работы с USDT и другими криптовалютами.
                 </p>
-                <Button className="bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800">
+                <Button 
+                  onClick={onNavigateToForum}
+                  className="bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800"
+                >
                   <Icon name="MessageSquare" size={18} className="mr-2" />
                   Перейти к форуму
                 </Button>

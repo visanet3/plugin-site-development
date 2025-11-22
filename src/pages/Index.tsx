@@ -495,6 +495,7 @@ const Index = () => {
           onCommentChange={setNewComment}
           onCreateComment={handleCreateComment}
           onUserClick={handleUserClick}
+          onNavigateToForum={() => setActiveView('forum')}
         />
       </div>
 
