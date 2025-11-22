@@ -3,11 +3,12 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 import ForumRoleBadge from '@/components/ForumRoleBadge';
 
 const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
@@ -18,9 +19,10 @@ interface UserProfileProps {
   isOwnProfile: boolean;
   onClose: () => void;
   onTopUpBalance?: (amount: number) => Promise<void>;
+  onUpdateProfile?: (profileData: Partial<User>) => void;
 }
 
-const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance }: UserProfileProps) => {
+const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProfile }: UserProfileProps) => {
   const [showTopUpDialog, setShowTopUpDialog] = useState(false);
   const [topUpAmount, setTopUpAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -30,6 +32,9 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance }: UserProfil
   const [showCryptoDialog, setShowCryptoDialog] = useState(false);
   const [cryptoPayment, setCryptoPayment] = useState<any>(null);
   const [paymentNetwork, setPaymentNetwork] = useState('TRC20');
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOwnProfile && activeTab === 'transactions') {
@@ -140,6 +145,67 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance }: UserProfil
     alert('Скопировано!');
   };
 
+  const handleAvatarSelect = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Выберите изображение');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Размер файла не должен превышать 5 МБ');
+      return;
+    }
+
+    setAvatarUploading(true);
+
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64 = reader.result as string;
+        setAvatarPreview(base64);
+
+        const response = await fetch(AUTH_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Id': user.id.toString()
+          },
+          body: JSON.stringify({
+            action: 'upload_avatar',
+            image: base64
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success && onUpdateProfile) {
+          onUpdateProfile({ avatar_url: data.avatar_url });
+          const updatedUser = { ...user, avatar_url: data.avatar_url };
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+          alert('Аватар обновлен!');
+        } else {
+          alert(data.error || 'Ошибка загрузки');
+          setAvatarPreview(null);
+        }
+
+        setAvatarUploading(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Ошибка загрузки аватара:', error);
+      alert('Ошибка загрузки');
+      setAvatarUploading(false);
+      setAvatarPreview(null);
+    }
+  };
+
   const quickAmounts = [10, 50, 100, 500];
 
   return (
@@ -154,13 +220,32 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance }: UserProfil
               </Button>
             </div>
 
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+
             <div className="flex items-start gap-6">
-              <Avatar className="w-24 h-24">
-                <AvatarImage src={user.avatar_url} />
-                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white text-3xl font-bold">
-                  {user.username[0].toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+              <div className="relative group cursor-pointer" onClick={isOwnProfile ? handleAvatarSelect : undefined}>
+                <Avatar className="w-24 h-24">
+                  <AvatarImage src={avatarPreview || user.avatar_url} />
+                  <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white text-3xl font-bold">
+                    {user.username[0].toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                {isOwnProfile && (
+                  <div className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    {avatarUploading ? (
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                    ) : (
+                      <Icon name="Camera" size={28} className="text-white" />
+                    )}
+                  </div>
+                )}
+              </div>
 
               <div className="flex-1 space-y-3">
                 <div>
@@ -210,9 +295,10 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance }: UserProfil
             )}
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="overview">Обзор</TabsTrigger>
-                <TabsTrigger value="transactions">История транзакций</TabsTrigger>
+                <TabsTrigger value="transactions">Транзакции</TabsTrigger>
+                <TabsTrigger value="settings">Настройки</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="space-y-4 mt-4">
@@ -333,6 +419,63 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance }: UserProfil
                       </Card>
                     ))}
                   </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="settings" className="space-y-4 mt-4">
+                {isOwnProfile && onUpdateProfile && (
+                  <>
+                    <div>
+                      <Label className="text-sm font-medium mb-2 block">О себе</Label>
+                      <Textarea 
+                        defaultValue={user.bio || ''}
+                        onBlur={(e) => onUpdateProfile({ bio: e.target.value })}
+                        className="min-h-[100px]"
+                        placeholder="Расскажите о себе..."
+                      />
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <Label className="text-sm font-medium">Социальные сети</Label>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-xs text-muted-foreground mb-1 flex items-center gap-2">
+                            <Icon name="MessageCircle" size={14} />
+                            VK
+                          </Label>
+                          <Input 
+                            defaultValue={user.vk_url || ''}
+                            onBlur={(e) => onUpdateProfile({ vk_url: e.target.value })}
+                            placeholder="https://vk.com/..."
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label className="text-xs text-muted-foreground mb-1 flex items-center gap-2">
+                            <Icon name="Send" size={14} />
+                            Telegram
+                          </Label>
+                          <Input 
+                            defaultValue={user.telegram || ''}
+                            onBlur={(e) => onUpdateProfile({ telegram: e.target.value })}
+                            placeholder="@username"
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label className="text-xs text-muted-foreground mb-1 flex items-center gap-2">
+                            <Icon name="MessageSquare" size={14} />
+                            Discord
+                          </Label>
+                          <Input 
+                            defaultValue={user.discord || ''}
+                            onBlur={(e) => onUpdateProfile({ discord: e.target.value })}
+                            placeholder="username#1234"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </>
                 )}
               </TabsContent>
             </Tabs>

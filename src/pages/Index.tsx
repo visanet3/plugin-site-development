@@ -290,23 +290,9 @@ const Index = () => {
 
   const handleUpdateProfile = async (profileData: Partial<User>) => {
     if (!user) return;
-    try {
-      const response = await fetch(PROFILE_URL, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': user.id.toString()
-        },
-        body: JSON.stringify(profileData)
-      });
-      const data = await response.json();
-      if (data.success) {
-        setUser(data.user);
-        localStorage.setItem('user', JSON.stringify(data.user));
-      }
-    } catch (error) {
-      console.error('Ошибка обновления профиля:', error);
-    }
+    const updatedUser = { ...user, ...profileData };
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
   const handleTopUpBalance = async (amount: number) => {
@@ -532,6 +518,7 @@ const Index = () => {
           isOwnProfile={true}
           onClose={() => setShowUserProfile(false)}
           onTopUpBalance={handleTopUpBalance}
+          onUpdateProfile={handleUpdateProfile}
         />
       ) : (
         <UserProfileDialog
