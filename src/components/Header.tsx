@@ -114,7 +114,7 @@ const Header = ({
                 >
                   <div className="text-right">
                     <p className="text-sm font-medium">{user.username}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-emerald-500">
                       {(user.balance || 0).toFixed(2)} USDT
                     </p>
                   </div>
