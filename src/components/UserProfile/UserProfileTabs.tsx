@@ -125,8 +125,9 @@ export const UserProfileTabs = ({
               };
 
               const { icon, color } = getTransactionIcon();
-              const isPositive = transaction.amount > 0;
-              const isNeutral = transaction.amount === 0;
+              const amount = Number(transaction.amount);
+              const isPositive = amount > 0;
+              const isNeutral = amount === 0;
 
               return (
                 <Card key={transaction.id} className="p-4 hover:bg-accent/50 transition-colors">
@@ -166,7 +167,7 @@ export const UserProfileTabs = ({
                       isNeutral ? 'text-muted-foreground' :
                       isPositive ? 'text-green-400' : 'text-red-400'
                     }`}>
-                      {!isNeutral && (isPositive ? '+' : '')}{transaction.amount.toFixed(2)} USDT
+                      {!isNeutral && (isPositive ? '+' : '')}{amount.toFixed(2)} USDT
                     </div>
                   </div>
                 </Card>
