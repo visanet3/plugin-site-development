@@ -44,6 +44,7 @@ export interface ForumTopic {
   author_name: string;
   author_avatar?: string;
   author_forum_role?: string;
+  author_last_seen?: string;
   comments_count: number;
 }
 
@@ -55,6 +56,7 @@ export interface ForumComment {
   author_name: string;
   author_avatar: string | null;
   author_forum_role?: string;
+  author_last_seen?: string;
 }
 
 export interface SearchResult {

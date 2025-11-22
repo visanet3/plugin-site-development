@@ -46,6 +46,14 @@ const MainContent = ({
     activeCategory === 'all' || p.category_name === categories.find(c => c.slug === activeCategory)?.name
   );
 
+  const isUserOnline = (lastSeenAt?: string) => {
+    if (!lastSeenAt) return false;
+    const lastSeen = new Date(lastSeenAt);
+    const now = new Date();
+    const diffMinutes = Math.floor((now.getTime() - lastSeen.getTime()) / (1000 * 60));
+    return diffMinutes < 5;
+  };
+
   const sortPlugins = (sortBy: string) => {
     const sorted = [...filteredPlugins];
     if (sortBy === 'newest') sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
@@ -157,15 +165,20 @@ const MainContent = ({
             </Button>
             <div className="bg-card border border-border rounded-xl p-6">
               <div className="flex items-start gap-4 mb-6">
-                <Avatar 
-                  className="w-12 h-12 cursor-pointer hover:scale-110 transition-transform"
-                  onClick={() => selectedTopic.author_id && onUserClick(selectedTopic.author_id)}
-                >
-                  <AvatarImage src={selectedTopic.author_avatar} />
-                  <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white text-lg font-bold">
-                    {selectedTopic.author_name[0].toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+                <div className="relative">
+                  <Avatar 
+                    className="w-12 h-12 cursor-pointer hover:scale-110 transition-transform"
+                    onClick={() => selectedTopic.author_id && onUserClick(selectedTopic.author_id)}
+                  >
+                    <AvatarImage src={selectedTopic.author_avatar} />
+                    <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white text-lg font-bold">
+                      {selectedTopic.author_name[0].toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  {isUserOnline(selectedTopic.author_last_seen) && (
+                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-background"></div>
+                  )}
+                </div>
                 <div className="flex-1">
                   <h1 className="text-2xl font-bold mb-2">{selectedTopic.title}</h1>
                   <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
@@ -208,15 +221,20 @@ const MainContent = ({
             {topicComments.map((comment) => (
               <div key={comment.id} className="bg-card border border-border rounded-xl p-4">
                 <div className="flex items-start gap-3">
-                  <Avatar 
-                    className="w-10 h-10 cursor-pointer hover:scale-110 transition-transform"
-                    onClick={() => onUserClick(comment.author_id)}
-                  >
-                    <AvatarImage src={comment.author_avatar} />
-                    <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-blue-500 text-white text-sm font-bold">
-                      {comment.author_name[0].toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="relative">
+                    <Avatar 
+                      className="w-10 h-10 cursor-pointer hover:scale-110 transition-transform"
+                      onClick={() => onUserClick(comment.author_id)}
+                    >
+                      <AvatarImage src={comment.author_avatar} />
+                      <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-blue-500 text-white text-sm font-bold">
+                        {comment.author_name[0].toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    {isUserOnline(comment.author_last_seen) && (
+                      <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-background"></div>
+                    )}
+                  </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
                       <button onClick={() => onUserClick(comment.author_id)} className="font-semibold hover:text-primary transition-colors">{comment.author_name}</button>
@@ -267,18 +285,23 @@ const MainContent = ({
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-3 flex-1" onClick={() => onTopicSelect(topic)}>
-                    <Avatar 
-                      className="w-10 h-10 hover:scale-110 transition-transform"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        topic.author_id && onUserClick(topic.author_id);
-                      }}
-                    >
-                      <AvatarImage src={topic.author_avatar} />
-                      <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white text-sm font-bold">
-                        {topic.author_name[0].toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
+                    <div className="relative">
+                      <Avatar 
+                        className="w-10 h-10 hover:scale-110 transition-transform"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          topic.author_id && onUserClick(topic.author_id);
+                        }}
+                      >
+                        <AvatarImage src={topic.author_avatar} />
+                        <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white text-sm font-bold">
+                          {topic.author_name[0].toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      {isUserOnline(topic.author_last_seen) && (
+                        <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-background"></div>
+                      )}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         {topic.is_pinned && (
