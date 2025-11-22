@@ -78,8 +78,14 @@ const UserProfileDialog = ({ open, onOpenChange, userId, currentUserId, onSendMe
 
   const getOnlineStatus = (lastSeenAt: string) => {
     const lastSeen = new Date(lastSeenAt);
+    
+    if (isNaN(lastSeen.getTime())) {
+      return { text: 'Был(а) давно', color: 'text-muted-foreground', dot: 'bg-gray-400' };
+    }
+    
     const now = new Date();
-    const diffMinutes = Math.floor((now.getTime() - lastSeen.getTime()) / (1000 * 60));
+    const diffMs = now.getTime() - lastSeen.getTime();
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
 
     if (diffMinutes < 5) {
       return { text: 'Онлайн', color: 'text-green-500', dot: 'bg-green-500' };

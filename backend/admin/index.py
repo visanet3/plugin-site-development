@@ -8,6 +8,7 @@ Returns: HTTP response dict с результатами операций или 
 import json
 import os
 from typing import Dict, Any, List
+from datetime import datetime, timezone
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
@@ -17,6 +18,14 @@ def get_db_connection():
     """Получить подключение к БД"""
     database_url = os.environ.get('DATABASE_URL')
     return psycopg2.connect(database_url, cursor_factory=RealDictCursor)
+
+def serialize_datetime(obj):
+    """Сериализация datetime объектов в ISO формат с UTC"""
+    if isinstance(obj, datetime):
+        if obj.tzinfo is None:
+            obj = obj.replace(tzinfo=timezone.utc)
+        return obj.isoformat()
+    return str(obj)
 
 def check_admin(user_id: str, cur) -> bool:
     """Проверка прав администратора"""
@@ -109,7 +118,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'user': dict(user_profile),
                         'topics_count': topics_count,
                         'comments_count': comments_count
-                    }, default=str),
+                    }, default=serialize_datetime),
                     'isBase64Encoded': False
                 }
             
@@ -141,7 +150,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'users': [dict(u) for u in users]}, default=str),
+                    'body': json.dumps({'users': [dict(u) for u in users]}, default=serialize_datetime),
                     'isBase64Encoded': False
                 }
             
@@ -158,7 +167,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'logs': [dict(l) for l in logs]}, default=str),
+                    'body': json.dumps({'logs': [dict(l) for l in logs]}, default=serialize_datetime),
                     'isBase64Encoded': False
                 }
             
