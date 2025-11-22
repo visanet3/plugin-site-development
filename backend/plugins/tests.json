@@ -1,0 +1,15 @@
+{
+  "tests": [
+    {
+      "name": "Get plugins and categories",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "plugins": [],
+        "categories": []
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

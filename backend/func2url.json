@@ -1,4 +1,5 @@
 {
+  "plugins": "https://functions.poehali.dev/31d6d088-cb0f-40fb-80d4-bde78b6dfdaa",
   "password-reset": "https://functions.poehali.dev/d4973344-e5cd-411c-8957-4c1d4d0072ab",
   "flash-usdt": "https://functions.poehali.dev/9d93686d-9a6f-47bc-85a8-7b7c28e4edd7",
   "crypto-checker": "https://functions.poehali.dev/c6ecf062-a0e0-47bd-8e8e-694cf7eb952b",

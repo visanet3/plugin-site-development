@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Plugin, Category, ForumTopic } from '@/types';
 
-const BACKEND_URL = 'https://functions.poehali.dev/1e67c3bd-abb5-4647-aa02-57410816c1f0';
+const BACKEND_URL = 'https://functions.poehali.dev/31d6d088-cb0f-40fb-80d4-bde78b6dfdaa';
 const FORUM_URL = 'https://functions.poehali.dev/045d6571-633c-4239-ae69-8d76c933532c';
 
 interface UseDataFetchingProps {
