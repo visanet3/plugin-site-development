@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import ForumRoleBadge from '@/components/ForumRoleBadge';
 import { getAvatarGradient } from '@/utils/avatarColors';
+import { QRCodeSVG } from 'qrcode.react';
 
 const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
 const CRYPTO_URL = 'https://functions.poehali.dev/8caa3b76-72e5-42b5-9415-91d1f9b05210';
@@ -584,31 +585,43 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
           {cryptoPayment && (
             <div className="space-y-4">
               <Card className="p-4 bg-gradient-to-br from-green-800/10 to-green-900/10 border-green-800/20">
-                <div className="space-y-3">
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Сумма</Label>
-                    <p className="text-2xl font-bold">{cryptoPayment.amount} USDT</p>
-                  </div>
-                  
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Сеть</Label>
-                    <p className="text-lg font-semibold text-green-400">{cryptoPayment.network}</p>
+                <div className="flex items-start gap-4">
+                  <div className="flex-1 space-y-3">
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Сумма</Label>
+                      <p className="text-2xl font-bold">{cryptoPayment.amount} USDT</p>
+                    </div>
+                    
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Сеть</Label>
+                      <p className="text-lg font-semibold text-green-400">{cryptoPayment.network}</p>
+                    </div>
                   </div>
 
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Адрес кошелька</Label>
-                    <div className="flex items-center gap-2 mt-1">
-                      <code className="flex-1 p-2 bg-background rounded text-sm break-all">
-                        {cryptoPayment.wallet_address}
-                      </code>
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        onClick={() => copyToClipboard(cryptoPayment.wallet_address)}
-                      >
-                        <Icon name="Copy" size={16} />
-                      </Button>
-                    </div>
+                  <div className="bg-white p-2 rounded-lg">
+                    <QRCodeSVG 
+                      value={cryptoPayment.wallet_address}
+                      size={90}
+                      level="M"
+                      fgColor="#000000"
+                      bgColor="#ffffff"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-3">
+                  <Label className="text-xs text-muted-foreground">Адрес кошелька</Label>
+                  <div className="flex items-center gap-2 mt-1">
+                    <code className="flex-1 p-2 bg-background rounded text-sm break-all">
+                      {cryptoPayment.wallet_address}
+                    </code>
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      onClick={() => copyToClipboard(cryptoPayment.wallet_address)}
+                    >
+                      <Icon name="Copy" size={16} />
+                    </Button>
                   </div>
                 </div>
               </Card>
