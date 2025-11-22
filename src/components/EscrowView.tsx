@@ -661,8 +661,9 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance 
       const data = await response.json();
       if (data.success) {
         toast({
-          title: 'Успешно',
-          description: 'Сделка завершена! Средства переведены продавцу.'
+          title: '🎉 Сделка успешно завершена!',
+          description: 'Средства переведены продавцу. Спасибо за использование гарант-сервиса!',
+          duration: 5000
         });
         await fetchDealDetails();
         onUpdate();
@@ -707,6 +708,22 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance 
         </DialogHeader>
 
         <div className="space-y-4">
+          {currentDeal.status === 'completed' && (
+            <Card className="p-4 bg-gradient-to-r from-green-800/20 to-green-900/10 border-green-800/30">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-green-800/30 flex items-center justify-center">
+                  <Icon name="CheckCircle2" size={24} className="text-green-400" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-green-400">Сделка успешно завершена!</h4>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {isSeller ? 'Средства зачислены на ваш баланс' : 'Товар получен, средства переведены продавцу'}
+                  </p>
+                </div>
+              </div>
+            </Card>
+          )}
+
           <div className="grid grid-cols-2 gap-4">
             <Card className="p-3">
               <p className="text-xs text-muted-foreground mb-1">Продавец</p>
