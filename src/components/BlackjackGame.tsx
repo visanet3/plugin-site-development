@@ -239,57 +239,87 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
         </p>
       </div>
 
-      <Card className="p-6 bg-gradient-to-br from-green-900/30 to-green-950/20 border-green-800/30">
-        <div className="space-y-6">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Дилер ({gameState === 'betting' || gameState === 'playing' ? '?' : dealerValue})</h3>
-              {dealerHand.length > 0 && gameState !== 'betting' && (
-                <div className="flex gap-2">
-                  {dealerHand.map((card, i) => (
-                    <div
-                      key={i}
-                      className={`w-16 h-24 bg-white rounded-lg flex flex-col items-center justify-center text-2xl font-bold shadow-lg ${
-                        gameState === 'playing' && i === 1 ? 'bg-gradient-to-br from-blue-600 to-blue-800 text-white' : card.suit === '♥' || card.suit === '♦' ? 'text-red-600' : 'text-black'
-                      }`}
-                    >
-                      {gameState === 'playing' && i === 1 ? (
-                        <Icon name="HelpCircle" size={32} />
-                      ) : (
-                        <>
-                          <span>{card.rank}</span>
-                          <span>{card.suit}</span>
-                        </>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
+      <Card className="p-8 bg-gradient-to-b from-green-950/40 via-green-900/30 to-green-950/40 border-green-800/30 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-green-800/5 via-transparent to-transparent"></div>
+        
+        <div className="relative space-y-8">
+          <div className="space-y-6 pb-6 border-b border-green-800/20">
+            <div className="flex items-center justify-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-800/30 to-green-900/20 border-2 border-green-800/40 flex items-center justify-center">
+                <Icon name="User" size={28} className="text-green-400" />
+              </div>
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-green-400">Дилер</h3>
+                <p className="text-sm text-muted-foreground">
+                  {gameState === 'betting' || gameState === 'playing' ? 'Очки: ?' : `Очки: ${dealerValue}`}
+                </p>
+              </div>
+            </div>
+            {dealerHand.length > 0 && gameState !== 'betting' && (
+              <div className="flex gap-3 justify-center perspective-1000">
+                {dealerHand.map((card, i) => (
+                  <div
+                    key={i}
+                    className={`w-20 h-28 bg-white rounded-xl flex flex-col items-center justify-center text-3xl font-bold shadow-2xl transform transition-all duration-300 hover:scale-105 ${
+                      gameState === 'playing' && i === 1 ? 'bg-gradient-to-br from-blue-600 to-blue-800 text-white' : card.suit === '♥' || card.suit === '♦' ? 'text-red-600' : 'text-black'
+                    }`}
+                    style={{ 
+                      transform: `rotateX(-5deg) rotateY(${i * 2 - dealerHand.length}deg)`,
+                      transformStyle: 'preserve-3d'
+                    }}
+                  >
+                    {gameState === 'playing' && i === 1 ? (
+                      <Icon name="HelpCircle" size={36} />
+                    ) : (
+                      <>
+                        <span>{card.rank}</span>
+                        <span className="text-2xl">{card.suit}</span>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="py-8 relative">
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-green-800/10 to-transparent rounded-2xl"></div>
+            <div className="relative h-32 bg-green-800/20 rounded-2xl border-4 border-green-800/30 flex items-center justify-center shadow-inner">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-green-700/5 to-transparent"></div>
+              <Icon name="Spade" size={64} className="text-green-800/30 relative z-10" />
+              <div className="absolute top-4 left-4 text-xs font-bold text-green-800/40">BLACKJACK</div>
+              <div className="absolute bottom-4 right-4 text-xs font-bold text-green-800/40">21</div>
             </div>
           </div>
 
-          <div className="h-24 bg-green-800/20 rounded-lg border-2 border-green-800/40 flex items-center justify-center">
-            <Icon name="Spade" size={48} className="text-green-800/40" />
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Игрок ({playerValue})</h3>
-              {playerHand.length > 0 && (
-                <div className="flex gap-2">
-                  {playerHand.map((card, i) => (
-                    <div
-                      key={i}
-                      className={`w-16 h-24 bg-white rounded-lg flex flex-col items-center justify-center text-2xl font-bold shadow-lg ${
-                        card.suit === '♥' || card.suit === '♦' ? 'text-red-600' : 'text-black'
-                      }`}
-                    >
-                      <span>{card.rank}</span>
-                      <span>{card.suit}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
+          <div className="space-y-6 pt-6 border-t border-green-800/20">
+            {playerHand.length > 0 && (
+              <div className="flex gap-3 justify-center perspective-1000">
+                {playerHand.map((card, i) => (
+                  <div
+                    key={i}
+                    className={`w-20 h-28 bg-white rounded-xl flex flex-col items-center justify-center text-3xl font-bold shadow-2xl transform transition-all duration-300 hover:scale-110 hover:-translate-y-2 ${
+                      card.suit === '♥' || card.suit === '♦' ? 'text-red-600' : 'text-black'
+                    }`}
+                    style={{ 
+                      transform: `rotateX(5deg) rotateY(${i * 2 - playerHand.length}deg)`,
+                      transformStyle: 'preserve-3d'
+                    }}
+                  >
+                    <span>{card.rank}</span>
+                    <span className="text-2xl">{card.suit}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="flex items-center justify-center gap-4">
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-cyan-400">Вы</h3>
+                <p className="text-sm text-muted-foreground">Очки: {playerValue}</p>
+              </div>
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500/30 to-cyan-600/20 border-2 border-cyan-500/40 flex items-center justify-center">
+                <Icon name="UserCircle2" size={28} className="text-cyan-400" />
+              </div>
             </div>
           </div>
 
