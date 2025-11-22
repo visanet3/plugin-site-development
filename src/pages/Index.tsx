@@ -259,6 +259,7 @@ const Index = () => {
           onCreateComment={handleCreateComment}
           onUserClick={handleUserClick}
           onNavigateToForum={() => setActiveView('forum')}
+          onShowAuthDialog={() => setAuthDialogOpen(true)}
         />
       </div>
 

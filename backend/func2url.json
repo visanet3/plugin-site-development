@@ -1,4 +1,5 @@
 {
+  "escrow": "https://functions.poehali.dev/82c75fbc-83e4-4448-9ff8-1c8ef9bbec09",
   "crypto": "https://functions.poehali.dev/8caa3b76-72e5-42b5-9415-91d1f9b05210",
   "notifications": "https://functions.poehali.dev/6c968792-7d48-41a9-af0a-c92adb047acb",
   "admin": "https://functions.poehali.dev/d4678b1c-2acd-40bb-b8c5-cefe8d14fad4",

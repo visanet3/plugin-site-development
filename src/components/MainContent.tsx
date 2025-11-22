@@ -2,6 +2,7 @@ import { Plugin, Category, ForumTopic, ForumComment, User } from '@/types';
 import { PluginsView } from './MainContent/PluginsView';
 import { ForumTopicsList } from './MainContent/ForumTopicsList';
 import { ForumTopicDetail } from './MainContent/ForumTopicDetail';
+import { EscrowView } from './EscrowView';
 
 interface MainContentProps {
   activeView: 'plugins' | 'forum';
@@ -20,6 +21,7 @@ interface MainContentProps {
   onCreateComment: () => void;
   onUserClick: (userId: number) => void;
   onNavigateToForum?: () => void;
+  onShowAuthDialog: () => void;
 }
 
 const MainContent = ({
@@ -39,16 +41,21 @@ const MainContent = ({
   onCreateComment,
   onUserClick,
   onNavigateToForum,
+  onShowAuthDialog,
 }: MainContentProps) => {
   return (
     <main className="p-6 animate-fade-in">
       {activeView === 'plugins' ? (
-        <PluginsView
-          activeCategory={activeCategory}
-          plugins={plugins}
-          categories={categories}
-          onNavigateToForum={onNavigateToForum}
-        />
+        activeCategory === 'popular' ? (
+          <EscrowView user={user} onShowAuthDialog={onShowAuthDialog} />
+        ) : (
+          <PluginsView
+            activeCategory={activeCategory}
+            plugins={plugins}
+            categories={categories}
+            onNavigateToForum={onNavigateToForum}
+          />
+        )
       ) : selectedTopic ? (
         <ForumTopicDetail
           selectedTopic={selectedTopic}
