@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import ForumRoleBadge from '@/components/ForumRoleBadge';
 import { getAvatarGradient } from '@/utils/avatarColors';
+import { QRCodeSVG } from 'qrcode.react';
 
 const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
 const CRYPTO_URL = 'https://functions.poehali.dev/8caa3b76-72e5-42b5-9415-91d1f9b05210';
@@ -592,7 +593,18 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
                   
                   <div>
                     <Label className="text-xs text-muted-foreground">Сеть</Label>
-                    <p className="text-lg font-semibold text-green-700">{cryptoPayment.network}</p>
+                    <p className="text-lg font-semibold text-green-400">{cryptoPayment.network}</p>
+                  </div>
+
+                  <div className="flex items-center justify-center py-4">
+                    <div className="p-4 bg-white rounded-xl">
+                      <QRCodeSVG 
+                        value={cryptoPayment.wallet_address} 
+                        size={200}
+                        level="H"
+                        includeMargin={true}
+                      />
+                    </div>
                   </div>
 
                   <div>
