@@ -601,7 +601,7 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
                   <div className="p-3 rounded-lg mt-4" style={{marginRight: '60px'}}>
                     <QRCodeSVG 
                       value={cryptoPayment.wallet_address}
-                      size={110}
+                      size={143}
                       level="M"
                       fgColor="#ffffff"
                       bgColor="transparent"
