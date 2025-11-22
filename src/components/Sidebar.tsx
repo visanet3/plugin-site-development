@@ -29,8 +29,8 @@ const Sidebar = ({
   messagesUnread = 0,
 }: SidebarProps) => {
   return (
-    <aside className={`fixed top-0 left-0 h-full bg-sidebar border-r border-sidebar-border transition-all duration-300 z-30 ${sidebarOpen ? 'w-64' : 'w-0 -translate-x-full'}`}>
-      <div className="p-4">
+    <aside className={`fixed top-0 left-0 h-full bg-sidebar border-r border-sidebar-border transition-all duration-300 z-30 overflow-hidden ${sidebarOpen ? 'w-64' : 'w-0'}`}>
+      <div className={`p-4 w-64 transition-opacity duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}>
         <div className="flex items-center gap-3 mb-8">
           <UsdtLogo />
           <span className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-green-600 bg-clip-text text-transparent">USDT HUB</span>
