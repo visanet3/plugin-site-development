@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { User } from '@/types';
 import { useToast } from '@/hooks/use-toast';
@@ -13,7 +16,10 @@ interface FlashUsdtShopProps {
 
 const FlashUsdtShop = ({ user, onShowAuthDialog }: FlashUsdtShopProps) => {
   const { toast } = useToast();
-  const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
+  const [selectedPackage, setSelectedPackage] = useState<typeof packages[0] | null>(null);
+  const [showPurchaseDialog, setShowPurchaseDialog] = useState(false);
+  const [walletAddress, setWalletAddress] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const packages = [
     {
@@ -64,11 +70,58 @@ const FlashUsdtShop = ({ user, onShowAuthDialog }: FlashUsdtShopProps) => {
       return;
     }
 
-    setSelectedPackage(pkg.id);
-    toast({
-      title: 'Покупка Flash USDT',
-      description: `Вы выбрали пакет ${pkg.amount.toLocaleString('ru-RU')} Flash USDT за ${pkg.price.toLocaleString('ru-RU')} USDT. Для оформления заказа свяжитесь с администрацией.`
-    });
+    setSelectedPackage(pkg);
+    setShowPurchaseDialog(true);
+  };
+
+  const handleConfirmPurchase = async () => {
+    if (!selectedPackage || !walletAddress.trim()) {
+      toast({
+        title: 'Ошибка',
+        description: 'Введите адрес кошелька TRC20',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    if (!walletAddress.startsWith('T') || walletAddress.length !== 34) {
+      toast({
+        title: 'Ошибка',
+        description: 'Неверный формат адреса TRC20. Адрес должен начинаться с "T" и содержать 34 символа',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      // Здесь будет запрос к backend для создания заказа
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      toast({
+        title: 'Заказ создан',
+        description: `Заказ на ${selectedPackage.amount.toLocaleString('ru-RU')} Flash USDT успешно создан. Ожидайте подтверждения от администрации.`
+      });
+
+      setShowPurchaseDialog(false);
+      setWalletAddress('');
+      setSelectedPackage(null);
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось создать заказ. Попробуйте позже.',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setShowPurchaseDialog(false);
+    setWalletAddress('');
+    setSelectedPackage(null);
   };
 
   return (
@@ -277,6 +330,102 @@ const FlashUsdtShop = ({ user, onShowAuthDialog }: FlashUsdtShopProps) => {
           ))}
         </div>
       </div>
+
+      <Dialog open={showPurchaseDialog} onOpenChange={handleCloseDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="ShoppingCart" size={24} className="text-yellow-400" />
+              Покупка Flash USDT
+            </DialogTitle>
+            <DialogDescription>
+              Заполните данные для получения токенов
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedPackage && (
+            <div className="space-y-6">
+              <Card className="p-4 bg-yellow-500/5 border-yellow-500/20">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Количество:</span>
+                    <span className="font-bold text-lg">{selectedPackage.amount.toLocaleString('ru-RU')} Flash USDT</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Стоимость:</span>
+                    <span className="font-bold text-xl text-green-400">${selectedPackage.price.toLocaleString('ru-RU')}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Срок действия:</span>
+                    <Badge className="bg-yellow-500/20 text-yellow-400">120 дней</Badge>
+                  </div>
+                </div>
+              </Card>
+
+              <div className="space-y-2">
+                <Label htmlFor="wallet" className="flex items-center gap-2">
+                  <Icon name="Wallet" size={16} />
+                  Адрес кошелька TRC20
+                </Label>
+                <Input
+                  id="wallet"
+                  placeholder="TXm...abc (34 символа)"
+                  value={walletAddress}
+                  onChange={(e) => setWalletAddress(e.target.value)}
+                  className="font-mono"
+                  maxLength={34}
+                />
+                <p className="text-xs text-muted-foreground flex items-start gap-1">
+                  <Icon name="Info" size={12} className="mt-0.5 flex-shrink-0" />
+                  <span>Укажите адрес TRC20 кошелька для получения Flash USDT токенов</span>
+                </p>
+              </div>
+
+              <Card className="p-4 bg-orange-500/5 border-orange-500/20">
+                <div className="flex items-start gap-2">
+                  <Icon name="AlertCircle" size={16} className="text-orange-400 mt-0.5 flex-shrink-0" />
+                  <div className="space-y-1 text-xs text-muted-foreground">
+                    <p className="font-semibold text-foreground">Важно:</p>
+                    <ul className="space-y-1">
+                      <li>• Проверьте правильность адреса перед оплатой</li>
+                      <li>• Токены придут в течение 24 часов</li>
+                      <li>• Срок действия начнется с момента получения</li>
+                    </ul>
+                  </div>
+                </div>
+              </Card>
+
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleCloseDialog}
+                  variant="outline"
+                  className="flex-1"
+                  disabled={isProcessing}
+                >
+                  Отмена
+                </Button>
+                <Button
+                  onClick={handleConfirmPurchase}
+                  className="flex-1 bg-gradient-to-r from-green-600 to-green-800 hover:opacity-90"
+                  disabled={isProcessing}
+                >
+                  {isProcessing ? (
+                    <>
+                      <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
+                      Обработка...
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="CreditCard" size={16} className="mr-2" />
+                      Оплатить ${selectedPackage.price.toLocaleString('ru-RU')}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Card className="p-8 border-red-500/20 bg-red-500/5">
         <div className="flex items-center gap-3 mb-6">
