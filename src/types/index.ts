@@ -29,6 +29,7 @@ export interface User {
   discord?: string;
   bio?: string;
   role?: string;
+  forum_role?: string;
   is_blocked?: boolean;
 }
 
@@ -40,6 +41,7 @@ export interface ForumTopic {
   is_pinned: boolean;
   created_at: string;
   author_name: string;
+  author_forum_role?: string;
   comments_count: number;
 }
 
@@ -50,6 +52,7 @@ export interface ForumComment {
   author_id: number;
   author_name: string;
   author_avatar: string | null;
+  author_forum_role?: string;
 }
 
 export interface SearchResult {

@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
+import ForumRoleBadge from '@/components/ForumRoleBadge';
 import { Plugin, Category, ForumTopic, ForumComment, User } from '@/types';
 
 interface MainContentProps {
@@ -158,8 +159,11 @@ const MainContent = ({
                 </div>
                 <div className="flex-1">
                   <h1 className="text-2xl font-bold mb-2">{selectedTopic.title}</h1>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span>Автор: {selectedTopic.author_name}</span>
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
+                    <span className="flex items-center gap-2">
+                      Автор: {selectedTopic.author_name}
+                      <ForumRoleBadge role={selectedTopic.author_forum_role} />
+                    </span>
                     <span>•</span>
                     <span>{new Date(selectedTopic.created_at).toLocaleDateString('ru')}</span>
                     <span>•</span>
@@ -199,8 +203,9 @@ const MainContent = ({
                     {comment.author_name[0].toUpperCase()}
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
                       <span className="font-semibold">{comment.author_name}</span>
+                      <ForumRoleBadge role={comment.author_forum_role} />
                       <span className="text-xs text-muted-foreground">
                         {new Date(comment.created_at).toLocaleDateString('ru')} в {new Date(comment.created_at).toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' })}
                       </span>
@@ -263,8 +268,11 @@ const MainContent = ({
                       <h3 className="font-semibold text-lg group-hover:text-primary transition-colors truncate mb-1">
                         {topic.title}
                       </h3>
-                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                        <span>Автор: {topic.author_name}</span>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
+                        <span className="flex items-center gap-2">
+                          Автор: {topic.author_name}
+                          <ForumRoleBadge role={topic.author_forum_role} />
+                        </span>
                         <span>•</span>
                         <span>{new Date(topic.created_at).toLocaleDateString('ru')}</span>
                       </div>

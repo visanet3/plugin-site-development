@@ -89,7 +89,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             # Создание пользователя
             cur.execute(
-                "INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s) RETURNING id, username, email, avatar_url, role, created_at",
+                "INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s) RETURNING id, username, email, avatar_url, role, forum_role, created_at",
                 (username, email, password_hash)
             )
             user = cur.fetchone()
@@ -124,7 +124,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             password_hash = hash_password(password)
             
             cur.execute(
-                "SELECT id, username, email, avatar_url, role, is_blocked, created_at FROM users WHERE username = %s AND password_hash = %s",
+                "SELECT id, username, email, avatar_url, role, forum_role, is_blocked, created_at FROM users WHERE username = %s AND password_hash = %s",
                 (username, password_hash)
             )
             user = cur.fetchone()
