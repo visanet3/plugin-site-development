@@ -269,8 +269,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             amount = body_data.get('amount')
+            transaction_type = body_data.get('type', 'topup')
+            description = body_data.get('description', 'Пополнение баланса')
             
-            if not amount or float(amount) <= 0:
+            if not amount:
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -286,7 +288,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             cur.execute(
                 "INSERT INTO transactions (user_id, amount, type, description) VALUES (%s, %s, %s, %s)",
-                (int(user_id), float(amount), 'topup', 'Пополнение баланса')
+                (int(user_id), float(amount), transaction_type, description)
             )
             
             conn.commit()

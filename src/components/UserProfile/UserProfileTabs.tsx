@@ -119,6 +119,8 @@ export const UserProfileTabs = ({
                 if (transaction.type === 'escrow_sale') return { icon: 'ShoppingBag', color: 'green' };
                 if (transaction.type === 'escrow_purchase') return { icon: 'ShoppingCart', color: 'blue' };
                 if (transaction.type === 'escrow_complete') return { icon: 'CheckCircle2', color: 'gray' };
+                if (transaction.type === 'blackjack_win') return { icon: 'Spade', color: 'green' };
+                if (transaction.type === 'blackjack_loss') return { icon: 'Spade', color: 'red' };
                 if (transaction.type === 'topup') return { icon: 'Wallet', color: 'green' };
                 if (transaction.amount > 0) return { icon: 'ArrowDownToLine', color: 'green' };
                 return { icon: 'ArrowUpFromLine', color: 'red' };

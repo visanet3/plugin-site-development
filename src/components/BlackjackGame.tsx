@@ -196,7 +196,9 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
           },
           body: JSON.stringify({
             action: 'topup_balance',
-            amount: winAmount
+            amount: winAmount,
+            type: winAmount > 0 ? 'blackjack_win' : 'blackjack_loss',
+            description: winAmount > 0 ? 'Выигрыш в Блэкджек' : 'Проигрыш в Блэкджек'
           })
         });
 
