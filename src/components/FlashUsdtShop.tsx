@@ -388,7 +388,7 @@ const FlashUsdtShop = ({ user, onShowAuthDialog }: FlashUsdtShopProps) => {
                     <p className="font-semibold text-foreground">Важно:</p>
                     <ul className="space-y-1">
                       <li>• Проверьте правильность адреса перед оплатой</li>
-                      <li>• Токены придут в течение 24 часов</li>
+                      <li>• Токены придут в течение 1-3 минут в зависимости от загруженности сети TRON</li>
                       <li>• Срок действия начнется с момента получения</li>
                     </ul>
                   </div>
