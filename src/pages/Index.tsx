@@ -397,71 +397,83 @@ const Index = () => {
                 </p>
               </div>
 
-              <div className="space-y-3">
-                {sortPlugins('newest').map((plugin) => (
-              <div
-                key={plugin.id}
-                className="bg-card border border-border rounded-xl p-4 hover:border-primary/50 transition-all cursor-pointer group"
-              >
-                <div className="flex items-start gap-4">
-                  <div 
-                    className="w-12 h-12 rounded-lg flex-shrink-0"
-                    style={{
-                      background: `linear-gradient(135deg, ${plugin.gradient_from}, ${plugin.gradient_to})`
-                    }}
-                  />
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-4 mb-2">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          {plugin.status === 'premium' && (
-                            <Badge variant="default" className="bg-primary">
-                              СБОРКА
-                            </Badge>
-                          )}
-                          {plugin.status === 'new' && (
-                            <Badge variant="secondary" className="bg-accent">
-                              НОВЫЙ
-                            </Badge>
-                          )}
-                        </div>
-                        <h3 className="font-semibold text-lg group-hover:text-primary transition-colors truncate">
-                          {plugin.title}
-                        </h3>
-                        <p className="text-sm text-muted-foreground line-clamp-1">
-                          {plugin.description}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-6 text-sm text-muted-foreground flex-shrink-0">
-                        <div className="flex items-center gap-1">
-                          <Icon name="Download" size={14} />
-                          <span>{plugin.downloads}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Icon name="Star" size={14} className="text-yellow-500 fill-yellow-500" />
-                          <span>{plugin.rating}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Icon name="Clock" size={14} />
-                          <span>{new Date(plugin.created_at).toLocaleDateString('ru')}</span>
-                        </div>
-                      </div>
+              {activeCategory === 'all' ? (
+                <div className="flex items-center justify-center min-h-[400px]">
+                  <div className="text-center">
+                    <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Icon name="Layers" size={40} className="text-white" />
                     </div>
+                    <h2 className="text-2xl font-bold mb-2">Добро пожаловать!</h2>
+                    <p className="text-muted-foreground">Выберите раздел в меню слева</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {sortPlugins('newest').map((plugin) => (
+                <div
+                  key={plugin.id}
+                  className="bg-card border border-border rounded-xl p-4 hover:border-primary/50 transition-all cursor-pointer group"
+                >
+                  <div className="flex items-start gap-4">
+                    <div 
+                      className="w-12 h-12 rounded-lg flex-shrink-0"
+                      style={{
+                        background: `linear-gradient(135deg, ${plugin.gradient_from}, ${plugin.gradient_to})`
+                      }}
+                    />
 
-                    <div className="flex items-center gap-2">
-                      {plugin.tags.map(tag => (
-                        <Badge key={tag} variant="outline" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-4 mb-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            {plugin.status === 'premium' && (
+                              <Badge variant="default" className="bg-primary">
+                                СБОРКА
+                              </Badge>
+                            )}
+                            {plugin.status === 'new' && (
+                              <Badge variant="secondary" className="bg-accent">
+                                НОВЫЙ
+                              </Badge>
+                            )}
+                          </div>
+                          <h3 className="font-semibold text-lg group-hover:text-primary transition-colors truncate">
+                            {plugin.title}
+                          </h3>
+                          <p className="text-sm text-muted-foreground line-clamp-1">
+                            {plugin.description}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-6 text-sm text-muted-foreground flex-shrink-0">
+                          <div className="flex items-center gap-1">
+                            <Icon name="Download" size={14} />
+                            <span>{plugin.downloads}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Icon name="Star" size={14} className="text-yellow-500 fill-yellow-500" />
+                            <span>{plugin.rating}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Icon name="Clock" size={14} />
+                            <span>{new Date(plugin.created_at).toLocaleDateString('ru')}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {plugin.tags.map(tag => (
+                          <Badge key={tag} variant="outline" className="text-xs">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-              </div>
+              ))}
+                </div>
+              )}
             </>
           ) : selectedTopic ? (
             <>
