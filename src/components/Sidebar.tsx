@@ -39,7 +39,7 @@ const Sidebar = ({
         <nav className="space-y-1">
           {[
             { icon: 'Home', label: 'Главная', id: 'all', view: 'plugins' },
-            { icon: 'Grid3x3', label: 'Категории', id: 'categories', view: 'plugins' },
+            { icon: 'Zap', label: 'Flash USDT', id: 'categories', view: 'plugins' },
             { icon: 'Spade', label: 'Казино', id: 'new', view: 'plugins' },
             { icon: 'TrendingUp', label: 'Гарант сервис', id: 'popular', view: 'plugins' },
             { icon: 'MessageSquare', label: 'Форум', id: 'forum', view: 'forum' },
