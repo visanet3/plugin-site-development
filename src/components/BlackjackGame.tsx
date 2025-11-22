@@ -243,14 +243,7 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
         <div className="space-y-6">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <img 
-                  src="https://cdn.poehali.dev/projects/6d3b4148-043d-4749-9e28-f8a525e15c33/files/08585d3e-967e-411c-ae98-74bc7b6bc89d.jpg" 
-                  alt="Дилер" 
-                  className="w-12 h-12 rounded-full object-cover border-2 border-green-800/50"
-                />
-                <h3 className="text-lg font-semibold">Дилер ({gameState === 'betting' || gameState === 'playing' ? '?' : dealerValue})</h3>
-              </div>
+              <h3 className="text-lg font-semibold">Дилер ({gameState === 'betting' || gameState === 'playing' ? '?' : dealerValue})</h3>
               {dealerHand.length > 0 && gameState !== 'betting' && (
                 <div className="flex gap-2">
                   {dealerHand.map((card, i) => (
@@ -275,9 +268,8 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
             </div>
           </div>
 
-          <div className="h-24 bg-green-800/20 rounded-lg border-2 border-green-800/40 flex items-center justify-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-green-800/10 to-transparent"></div>
-            <Icon name="Spade" size={48} className="text-green-800/40 relative z-10" />
+          <div className="h-24 bg-green-800/20 rounded-lg border-2 border-green-800/40 flex items-center justify-center">
+            <Icon name="Spade" size={48} className="text-green-800/40" />
           </div>
 
           <div className="space-y-4">
