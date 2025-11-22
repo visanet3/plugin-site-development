@@ -410,3 +410,5 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
     </div>
   );
 };
+
+export default BlackjackGame;
