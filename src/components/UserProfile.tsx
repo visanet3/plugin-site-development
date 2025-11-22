@@ -1,13 +1,16 @@
-import { User } from '@/types';
+import { User, Transaction } from '@/types';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ForumRoleBadge from '@/components/ForumRoleBadge';
+
+const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
 
 interface UserProfileProps {
   user: User;
@@ -20,6 +23,34 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance }: UserProfil
   const [showTopUpDialog, setShowTopUpDialog] = useState(false);
   const [topUpAmount, setTopUpAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactionsLoading, setTransactionsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
+
+  useEffect(() => {
+    if (isOwnProfile && activeTab === 'transactions') {
+      fetchTransactions();
+    }
+  }, [activeTab, isOwnProfile]);
+
+  const fetchTransactions = async () => {
+    setTransactionsLoading(true);
+    try {
+      const response = await fetch(`${AUTH_URL}?action=transactions`, {
+        headers: {
+          'X-User-Id': user.id.toString()
+        }
+      });
+      const data = await response.json();
+      if (data.transactions) {
+        setTransactions(data.transactions);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки транзакций:', error);
+    } finally {
+      setTransactionsLoading(false);
+    }
+  };
 
   const handleTopUp = async () => {
     const amount = parseFloat(topUpAmount);
@@ -35,6 +66,9 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance }: UserProfil
       }
       setShowTopUpDialog(false);
       setTopUpAmount('');
+      if (activeTab === 'transactions') {
+        fetchTransactions();
+      }
     } catch (error) {
       console.error('Ошибка пополнения баланса:', error);
       alert('Ошибка пополнения баланса');
@@ -112,72 +146,133 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance }: UserProfil
               </Card>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card className="p-4 bg-card/50 border-border hover:border-purple-500/50 transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                    <Icon name="Download" size={20} className="text-purple-400" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Загрузок</p>
-                    <p className="text-xl font-bold">0</p>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="overview">Обзор</TabsTrigger>
+                <TabsTrigger value="transactions">История транзакций</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="overview" className="space-y-4 mt-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Card className="p-4 bg-card/50 border-border hover:border-purple-500/50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                        <Icon name="Download" size={20} className="text-purple-400" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Загрузок</p>
+                        <p className="text-xl font-bold">0</p>
+                      </div>
+                    </div>
+                  </Card>
+
+                  <Card className="p-4 bg-card/50 border-border hover:border-pink-500/50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-pink-500/20 flex items-center justify-center">
+                        <Icon name="MessageSquare" size={20} className="text-pink-400" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Сообщений</p>
+                        <p className="text-xl font-bold">0</p>
+                      </div>
+                    </div>
+                  </Card>
+
+                  <Card className="p-4 bg-card/50 border-border hover:border-cyan-500/50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center">
+                        <Icon name="Star" size={20} className="text-cyan-400" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Рейтинг</p>
+                        <p className="text-xl font-bold">0</p>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Социальные сети</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {user.vk_url && (
+                      <a 
+                        href={user.vk_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg hover:bg-blue-500/20 transition-colors"
+                      >
+                        <Icon name="ExternalLink" size={20} className="text-blue-400" />
+                        <span className="text-blue-400">ВКонтакте</span>
+                      </a>
+                    )}
+                    {user.telegram && (
+                      <div className="flex items-center gap-3 p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
+                        <Icon name="MessageCircle" size={20} className="text-cyan-400" />
+                        <span className="text-cyan-400">{user.telegram}</span>
+                      </div>
+                    )}
+                    {user.discord && (
+                      <div className="flex items-center gap-3 p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-lg">
+                        <Icon name="Hash" size={20} className="text-indigo-400" />
+                        <span className="text-indigo-400">{user.discord}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </Card>
+              </TabsContent>
 
-              <Card className="p-4 bg-card/50 border-border hover:border-pink-500/50 transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-pink-500/20 flex items-center justify-center">
-                    <Icon name="MessageSquare" size={20} className="text-pink-400" />
+              <TabsContent value="transactions" className="space-y-4 mt-4">
+                {transactionsLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Icon name="Loader2" size={32} className="animate-spin text-muted-foreground" />
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Сообщений</p>
-                    <p className="text-xl font-bold">0</p>
+                ) : transactions.length === 0 ? (
+                  <Card className="p-8 text-center">
+                    <Icon name="Receipt" size={48} className="mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground">История транзакций пуста</p>
+                  </Card>
+                ) : (
+                  <div className="space-y-3">
+                    {transactions.map((transaction) => (
+                      <Card key={transaction.id} className="p-4 hover:bg-accent/50 transition-colors">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                              transaction.amount > 0 
+                                ? 'bg-green-500/20' 
+                                : 'bg-red-500/20'
+                            }`}>
+                              <Icon 
+                                name={transaction.amount > 0 ? 'ArrowDownToLine' : 'ArrowUpFromLine'} 
+                                size={20} 
+                                className={transaction.amount > 0 ? 'text-green-400' : 'text-red-400'}
+                              />
+                            </div>
+                            <div>
+                              <p className="font-medium">{transaction.description}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {new Date(transaction.created_at).toLocaleString('ru-RU', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </p>
+                            </div>
+                          </div>
+                          <div className={`text-lg font-bold ${
+                            transaction.amount > 0 ? 'text-green-400' : 'text-red-400'
+                          }`}>
+                            {transaction.amount > 0 ? '+' : ''}{transaction.amount.toFixed(2)} ₽
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
                   </div>
-                </div>
-              </Card>
-
-              <Card className="p-4 bg-card/50 border-border hover:border-cyan-500/50 transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center">
-                    <Icon name="Star" size={20} className="text-cyan-400" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Рейтинг</p>
-                    <p className="text-xl font-bold">0</p>
-                  </div>
-                </div>
-              </Card>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Социальные сети</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {user.vk_url && (
-                  <a 
-                    href={user.vk_url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg hover:bg-blue-500/20 transition-colors"
-                  >
-                    <Icon name="ExternalLink" size={20} className="text-blue-400" />
-                    <span className="text-blue-400">ВКонтакте</span>
-                  </a>
                 )}
-                {user.telegram && (
-                  <div className="flex items-center gap-3 p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
-                    <Icon name="MessageCircle" size={20} className="text-cyan-400" />
-                    <span className="text-cyan-400">{user.telegram}</span>
-                  </div>
-                )}
-                {user.discord && (
-                  <div className="flex items-center gap-3 p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-lg">
-                    <Icon name="Hash" size={20} className="text-indigo-400" />
-                    <span className="text-indigo-400">{user.discord}</span>
-                  </div>
-                )}
-              </div>
-            </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </Card>
       </div>

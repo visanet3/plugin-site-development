@@ -67,6 +67,14 @@ export interface SearchResult {
   description?: string;
 }
 
+export interface Transaction {
+  id: number;
+  amount: number;
+  type: string;
+  description: string;
+  created_at: string;
+}
+
 export interface Notification {
   id: number;
   type: string;

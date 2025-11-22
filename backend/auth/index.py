@@ -210,6 +210,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 (float(amount), int(user_id))
             )
             result = cur.fetchone()
+            
+            cur.execute(
+                "INSERT INTO transactions (user_id, amount, type, description) VALUES (%s, %s, %s, %s)",
+                (int(user_id), float(amount), 'topup', 'Пополнение баланса')
+            )
+            
             conn.commit()
             
             return {
@@ -219,6 +225,44 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'success': True,
                     'new_balance': float(result['balance']) if result else 0
                 }),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'transactions':
+            headers = event.get('headers', {})
+            user_id = headers.get('X-User-Id') or headers.get('x-user-id')
+            
+            if not user_id:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Требуется авторизация'}),
+                    'isBase64Encoded': False
+                }
+            
+            params = event.get('queryStringParameters', {})
+            limit = int(params.get('limit', 50))
+            offset = int(params.get('offset', 0))
+            
+            cur.execute(
+                "SELECT id, amount, type, description, created_at FROM transactions WHERE user_id = %s ORDER BY created_at DESC LIMIT %s OFFSET %s",
+                (int(user_id), limit, offset)
+            )
+            transactions = cur.fetchall()
+            
+            cur.execute(
+                "SELECT COUNT(*) as total FROM transactions WHERE user_id = %s",
+                (int(user_id),)
+            )
+            total = cur.fetchone()['total']
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'transactions': [dict(t) for t in transactions],
+                    'total': total
+                }, default=str),
                 'isBase64Encoded': False
             }
         
