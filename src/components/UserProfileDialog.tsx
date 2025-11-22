@@ -33,10 +33,16 @@ const ADMIN_URL = 'https://functions.poehali.dev/d4678b1c-2acd-40bb-b8c5-cefe8d1
 const UserProfileDialog = ({ open, onOpenChange, userId, currentUserId, onSendMessage }: UserProfileDialogProps) => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
     if (open && userId) {
       fetchProfile();
+      const interval = setInterval(() => {
+        setCurrentTime(new Date());
+      }, 60 * 1000);
+      
+      return () => clearInterval(interval);
     }
   }, [open, userId]);
 
@@ -129,7 +135,7 @@ const UserProfileDialog = ({ open, onOpenChange, userId, currentUserId, onSendMe
                 {profile.last_seen_at && (() => {
                   const status = getOnlineStatus(profile.last_seen_at);
                   return (
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-2 mb-3" key={currentTime.getTime()}>
                       <div className={`w-2 h-2 rounded-full ${status.dot}`} />
                       <span className={`text-sm ${status.color}`}>{status.text}</span>
                     </div>

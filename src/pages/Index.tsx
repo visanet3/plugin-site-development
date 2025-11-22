@@ -94,7 +94,7 @@ const Index = () => {
       updateActivity();
       fetchUnreadCount();
       
-      const activityInterval = setInterval(updateActivity, 2 * 60 * 1000);
+      const activityInterval = setInterval(updateActivity, 60 * 1000);
       const unreadInterval = setInterval(fetchUnreadCount, 30 * 1000);
       
       return () => {
