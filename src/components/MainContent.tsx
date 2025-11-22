@@ -4,7 +4,7 @@ import { ForumTopicsList } from './MainContent/ForumTopicsList';
 import { ForumTopicDetail } from './MainContent/ForumTopicDetail';
 import { EscrowView } from './EscrowView';
 import CasinoHub from './CasinoHub';
-import BusinessPlan from './BusinessPlan';
+import FlashUsdtShop from './FlashUsdtShop';
 
 interface MainContentProps {
   activeView: 'plugins' | 'forum';
@@ -63,7 +63,7 @@ const MainContent = ({
             onRefreshUserBalance={onRefreshUserBalance}
           />
         ) : activeCategory === 'categories' ? (
-          <BusinessPlan />
+          <FlashUsdtShop user={user} onShowAuthDialog={onShowAuthDialog} />
         ) : (
           <PluginsView
             activeCategory={activeCategory}
