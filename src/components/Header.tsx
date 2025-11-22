@@ -41,6 +41,35 @@ const Header = ({
   const [animatedBalance, setAnimatedBalance] = useState(Number(user?.balance) || 0);
   const [isBalanceChanging, setIsBalanceChanging] = useState(false);
 
+  const highlightKeywords = (text: string, query: string): React.ReactNode => {
+    if (!query.trim()) return text;
+    
+    const keywords = query.trim().toLowerCase().split(/\s+/);
+    let result: React.ReactNode[] = [text];
+    
+    keywords.forEach(keyword => {
+      const newResult: React.ReactNode[] = [];
+      result.forEach((part) => {
+        if (typeof part === 'string') {
+          const regex = new RegExp(`(${keyword})`, 'gi');
+          const parts = part.split(regex);
+          parts.forEach((p, i) => {
+            if (p.toLowerCase() === keyword.toLowerCase()) {
+              newResult.push(<span key={`${keyword}-${i}`} className="bg-primary/30 text-primary font-semibold">{p}</span>);
+            } else if (p) {
+              newResult.push(p);
+            }
+          });
+        } else {
+          newResult.push(part);
+        }
+      });
+      result = newResult;
+    });
+    
+    return result;
+  };
+
   useEffect(() => {
     const currentBalance = Number(user?.balance) || 0;
     if (user && currentBalance !== animatedBalance) {
@@ -75,7 +104,7 @@ const Header = ({
           <div className="relative max-w-md w-full" onClick={(e) => e.stopPropagation()}>
             <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground z-10" />
             <Input
-              placeholder="Поиск по сайту..."
+              placeholder="Поиск по ключевым словам..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               onFocus={onSearchFocus}
@@ -83,6 +112,11 @@ const Header = ({
             />
             {showSearchResults && searchResults.length > 0 && (
               <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
+                <div className="px-4 py-2 bg-muted/50 border-b border-border sticky top-0">
+                  <p className="text-xs text-muted-foreground">
+                    Найдено результатов: <span className="font-semibold text-foreground">{searchResults.length}</span>
+                  </p>
+                </div>
                 {searchResults.map((result, index) => (
                   <button
                     key={`${result.type}-${result.id}-${index}`}
@@ -103,10 +137,10 @@ const Header = ({
                           <Badge variant="outline" className="text-xs capitalize">
                             {result.type === 'plugin' ? 'Плагин' : result.type === 'topic' ? 'Тема' : 'Категория'}
                           </Badge>
-                          <span className="font-medium text-sm truncate">{result.title}</span>
+                          <span className="font-medium text-sm truncate">{highlightKeywords(result.title, searchQuery)}</span>
                         </div>
                         {result.description && (
-                          <p className="text-xs text-muted-foreground line-clamp-1">{result.description}</p>
+                          <p className="text-xs text-muted-foreground line-clamp-1">{highlightKeywords(result.description, searchQuery)}</p>
                         )}
                       </div>
                     </div>

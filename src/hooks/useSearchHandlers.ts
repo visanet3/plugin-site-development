@@ -36,45 +36,73 @@ export const useSearchHandlers = ({
       return;
     }
 
-    const results: SearchResult[] = [];
+    const keywords = query.split(/\s+/).filter(word => word.length > 0);
+    
+    const matchesKeywords = (text: string): number => {
+      const lowerText = text.toLowerCase();
+      let matchCount = 0;
+      
+      keywords.forEach(keyword => {
+        if (lowerText.includes(keyword)) {
+          matchCount++;
+        }
+      });
+      
+      return matchCount;
+    };
+
+    const resultsWithScore: Array<SearchResult & { score: number }> = [];
 
     plugins.forEach(plugin => {
-      if (plugin.title.toLowerCase().includes(query) || 
-          plugin.description.toLowerCase().includes(query) ||
-          plugin.tags.some(tag => tag.toLowerCase().includes(query))) {
-        results.push({
+      const titleScore = matchesKeywords(plugin.title) * 3;
+      const descScore = matchesKeywords(plugin.description);
+      const tagsScore = plugin.tags.reduce((sum, tag) => sum + matchesKeywords(tag) * 2, 0);
+      const totalScore = titleScore + descScore + tagsScore;
+      
+      if (totalScore > 0) {
+        resultsWithScore.push({
           type: 'plugin',
           id: plugin.id,
           title: plugin.title,
-          description: plugin.description
+          description: plugin.description,
+          score: totalScore
         });
       }
     });
 
     categories.forEach(cat => {
-      if (cat.name.toLowerCase().includes(query)) {
-        results.push({
+      const score = matchesKeywords(cat.name) * 2;
+      if (score > 0) {
+        resultsWithScore.push({
           type: 'category',
           id: cat.id,
           title: cat.name,
-          description: `Категория: ${cat.name}`
+          description: `Категория: ${cat.name}`,
+          score: score
         });
       }
     });
 
     forumTopics.forEach(topic => {
-      if (topic.title.toLowerCase().includes(query) || 
-          topic.content?.toLowerCase().includes(query)) {
-        results.push({
+      const titleScore = matchesKeywords(topic.title) * 3;
+      const contentScore = topic.content ? matchesKeywords(topic.content) : 0;
+      const totalScore = titleScore + contentScore;
+      
+      if (totalScore > 0) {
+        resultsWithScore.push({
           type: 'topic',
           id: topic.id,
           title: topic.title,
-          description: topic.content?.substring(0, 100)
+          description: topic.content?.substring(0, 100),
+          score: totalScore
         });
       }
     });
 
-    setSearchResults(results.slice(0, 10));
+    resultsWithScore.sort((a, b) => b.score - a.score);
+    
+    const results = resultsWithScore.map(({ score, ...rest }) => rest);
+    setSearchResults(results.slice(0, 20));
     setShowSearchResults(true);
   };
 
@@ -107,12 +135,16 @@ export const useSearchHandlers = ({
   };
 
   useEffect(() => {
-    if (searchQuery.trim()) {
-      handleSearch();
-    } else {
-      setSearchResults([]);
-      setShowSearchResults(false);
-    }
+    const debounceTimeout = setTimeout(() => {
+      if (searchQuery.trim()) {
+        handleSearch();
+      } else {
+        setSearchResults([]);
+        setShowSearchResults(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(debounceTimeout);
   }, [searchQuery]);
 
   return {
