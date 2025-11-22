@@ -35,7 +35,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-User-Id, X-Auth-Token',
                 'Access-Control-Max-Age': '86400'
             },
@@ -43,21 +43,69 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
-    if method != 'POST':
-        return {
-            'statusCode': 405,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Method not allowed'}),
-            'isBase64Encoded': False
-        }
-    
-    body_data = json.loads(event.get('body', '{}'))
-    action = body_data.get('action')
-    
     conn = get_db_connection()
     cur = conn.cursor()
     
     try:
+        if method == 'GET':
+            params = event.get('queryStringParameters', {}) or {}
+            action = params.get('action')
+            
+            if action == 'transactions':
+                headers = event.get('headers', {})
+                user_id = headers.get('X-User-Id') or headers.get('x-user-id')
+                
+                if not user_id:
+                    return {
+                        'statusCode': 401,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Требуется авторизация'}),
+                        'isBase64Encoded': False
+                    }
+                
+                limit = int(params.get('limit', 50))
+                offset = int(params.get('offset', 0))
+                
+                cur.execute(
+                    "SELECT id, amount, type, description, created_at FROM transactions WHERE user_id = %s ORDER BY created_at DESC LIMIT %s OFFSET %s",
+                    (int(user_id), limit, offset)
+                )
+                transactions = cur.fetchall()
+                
+                cur.execute(
+                    "SELECT COUNT(*) as total FROM transactions WHERE user_id = %s",
+                    (int(user_id),)
+                )
+                total = cur.fetchone()['total']
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'transactions': [dict(t) for t in transactions],
+                        'total': total
+                    }, default=str),
+                    'isBase64Encoded': False
+                }
+            
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Unknown action'}),
+                'isBase64Encoded': False
+            }
+        
+        if method != 'POST':
+            return {
+                'statusCode': 405,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Method not allowed'}),
+                'isBase64Encoded': False
+            }
+        
+        body_data = json.loads(event.get('body', '{}'))
+        action = body_data.get('action')
+        
         # Регистрация
         if action == 'register':
             username = body_data.get('username', '').strip()
@@ -250,44 +298,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'success': True,
                     'new_balance': float(result['balance']) if result else 0
                 }),
-                'isBase64Encoded': False
-            }
-        
-        elif action == 'transactions':
-            headers = event.get('headers', {})
-            user_id = headers.get('X-User-Id') or headers.get('x-user-id')
-            
-            if not user_id:
-                return {
-                    'statusCode': 401,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Требуется авторизация'}),
-                    'isBase64Encoded': False
-                }
-            
-            params = event.get('queryStringParameters', {})
-            limit = int(params.get('limit', 50))
-            offset = int(params.get('offset', 0))
-            
-            cur.execute(
-                "SELECT id, amount, type, description, created_at FROM transactions WHERE user_id = %s ORDER BY created_at DESC LIMIT %s OFFSET %s",
-                (int(user_id), limit, offset)
-            )
-            transactions = cur.fetchall()
-            
-            cur.execute(
-                "SELECT COUNT(*) as total FROM transactions WHERE user_id = %s",
-                (int(user_id),)
-            )
-            total = cur.fetchone()['total']
-            
-            return {
-                'statusCode': 200,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({
-                    'transactions': [dict(t) for t in transactions],
-                    'total': total
-                }, default=str),
                 'isBase64Encoded': False
             }
         

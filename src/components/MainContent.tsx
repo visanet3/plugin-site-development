@@ -22,6 +22,7 @@ interface MainContentProps {
   onUserClick: (userId: number) => void;
   onNavigateToForum?: () => void;
   onShowAuthDialog: () => void;
+  onRefreshUserBalance?: () => void;
 }
 
 const MainContent = ({
@@ -42,12 +43,17 @@ const MainContent = ({
   onUserClick,
   onNavigateToForum,
   onShowAuthDialog,
+  onRefreshUserBalance,
 }: MainContentProps) => {
   return (
     <main className="p-6 animate-fade-in">
       {activeView === 'plugins' ? (
         activeCategory === 'popular' ? (
-          <EscrowView user={user} onShowAuthDialog={onShowAuthDialog} />
+          <EscrowView 
+            user={user} 
+            onShowAuthDialog={onShowAuthDialog} 
+            onRefreshUserBalance={onRefreshUserBalance}
+          />
         ) : (
           <PluginsView
             activeCategory={activeCategory}

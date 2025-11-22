@@ -188,6 +188,30 @@ const Index = () => {
     }
   };
 
+  const refreshUserBalance = async () => {
+    if (!user) return;
+    try {
+      const response = await fetch(`${AUTH_URL}?action=get_balance`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'get_balance'
+        })
+      });
+      const data = await response.json();
+      if (data.success) {
+        const updatedUser = { ...user, balance: data.balance };
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
+    } catch (error) {
+      console.error('Ошибка обновления баланса:', error);
+    }
+  };
+
   const handleCategoryChange = (category: string, view: 'plugins' | 'forum') => {
     setActiveView(view);
     if (view === 'plugins') {
@@ -274,6 +298,7 @@ const Index = () => {
           onUserClick={handleUserClick}
           onNavigateToForum={() => setActiveView('forum')}
           onShowAuthDialog={() => setAuthDialogOpen(true)}
+          onRefreshUserBalance={refreshUserBalance}
         />
       </div>
 

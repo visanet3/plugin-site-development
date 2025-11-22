@@ -17,9 +17,10 @@ const ESCROW_URL = 'https://functions.poehali.dev/82c75fbc-83e4-4448-9ff8-1c8ef9
 interface EscrowViewProps {
   user: User | null;
   onShowAuthDialog: () => void;
+  onRefreshUserBalance?: () => void;
 }
 
-export const EscrowView = ({ user, onShowAuthDialog }: EscrowViewProps) => {
+export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: EscrowViewProps) => {
   const { toast } = useToast();
   const [deals, setDeals] = useState<EscrowDeal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -450,6 +451,7 @@ export const EscrowView = ({ user, onShowAuthDialog }: EscrowViewProps) => {
           user={user}
           onClose={() => setSelectedDeal(null)}
           onUpdate={fetchDeals}
+          onRefreshUserBalance={onRefreshUserBalance}
         />
       )}
     </div>
@@ -461,9 +463,10 @@ interface DealDetailDialogProps {
   user: User | null;
   onClose: () => void;
   onUpdate: () => void;
+  onRefreshUserBalance?: () => void;
 }
 
-const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogProps) => {
+const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance }: DealDetailDialogProps) => {
   const { toast } = useToast();
   const [currentDeal, setCurrentDeal] = useState<EscrowDeal>(deal);
   const [messages, setMessages] = useState<any[]>([]);
@@ -550,6 +553,7 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogPro
         });
         await fetchDealDetails();
         onUpdate();
+        onRefreshUserBalance?.();
       } else if (data.error === 'Insufficient balance') {
         toast({
           title: 'Недостаточно средств',
@@ -662,6 +666,7 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogPro
         });
         await fetchDealDetails();
         onUpdate();
+        onRefreshUserBalance?.();
       }
     } catch (error) {
       console.error('Ошибка:', error);

@@ -63,6 +63,10 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
         }
       }, duration / steps);
 
+      if (isOwnProfile && activeTab === 'transactions') {
+        fetchTransactions();
+      }
+
       return () => clearInterval(timer);
     }
   }, [user.balance]);
