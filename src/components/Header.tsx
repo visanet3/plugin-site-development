@@ -14,7 +14,7 @@ interface HeaderProps {
   onSearchChange: (query: string) => void;
   onSearchFocus: () => void;
   onSearchResultClick: (result: SearchResult) => void;
-  onAuthDialogOpen: () => void;
+  onAuthDialogOpen: (mode: 'login' | 'register') => void;
   onLogout: () => void;
 }
 
@@ -106,12 +106,21 @@ const Header = ({
               </div>
             </>
           ) : (
-            <Button 
-              onClick={onAuthDialogOpen}
-              className="bg-primary hover:bg-primary/90 font-semibold px-6"
-            >
-              РЕГИСТРАЦИЯ
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button 
+                onClick={() => onAuthDialogOpen('login')}
+                variant="outline"
+                className="font-semibold px-6"
+              >
+                ВХОД
+              </Button>
+              <Button 
+                onClick={() => onAuthDialogOpen('register')}
+                className="bg-primary hover:bg-primary/90 font-semibold px-6"
+              >
+                РЕГИСТРАЦИЯ
+              </Button>
+            </div>
           )}
         </div>
       </div>

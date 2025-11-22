@@ -332,7 +332,10 @@ const Index = () => {
           onSearchChange={setSearchQuery}
           onSearchFocus={() => searchQuery && setShowSearchResults(true)}
           onSearchResultClick={handleSearchResultClick}
-          onAuthDialogOpen={() => setAuthDialogOpen(true)}
+          onAuthDialogOpen={(mode) => {
+            setAuthMode(mode);
+            setAuthDialogOpen(true);
+          }}
           onLogout={handleLogout}
         />
 
