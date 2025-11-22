@@ -79,13 +79,103 @@ const MainContent = ({
           </div>
 
           {activeCategory === 'all' ? (
-            <div className="flex items-center justify-center min-h-[400px] animate-scale-in">
-              <div className="text-center">
-                <div className="w-20 h-20 bg-gradient-to-br from-green-800 to-green-900 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-scale-in">
-                  <Icon name="Layers" size={40} className="text-white" />
+            <div className="max-w-4xl mx-auto space-y-8 animate-scale-in">
+              <div className="relative overflow-hidden bg-gradient-to-br from-green-800/20 via-green-900/10 to-background border border-green-800/30 rounded-2xl p-8 md:p-12">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/5 rounded-full blur-3xl"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-green-600/5 rounded-full blur-3xl"></div>
+                
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-16 h-16 bg-gradient-to-br from-green-700 to-green-900 rounded-2xl flex items-center justify-center">
+                      <Icon name="Zap" size={32} className="text-white" />
+                    </div>
+                    <div>
+                      <h1 className="text-4xl font-bold bg-gradient-to-r from-green-400 to-green-600 bg-clip-text text-transparent">
+                        USDT HUB
+                      </h1>
+                      <p className="text-muted-foreground">Криптовалютное сообщество</p>
+                    </div>
+                  </div>
+
+                  <p className="text-lg text-foreground/90 mb-6 leading-relaxed">
+                    Добро пожаловать в <span className="text-green-400 font-semibold">USDT HUB</span> — сообщество энтузиастов, 
+                    увлечённых миром стейблкоинов и криптовалют. Здесь мы обсуждаем всё, что связано с USDT: 
+                    от технических аспектов работы с различными блокчейн-сетями до практических советов 
+                    по безопасному хранению и использованию цифровых активов.
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <div className="bg-background/50 backdrop-blur-sm border border-green-800/20 rounded-xl p-4 hover:border-green-700/40 transition-colors">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-10 h-10 bg-green-800/20 rounded-lg flex items-center justify-center">
+                          <Icon name="MessageSquare" size={20} className="text-green-400" />
+                        </div>
+                        <h3 className="font-semibold">Обсуждения</h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Делитесь опытом работы с USDT, задавайте вопросы и находите единомышленников
+                      </p>
+                    </div>
+
+                    <div className="bg-background/50 backdrop-blur-sm border border-green-800/20 rounded-xl p-4 hover:border-green-700/40 transition-colors">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-10 h-10 bg-green-800/20 rounded-lg flex items-center justify-center">
+                          <Icon name="Shield" size={20} className="text-green-400" />
+                        </div>
+                        <h3 className="font-semibold">Безопасность</h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Узнайте о лучших практиках защиты ваших криптоактивов и безопасных транзакциях
+                      </p>
+                    </div>
+
+                    <div className="bg-background/50 backdrop-blur-sm border border-green-800/20 rounded-xl p-4 hover:border-green-700/40 transition-colors">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-10 h-10 bg-green-800/20 rounded-lg flex items-center justify-center">
+                          <Icon name="TrendingUp" size={20} className="text-green-400" />
+                        </div>
+                        <h3 className="font-semibold">Новости</h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Следите за последними обновлениями, трендами и изменениями в мире криптовалют
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-3">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-green-800/10 border border-green-800/20 rounded-lg">
+                      <Icon name="Check" size={16} className="text-green-400" />
+                      <span className="text-sm">TRC20 / ERC20</span>
+                    </div>
+                    <div className="flex items-center gap-2 px-4 py-2 bg-green-800/10 border border-green-800/20 rounded-lg">
+                      <Icon name="Check" size={16} className="text-green-400" />
+                      <span className="text-sm">DeFi & Стейблкоины</span>
+                    </div>
+                    <div className="flex items-center gap-2 px-4 py-2 bg-green-800/10 border border-green-800/20 rounded-lg">
+                      <Icon name="Check" size={16} className="text-green-400" />
+                      <span className="text-sm">P2P торговля</span>
+                    </div>
+                    <div className="flex items-center gap-2 px-4 py-2 bg-green-800/10 border border-green-800/20 rounded-lg">
+                      <Icon name="Check" size={16} className="text-green-400" />
+                      <span className="text-sm">Кошельки & Биржи</span>
+                    </div>
+                  </div>
                 </div>
-                <h2 className="text-2xl font-bold mb-2">Добро пожаловать!</h2>
-                <p className="text-muted-foreground">Выберите раздел в меню слева</p>
+              </div>
+
+              <div className="bg-card/50 border border-border rounded-xl p-6">
+                <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <Icon name="Compass" size={24} className="text-primary" />
+                  Начните с форума
+                </h2>
+                <p className="text-muted-foreground mb-4">
+                  Перейдите в раздел <span className="text-green-400 font-medium">Форум</span> в боковом меню, 
+                  чтобы присоединиться к обсуждениям, задать вопросы или поделиться своим опытом работы с USDT и другими криптовалютами.
+                </p>
+                <Button className="bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800">
+                  <Icon name="MessageSquare" size={18} className="mr-2" />
+                  Перейти к форуму
+                </Button>
               </div>
             </div>
           ) : (
