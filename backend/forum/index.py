@@ -91,7 +91,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 plugin_id = params.get('plugin_id')
                 query = """
                     SELECT 
-                        ft.id, ft.title, ft.views, ft.is_pinned, ft.created_at,
+                        ft.id, ft.title, ft.views, ft.is_pinned, ft.created_at, ft.updated_at,
                         u.id as author_id, u.username as author_name, u.avatar_url as author_avatar, 
                         u.forum_role as author_forum_role, u.last_seen_at as author_last_seen,
                         COUNT(fc.id) as comments_count
@@ -106,7 +106,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     query += " AND ft.plugin_id = %s"
                     query_params.append(plugin_id)
                 
-                query += " GROUP BY ft.id, u.id, u.username, u.avatar_url, u.forum_role, u.last_seen_at ORDER BY ft.is_pinned DESC, ft.created_at DESC LIMIT 50"
+                query += " GROUP BY ft.id, ft.updated_at, u.id, u.username, u.avatar_url, u.forum_role, u.last_seen_at ORDER BY ft.is_pinned DESC, ft.created_at DESC LIMIT 50"
                 
                 cur.execute(query, query_params)
                 topics = cur.fetchall()

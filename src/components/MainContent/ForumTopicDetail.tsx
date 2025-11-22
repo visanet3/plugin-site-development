@@ -20,6 +20,7 @@ interface ForumTopicDetailProps {
 const isUserOnline = (lastSeenAt?: string) => {
   if (!lastSeenAt) return false;
   const lastSeen = new Date(lastSeenAt);
+  if (isNaN(lastSeen.getTime())) return false;
   const now = new Date();
   const diffMinutes = Math.floor((now.getTime() - lastSeen.getTime()) / (1000 * 60));
   return diffMinutes < 5;

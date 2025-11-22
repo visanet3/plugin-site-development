@@ -41,6 +41,7 @@ export interface ForumTopic {
   views: number;
   is_pinned: boolean;
   created_at: string;
+  updated_at?: string;
   author_id?: number;
   author_name: string;
   author_avatar?: string;
