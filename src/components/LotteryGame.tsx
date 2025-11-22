@@ -43,7 +43,7 @@ interface ChatMessage {
 
 const TICKET_PRICE = 50;
 const MAX_TICKETS = 10;
-const DRAW_DELAY_MINUTES = 30;
+const DRAW_DELAY_MINUTES = 1;
 const PRIZE_AMOUNT = 400;
 
 const LotteryGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: LotteryGameProps) => {
@@ -573,7 +573,7 @@ const LotteryGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: LotteryGa
           <p>• <strong>Цена билета:</strong> {TICKET_PRICE} USDT</p>
           <p>• <strong>Приз:</strong> фиксированная сумма {PRIZE_AMOUNT} USDT победителю</p>
           <p>• <strong>Покупка:</strong> один игрок может купить неограниченное количество билетов</p>
-          <p>• <strong>Розыгрыш:</strong> через {DRAW_DELAY_MINUTES} минут после продажи всех билетов</p>
+          <p>• <strong>Розыгрыш:</strong> через {DRAW_DELAY_MINUTES} минуту после продажи всех билетов</p>
           <p>• <strong>Победитель:</strong> выбирается случайно из всех купленных билетов</p>
           <p>• <strong>Выплата:</strong> моментально на баланс победителя</p>
           <p>• <strong>Чат:</strong> общайтесь с другими участниками во время ожидания розыгрыша</p>

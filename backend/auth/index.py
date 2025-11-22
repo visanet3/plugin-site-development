@@ -597,7 +597,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             if updated_round['total_tickets'] >= 10:
                 import datetime
-                draw_time = datetime.datetime.now() + datetime.timedelta(minutes=30)
+                draw_time = datetime.datetime.now() + datetime.timedelta(minutes=1)
                 cur.execute(
                     "UPDATE lottery_rounds SET status = 'drawing', draw_time = %s WHERE id = %s",
                     (draw_time, round_id)
