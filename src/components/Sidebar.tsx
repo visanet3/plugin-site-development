@@ -40,7 +40,7 @@ const Sidebar = ({
           {[
             { icon: 'Home', label: 'Главная', id: 'all', view: 'plugins' },
             { icon: 'Grid3x3', label: 'Категории', id: 'categories', view: 'plugins' },
-            { icon: 'Spade', label: 'Блекджек', id: 'new', view: 'plugins' },
+            { icon: 'Spade', label: 'Блэкджек', id: 'new', view: 'plugins' },
             { icon: 'TrendingUp', label: 'Гарант сервис', id: 'popular', view: 'plugins' },
             { icon: 'MessageSquare', label: 'Форум', id: 'forum', view: 'forum' },
           ].map(item => (
