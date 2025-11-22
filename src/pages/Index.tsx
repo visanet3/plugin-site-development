@@ -238,9 +238,8 @@ const Index = () => {
     setActiveView(view);
     localStorage.setItem('activeView', view);
     if (view === 'plugins') {
-      const finalCategory = category === 'categories' ? 'all' : category;
-      setActiveCategory(finalCategory);
-      localStorage.setItem('activeCategory', finalCategory);
+      setActiveCategory(category);
+      localStorage.setItem('activeCategory', category);
     }
     setSelectedTopic(null);
     window.scrollTo(0, 0);
