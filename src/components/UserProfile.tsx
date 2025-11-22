@@ -7,6 +7,7 @@ import { UserProfileHeader } from '@/components/UserProfile/UserProfileHeader';
 import { UserProfileTabs } from '@/components/UserProfile/UserProfileTabs';
 import { TopUpDialog } from '@/components/UserProfile/TopUpDialog';
 import { CryptoPaymentDialog } from '@/components/UserProfile/CryptoPaymentDialog';
+import { useToast } from '@/hooks/use-toast';
 
 const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
 const CRYPTO_URL = 'https://functions.poehali.dev/8caa3b76-72e5-42b5-9415-91d1f9b05210';
@@ -20,6 +21,7 @@ interface UserProfileProps {
 }
 
 const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProfile }: UserProfileProps) => {
+  const { toast } = useToast();
   const [showTopUpDialog, setShowTopUpDialog] = useState(false);
   const [topUpAmount, setTopUpAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -86,7 +88,11 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
   const handleTopUp = async () => {
     const amount = parseFloat(topUpAmount);
     if (isNaN(amount) || amount <= 0) {
-      alert('Введите корректную сумму');
+      toast({
+        title: 'Ошибка',
+        description: 'Введите корректную сумму',
+        variant: 'destructive'
+      });
       return;
     }
 
@@ -112,11 +118,19 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
         setShowCryptoDialog(true);
         setTopUpAmount('');
       } else {
-        alert('Ошибка создания платежа');
+        toast({
+          title: 'Ошибка',
+          description: 'Ошибка создания платежа',
+          variant: 'destructive'
+        });
       }
     } catch (error) {
       console.error('Ошибка создания платежа:', error);
-      alert('Ошибка создания платежа');
+      toast({
+        title: 'Ошибка',
+        description: 'Ошибка создания платежа',
+        variant: 'destructive'
+      });
     } finally {
       setIsLoading(false);
     }
@@ -150,13 +164,24 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
         if (activeTab === 'transactions') {
           fetchTransactions();
         }
-        alert('Платёж подтверждён!');
+        toast({
+          title: 'Успешно',
+          description: 'Платёж подтверждён! Баланс пополнен.'
+        });
       } else {
-        alert('Ошибка подтверждения платежа');
+        toast({
+          title: 'Ошибка',
+          description: 'Ошибка подтверждения платежа',
+          variant: 'destructive'
+        });
       }
     } catch (error) {
       console.error('Ошибка подтверждения:', error);
-      alert('Ошибка подтверждения платежа');
+      toast({
+        title: 'Ошибка',
+        description: 'Ошибка подтверждения платежа',
+        variant: 'destructive'
+      });
     } finally {
       setIsLoading(false);
     }
@@ -164,7 +189,10 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    alert('Скопировано!');
+    toast({
+      title: 'Успешно',
+      description: 'Скопировано в буфер обмена'
+    });
   };
 
   const handleAvatarSelect = () => {
@@ -176,12 +204,20 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      alert('Выберите изображение');
+      toast({
+        title: 'Ошибка',
+        description: 'Выберите изображение',
+        variant: 'destructive'
+      });
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      alert('Размер файла не должен превышать 5 МБ');
+      toast({
+        title: 'Ошибка',
+        description: 'Размер файла не должен превышать 5 МБ',
+        variant: 'destructive'
+      });
       return;
     }
 
@@ -211,9 +247,16 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
           onUpdateProfile({ avatar_url: data.avatar_url });
           const updatedUser = { ...user, avatar_url: data.avatar_url };
           localStorage.setItem('user', JSON.stringify(updatedUser));
-          alert('Аватар обновлен!');
+          toast({
+            title: 'Успешно',
+            description: 'Аватар обновлен!'
+          });
         } else {
-          alert(data.error || 'Ошибка загрузки');
+          toast({
+            title: 'Ошибка',
+            description: data.error || 'Ошибка загрузки',
+            variant: 'destructive'
+          });
           setAvatarPreview(null);
         }
 
@@ -222,7 +265,11 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
       reader.readAsDataURL(file);
     } catch (error) {
       console.error('Ошибка загрузки аватара:', error);
-      alert('Ошибка загрузки');
+      toast({
+        title: 'Ошибка',
+        description: 'Ошибка загрузки аватара',
+        variant: 'destructive'
+      });
       setAvatarUploading(false);
       setAvatarPreview(null);
     }

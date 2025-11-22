@@ -6,6 +6,7 @@ import AdminUsersTab from '@/components/admin/AdminUsersTab';
 import AdminTopicsTab from '@/components/admin/AdminTopicsTab';
 import AdminBalanceDialog from '@/components/admin/AdminBalanceDialog';
 import AdminTopicEditDialog from '@/components/admin/AdminTopicEditDialog';
+import { useToast } from '@/hooks/use-toast';
 
 interface AdminPanelProps {
   currentUser: User;
@@ -16,6 +17,7 @@ const FORUM_URL = 'https://functions.poehali.dev/045d6571-633c-4239-ae69-8d76c93
 const ADMIN_URL = 'https://functions.poehali.dev/d4678b1c-2acd-40bb-b8c5-cefe8d14fad4';
 
 const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
+  const { toast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
   const [topics, setTopics] = useState<ForumTopic[]>([]);
   const [activeTab, setActiveTab] = useState<'users' | 'topics'>('users');
@@ -64,7 +66,10 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
   };
 
   const handleSaveEdit = async () => {
-    alert('Backend функция /admin не развернута из-за лимита функций (5/5). Для работы админ-панели необходимо увеличить лимит.');
+    toast({
+      title: 'Информация',
+      description: 'Backend функция /admin не развернута из-за лимита функций (5/5). Для работы админ-панели необходимо увеличить лимит.'
+    });
   };
 
   const handleDeleteTopic = async (topicId: number) => {
@@ -86,13 +91,24 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
       const data = await response.json();
       if (data.success) {
         fetchTopics();
-        alert('Тема удалена');
+        toast({
+          title: 'Успешно',
+          description: 'Тема удалена'
+        });
       } else {
-        alert(data.error || 'Ошибка удаления темы');
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Ошибка удаления темы',
+          variant: 'destructive'
+        });
       }
     } catch (error) {
       console.error('Ошибка удаления темы:', error);
-      alert('Ошибка удаления темы');
+      toast({
+        title: 'Ошибка',
+        description: 'Ошибка удаления темы',
+        variant: 'destructive'
+      });
     }
   };
 
@@ -117,11 +133,18 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
       const data = await response.json();
       if (data.success) {
         fetchUsers();
-        alert('Пользователь заблокирован');
+        toast({
+          title: 'Успешно',
+          description: 'Пользователь заблокирован'
+        });
       }
     } catch (error) {
       console.error('Ошибка блокировки:', error);
-      alert('Ошибка блокировки');
+      toast({
+        title: 'Ошибка',
+        description: 'Ошибка блокировки',
+        variant: 'destructive'
+      });
     }
   };
 
@@ -142,11 +165,18 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
       const data = await response.json();
       if (data.success) {
         fetchUsers();
-        alert('Пользователь разблокирован');
+        toast({
+          title: 'Успешно',
+          description: 'Пользователь разблокирован'
+        });
       }
     } catch (error) {
       console.error('Ошибка разблокировки:', error);
-      alert('Ошибка разблокировки');
+      toast({
+        title: 'Ошибка',
+        description: 'Ошибка разблокировки',
+        variant: 'destructive'
+      });
     }
   };
 
@@ -168,22 +198,37 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
       const data = await response.json();
       if (data.success) {
         fetchUsers();
-        alert('Роль обновлена');
+        toast({
+          title: 'Успешно',
+          description: 'Роль обновлена'
+        });
       }
     } catch (error) {
       console.error('Ошибка изменения роли:', error);
-      alert('Ошибка изменения роли');
+      toast({
+        title: 'Ошибка',
+        description: 'Ошибка изменения роли',
+        variant: 'destructive'
+      });
     }
   };
 
   const handleAddBalance = async () => {
     const amount = parseFloat(balanceAmount);
     if (!balanceUsername.trim()) {
-      alert('Введите никнейм пользователя');
+      toast({
+        title: 'Ошибка',
+        description: 'Введите никнейм пользователя',
+        variant: 'destructive'
+      });
       return;
     }
     if (isNaN(amount) || amount <= 0) {
-      alert('Введите корректную сумму');
+      toast({
+        title: 'Ошибка',
+        description: 'Введите корректную сумму',
+        variant: 'destructive'
+      });
       return;
     }
 
@@ -204,17 +249,28 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
       
       const data = await response.json();
       if (data.success) {
-        alert(`Баланс пользователя ${balanceUsername} пополнен на ${amount} USDT`);
+        toast({
+          title: 'Успешно',
+          description: `Баланс пользователя ${balanceUsername} пополнен на ${amount} USDT`
+        });
         setShowBalanceDialog(false);
         setBalanceUsername('');
         setBalanceAmount('');
         fetchUsers();
       } else {
-        alert(data.error || 'Ошибка пополнения баланса');
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Ошибка пополнения баланса',
+          variant: 'destructive'
+        });
       }
     } catch (error) {
       console.error('Ошибка пополнения баланса:', error);
-      alert('Ошибка пополнения баланса');
+      toast({
+        title: 'Ошибка',
+        description: 'Ошибка пополнения баланса',
+        variant: 'destructive'
+      });
     } finally {
       setBalanceLoading(false);
     }

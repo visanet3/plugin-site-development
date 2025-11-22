@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { Message } from '@/types';
+import { useToast } from '@/hooks/use-toast';
 
 const NOTIFICATIONS_URL = 'https://functions.poehali.dev/6c968792-7d48-41a9-af0a-c92adb047acb';
 
@@ -24,6 +25,7 @@ interface Chat {
 }
 
 const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: MessagesPanelProps) => {
+  const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
   const [chats, setChats] = useState<Chat[]>([]);
   const [selectedChat, setSelectedChat] = useState<number | null>(null);
@@ -170,7 +172,11 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
   const startNewChat = async () => {
     const targetUserId = parseInt(newChatUserId);
     if (!targetUserId || targetUserId === userId) {
-      alert('Введите корректный ID пользователя');
+      toast({
+        title: 'Ошибка',
+        description: 'Введите корректный ID пользователя',
+        variant: 'destructive'
+      });
       return;
     }
 

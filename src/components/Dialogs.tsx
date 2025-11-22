@@ -7,6 +7,7 @@ import { User } from '@/types';
 import { useState, useRef } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getAvatarGradient } from '@/utils/avatarColors';
+import { useToast } from '@/hooks/use-toast';
 
 interface DialogsProps {
   authDialogOpen: boolean;
@@ -47,6 +48,7 @@ const Dialogs = ({
   onProfileDialogChange,
   onUpdateProfile,
 }: DialogsProps) => {
+  const { toast } = useToast();
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -60,12 +62,20 @@ const Dialogs = ({
     if (!file || !user) return;
 
     if (!file.type.startsWith('image/')) {
-      alert('Выберите изображение');
+      toast({
+        title: 'Ошибка',
+        description: 'Выберите изображение',
+        variant: 'destructive'
+      });
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      alert('Размер файла не должен превышать 5 МБ');
+      toast({
+        title: 'Ошибка',
+        description: 'Размер файла не должен превышать 5 МБ',
+        variant: 'destructive'
+      });
       return;
     }
 
@@ -95,9 +105,16 @@ const Dialogs = ({
           onUpdateProfile({ avatar_url: data.avatar_url });
           const updatedUser = { ...user, avatar_url: data.avatar_url };
           localStorage.setItem('user', JSON.stringify(updatedUser));
-          alert('Аватар обновлен!');
+          toast({
+            title: 'Успешно',
+            description: 'Аватар обновлен!'
+          });
         } else {
-          alert(data.error || 'Ошибка загрузки');
+          toast({
+            title: 'Ошибка',
+            description: data.error || 'Ошибка загрузки',
+            variant: 'destructive'
+          });
           setAvatarPreview(null);
         }
 
@@ -106,7 +123,11 @@ const Dialogs = ({
       reader.readAsDataURL(file);
     } catch (error) {
       console.error('Ошибка загрузки аватара:', error);
-      alert('Ошибка загрузки');
+      toast({
+        title: 'Ошибка',
+        description: 'Ошибка загрузки аватара',
+        variant: 'destructive'
+      });
       setAvatarUploading(false);
       setAvatarPreview(null);
     }

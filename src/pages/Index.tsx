@@ -13,11 +13,13 @@ import { useDataFetching } from '@/hooks/useDataFetching';
 import { useUserActivity } from '@/hooks/useUserActivity';
 import { useForumHandlers } from '@/hooks/useForumHandlers';
 import { useSearchHandlers } from '@/hooks/useSearchHandlers';
+import { useToast } from '@/hooks/use-toast';
 
 const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
 const NOTIFICATIONS_URL = 'https://functions.poehali.dev/6c968792-7d48-41a9-af0a-c92adb047acb';
 
 const Index = () => {
+  const { toast } = useToast();
   const [plugins, setPlugins] = useState<Plugin[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>('all');
@@ -126,12 +128,24 @@ const Index = () => {
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('token', data.token);
         setAuthDialogOpen(false);
+        toast({
+          title: 'Успешно',
+          description: authMode === 'login' ? 'Вы вошли в систему' : 'Регистрация успешно завершена'
+        });
       } else {
-        alert(data.error || 'Ошибка');
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Ошибка авторизации',
+          variant: 'destructive'
+        });
       }
     } catch (error) {
       console.error('Ошибка:', error);
-      alert('Ошибка подключения');
+      toast({
+        title: 'Ошибка',
+        description: 'Ошибка подключения к серверу',
+        variant: 'destructive'
+      });
     }
   };
 

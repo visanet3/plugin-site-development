@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { getAvatarGradient } from '@/utils/avatarColors';
+import { useToast } from '@/hooks/use-toast';
 
 const ESCROW_URL = 'https://functions.poehali.dev/82c75fbc-83e4-4448-9ff8-1c8ef9bbec09';
 
@@ -19,6 +20,7 @@ interface EscrowViewProps {
 }
 
 export const EscrowView = ({ user, onShowAuthDialog }: EscrowViewProps) => {
+  const { toast } = useToast();
   const [deals, setDeals] = useState<EscrowDeal[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -57,7 +59,11 @@ export const EscrowView = ({ user, onShowAuthDialog }: EscrowViewProps) => {
     }
 
     if (!newDeal.title || !newDeal.description || !newDeal.price) {
-      alert('Заполните все поля');
+      toast({
+        title: 'Ошибка',
+        description: 'Заполните все поля',
+        variant: 'destructive'
+      });
       return;
     }
 
@@ -81,11 +87,18 @@ export const EscrowView = ({ user, onShowAuthDialog }: EscrowViewProps) => {
         setShowCreateDialog(false);
         setNewDeal({ title: '', description: '', price: '' });
         fetchDeals();
-        alert('Сделка создана!');
+        toast({
+          title: 'Успешно',
+          description: 'Сделка создана!'
+        });
       }
     } catch (error) {
       console.error('Ошибка создания сделки:', error);
-      alert('Ошибка создания сделки');
+      toast({
+        title: 'Ошибка',
+        description: 'Ошибка создания сделки',
+        variant: 'destructive'
+      });
     }
   };
 
@@ -451,6 +464,7 @@ interface DealDetailDialogProps {
 }
 
 const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogProps) => {
+  const { toast } = useToast();
   const [currentDeal, setCurrentDeal] = useState<EscrowDeal>(deal);
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -505,7 +519,11 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogPro
     
     // Проверка баланса перед присоединением
     if ((user.balance || 0) < currentDeal.price) {
-      alert(`Недостаточно USDT на балансе. У вас: ${(user.balance || 0).toFixed(2)} USDT, требуется: ${currentDeal.price} USDT. Пополните баланс для участия в сделке.`);
+      toast({
+        title: 'Недостаточно средств',
+        description: `У вас: ${(user.balance || 0).toFixed(2)} USDT, требуется: ${currentDeal.price} USDT. Пополните баланс для участия в сделке.`,
+        variant: 'destructive'
+      });
       return;
     }
     
@@ -526,17 +544,32 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogPro
 
       const data = await response.json();
       if (data.success) {
-        alert('Вы присоединились к сделке! Средства заблокированы до завершения.');
+        toast({
+          title: 'Успешно',
+          description: 'Вы присоединились к сделке! Средства заблокированы до завершения.'
+        });
         await fetchDealDetails();
         onUpdate();
       } else if (data.error === 'Insufficient balance') {
-        alert(`Недостаточно USDT на балансе. Требуется: ${currentDeal.price} USDT. Пополните баланс для участия в сделке.`);
+        toast({
+          title: 'Недостаточно средств',
+          description: `Требуется: ${currentDeal.price} USDT. Пополните баланс для участия в сделке.`,
+          variant: 'destructive'
+        });
       } else {
-        alert(data.error || 'Ошибка присоединения к сделке');
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Ошибка присоединения к сделке',
+          variant: 'destructive'
+        });
       }
     } catch (error) {
       console.error('Ошибка:', error);
-      alert('Ошибка подключения к серверу');
+      toast({
+        title: 'Ошибка',
+        description: 'Ошибка подключения к серверу',
+        variant: 'destructive'
+      });
     } finally {
       setLoading(false);
     }
@@ -601,7 +634,11 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogPro
   };
 
   const buyerConfirm = async () => {
-    if (!user || !confirm('Подтвердить получение товара? Средства будут переведены продавцу.')) return;
+    if (!user) return;
+    
+    const confirmed = window.confirm('Подтвердить получение товара? Средства будут переведены продавцу.');
+    if (!confirmed) return;
+    
     setLoading(true);
 
     try {
@@ -619,12 +656,20 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogPro
       
       const data = await response.json();
       if (data.success) {
-        alert('Сделка завершена!');
+        toast({
+          title: 'Успешно',
+          description: 'Сделка завершена! Средства переведены продавцу.'
+        });
         await fetchDealDetails();
         onUpdate();
       }
     } catch (error) {
       console.error('Ошибка:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Ошибка завершения сделки',
+        variant: 'destructive'
+      });
     } finally {
       setLoading(false);
     }
