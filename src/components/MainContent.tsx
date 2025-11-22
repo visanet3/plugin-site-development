@@ -3,6 +3,7 @@ import { PluginsView } from './MainContent/PluginsView';
 import { ForumTopicsList } from './MainContent/ForumTopicsList';
 import { ForumTopicDetail } from './MainContent/ForumTopicDetail';
 import { EscrowView } from './EscrowView';
+import { BlackjackGame } from './BlackjackGame';
 
 interface MainContentProps {
   activeView: 'plugins' | 'forum';
@@ -52,6 +53,12 @@ const MainContent = ({
           <EscrowView 
             user={user} 
             onShowAuthDialog={onShowAuthDialog} 
+            onRefreshUserBalance={onRefreshUserBalance}
+          />
+        ) : activeCategory === 'new' ? (
+          <BlackjackGame
+            user={user}
+            onShowAuthDialog={onShowAuthDialog}
             onRefreshUserBalance={onRefreshUserBalance}
           />
         ) : (
