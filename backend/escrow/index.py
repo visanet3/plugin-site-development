@@ -452,13 +452,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
                 
                 cursor.execute("""
-                    SELECT seller_id, buyer_id, price, title, 
+                    SELECT ed.seller_id, ed.buyer_id, ed.price, ed.title, 
                            seller.username as seller_name,
                            buyer.username as buyer_name
-                    FROM escrow_deals
-                    LEFT JOIN users seller ON escrow_deals.seller_id = seller.id
-                    LEFT JOIN users buyer ON escrow_deals.buyer_id = buyer.id
-                    WHERE escrow_deals.id = %s AND status = 'dispute'
+                    FROM escrow_deals ed
+                    LEFT JOIN users seller ON ed.seller_id = seller.id
+                    LEFT JOIN users buyer ON ed.buyer_id = buyer.id
+                    WHERE ed.id = %s AND ed.status = 'dispute'
                 """, (deal_id,))
                 deal = cursor.fetchone()
                 
