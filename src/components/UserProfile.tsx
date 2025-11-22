@@ -23,6 +23,7 @@ interface UserProfileProps {
 const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProfile }: UserProfileProps) => {
   const { toast } = useToast();
   const [showTopUpDialog, setShowTopUpDialog] = useState(false);
+  const [showWithdrawalDialog, setShowWithdrawalDialog] = useState(false);
   const [topUpAmount, setTopUpAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -303,6 +304,7 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
               onAvatarSelect={handleAvatarSelect}
               onFileChange={handleFileChange}
               onShowTopUpDialog={() => setShowTopUpDialog(true)}
+              onShowWithdrawalDialog={() => setShowWithdrawalDialog(true)}
             />
 
             <UserProfileTabs
@@ -313,6 +315,8 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
               transactionsLoading={transactionsLoading}
               onTabChange={setActiveTab}
               onUpdateProfile={onUpdateProfile}
+              showWithdrawalDialog={showWithdrawalDialog}
+              onCloseWithdrawalDialog={() => setShowWithdrawalDialog(false)}
             />
           </div>
         </Card>

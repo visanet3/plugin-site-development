@@ -17,6 +17,7 @@ interface UserProfileHeaderProps {
   onAvatarSelect: () => void;
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onShowTopUpDialog: () => void;
+  onShowWithdrawalDialog: () => void;
 }
 
 export const UserProfileHeader = ({
@@ -29,7 +30,8 @@ export const UserProfileHeader = ({
   fileInputRef,
   onAvatarSelect,
   onFileChange,
-  onShowTopUpDialog
+  onShowTopUpDialog,
+  onShowWithdrawalDialog
 }: UserProfileHeaderProps) => {
   return (
     <>
@@ -95,13 +97,22 @@ export const UserProfileHeader = ({
                 </p>
               </div>
             </div>
-            <Button 
-              onClick={onShowTopUpDialog}
-              className="bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800"
-            >
-              <Icon name="Plus" size={18} className="mr-2" />
-              Пополнить
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={onShowTopUpDialog}
+                className="bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800"
+              >
+                <Icon name="Plus" size={18} className="mr-2" />
+                Пополнить
+              </Button>
+              <Button 
+                onClick={onShowWithdrawalDialog}
+                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 shadow-lg shadow-orange-500/20"
+              >
+                <Icon name="ArrowDownToLine" size={18} className="mr-2" />
+                Вывод
+              </Button>
+            </div>
           </div>
           <p className="text-sm text-muted-foreground">
             Используйте баланс в USDT для покупки плагинов, премиум подписки и других услуг

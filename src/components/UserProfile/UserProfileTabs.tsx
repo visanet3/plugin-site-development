@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { WithdrawalView } from '@/components/WithdrawalView';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 interface UserProfileTabsProps {
   user: User;
@@ -15,6 +16,8 @@ interface UserProfileTabsProps {
   transactionsLoading: boolean;
   onTabChange: (tab: string) => void;
   onUpdateProfile?: (profileData: Partial<User>) => void;
+  showWithdrawalDialog: boolean;
+  onCloseWithdrawalDialog: () => void;
 }
 
 export const UserProfileTabs = ({
@@ -24,15 +27,17 @@ export const UserProfileTabs = ({
   transactions,
   transactionsLoading,
   onTabChange,
-  onUpdateProfile
+  onUpdateProfile,
+  showWithdrawalDialog,
+  onCloseWithdrawalDialog
 }: UserProfileTabsProps) => {
   return (
-    <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-      <TabsList className="grid w-full grid-cols-3">
-        <TabsTrigger value="settings">Настройки</TabsTrigger>
-        <TabsTrigger value="transactions">Транзакции</TabsTrigger>
-        <TabsTrigger value="withdrawal">Вывод</TabsTrigger>
-      </TabsList>
+    <>
+      <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="settings">Настройки</TabsTrigger>
+          <TabsTrigger value="transactions">Транзакции</TabsTrigger>
+        </TabsList>
 
       <TabsContent value="transactions" className="space-y-4 mt-4">
         {transactionsLoading ? (
@@ -129,18 +134,6 @@ export const UserProfileTabs = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label className="text-xs text-muted-foreground mb-1 flex items-center gap-2">
-                    <Icon name="MessageCircle" size={14} />
-                    VK
-                  </Label>
-                  <Input 
-                    defaultValue={user.vk_url || ''}
-                    onBlur={(e) => onUpdateProfile({ vk_url: e.target.value })}
-                    placeholder="https://vk.com/..."
-                  />
-                </div>
-                
-                <div>
-                  <Label className="text-xs text-muted-foreground mb-1 flex items-center gap-2">
                     <Icon name="Send" size={14} />
                     Telegram
                   </Label>
@@ -168,12 +161,16 @@ export const UserProfileTabs = ({
         )}
       </TabsContent>
 
-      <TabsContent value="withdrawal" className="space-y-4 mt-4">
-        <WithdrawalView 
-          user={user}
-          onShowAuthDialog={() => {}}
-        />
-      </TabsContent>
-    </Tabs>
+      </Tabs>
+
+      <Dialog open={showWithdrawalDialog} onOpenChange={onCloseWithdrawalDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <WithdrawalView 
+            user={user}
+            onShowAuthDialog={() => {}}
+          />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
