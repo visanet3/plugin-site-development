@@ -5,8 +5,6 @@ import Icon from '@/components/ui/icon';
 import { User } from '@/types';
 import BlackjackGame from './BlackjackGame';
 import BaccaratGame from './BaccaratGame';
-import RouletteGame from './RouletteGame';
-import PokerGame from './PokerGame';
 import DiceGame from './DiceGame';
 
 interface CasinoHubProps {
@@ -15,7 +13,7 @@ interface CasinoHubProps {
   onRefreshUserBalance?: () => void;
 }
 
-type GameType = 'menu' | 'blackjack' | 'baccarat' | 'roulette' | 'poker' | 'dice';
+type GameType = 'menu' | 'blackjack' | 'baccarat' | 'dice';
 
 const CasinoHub = ({ user, onShowAuthDialog, onRefreshUserBalance }: CasinoHubProps) => {
   const [selectedGame, setSelectedGame] = useState<GameType>('menu');
@@ -37,22 +35,7 @@ const CasinoHub = ({ user, onShowAuthDialog, onRefreshUserBalance }: CasinoHubPr
       color: 'from-purple-600 to-purple-800',
       available: true
     },
-    {
-      id: 'roulette' as GameType,
-      name: 'Рулетка',
-      icon: 'CircleDot',
-      description: 'Европейская рулетка с 37 числами',
-      color: 'from-red-600 to-red-800',
-      available: true
-    },
-    {
-      id: 'poker' as GameType,
-      name: 'Покер',
-      icon: 'Club',
-      description: '5-карточный покер против дилера',
-      color: 'from-blue-600 to-blue-800',
-      available: true
-    },
+
     {
       id: 'dice' as GameType,
       name: 'Dice',
@@ -103,45 +86,7 @@ const CasinoHub = ({ user, onShowAuthDialog, onRefreshUserBalance }: CasinoHubPr
     );
   }
 
-  if (selectedGame === 'roulette') {
-    return (
-      <div className="space-y-4">
-        <Button 
-          onClick={() => setSelectedGame('menu')}
-          variant="outline"
-          className="gap-2"
-        >
-          <Icon name="ArrowLeft" size={18} />
-          Назад в казино
-        </Button>
-        <RouletteGame 
-          user={user} 
-          onShowAuthDialog={onShowAuthDialog}
-          onRefreshUserBalance={onRefreshUserBalance}
-        />
-      </div>
-    );
-  }
 
-  if (selectedGame === 'poker') {
-    return (
-      <div className="space-y-4">
-        <Button 
-          onClick={() => setSelectedGame('menu')}
-          variant="outline"
-          className="gap-2"
-        >
-          <Icon name="ArrowLeft" size={18} />
-          Назад в казино
-        </Button>
-        <PokerGame 
-          user={user} 
-          onShowAuthDialog={onShowAuthDialog}
-          onRefreshUserBalance={onRefreshUserBalance}
-        />
-      </div>
-    );
-  }
 
   if (selectedGame === 'dice') {
     return (
