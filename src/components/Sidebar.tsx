@@ -7,9 +7,10 @@ interface SidebarProps {
   activeCategory: string;
   activeView: 'plugins' | 'forum';
   categories: Category[];
-  user: { id: number; username: string; email: string } | null;
+  user: { id: number; username: string; email: string; role?: string } | null;
   onCategoryChange: (category: string, view: 'plugins' | 'forum') => void;
   onShowProfileDialog: () => void;
+  onShowAdminPanel?: () => void;
 }
 
 const Sidebar = ({
@@ -20,6 +21,7 @@ const Sidebar = ({
   user,
   onCategoryChange,
   onShowProfileDialog,
+  onShowAdminPanel,
 }: SidebarProps) => {
   return (
     <aside className={`fixed top-0 left-0 h-full bg-sidebar border-r border-sidebar-border transition-all duration-300 z-30 ${sidebarOpen ? 'w-64' : 'w-0 -translate-x-full'}`}>
@@ -66,6 +68,13 @@ const Sidebar = ({
                   <div className="px-4 py-1 mb-1">
                     <span className="text-xs font-semibold text-primary">АДМИНИСТРАТОР</span>
                   </div>
+                  <button
+                    onClick={onShowAdminPanel}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors hover:bg-sidebar-accent/50 bg-primary/10 border border-primary/30"
+                  >
+                    <Icon name="Shield" size={18} className="text-primary" />
+                    <span className="text-sm font-medium text-primary">Админ-панель</span>
+                  </button>
                 </div>
               )}
             </>

@@ -3,6 +3,7 @@ import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import MainContent from '@/components/MainContent';
 import Dialogs from '@/components/Dialogs';
+import AdminPanel from '@/components/AdminPanel';
 import { Plugin, Category, User, ForumTopic, ForumComment, SearchResult } from '@/types';
 
 const BACKEND_URL = 'https://functions.poehali.dev/1e67c3bd-abb5-4647-aa02-57410816c1f0';
@@ -30,6 +31,7 @@ const Index = () => {
   const [newComment, setNewComment] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
 
   useEffect(() => {
     if (activeView === 'plugins') {
@@ -304,15 +306,20 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex" onClick={() => setShowSearchResults(false)}>
-      <Sidebar
-        sidebarOpen={sidebarOpen}
-        activeCategory={activeCategory}
-        activeView={activeView}
-        categories={categories}
-        user={user}
-        onCategoryChange={handleCategoryChange}
-        onShowProfileDialog={() => setShowProfileDialog(true)}
-      />
+      {showAdminPanel && user?.role === 'admin' ? (
+        <AdminPanel currentUser={user} onClose={() => setShowAdminPanel(false)} />
+      ) : (
+        <>
+          <Sidebar
+            sidebarOpen={sidebarOpen}
+            activeCategory={activeCategory}
+            activeView={activeView}
+            categories={categories}
+            user={user}
+            onCategoryChange={handleCategoryChange}
+            onShowProfileDialog={() => setShowProfileDialog(true)}
+            onShowAdminPanel={() => setShowAdminPanel(true)}
+          />
 
       <div className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-0'}`}>
         <Header
@@ -365,6 +372,8 @@ const Index = () => {
         onProfileDialogChange={setShowProfileDialog}
         onUpdateProfile={handleUpdateProfile}
       />
+        </>
+      )}
     </div>
   );
 };
