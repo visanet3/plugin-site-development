@@ -233,7 +233,7 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-3xl font-bold mb-2">Казино</h1>
+        <h1 className="text-3xl font-bold mb-2">Блэкджек</h1>
         <p className="text-muted-foreground">
           Классическая карточная игра. Наберите 21 очко или больше чем у дилера
         </p>
