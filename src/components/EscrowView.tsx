@@ -451,13 +451,14 @@ interface DealDetailDialogProps {
 }
 
 const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogProps) => {
+  const [currentDeal, setCurrentDeal] = useState<EscrowDeal>(deal);
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchDealDetails();
-    const interval = setInterval(fetchDealDetails, 5000);
+    const interval = setInterval(fetchDealDetails, 3000);
     return () => clearInterval(interval);
   }, [deal.id]);
 
@@ -465,6 +466,9 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogPro
     try {
       const response = await fetch(`${ESCROW_URL}?action=deal&id=${deal.id}`);
       const data = await response.json();
+      if (data.deal) {
+        setCurrentDeal(data.deal);
+      }
       if (data.messages) {
         setMessages(data.messages);
       }
@@ -485,7 +489,7 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogPro
         },
         body: JSON.stringify({
           action: 'send_message',
-          deal_id: deal.id,
+          deal_id: currentDeal.id,
           message: newMessage
         })
       });
@@ -509,7 +513,7 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogPro
         },
         body: JSON.stringify({
           action: 'join_deal',
-          deal_id: deal.id
+          deal_id: currentDeal.id
         })
       });
 
@@ -536,7 +540,7 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogPro
     setLoading(true);
 
     try {
-      await fetch(ESCROW_URL, {
+      const response = await fetch(ESCROW_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -544,11 +548,15 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogPro
         },
         body: JSON.stringify({
           action: 'buyer_paid',
-          deal_id: deal.id
+          deal_id: currentDeal.id
         })
       });
-      fetchDealDetails();
-      onUpdate();
+      
+      const data = await response.json();
+      if (data.success) {
+        await fetchDealDetails();
+        onUpdate();
+      }
     } catch (error) {
       console.error('Ошибка:', error);
     } finally {
@@ -561,7 +569,7 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogPro
     setLoading(true);
 
     try {
-      await fetch(ESCROW_URL, {
+      const response = await fetch(ESCROW_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -569,11 +577,15 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogPro
         },
         body: JSON.stringify({
           action: 'seller_confirm',
-          deal_id: deal.id
+          deal_id: currentDeal.id
         })
       });
-      fetchDealDetails();
-      onUpdate();
+      
+      const data = await response.json();
+      if (data.success) {
+        await fetchDealDetails();
+        onUpdate();
+      }
     } catch (error) {
       console.error('Ошибка:', error);
     } finally {
@@ -594,7 +606,7 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogPro
         },
         body: JSON.stringify({
           action: 'buyer_confirm',
-          deal_id: deal.id
+          deal_id: currentDeal.id
         })
       });
       alert('Сделка завершена!');
@@ -607,8 +619,8 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogPro
     }
   };
 
-  const isSeller = user?.id === deal.seller_id;
-  const isBuyer = user?.id === deal.buyer_id;
+  const isSeller = user?.id === currentDeal.seller_id;
+  const isBuyer = user?.id === currentDeal.buyer_id;
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
@@ -616,18 +628,18 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogPro
         <DialogHeader>
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <DialogTitle>{deal.title}</DialogTitle>
+              <DialogTitle>{currentDeal.title}</DialogTitle>
               <DialogDescription className="mt-2">
-                {deal.description}
+                {currentDeal.description}
               </DialogDescription>
             </div>
-            {deal.status === 'open' && (
+            {currentDeal.status === 'open' && (
               <Badge variant="default" className="bg-green-800">Открыта</Badge>
             )}
-            {deal.status === 'in_progress' && (
+            {currentDeal.status === 'in_progress' && (
               <Badge variant="secondary">В процессе</Badge>
             )}
-            {deal.status === 'completed' && (
+            {currentDeal.status === 'completed' && (
               <Badge variant="outline">Завершена</Badge>
             )}
           </div>
@@ -639,32 +651,32 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogPro
               <p className="text-xs text-muted-foreground mb-1">Продавец</p>
               <div className="flex items-center gap-2">
                 <Avatar className="w-8 h-8">
-                  <AvatarImage src={deal.seller_avatar} />
-                  <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(deal.seller_name || '')} text-white text-xs`}>
-                    {deal.seller_name?.[0].toUpperCase()}
+                  <AvatarImage src={currentDeal.seller_avatar} />
+                  <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(currentDeal.seller_name || '')} text-white text-xs`}>
+                    {currentDeal.seller_name?.[0].toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <p className="font-medium">{deal.seller_name}</p>
+                <p className="font-medium">{currentDeal.seller_name}</p>
               </div>
             </Card>
 
             <Card className="p-3">
               <p className="text-xs text-muted-foreground mb-1">Цена</p>
-              <p className="text-2xl font-bold text-green-400">{deal.price} USDT</p>
+              <p className="text-2xl font-bold text-green-400">{currentDeal.price} USDT</p>
             </Card>
           </div>
 
-          {deal.buyer_id && (
+          {currentDeal.buyer_id && (
             <Card className="p-3">
               <p className="text-xs text-muted-foreground mb-1">Покупатель</p>
               <div className="flex items-center gap-2">
                 <Avatar className="w-8 h-8">
-                  <AvatarImage src={deal.buyer_avatar} />
-                  <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(deal.buyer_name || '')} text-white text-xs`}>
-                    {deal.buyer_name?.[0].toUpperCase()}
+                  <AvatarImage src={currentDeal.buyer_avatar} />
+                  <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(currentDeal.buyer_name || '')} text-white text-xs`}>
+                    {currentDeal.buyer_name?.[0].toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <p className="font-medium">{deal.buyer_name}</p>
+                <p className="font-medium">{currentDeal.buyer_name}</p>
               </div>
             </Card>
           )}
@@ -702,7 +714,7 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogPro
             </div>
           </Card>
 
-          {deal.status !== 'completed' && deal.status !== 'cancelled' && (isSeller || isBuyer) && (
+          {currentDeal.status !== 'completed' && currentDeal.status !== 'cancelled' && (isSeller || isBuyer) && (
             <div className="flex items-center gap-2">
               <Input
                 value={newMessage}
@@ -717,18 +729,18 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogPro
           )}
 
           <div className="space-y-2">
-            {deal.status === 'open' && !isSeller && (
+            {currentDeal.status === 'open' && !isSeller && (
               <Button
                 onClick={joinDeal}
                 disabled={loading}
                 className="w-full bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800"
               >
                 <Icon name="ShoppingCart" size={18} className="mr-2" />
-                Купить за {deal.price} USDT
+                Купить за {currentDeal.price} USDT
               </Button>
             )}
 
-            {deal.status === 'in_progress' && isBuyer && !deal.buyer_paid && (
+            {currentDeal.status === 'in_progress' && isBuyer && !currentDeal.buyer_paid && (
               <Button
                 onClick={buyerPaid}
                 disabled={loading}
@@ -739,7 +751,7 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogPro
               </Button>
             )}
 
-            {deal.status === 'in_progress' && isSeller && deal.buyer_paid && !deal.seller_confirmed && (
+            {currentDeal.status === 'in_progress' && isSeller && currentDeal.buyer_paid && !currentDeal.seller_confirmed && (
               <Button
                 onClick={sellerConfirm}
                 disabled={loading}
@@ -750,7 +762,7 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate }: DealDetailDialogPro
               </Button>
             )}
 
-            {deal.status === 'in_progress' && isBuyer && deal.seller_confirmed && (
+            {currentDeal.status === 'in_progress' && isBuyer && currentDeal.seller_confirmed && (
               <Button
                 onClick={buyerConfirm}
                 disabled={loading}
