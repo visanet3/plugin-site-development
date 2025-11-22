@@ -73,7 +73,31 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
 
   const handleDeleteTopic = async (topicId: number) => {
     if (!confirm('Удалить эту тему? Она будет скрыта для пользователей.')) return;
-    alert('Backend функция /admin не развернута из-за лимита функций (5/5). Для работы админ-панели необходимо увеличить лимит.');
+    
+    try {
+      const response = await fetch(ADMIN_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': currentUser.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'delete_topic',
+          topic_id: topicId
+        })
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        fetchTopics();
+        alert('Тема удалена');
+      } else {
+        alert(data.error || 'Ошибка удаления темы');
+      }
+    } catch (error) {
+      console.error('Ошибка удаления темы:', error);
+      alert('Ошибка удаления темы');
+    }
   };
 
   const handleBlockUser = async (userId: number, username: string) => {
@@ -369,8 +393,7 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
                         size="sm"
                         variant="ghost"
                         onClick={() => handleDeleteTopic(topic.id)}
-                        className="text-destructive hover:text-destructive"
-                        disabled
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
                       >
                         <Icon name="Trash2" size={16} />
                       </Button>

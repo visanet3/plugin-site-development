@@ -321,6 +321,32 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
+            elif action == 'delete_topic':
+                topic_id = body_data.get('topic_id')
+                
+                if not topic_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'topic_id обязателен'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cur.execute(
+                    "UPDATE forum_topics SET removed_at = CURRENT_TIMESTAMP, removed_by = %s WHERE id = %s",
+                    (user_id, topic_id)
+                )
+                
+                log_admin_action(user_id, 'delete_topic', 'topic', topic_id, 'Topic removed', cur)
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True}),
+                    'isBase64Encoded': False
+                }
+            
             else:
                 return {
                     'statusCode': 400,
