@@ -84,6 +84,7 @@ const LotteryGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: LotteryGa
   const [isChatInitialized, setIsChatInitialized] = useState(false);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     loadLottery();
     loadChat();
     checkDraw();
