@@ -71,13 +71,23 @@ const Index = () => {
     });
   };
 
+  const showToast = (title: string, description: string, className?: string, duration?: number) => {
+    toast({
+      title,
+      description,
+      className,
+      duration
+    });
+  };
+
   useUserActivity({
     user,
     setUser,
     setNotificationsUnread,
     setMessagesUnread,
     setAdminNotificationsUnread,
-    showAdminToast
+    showAdminToast,
+    showToast
   });
 
   const { handleCreateTopic, handleCreateComment, handleTopicSelect } = useForumHandlers({

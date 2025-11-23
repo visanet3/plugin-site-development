@@ -5,6 +5,7 @@ const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf79
 const NOTIFICATIONS_URL = 'https://functions.poehali.dev/6c968792-7d48-41a9-af0a-c92adb047acb';
 const CRYPTO_URL = 'https://functions.poehali.dev/8caa3b76-72e5-42b5-9415-91d1f9b05210';
 const ADMIN_URL = 'https://functions.poehali.dev/d4678b1c-2acd-40bb-b8c5-cefe8d14fad4';
+const VERIFICATION_URL = 'https://functions.poehali.dev/e0d94580-497a-452f-9044-0ef1b2ff42c8';
 
 interface UseUserActivityProps {
   user: User | null;
@@ -13,6 +14,7 @@ interface UseUserActivityProps {
   setMessagesUnread: (count: number) => void;
   setAdminNotificationsUnread?: (count: number) => void;
   showAdminToast?: (title: string, description: string) => void;
+  showToast?: (title: string, description: string, className?: string, duration?: number) => void;
 }
 
 export const useUserActivity = ({
@@ -21,7 +23,8 @@ export const useUserActivity = ({
   setNotificationsUnread,
   setMessagesUnread,
   setAdminNotificationsUnread,
-  showAdminToast
+  showAdminToast,
+  showToast
 }: UseUserActivityProps) => {
   useEffect(() => {
     if (user) {
@@ -152,21 +155,55 @@ export const useUserActivity = ({
         }
       };
 
+      const checkVerificationStatus = async () => {
+        try {
+          const response = await fetch(`${VERIFICATION_URL}?action=status`, {
+            headers: { 'X-User-Id': user.id.toString() }
+          });
+          if (!response.ok) return;
+          const data = await response.json();
+          
+          if (data.is_verified !== user.is_verified) {
+            const updatedUser = { ...user, is_verified: data.is_verified };
+            setUser(updatedUser);
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+            
+            if (data.is_verified && showToast) {
+              showToast(
+                '✅ Поздравляем!',
+                'Ваша заявка на верификацию одобрена. Теперь рядом с вашим ником отображается значок верификации.',
+                'bg-green-500/10 border-green-500/30 text-foreground',
+                8000
+              );
+              
+              const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5a');
+              audio.volume = 0.5;
+              audio.play().catch(() => {});
+            }
+          }
+        } catch (error) {
+          // Silently handle connection errors for background task
+        }
+      };
+
       updateActivity();
       fetchUnreadCount();
       checkBalanceUpdates();
       checkPendingPayments();
+      checkVerificationStatus();
       
       const activityInterval = setInterval(updateActivity, 60 * 1000);
       const unreadInterval = setInterval(fetchUnreadCount, 30 * 1000);
       const balanceInterval = setInterval(checkBalanceUpdates, 5 * 1000);
       const paymentsInterval = setInterval(checkPendingPayments, 30 * 1000);
+      const verificationInterval = setInterval(checkVerificationStatus, 15 * 1000);
       
       return () => {
         clearInterval(activityInterval);
         clearInterval(unreadInterval);
         clearInterval(balanceInterval);
         clearInterval(paymentsInterval);
+        clearInterval(verificationInterval);
       };
     }
   }, [user]);
