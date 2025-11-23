@@ -223,18 +223,10 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
       <DialogContent className="max-w-full sm:max-w-4xl md:max-w-5xl h-[100vh] sm:h-[90vh] p-0 sm:rounded-lg overflow-hidden">
         <div className="flex h-full bg-background">
           {/* Список чатов - показывается на мобилке когда чат не выбран */}
-          <div className={`${showChatList ? 'flex' : 'hidden sm:flex'} w-full sm:w-80 md:w-96 flex-col border-r border-border`}>
+          <div className={`${showChatList ? 'flex' : 'hidden sm:flex'} w-full sm:w-80 md:w-96 flex-col border-r border-border relative`}>
             {/* Шапка списка чатов */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
               <h2 className="text-xl font-semibold">Чаты</h2>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => setShowNewChat(true)}
-                className="h-10 w-10"
-              >
-                <Icon name="Plus" size={22} />
-              </Button>
             </div>
 
             {/* Новый чат форма */}
@@ -304,6 +296,15 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
                 ))
               )}
             </div>
+
+            {/* Плавающая кнопка добавления чата */}
+            <Button
+              size="icon"
+              onClick={() => setShowNewChat(true)}
+              className="absolute bottom-6 right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-shadow z-10"
+            >
+              <Icon name="Plus" size={24} />
+            </Button>
           </div>
 
           {/* Окно чата */}
