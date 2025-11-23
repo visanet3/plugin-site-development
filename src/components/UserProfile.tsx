@@ -246,6 +246,8 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
     const file = e.target.files?.[0];
     if (!file) return;
 
+    console.log('Выбран файл:', file.name, file.type, file.size);
+
     if (!file.type.startsWith('image/')) {
       toast({
         title: 'Ошибка',
@@ -264,14 +266,17 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
       return;
     }
 
+    console.log('Начинаем загрузку аватара...');
     setAvatarUploading(true);
 
     try {
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64 = reader.result as string;
+        console.log('Файл прочитан, размер base64:', base64.length);
         setAvatarPreview(base64);
 
+        console.log('Отправляем запрос на сервер...');
         const response = await fetch(AUTH_URL, {
           method: 'POST',
           headers: {
@@ -284,20 +289,30 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
           })
         });
 
+        console.log('Получен ответ, статус:', response.status);
         const data = await response.json();
+        console.log('Данные ответа:', data);
 
-        if (data.success && onUpdateProfile) {
-          onUpdateProfile({ avatar_url: data.avatar_url });
+        if (data.success) {
           const updatedUser = { ...user, avatar_url: data.avatar_url };
           localStorage.setItem('user', JSON.stringify(updatedUser));
+          Object.assign(user, updatedUser);
+          
+          if (onUpdateProfile) {
+            onUpdateProfile({ avatar_url: data.avatar_url });
+          }
+          
           toast({
             title: 'Успешно',
             description: 'Аватар обновлен!'
           });
+          
+          window.location.reload();
         } else {
+          console.error('Ошибка ответа:', data);
           toast({
             title: 'Ошибка',
-            description: data.error || 'Ошибка загрузки',
+            description: data.error || data.details || 'Ошибка загрузки',
             variant: 'destructive'
           });
           setAvatarPreview(null);
