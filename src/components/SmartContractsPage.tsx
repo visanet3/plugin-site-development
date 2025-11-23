@@ -2,9 +2,46 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useState } from 'react';
+import { User } from '@/types';
 
-const SmartContractsPage = () => {
+interface SmartContractsPageProps {
+  user?: User | null;
+}
+
+const SmartContractsPage = ({ user }: SmartContractsPageProps) => {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  
+  const isAdmin = user?.role === 'admin';
+  const canViewFullCode = isAdmin;
+
+  const obfuscateLine = (line: string): string => {
+    const criticalKeywords = [
+      'flashFee',
+      'FEE_DENOMINATOR',
+      'flashMint',
+      'flashExpiry',
+      '_burnFlash',
+      'isFlashToken'
+    ];
+    
+    const hasCriticalKeyword = criticalKeywords.some(keyword => line.includes(keyword));
+    
+    if (hasCriticalKeyword && !canViewFullCode) {
+      const indent = line.match(/^\s*/)?.[0] || '';
+      return indent + '████████████████████████████████████';
+    }
+    
+    return line;
+  };
+
+  const processCode = (code: string, contractId: string): string => {
+    if (contractId !== 'flash-usdt' || canViewFullCode) {
+      return code;
+    }
+    
+    const lines = code.split('\n');
+    return lines.map(obfuscateLine).join('\n');
+  };
 
   const copyCode = async (code: string, id: string) => {
     try {
@@ -551,17 +588,27 @@ contract SimpleNFT {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => copyCode(contract.code, contract.id)}
+                  onClick={() => copyCode(processCode(contract.code, contract.id), contract.id)}
                   className="gap-2"
+                  disabled={contract.id === 'flash-usdt' && !canViewFullCode}
                 >
-                  <Icon name={copiedCode === contract.id ? "Check" : "Copy"} size={16} />
-                  {copiedCode === contract.id ? 'Скопировано' : 'Копировать'}
+                  <Icon name={copiedCode === contract.id ? "Check" : contract.id === 'flash-usdt' && !canViewFullCode ? "Lock" : "Copy"} size={16} />
+                  {copiedCode === contract.id ? 'Скопировано' : contract.id === 'flash-usdt' && !canViewFullCode ? 'Ограничено' : 'Копировать'}
                 </Button>
               </div>
 
               <div className="relative">
+                {contract.id === 'flash-usdt' && !canViewFullCode && (
+                  <div className="mb-3 p-3 bg-orange-500/10 border border-orange-500/30 rounded-lg flex items-start gap-3">
+                    <Icon name="Lock" size={20} className="text-orange-400 flex-shrink-0 mt-0.5" />
+                    <div className="text-sm">
+                      <p className="font-semibold text-orange-400 mb-1">Ограниченный доступ</p>
+                      <p className="text-muted-foreground">Некоторые критические части кода скрыты. Полный доступ доступен администраторам.</p>
+                    </div>
+                  </div>
+                )}
                 <pre className="bg-slate-950 text-slate-100 p-4 rounded-xl overflow-x-auto text-sm border border-slate-800">
-                  <code>{contract.code}</code>
+                  <code>{processCode(contract.code, contract.id)}</code>
                 </pre>
               </div>
             </Card>

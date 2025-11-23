@@ -64,7 +64,7 @@ const MainContent = ({
         ) : activeCategory === 'terms' ? (
           <TermsPage />
         ) : activeCategory === 'smart-contracts' ? (
-          <SmartContractsPage />
+          <SmartContractsPage user={user} />
         ) : activeCategory === 'popular' ? (
           <EscrowView 
             user={user} 
