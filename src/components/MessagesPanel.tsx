@@ -314,7 +314,7 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
             {selectedChat ? (
               <>
                 {/* Шапка чата */}
-                <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-muted/30 min-h-[60px] mt-2 sm:mt-0">
+                <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-muted/30 min-h-[60px] mt-6 sm:mt-0">
                   <Button
                     variant="ghost"
                     size="icon"
@@ -390,7 +390,7 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
                 </div>
 
                 {/* Поле ввода */}
-                <div className="p-3 border-t border-border bg-background pb-4 sm:pb-3 mb-safe">
+                <div className="p-3 border-t border-border bg-background pb-8 sm:pb-3 mb-safe">
                   <div className="flex items-end gap-2">
                     <Input
                       value={newMessageText}
