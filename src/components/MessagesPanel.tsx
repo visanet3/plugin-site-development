@@ -314,24 +314,24 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
             {selectedChat ? (
               <>
                 {/* Шапка чата */}
-                <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-muted/30">
+                <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-muted/30 min-h-[60px]">
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={handleBackToChats}
-                    className="sm:hidden h-10 w-10"
+                    className="sm:hidden h-10 w-10 flex-shrink-0"
                   >
                     <Icon name="ArrowLeft" size={20} />
                   </Button>
-                  <Avatar className="w-10 h-10">
+                  <Avatar className="w-10 h-10 flex-shrink-0">
                     <AvatarImage src={selectedChatInfo?.avatar} />
                     <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(selectedChatInfo?.username || '')} text-white font-semibold`}>
                       {selectedChatInfo?.username[0]?.toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold truncate">{selectedChatInfo?.username}</p>
-                    <p className="text-xs text-muted-foreground">ID: {selectedChat}</p>
+                  <div className="flex-1 min-w-0 overflow-hidden py-1">
+                    <p className="font-semibold truncate text-sm sm:text-base">{selectedChatInfo?.username}</p>
+                    <p className="text-xs text-muted-foreground truncate">ID: {selectedChat}</p>
                   </div>
                 </div>
 
