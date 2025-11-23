@@ -151,7 +151,7 @@ const ResetPassword = () => {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="bg-background/95 backdrop-blur-xl border-2 border-primary/50 rounded-2xl shadow-2xl max-w-md w-full p-8 animate-scale-in">
         <div className="mb-6 text-center">
-          <GitCryptoLogo className="w-16 h-16 mx-auto mb-4" />
+          <GitCryptoLogo className="w-16 h-16 mx-auto mb-4 ml-[calc(50%+0.5rem)]" />
           <h1 className="text-2xl font-bold">Сброс пароля</h1>
           <p className="text-sm text-muted-foreground mt-2">Введите новый пароль</p>
         </div>
