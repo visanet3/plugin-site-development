@@ -54,8 +54,11 @@ const Dialogs = ({
   const { toast } = useToast();
   
   const handleAuthDialogChange = (open: boolean) => {
-    if (!open && !user && onAuthDialogAttemptClose) {
-      onAuthDialogAttemptClose();
+    if (!open && !user) {
+      if (onAuthDialogAttemptClose) {
+        onAuthDialogAttemptClose();
+      }
+      return;
     }
     onAuthDialogChange(open);
   };
