@@ -232,29 +232,47 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
 
   const copyToClipboard = async (text: string) => {
     try {
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(text);
-      } else {
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-999999px';
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-      }
+      await navigator.clipboard.writeText(text);
       toast({
         title: 'Успешно',
         description: 'Скопировано в буфер обмена'
       });
     } catch (error) {
-      console.error('Ошибка копирования:', error);
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось скопировать',
-        variant: 'destructive'
-      });
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'absolute';
+      textArea.style.left = '-9999px';
+      textArea.style.top = '0';
+      textArea.setAttribute('readonly', '');
+      document.body.appendChild(textArea);
+      
+      if (navigator.userAgent.match(/ipad|iphone/i)) {
+        const range = document.createRange();
+        range.selectNodeContents(textArea);
+        const selection = window.getSelection();
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+        textArea.setSelectionRange(0, 999999);
+      } else {
+        textArea.select();
+      }
+      
+      try {
+        document.execCommand('copy');
+        toast({
+          title: 'Успешно',
+          description: 'Скопировано в буфер обмена'
+        });
+      } catch (err) {
+        console.error('Ошибка копирования:', err);
+        toast({
+          title: 'Ошибка',
+          description: 'Не удалось скопировать',
+          variant: 'destructive'
+        });
+      } finally {
+        document.body.removeChild(textArea);
+      }
     }
   };
 
