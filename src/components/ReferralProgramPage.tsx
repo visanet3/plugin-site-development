@@ -147,7 +147,7 @@ const ReferralProgramPage = ({ user }: ReferralProgramPageProps) => {
   };
 
   const copyReferralLink = async () => {
-    const link = `${window.location.origin}/?ref=${referralCode}`;
+    const link = `https://gitcrypto.top/?ref=${referralCode}`;
     try {
       await navigator.clipboard.writeText(link);
       toast({
@@ -419,7 +419,7 @@ const ReferralProgramPage = ({ user }: ReferralProgramPageProps) => {
 
           <div className="flex gap-2">
             <Input 
-              value={`${window.location.origin}/?ref=${referralCode}`}
+              value={`https://gitcrypto.top/?ref=${referralCode}`}
               readOnly
               className="text-sm"
             />
