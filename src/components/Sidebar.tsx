@@ -8,7 +8,7 @@ interface SidebarProps {
   activeCategory: string;
   activeView: 'plugins' | 'forum';
   categories: Category[];
-  user: { id: number; username: string; email: string; role?: string } | null;
+  user?: { id: number; username: string; email: string; role?: string } | null;
   onCategoryChange: (category: string, view: 'plugins' | 'forum') => void;
   onShowProfileDialog: () => void;
   onShowAdminPanel?: () => void;

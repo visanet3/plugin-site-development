@@ -331,7 +331,7 @@ const Index = () => {
             activeCategory={activeCategory}
             activeView={activeView}
             categories={categories}
-            user={user}
+            user={user || undefined}
             onCategoryChange={handleCategoryChange}
             onShowProfileDialog={() => {
               if (user) {
