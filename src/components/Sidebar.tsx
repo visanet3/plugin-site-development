@@ -120,6 +120,20 @@ const Sidebar = ({
                 <Icon name="User" size={18} />
                 <span className="text-sm font-medium">Личный кабинет</span>
               </button>
+              <button
+                onClick={() => {
+                  onCategoryChange('rules', 'plugins');
+                  if (window.innerWidth < 768 && onToggleSidebar) {
+                    onToggleSidebar();
+                  }
+                }}
+                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 tap-highlight ${
+                  activeCategory === 'rules' ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'hover:bg-sidebar-accent/50 active:bg-sidebar-accent/70'
+                }`}
+              >
+                <Icon name="BookOpen" size={18} />
+                <span className="text-sm font-medium">Правила</span>
+              </button>
               {user.role === 'admin' && (
                 <div className="mt-2 pt-2 border-t border-sidebar-border/50">
                   <div className="px-4 py-1 mb-1">
@@ -146,7 +160,6 @@ const Sidebar = ({
         <div className="mt-8 pt-8 border-t border-sidebar-border">
           <p className="text-xs text-muted-foreground px-4 mb-3">ДРУГОЕ</p>
           {[
-            { slug: 'rules', name: 'Правила', icon: 'BookOpen' },
             { slug: 'faq', name: 'FAQ', icon: 'HelpCircle' },
             { slug: 'support', name: 'Поддержка', icon: 'MessageCircle' },
             { slug: 'terms', name: 'Условия пользования', icon: 'FileText' }
