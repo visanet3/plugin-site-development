@@ -172,9 +172,16 @@ const Index = () => {
   };
 
   const handleLogout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
+    const confirmed = window.confirm('Вы точно хотите выйти из аккаунта?');
+    if (confirmed) {
+      setUser(null);
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      toast({
+        title: 'Выход выполнен',
+        description: 'Вы вышли из аккаунта'
+      });
+    }
   };
 
   const handleUpdateProfile = async (profileData: Partial<User>) => {
