@@ -12,6 +12,7 @@ interface UseUserActivityProps {
   setNotificationsUnread: (count: number) => void;
   setMessagesUnread: (count: number) => void;
   setAdminNotificationsUnread?: (count: number) => void;
+  showAdminToast?: (title: string, description: string) => void;
 }
 
 export const useUserActivity = ({
@@ -19,7 +20,8 @@ export const useUserActivity = ({
   setUser,
   setNotificationsUnread,
   setMessagesUnread,
-  setAdminNotificationsUnread
+  setAdminNotificationsUnread,
+  showAdminToast
 }: UseUserActivityProps) => {
   useEffect(() => {
     if (user) {
@@ -64,7 +66,24 @@ export const useUserActivity = ({
 
             if (adminNotifRes && adminNotifRes.ok && setAdminNotificationsUnread) {
               const adminNotifData = await adminNotifRes.json();
-              setAdminNotificationsUnread(adminNotifData.unread_count || 0);
+              const prevCount = parseInt(sessionStorage.getItem('prevAdminNotifCount') || '0');
+              const newCount = adminNotifData.unread_count || 0;
+              
+              setAdminNotificationsUnread(newCount);
+              
+              if (newCount > prevCount && prevCount > 0 && showAdminToast) {
+                const diff = newCount - prevCount;
+                showAdminToast(
+                  '🔔 Новые уведомления администратора',
+                  `Появилось ${diff} ${diff === 1 ? 'новое уведомление' : 'новых уведомления'} требующих внимания`
+                );
+                
+                const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5a');
+                audio.volume = 0.4;
+                audio.play().catch(() => {});
+              }
+              
+              sessionStorage.setItem('prevAdminNotifCount', newCount.toString());
             }
           }
         } catch (error) {

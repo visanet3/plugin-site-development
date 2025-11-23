@@ -62,12 +62,22 @@ const Index = () => {
     setForumTopics
   });
 
+  const showAdminToast = (title: string, description: string) => {
+    toast({
+      title,
+      description,
+      className: 'bg-yellow-500/10 border-yellow-500/30 text-foreground',
+      duration: 5000
+    });
+  };
+
   useUserActivity({
     user,
     setUser,
     setNotificationsUnread,
     setMessagesUnread,
-    setAdminNotificationsUnread
+    setAdminNotificationsUnread,
+    showAdminToast
   });
 
   const { handleCreateTopic, handleCreateComment, handleTopicSelect } = useForumHandlers({
