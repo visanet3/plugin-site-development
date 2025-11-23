@@ -457,19 +457,29 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            # Сохраняем base64 изображение напрямую в БД
-            cur.execute(f"UPDATE {SCHEMA}.users SET avatar_url = %s WHERE id = %s", (image_base64, user_id))
-            conn.commit()
-            
-            return {
-                'statusCode': 200,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({
-                    'success': True,
-                    'avatar_url': image_base64
-                }),
-                'isBase64Encoded': False
-            }
+            try:
+                # Сохраняем base64 изображение напрямую в БД
+                cur.execute(f"UPDATE {SCHEMA}.users SET avatar_url = %s WHERE id = %s", (image_base64, user_id))
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'success': True,
+                        'avatar_url': image_base64
+                    }),
+                    'isBase64Encoded': False
+                }
+            except Exception as upload_error:
+                conn.rollback()
+                print(f'Avatar upload error: {str(upload_error)}')
+                return {
+                    'statusCode': 500,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': f'Ошибка сохранения: {str(upload_error)}'}),
+                    'isBase64Encoded': False
+                }
         
         elif action == 'place_bet':
             headers = event.get('headers', {})
