@@ -92,7 +92,10 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
     const numValue = parseFloat(value) || 0;
     setUsdtAmount(value);
     if (btcPrice > 0) {
-      setBtcAmount((numValue / btcPrice).toFixed(8));
+      // Комиссия 0.5%
+      const commission = numValue * 0.005;
+      const afterCommission = numValue - commission;
+      setBtcAmount((afterCommission / btcPrice).toFixed(8));
     }
   };
 
@@ -100,7 +103,11 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
     const numValue = parseFloat(value) || 0;
     setBtcAmount(value);
     if (btcPrice > 0) {
-      setUsdtAmount((numValue * btcPrice).toFixed(2));
+      // Комиссия 0.5%
+      const gross = numValue * btcPrice;
+      const commission = gross * 0.005;
+      const afterCommission = gross - commission;
+      setUsdtAmount(afterCommission.toFixed(2));
     }
   };
 
@@ -512,8 +519,14 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Комиссия:</span>
-                  <span className="font-medium text-green-400">0%</span>
+                  <span className="font-medium text-orange-400">0.5%</span>
                 </div>
+                {usdtAmount && parseFloat(usdtAmount) > 0 && (
+                  <div className="flex items-center justify-between text-sm pt-2 border-t border-border/50">
+                    <span className="text-muted-foreground">Комиссия обмена:</span>
+                    <span className="font-medium">{(parseFloat(usdtAmount) * 0.005).toFixed(2)} USDT</span>
+                  </div>
+                )}
               </div>
 
               <Button
@@ -605,8 +618,14 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Комиссия:</span>
-                  <span className="font-medium text-green-400">0%</span>
+                  <span className="font-medium text-orange-400">0.5%</span>
                 </div>
+                {btcAmount && parseFloat(btcAmount) > 0 && (
+                  <div className="flex items-center justify-between text-sm pt-2 border-t border-border/50">
+                    <span className="text-muted-foreground">Комиссия обмена:</span>
+                    <span className="font-medium">{(parseFloat(btcAmount) * btcPrice * 0.005).toFixed(2)} USDT</span>
+                  </div>
+                )}
               </div>
 
               <Button
@@ -671,9 +690,15 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                   <span className="font-medium">0.001 BTC</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Комиссия сети:</span>
-                  <span className="font-medium text-orange-400">~0.0001 BTC</span>
+                  <span className="text-muted-foreground">Комиссия вывода:</span>
+                  <span className="font-medium text-orange-400">0.00015 BTC</span>
                 </div>
+                {withdrawAmount && parseFloat(withdrawAmount) > 0 && (
+                  <div className="flex items-center justify-between text-sm pt-2 border-t border-border/50">
+                    <span className="text-muted-foreground">Итого спишется:</span>
+                    <span className="font-medium text-red-400">{(parseFloat(withdrawAmount) + 0.00015).toFixed(8)} BTC</span>
+                  </div>
+                )}
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Время обработки:</span>
                   <span className="font-medium">До 24 часов</span>

@@ -1223,7 +1223,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            btc_received = usdt_amount / btc_price
+            # Комиссия 0.5% при обмене USDT → BTC
+            commission = usdt_amount * 0.005
+            usdt_after_commission = usdt_amount - commission
+            btc_received = usdt_after_commission / btc_price
             
             cur.execute(
                 f"UPDATE {SCHEMA}.users SET balance = balance - %s, btc_balance = btc_balance + %s WHERE id = %s",
@@ -1232,7 +1235,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             cur.execute(
                 f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES (%s, %s, 'exchange', %s)",
-                (int(user_id), -usdt_amount, f'Обмен {usdt_amount} USDT на {btc_received:.8f} BTC по курсу ${btc_price}')
+                (int(user_id), -usdt_amount, f'Обмен {usdt_amount} USDT на {btc_received:.8f} BTC (комиссия 0.5%: {commission:.2f} USDT)')
             )
             
             conn.commit()
@@ -1285,7 +1288,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            usdt_received = btc_amount * btc_price
+            # Комиссия 0.5% при обмене BTC → USDT
+            usdt_gross = btc_amount * btc_price
+            commission = usdt_gross * 0.005
+            usdt_received = usdt_gross - commission
             
             cur.execute(
                 f"UPDATE {SCHEMA}.users SET balance = balance + %s, btc_balance = btc_balance - %s WHERE id = %s",
@@ -1294,7 +1300,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             cur.execute(
                 f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES (%s, %s, 'exchange', %s)",
-                (int(user_id), usdt_received, f'Обмен {btc_amount:.8f} BTC на {usdt_received:.2f} USDT по курсу ${btc_price}')
+                (int(user_id), usdt_received, f'Обмен {btc_amount:.8f} BTC на {usdt_received:.2f} USDT (комиссия 0.5%: {commission:.2f} USDT)')
             )
             
             conn.commit()
@@ -1332,6 +1338,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
+            # Комиссия за вывод BTC
+            btc_commission = 0.00015
+            
             if btc_amount < 0.001:
                 return {
                     'statusCode': 400,
@@ -1347,18 +1356,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             user_data = cur.fetchone()
             current_btc_balance = float(user_data['btc_balance']) if user_data and user_data['btc_balance'] else 0
             
-            if current_btc_balance < btc_amount:
+            # Проверяем, достаточно ли средств с учётом комиссии
+            total_required = btc_amount + btc_commission
+            if current_btc_balance < total_required:
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Недостаточно BTC'}),
+                    'body': json.dumps({'error': f'Недостаточно BTC (требуется {total_required:.8f} BTC включая комиссию {btc_commission:.8f} BTC)'}),
                     'isBase64Encoded': False
                 }
             
             try:
+                # Списываем сумму + комиссию
                 cur.execute(
                     f"UPDATE {SCHEMA}.users SET btc_balance = btc_balance - %s WHERE id = %s",
-                    (btc_amount, int(user_id))
+                    (total_required, int(user_id))
                 )
             except Exception as update_error:
                 conn.rollback()
@@ -1372,7 +1384,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             try:
                 cur.execute(
                     f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES (%s, %s, 'btc_withdrawal', %s)",
-                    (int(user_id), 0.01, f'Вывод {btc_amount:.8f} BTC на адрес {btc_address}')
+                    (int(user_id), 0.01, f'Вывод {btc_amount:.8f} BTC на адрес {btc_address} (комиссия: {btc_commission:.8f} BTC)')
                 )
             except Exception as trans_error:
                 conn.rollback()

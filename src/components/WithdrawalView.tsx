@@ -123,6 +123,9 @@ export const WithdrawalView = ({ user, onShowAuthDialog, onRefreshUserBalance }:
 
     const amountNum = parseFloat(amount);
 
+    const usdtCommission = 5.0;
+    const totalRequired = amountNum + usdtCommission;
+
     if (!amount || isNaN(amountNum) || amountNum < 100) {
       toast({
         title: 'Ошибка',
@@ -141,10 +144,10 @@ export const WithdrawalView = ({ user, onShowAuthDialog, onRefreshUserBalance }:
       return;
     }
 
-    if (amountNum > user.balance) {
+    if (totalRequired > user.balance) {
       toast({
         title: 'Недостаточно средств',
-        description: `На балансе: ${user.balance} USDT`,
+        description: `Требуется ${totalRequired} USDT (вкл. комиссию ${usdtCommission} USDT). На балансе: ${user.balance} USDT`,
         variant: 'destructive'
       });
       return;
@@ -263,7 +266,7 @@ export const WithdrawalView = ({ user, onShowAuthDialog, onRefreshUserBalance }:
             <h3 className="text-lg font-semibold mb-2">Как работает вывод средств?</h3>
             <div className="space-y-2 text-sm text-muted-foreground">
               <p>• <strong>Минимальная сумма:</strong> 100 USDT</p>
-              <p>• <strong>Комиссия:</strong> комиссии сети оплачиваются отдельно</p>
+              <p>• <strong>Комиссия вывода:</strong> 5 USDT (списывается с баланса)</p>
               <p>• <strong>Время обработки:</strong> заявки обрабатываются системой автоматически</p>
               <p>• <strong>Уведомления:</strong> вы получите уведомление о статусе заявки</p>
               <p>• <strong>Важно:</strong> убедитесь, что указали правильный USDT кошелек</p>
@@ -377,6 +380,12 @@ export const WithdrawalView = ({ user, onShowAuthDialog, onRefreshUserBalance }:
               <p className="text-xs text-muted-foreground mt-1">
                 Доступно: {user.balance} USDT
               </p>
+              {amount && parseFloat(amount) > 0 && (
+                <div className="mt-2 p-2 bg-orange-500/10 border border-orange-500/20 rounded text-xs">
+                  <p className="text-muted-foreground">Комиссия вывода: <span className="font-semibold text-orange-400">5 USDT</span></p>
+                  <p className="text-muted-foreground mt-1">Итого спишется: <span className="font-semibold text-foreground">{(parseFloat(amount) + 5).toFixed(2)} USDT</span></p>
+                </div>
+              )}
             </div>
 
             <div>

@@ -152,6 +152,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 amount = float(amount)
                 
+                # Комиссия за вывод USDT
+                usdt_commission = 5.0
+                
                 if amount < 100:
                     cursor.close()
                     return {
@@ -164,16 +167,19 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cursor.execute('SELECT balance FROM users WHERE id = %s', (user_id,))
                 user = cursor.fetchone()
                 
-                if not user or user['balance'] < amount:
+                # Проверяем, достаточно ли средств с учётом комиссии
+                total_required = amount + usdt_commission
+                if not user or user['balance'] < total_required:
                     cursor.close()
                     return {
                         'statusCode': 400,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Insufficient balance'}),
+                        'body': json.dumps({'error': f'Insufficient balance (required {total_required} USDT including {usdt_commission} USDT commission)'}),
                         'isBase64Encoded': False
                     }
                 
-                cursor.execute('UPDATE users SET balance = balance - %s WHERE id = %s', (amount, user_id))
+                # Списываем сумму + комиссию
+                cursor.execute('UPDATE users SET balance = balance - %s WHERE id = %s', (total_required, user_id))
                 
                 cursor.execute("""
                     INSERT INTO withdrawal_requests (user_id, amount, usdt_wallet, status)
@@ -186,12 +192,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cursor.execute("""
                     INSERT INTO transactions (user_id, amount, type, description)
                     VALUES (%s, %s, 'withdrawal_request', %s)
-                """, (user_id, -amount, f'Заявка на вывод #{withdrawal_id}'))
+                """, (user_id, -total_required, f'Заявка на вывод {amount} USDT (комиссия: {usdt_commission} USDT)'))
                 
                 cursor.execute("""
                     INSERT INTO withdrawal_notifications (user_id, withdrawal_id, message)
                     VALUES (%s, %s, %s)
-                """, (user_id, withdrawal_id, f'Ваша заявка на вывод {amount} USDT находится в обработке. Пожалуйста, ожидайте.'))
+                """, (user_id, withdrawal_id, f'Ваша заявка на вывод {amount} USDT находится в обработке (комиссия {usdt_commission} USDT уже списана). Пожалуйста, ожидайте.'))
                 
                 cursor.execute('SELECT username FROM users WHERE id = %s', (user_id,))
                 user_info = cursor.fetchone()
@@ -264,13 +270,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
                 
                 if new_status == 'rejected':
+                    # При отклонении возвращаем сумму + комиссию
+                    usdt_commission = 5.0
+                    refund_amount = withdrawal['amount'] + usdt_commission
+                    
                     cursor.execute('UPDATE users SET balance = balance + %s WHERE id = %s', 
-                                 (withdrawal['amount'], withdrawal['user_id']))
+                                 (refund_amount, withdrawal['user_id']))
                     
                     cursor.execute("""
                         INSERT INTO transactions (user_id, amount, type, description)
                         VALUES (%s, %s, 'withdrawal_rejected', %s)
-                    """, (withdrawal['user_id'], withdrawal['amount'], f'Возврат средств (заявка #{withdrawal_id} отклонена)'))
+                    """, (withdrawal['user_id'], refund_amount, f'Возврат средств (заявка #{withdrawal_id} отклонена, вкл. комиссию {usdt_commission} USDT)'))
                 
                 cursor.execute("""
                     UPDATE withdrawal_requests
