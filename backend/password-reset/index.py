@@ -180,7 +180,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             )
             conn.commit()
             
-            reset_url = f"https://gitcrypto.poehali.dev/reset-password?token={token}"
+            reset_url = f"https://gitcrypto.pro/reset-password?token={token}"
             
             html_content = f"""
             <html>
