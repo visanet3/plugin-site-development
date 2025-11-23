@@ -1390,6 +1390,82 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
         
+        elif action == 'process_btc_withdrawal':
+            headers = event.get('headers', {})
+            user_id = headers.get('X-User-Id') or headers.get('x-user-id')
+            
+            if not user_id:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Требуется авторизация'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute(f"SELECT role FROM {SCHEMA}.users WHERE id = %s", (int(user_id),))
+            admin_user = cur.fetchone()
+            
+            if not admin_user or admin_user.get('role') != 'admin':
+                return {
+                    'statusCode': 403,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Недостаточно прав'}),
+                    'isBase64Encoded': False
+                }
+            
+            withdrawal_id = body_data.get('withdrawal_id')
+            new_status = body_data.get('status')
+            admin_comment = body_data.get('admin_comment', '')
+            
+            if new_status not in ['completed', 'rejected']:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Неверный статус'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute(
+                f"SELECT user_id, amount FROM {SCHEMA}.withdrawals WHERE id = %s AND status = 'pending'",
+                (withdrawal_id,)
+            )
+            withdrawal = cur.fetchone()
+            
+            if not withdrawal:
+                return {
+                    'statusCode': 404,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Заявка не найдена или уже обработана'}),
+                    'isBase64Encoded': False
+                }
+            
+            if new_status == 'rejected':
+                cur.execute(
+                    f"UPDATE {SCHEMA}.users SET btc_balance = btc_balance + %s WHERE id = %s",
+                    (float(withdrawal['amount']), withdrawal['user_id'])
+                )
+                
+                cur.execute(
+                    f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES (%s, %s, 'btc_refund', %s)",
+                    (withdrawal['user_id'], 0, f'Возврат {float(withdrawal["amount"]):.8f} BTC (вывод отклонен)')
+                )
+            
+            cur.execute(
+                f"UPDATE {SCHEMA}.withdrawals SET status = %s, processed_at = CURRENT_TIMESTAMP, admin_comment = %s WHERE id = %s",
+                (new_status, admin_comment, withdrawal_id)
+            )
+            
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True
+                }),
+                'isBase64Encoded': False
+            }
+        
         else:
             return {
                 'statusCode': 400,

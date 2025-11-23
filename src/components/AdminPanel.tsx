@@ -12,6 +12,7 @@ import AdminDepositsTab from '@/components/admin/AdminDepositsTab';
 import AdminEscrowTab from '@/components/admin/AdminEscrowTab';
 import AdminTicketsTab from '@/components/admin/AdminTicketsTab';
 import AdminVerificationTab from '@/components/admin/AdminVerificationTab';
+import AdminBtcWithdrawalsTab from '@/components/admin/AdminBtcWithdrawalsTab';
 import { useToast } from '@/hooks/use-toast';
 
 interface AdminPanelProps {
@@ -35,7 +36,8 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
   const [escrowDeals, setEscrowDeals] = useState<EscrowDeal[]>([]);
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
   const [deposits, setDeposits] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'users' | 'topics' | 'disputes' | 'deposits' | 'withdrawals' | 'escrow' | 'flash-usdt' | 'tickets' | 'verification'>('users');
+  const [btcWithdrawals, setBtcWithdrawals] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'users' | 'topics' | 'disputes' | 'deposits' | 'withdrawals' | 'btc-withdrawals' | 'escrow' | 'flash-usdt' | 'tickets' | 'verification'>('users');
   const [flashUsdtOrders, setFlashUsdtOrders] = useState<any[]>([]);
   const [tickets, setTickets] = useState<any[]>([]);
   const [editingTopic, setEditingTopic] = useState<ForumTopic | null>(null);
@@ -66,6 +68,8 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
       fetchFlashUsdtOrders();
     } else if (activeTab === 'tickets') {
       fetchTickets();
+    } else if (activeTab === 'btc-withdrawals') {
+      fetchBtcWithdrawals();
     }
     fetchAdminNotifications();
     
@@ -212,6 +216,20 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
       }
     ];
     setTickets(mockTickets);
+  };
+
+  const fetchBtcWithdrawals = async () => {
+    try {
+      const response = await fetch(`${ADMIN_URL}?action=btc_withdrawals`, {
+        headers: { 'X-User-Id': currentUser.id.toString() }
+      });
+      const data = await response.json();
+      if (data.success) {
+        setBtcWithdrawals(data.withdrawals || []);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки BTC заявок:', error);
+    }
   };
 
   const fetchAdminNotifications = async () => {
@@ -667,6 +685,16 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
               Flash USDT
             </button>
             <button
+              onClick={() => setActiveTab('btc-withdrawals')}
+              className={`px-3 sm:px-6 py-2 rounded-lg transition-all text-xs sm:text-sm whitespace-nowrap ${
+                activeTab === 'btc-withdrawals'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              BTC Вывод
+            </button>
+            <button
               onClick={() => setActiveTab('tickets')}
               className={`px-3 sm:px-6 py-2 rounded-lg transition-all text-xs sm:text-sm whitespace-nowrap ${
                 activeTab === 'tickets'
@@ -739,6 +767,14 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
             withdrawals={withdrawals}
             currentUser={currentUser}
             onUpdate={fetchWithdrawals}
+          />
+        )}
+
+        {activeTab === 'btc-withdrawals' && (
+          <AdminBtcWithdrawalsTab
+            withdrawals={btcWithdrawals}
+            currentUserId={currentUser.id}
+            onRefresh={fetchBtcWithdrawals}
           />
         )}
 

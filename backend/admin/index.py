@@ -171,6 +171,26 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
+            elif action == 'btc_withdrawals':
+                cur.execute(f"""
+                    SELECT w.*, u.username
+                    FROM {SCHEMA}.withdrawals w
+                    LEFT JOIN {SCHEMA}.users u ON w.user_id = u.id
+                    WHERE w.currency = 'BTC'
+                    ORDER BY 
+                        CASE WHEN w.status = 'pending' THEN 0 ELSE 1 END,
+                        w.created_at DESC
+                    LIMIT 100
+                """)
+                withdrawals = cur.fetchall()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True, 'withdrawals': [dict(w) for w in withdrawals]}, default=serialize_datetime),
+                    'isBase64Encoded': False
+                }
+            
             else:
                 return {
                     'statusCode': 400,
