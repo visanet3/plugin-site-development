@@ -260,6 +260,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 log_admin_action(user_id, 'delete_user', 'user', target_user_id, f"Deleted user: {target_user['username']}", cur)
                 
+                cur.execute(f"DELETE FROM {SCHEMA}.forum_comments WHERE author_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.forum_topics WHERE author_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.messages WHERE sender_id = %s OR recipient_id = %s", (target_user_id, target_user_id))
+                cur.execute(f"DELETE FROM {SCHEMA}.notifications WHERE user_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.transactions WHERE user_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.escrow_deals WHERE buyer_id = %s OR seller_id = %s", (target_user_id, target_user_id))
+                cur.execute(f"DELETE FROM {SCHEMA}.escrow_messages WHERE sender_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.crypto_payments WHERE user_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.withdrawal_requests WHERE user_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.flash_usdt_orders WHERE user_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.lottery_tickets WHERE user_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.lottery_chat WHERE user_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.password_reset_tokens WHERE user_id = %s", (target_user_id,))
+                
                 cur.execute(f"DELETE FROM {SCHEMA}.users WHERE id = %s", (target_user_id,))
                 conn.commit()
                 
