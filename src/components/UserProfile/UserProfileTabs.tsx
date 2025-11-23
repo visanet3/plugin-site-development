@@ -11,6 +11,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { ReferralTab } from './ReferralTab';
+import VerificationForm from '@/components/VerificationForm';
 
 const PASSWORD_RESET_URL = 'https://functions.poehali.dev/d4973344-e5cd-411c-8957-4c1d4d0072ab';
 
@@ -85,11 +86,20 @@ export const UserProfileTabs = ({
   return (
     <>
       <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="settings" className="text-xs sm:text-sm">Настройки</TabsTrigger>
+          <TabsTrigger value="verification" className="text-xs sm:text-sm">Верификация</TabsTrigger>
           <TabsTrigger value="transactions" className="text-xs sm:text-sm">Транзакции</TabsTrigger>
           <TabsTrigger value="referrals" className="text-xs sm:text-sm">Рефералы</TabsTrigger>
         </TabsList>
+
+      <TabsContent value="verification" className="space-y-3 sm:space-y-4 mt-3 sm:mt-4">
+        {isOwnProfile && onUpdateProfile && (
+          <VerificationForm user={user} onVerified={() => {
+            onUpdateProfile({ is_verified: true });
+          }} />
+        )}
+      </TabsContent>
 
       <TabsContent value="transactions" className="space-y-3 sm:space-y-4 mt-3 sm:mt-4">
         {transactionsLoading ? (

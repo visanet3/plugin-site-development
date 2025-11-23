@@ -79,9 +79,14 @@ export const UserProfileHeader = ({
         </div>
 
         <div className="flex-1 space-y-2 sm:space-y-3 min-w-0">
-          <div>
-            <h3 className="text-lg sm:text-xl md:text-2xl font-bold truncate">{user.username}</h3>
-            <p className="text-xs sm:text-sm text-muted-foreground truncate">{user.email}</p>
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold truncate">{user.username}</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground truncate">{user.email}</p>
+            </div>
+            {user.is_verified && (
+              <Icon name="BadgeCheck" size={24} className="text-primary flex-shrink-0" title="Верифицирован" />
+            )}
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -96,6 +101,13 @@ export const UserProfileHeader = ({
               <span className="px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 rounded-lg text-xs sm:text-sm font-medium inline-flex items-center gap-1">
                 <Icon name="Crown" size={14} />
                 VIP {isOwnProfile && `(${vipDaysLeft} ${vipDaysLeft === 1 ? 'день' : vipDaysLeft < 5 ? 'дня' : 'дней'})`}
+              </span>
+            )}
+            
+            {user.is_verified && (
+              <span className="px-2 sm:px-3 py-0.5 sm:py-1 bg-primary/20 text-primary rounded-lg text-xs sm:text-sm font-medium inline-flex items-center gap-1">
+                <Icon name="ShieldCheck" size={14} />
+                Верифицирован
               </span>
             )}
           </div>
