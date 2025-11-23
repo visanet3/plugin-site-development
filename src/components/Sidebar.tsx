@@ -161,11 +161,11 @@ const Sidebar = ({
         <div className="mt-8 pt-8 border-t border-sidebar-border">
           <p className="text-xs text-muted-foreground px-4 mb-3">ДРУГОЕ</p>
           {[
-            { slug: 'about', name: 'О нас', icon: 'Info' },
             { slug: 'referral-program', name: 'Реферальная система', icon: 'Users' },
             { slug: 'faq', name: 'FAQ', icon: 'HelpCircle' },
             { slug: 'support', name: 'Поддержка', icon: 'MessageCircle' },
-            { slug: 'terms', name: 'Условия пользования', icon: 'FileText' }
+            { slug: 'terms', name: 'Условия пользования', icon: 'FileText' },
+            { slug: 'about', name: 'О нас', icon: 'Info' }
           ].map(item => (
             <button
               key={item.slug}
