@@ -411,11 +411,11 @@ const Dialogs = ({
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground mb-3">{user.email}</p>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <Button
                       variant="outline"
                       size="sm"
-                      className="gap-2"
+                      className="gap-2 w-full sm:w-auto"
                       onClick={handleAvatarSelect}
                       disabled={avatarUploading}
                     >
@@ -423,11 +423,12 @@ const Dialogs = ({
                       {avatarUploading ? 'Загрузка...' : 'Загрузить фото'}
                     </Button>
                     <Button
-                      variant={user.is_verified ? "default" : "default"}
                       size="sm"
-                      className="gap-2 bg-primary"
+                      className="gap-2 w-full sm:w-auto bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white"
                       onClick={() => {
+                        console.log('Verification button clicked');
                         const verificationSection = document.getElementById('verification-section');
+                        console.log('Verification section:', verificationSection);
                         if (verificationSection) {
                           verificationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         }
