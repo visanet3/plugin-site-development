@@ -31,6 +31,12 @@ const Sidebar = ({
   return (
     <aside className={`fixed top-0 left-0 h-full bg-sidebar border-r border-sidebar-border transition-all duration-300 z-30 overflow-hidden ${sidebarOpen ? 'w-64' : 'w-0'}`}>
       <div className={`p-4 w-64 transition-opacity duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}>
+        <div className="mb-8 text-center">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-green-500 via-teal-500 to-cyan-600 bg-clip-text text-transparent tracking-wide">
+            Git Crypto
+          </h1>
+        </div>
+
         <nav className="space-y-1">
           {[
             { icon: 'Home', label: 'Главная', id: 'all', view: 'plugins' },
