@@ -609,7 +609,7 @@ contract SimpleNFT {
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 sm:space-y-6 animate-fade-in overflow-x-hidden">
       {/* Заголовок */}
       <div className="relative overflow-hidden bg-gradient-to-br from-blue-600/20 via-purple-600/10 to-cyan-600/10 border border-blue-500/30 rounded-2xl p-4 sm:p-6 md:p-8 shadow-xl">
         <div className="absolute top-0 right-0 w-32 h-32 sm:w-48 sm:h-48 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full blur-3xl"></div>
@@ -660,7 +660,7 @@ contract SimpleNFT {
         </h2>
         <div className="grid gap-4 sm:gap-5 md:gap-6">
           {contracts.map((contract) => (
-            <Card key={contract.id} className="p-4 sm:p-5 md:p-6 space-y-3 sm:space-y-4">
+            <Card key={contract.id} className="p-4 sm:p-5 md:p-6 space-y-3 sm:space-y-4 overflow-hidden">
               <div className="flex flex-col sm:flex-row items-start gap-3 sm:justify-between">
                 <div className="flex-1 min-w-0">
                   <h3 className="text-base sm:text-lg md:text-xl font-bold mb-1.5 sm:mb-2">{contract.title}</h3>
@@ -716,10 +716,10 @@ contract SimpleNFT {
                     </div>
                   </div>
                 )}
-                <div className="bg-slate-950 rounded-lg sm:rounded-xl overflow-hidden border border-slate-800">
-                  <div className="overflow-x-auto">
-                    <pre className="text-slate-100 p-3 sm:p-4 text-[10px] leading-[1.4] sm:text-xs sm:leading-[1.5] md:text-sm md:leading-[1.6] min-w-max">
-                      <code className="font-mono">{processCode(contract.code, contract.id)}</code>
+                <div className="bg-slate-950 rounded-lg sm:rounded-xl border border-slate-800 -mx-4 sm:mx-0">
+                  <div className="overflow-x-auto overflow-y-hidden max-w-full">
+                    <pre className="text-slate-100 px-4 py-3 sm:p-4 text-[10px] leading-[1.4] sm:text-xs sm:leading-[1.5] md:text-sm md:leading-[1.6] whitespace-pre">
+                      <code className="font-mono block">{processCode(contract.code, contract.id)}</code>
                     </pre>
                   </div>
                 </div>
