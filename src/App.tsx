@@ -16,9 +16,15 @@ const CryptoChecker = () => {
   useEffect(() => {
     const checkPendingPayments = async () => {
       try {
-        await fetch(CRYPTO_CHECKER_URL);
+        const response = await fetch(CRYPTO_CHECKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        if (!response.ok) {
+          console.warn('Crypto checker service unavailable');
+        }
       } catch (error) {
-        console.error('Error checking crypto payments:', error);
+        // Silently handle connection errors for background task
       }
     };
 

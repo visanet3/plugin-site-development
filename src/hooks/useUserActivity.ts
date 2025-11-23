@@ -49,7 +49,7 @@ export const useUserActivity = ({
             setMessagesUnread(msgData.unread_count || 0);
           }
         } catch (error) {
-          console.error('Failed to fetch unread count:', error);
+          // Silently handle connection errors for background task
         }
       };
 
@@ -63,6 +63,7 @@ export const useUserActivity = ({
             },
             body: JSON.stringify({ action: 'get_balance' })
           });
+          if (!response.ok) return;
           const data = await response.json();
           if (data.success && data.balance !== undefined) {
             const currentBalance = user.balance || 0;
@@ -73,7 +74,7 @@ export const useUserActivity = ({
             }
           }
         } catch (error) {
-          console.error('Failed to check balance:', error);
+          // Silently handle connection errors for background task
         }
       };
 
@@ -82,6 +83,7 @@ export const useUserActivity = ({
           const response = await fetch(`${CRYPTO_URL}?action=check_pending`, {
             headers: { 'X-User-Id': user.id.toString() }
           });
+          if (!response.ok) return;
           const data = await response.json();
           if (data.success && data.count > 0) {
             const savedUser = localStorage.getItem('user');
@@ -108,7 +110,7 @@ export const useUserActivity = ({
             }
           }
         } catch (error) {
-          console.error('Failed to check pending payments:', error);
+          // Silently handle connection errors for background task
         }
       };
 
