@@ -4,6 +4,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import UserRankBadge from '@/components/UserRankBadge';
+import ForumRoleBadge from '@/components/ForumRoleBadge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ForumTopic, User } from '@/types';
 import { useState } from 'react';
@@ -187,8 +188,9 @@ export const ForumTopicsList = ({
                     {topic.title}
                   </h3>
                   <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground flex-wrap">
-                    <span className="flex items-center gap-1">
+                    <span className="flex items-center gap-1.5">
                       Автор: <button onClick={(e) => { e.stopPropagation(); topic.author_id && onUserClick(topic.author_id); }} className="hover:text-primary transition-colors">{topic.author_name}</button>
+                      <ForumRoleBadge role={topic.author_forum_role} />
                     </span>
                     <span>•</span>
                     <span title={getFullDateTime(topic.created_at)}>Создана: {getTimeAgo(topic.created_at)}</span>
