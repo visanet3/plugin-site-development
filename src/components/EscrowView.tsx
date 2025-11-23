@@ -186,7 +186,7 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
         <div>
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 sm:mb-2">Гарант-сервис</h1>
           <p className="text-xs sm:text-sm md:text-base text-muted-foreground">
-            Безопасные сделки с гарантией платформы
+            Безопасный обмен криптовалют с гарантией платформы
           </p>
         </div>
         <Button
@@ -207,7 +207,7 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
             <div>
               <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2">Как это работает?</h3>
               <p className="text-xs sm:text-sm text-muted-foreground">
-                Мы держим деньги покупателя до тех пор, пока он не получит товар. Продавец получает деньги только после того, как покупатель подтвердит получение. Это защищает обе стороны от обмана.
+                Мы блокируем криптовалюту покупателя до тех пор, пока он не получит свои монеты. Продавец получает оплату только после подтверждения покупателем. Это защищает обе стороны от обмана.
               </p>
             </div>
           </div>
@@ -215,8 +215,8 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
             <div className="space-y-4">
               <h4 className="font-semibold text-green-400 flex items-center gap-2">
-                <Icon name="Store" size={18} />
-                Продаю товар
+                <Icon name="Coins" size={18} />
+                Продаю криптовалюту
               </h4>
               <div className="space-y-3">
                 <div className="flex gap-3">
@@ -226,7 +226,7 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
                   <div>
                     <p className="font-medium text-sm">Создаю объявление</p>
                     <p className="text-xs text-muted-foreground">
-                      Описываю что продаю и за сколько
+                      Указываю, какую криптовалюту меняю и курс
                     </p>
                   </div>
                 </div>
@@ -237,7 +237,7 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
                   <div>
                     <p className="font-medium text-sm">Жду покупателя</p>
                     <p className="text-xs text-muted-foreground">
-                      Покупатель забронирует деньги
+                      Покупатель блокирует USDT на платформе
                     </p>
                   </div>
                 </div>
@@ -246,9 +246,9 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
                     <span className="text-xs font-bold text-green-400">3</span>
                   </div>
                   <div>
-                    <p className="font-medium text-sm">Отправляю товар</p>
+                    <p className="font-medium text-sm">Отправляю монеты</p>
                     <p className="text-xs text-muted-foreground">
-                      Передаю товар покупателю
+                      Перевожу криптовалюту покупателю
                     </p>
                   </div>
                 </div>
@@ -257,9 +257,9 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
                     <span className="text-xs font-bold text-green-400">4</span>
                   </div>
                   <div>
-                    <p className="font-medium text-sm">Получаю деньги</p>
+                    <p className="font-medium text-sm">Получаю USDT</p>
                     <p className="text-xs text-muted-foreground">
-                      Покупатель подтверждает - деньги приходят мне
+                      Покупатель подтверждает — деньги поступают
                     </p>
                   </div>
                 </div>
@@ -268,8 +268,8 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
 
             <div className="space-y-4">
               <h4 className="font-semibold text-blue-400 flex items-center gap-2">
-                <Icon name="ShoppingCart" size={18} />
-                Покупаю товар
+                <Icon name="ArrowRightLeft" size={18} />
+                Покупаю криптовалюту
               </h4>
               <div className="space-y-3">
                 <div className="flex gap-3">
@@ -277,9 +277,9 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
                     <span className="text-xs font-bold text-blue-400">1</span>
                   </div>
                   <div>
-                    <p className="font-medium text-sm">Выбираю товар</p>
+                    <p className="font-medium text-sm">Выбираю обмен</p>
                     <p className="text-xs text-muted-foreground">
-                      Нахожу подходящее объявление
+                      Нахожу выгодный курс обмена
                     </p>
                   </div>
                 </div>
@@ -288,9 +288,9 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
                     <span className="text-xs font-bold text-blue-400">2</span>
                   </div>
                   <div>
-                    <p className="font-medium text-sm">Бронирую деньги</p>
+                    <p className="font-medium text-sm">Блокирую USDT</p>
                     <p className="text-xs text-muted-foreground">
-                      Деньги заморозятся до получения товара
+                      USDT замораживаются до получения монет
                     </p>
                   </div>
                 </div>
@@ -299,9 +299,9 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
                     <span className="text-xs font-bold text-blue-400">3</span>
                   </div>
                   <div>
-                    <p className="font-medium text-sm">Получаю товар</p>
+                    <p className="font-medium text-sm">Получаю монеты</p>
                     <p className="text-xs text-muted-foreground">
-                      Связываюсь с продавцом и получаю товар
+                      Продавец переводит криптовалюту
                     </p>
                   </div>
                 </div>
@@ -312,7 +312,7 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
                   <div>
                     <p className="font-medium text-sm">Подтверждаю</p>
                     <p className="text-xs text-muted-foreground">
-                      Если всё хорошо - деньги уходят продавцу
+                      Если монеты пришли — USDT уходят продавцу
                     </p>
                   </div>
                 </div>
@@ -325,7 +325,7 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
             <div className="space-y-1 text-xs sm:text-sm">
               <p className="font-semibold text-orange-400">Что делать при проблеме?</p>
               <p className="text-muted-foreground">
-                Если что-то пошло не так - открывайте спор. Мы разберёмся в ситуации и решим кому отдать деньги.
+                Если монеты не пришли или возникли проблемы — открывайте спор. Администрация разберётся и решит, кому вернуть средства.
               </p>
             </div>
           </div>
@@ -431,9 +431,9 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
                   <Icon name="ShieldCheck" size={20} className="text-white sm:w-6 sm:h-6" />
                 </div>
                 <div>
-                  <DialogTitle className="text-lg sm:text-xl md:text-2xl font-bold">Создать сделку</DialogTitle>
+                  <DialogTitle className="text-lg sm:text-xl md:text-2xl font-bold">Создать обмен</DialogTitle>
                   <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
-                    Безопасная передача товара с гарантией
+                    Безопасный обмен криптовалют с гарантией
                   </DialogDescription>
                 </div>
               </div>
@@ -445,17 +445,17 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
             {/* Название */}
             <div className="space-y-1.5 sm:space-y-2">
               <Label className="text-xs sm:text-sm font-semibold flex items-center gap-1.5">
-                <Icon name="Package" size={14} className="text-green-400 sm:w-4 sm:h-4" />
-                Название товара/услуги
+                <Icon name="ArrowRightLeft" size={14} className="text-green-400 sm:w-4 sm:h-4" />
+                Название обмена
               </Label>
               <Input
                 value={newDeal.title}
                 onChange={(e) => setNewDeal({ ...newDeal, title: e.target.value })}
-                placeholder="Например: Telegram Premium 12 мес"
+                placeholder="Например: BTC → USDT TRC20"
                 className="text-sm sm:text-base h-10 sm:h-11"
               />
               <p className="text-[10px] sm:text-xs text-muted-foreground">
-                Краткое и понятное название вашего товара
+                Краткое название обмена (какую валюту меняете)
               </p>
             </div>
 
@@ -468,7 +468,7 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
               <Textarea
                 value={newDeal.description}
                 onChange={(e) => setNewDeal({ ...newDeal, description: e.target.value })}
-                placeholder="Подробно опишите товар или услугу...\n\nУкажите:\n• Что именно продаёте\n• Срок действия\n• Условия передачи"
+                placeholder="Подробно опишите условия обмена...\n\nУкажите:\n• Какую криптовалюту отдаёте\n• Какую криптовалюту получите\n• Сеть и курс обмена"
                 className="min-h-[100px] sm:min-h-[120px] text-sm sm:text-base resize-none"
               />
               <p className="text-[10px] sm:text-xs text-muted-foreground">
@@ -512,19 +512,19 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
                   <ul className="space-y-1 text-[10px] sm:text-xs text-muted-foreground">
                     <li className="flex items-start gap-1.5">
                       <Icon name="Check" size={12} className="mt-0.5 text-green-400 flex-shrink-0" />
-                      <span>Покупатель блокирует деньги на платформе</span>
+                      <span>Покупатель блокирует USDT на платформе</span>
                     </li>
                     <li className="flex items-start gap-1.5">
                       <Icon name="Check" size={12} className="mt-0.5 text-green-400 flex-shrink-0" />
-                      <span>Вы передаёте товар покупателю</span>
+                      <span>Вы отправляете криптовалюту покупателю</span>
                     </li>
                     <li className="flex items-start gap-1.5">
                       <Icon name="Check" size={12} className="mt-0.5 text-green-400 flex-shrink-0" />
-                      <span>Покупатель подтверждает получение</span>
+                      <span>Покупатель подтверждает получение монет</span>
                     </li>
                     <li className="flex items-start gap-1.5">
                       <Icon name="Check" size={12} className="mt-0.5 text-green-400 flex-shrink-0" />
-                      <span>Деньги поступают на ваш баланс</span>
+                      <span>USDT поступают на ваш баланс</span>
                     </li>
                   </ul>
                 </div>
@@ -548,7 +548,7 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
                 className="flex-1 bg-gradient-to-r from-green-600 to-green-800 hover:from-green-700 hover:to-green-900 shadow-lg shadow-green-500/20 h-10 sm:h-11 text-xs sm:text-sm font-semibold"
               >
                 <Icon name="ShieldCheck" size={14} className="mr-1.5 sm:mr-2 sm:w-4 sm:h-4" />
-                Создать сделку
+                Создать обмен
               </Button>
             </div>
           </div>
