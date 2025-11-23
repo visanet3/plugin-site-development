@@ -50,20 +50,38 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 status_filter = params.get('status', 'all')
                 cursor = conn.cursor(cursor_factory=RealDictCursor)
                 
-                # Для открытых сделок показываем только те, где нет покупателя
+                # Для открытых сделок
                 if status_filter == 'open':
-                    query = """
-                        SELECT ed.*, 
-                            seller.username as seller_name, seller.avatar_url as seller_avatar,
-                            buyer.username as buyer_name, buyer.avatar_url as buyer_avatar
-                        FROM escrow_deals ed
-                        LEFT JOIN users seller ON ed.seller_id = seller.id
-                        LEFT JOIN users buyer ON ed.buyer_id = buyer.id
-                        WHERE ed.status = 'open' AND ed.buyer_id IS NULL
-                        ORDER BY ed.created_at DESC
-                    """
-                    cursor.execute(query)
-                # Для завершенных и споров - только участники видят сделки с сообщениями
+                    if user_id:
+                        # Авторизованный пользователь видит:
+                        # 1. Все сделки БЕЗ покупателя (status='open' AND buyer_id IS NULL)
+                        # 2. Свои сделки в процессе (где он продавец или покупатель И status IN ('open', 'in_progress'))
+                        query = """
+                            SELECT ed.*, 
+                                seller.username as seller_name, seller.avatar_url as seller_avatar,
+                                buyer.username as buyer_name, buyer.avatar_url as buyer_avatar
+                            FROM escrow_deals ed
+                            LEFT JOIN users seller ON ed.seller_id = seller.id
+                            LEFT JOIN users buyer ON ed.buyer_id = buyer.id
+                            WHERE (ed.status = 'open' AND ed.buyer_id IS NULL)
+                               OR (ed.status IN ('open', 'in_progress') AND (ed.seller_id = %s OR ed.buyer_id = %s))
+                            ORDER BY ed.created_at DESC
+                        """
+                        cursor.execute(query, (user_id, user_id))
+                    else:
+                        # Неавторизованный видит только открытые без покупателя
+                        query = """
+                            SELECT ed.*, 
+                                seller.username as seller_name, seller.avatar_url as seller_avatar,
+                                buyer.username as buyer_name, buyer.avatar_url as buyer_avatar
+                            FROM escrow_deals ed
+                            LEFT JOIN users seller ON ed.seller_id = seller.id
+                            LEFT JOIN users buyer ON ed.buyer_id = buyer.id
+                            WHERE ed.status = 'open' AND ed.buyer_id IS NULL
+                            ORDER BY ed.created_at DESC
+                        """
+                        cursor.execute(query)
+                # Для завершенных и споров - только участники видят сделки
                 elif status_filter == 'completed' or status_filter == 'dispute':
                     if user_id:
                         query = """
