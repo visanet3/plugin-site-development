@@ -156,7 +156,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
               <Icon name="DollarSign" size={20} className="text-green-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{(user.balance || 0).toFixed(2)}</p>
+              <p className="text-2xl font-bold">{Number(user.balance || 0).toFixed(2)}</p>
               <p className="text-xs text-muted-foreground">Баланс USDT</p>
             </div>
           </div>
