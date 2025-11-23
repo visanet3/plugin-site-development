@@ -68,10 +68,15 @@ const ReferralProgramPage = ({ user }: ReferralProgramPageProps) => {
 
   const loadReferralInfo = async () => {
     try {
-      const response = await fetch(`${AUTH_URL}?action=get_referral_info`, {
+      const response = await fetch(AUTH_URL, {
+        method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'X-User-Id': user.id.toString()
-        }
+        },
+        body: JSON.stringify({
+          action: 'get_referral_info'
+        })
       });
 
       const data = await response.json();
