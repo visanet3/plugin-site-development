@@ -56,17 +56,20 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
     withdrawal_request: 0,
     escrow_dispute: 0
   });
-  const [sectionCounts, setSectionCounts] = useState({
-    users: 0,
-    topics: 0,
-    disputes: 0,
-    deposits: 0,
-    withdrawals: 0,
-    btcWithdrawals: 0,
-    escrow: 0,
-    flashUsdt: 0,
-    tickets: 0,
-    verification: 0
+  const [sectionCounts, setSectionCounts] = useState(() => {
+    const saved = localStorage.getItem('admin_section_counts');
+    return saved ? JSON.parse(saved) : {
+      users: 0,
+      topics: 0,
+      disputes: 0,
+      deposits: 0,
+      withdrawals: 0,
+      btcWithdrawals: 0,
+      escrow: 0,
+      flashUsdt: 0,
+      tickets: 0,
+      verification: 0
+    };
   });
   const [readSections, setReadSections] = useState<Set<string>>(() => {
     const saved = localStorage.getItem('admin_read_sections');
@@ -331,7 +334,7 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
       Object.keys(newCounts).forEach(key => {
         const oldCount = sectionCounts[key as keyof typeof sectionCounts];
         const newCount = newCounts[key as keyof typeof newCounts];
-        if (newCount > oldCount) {
+        if (newCount > oldCount && oldCount !== undefined) {
           sectionsToUnread.add(key);
         }
       });
@@ -345,6 +348,8 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
         });
       }
 
+      // Сохраняем новые счётчики в localStorage
+      localStorage.setItem('admin_section_counts', JSON.stringify(newCounts));
       setSectionCounts(newCounts);
     } catch (error) {
       console.error('Ошибка загрузки счётчиков:', error);
