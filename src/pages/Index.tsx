@@ -372,8 +372,8 @@ const Index = () => {
         />
 
         <MainContent
-          activeView={activeView}
-          activeCategory={activeCategory}
+          activeView={authDialogOpen ? 'plugins' : activeView}
+          activeCategory={authDialogOpen ? 'all' : activeCategory}
           plugins={plugins}
           categories={categories}
           forumTopics={forumTopics}
