@@ -102,14 +102,19 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
       fetchTickets();
     } else if (activeTab === 'btc-withdrawals') {
       fetchBtcWithdrawals();
+    } else if (activeTab === 'verification') {
+      // Верификация загружается в компоненте
     }
+    
+    // Загружаем уведомления и счётчики сразу
     fetchAdminNotifications();
     fetchAllCounts();
     
+    // Обновляем каждые 10 секунд для более быстрой реакции
     const interval = setInterval(() => {
       fetchAdminNotifications();
       fetchAllCounts();
-    }, 15000);
+    }, 10000);
     
     return () => clearInterval(interval);
   }, [activeTab]);
@@ -325,17 +330,38 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
         btcWithdrawals: (btcWithdrawalsData.withdrawals || []).filter((w: any) => w.status === 'pending').length,
         escrow: (escrowData.deals || []).filter((d: any) => d.status === 'open' && !d.buyer_id).length,
         flashUsdt: (flashUsdtData.orders || []).filter((o: any) => o.status === 'pending').length,
-        tickets: 2, // Mock данные - 2 открытых тикета
+        tickets: 2,
         verification: notificationCounts.verification_request
       };
 
-      // Если счётчик увеличился, сбрасываем статус "прочитано" для этого раздела
+      // Если счётчик увеличился, сбрасываем статус "прочитано" и показываем toast
       const sectionsToUnread = new Set<string>();
+      const sectionNames: Record<string, string> = {
+        users: 'Новый пользователь',
+        topics: 'Новая тема форума',
+        disputes: 'Новый спор',
+        deposits: 'Новое пополнение',
+        withdrawals: 'Новая заявка на вывод USDT',
+        btcWithdrawals: 'Новая заявка на вывод BTC',
+        escrow: 'Новая гарант-сделка',
+        flashUsdt: 'Новый заказ Flash USDT',
+        tickets: 'Новый тикет',
+        verification: 'Новая заявка на верификацию'
+      };
+
       Object.keys(newCounts).forEach(key => {
         const oldCount = sectionCounts[key as keyof typeof sectionCounts];
         const newCount = newCounts[key as keyof typeof newCounts];
         if (newCount > oldCount && oldCount !== undefined) {
           sectionsToUnread.add(key);
+          
+          // Показываем toast для каждого нового элемента
+          const diff = newCount - oldCount;
+          toast({
+            title: '🔔 ' + sectionNames[key],
+            description: diff === 1 ? `Появился новый элемент в разделе "${sectionNames[key]}"` : `Появилось ${diff} новых элементов`,
+            duration: 5000
+          });
         }
       });
 
@@ -366,6 +392,22 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
         const unreadNotifications = (data.notifications || []).filter(
           (notif: any) => !notif.is_read
         );
+        
+        // Показываем toast для новых уведомлений
+        const prevCount = adminNotifications.length;
+        const newCount = unreadNotifications.length;
+        
+        if (newCount > prevCount && prevCount !== 0) {
+          const newNotifs = unreadNotifications.slice(0, newCount - prevCount);
+          newNotifs.forEach((notif: any) => {
+            toast({
+              title: notif.title,
+              description: notif.message,
+              duration: 6000
+            });
+          });
+        }
+        
         setAdminNotifications(unreadNotifications);
         
         // Подсчитываем уведомления по типам
