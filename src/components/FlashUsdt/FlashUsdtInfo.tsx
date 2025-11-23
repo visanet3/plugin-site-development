@@ -4,27 +4,27 @@ import Icon from '@/components/ui/icon';
 export const FlashUsdtInfo = () => {
   return (
     <>
-      <Card className="p-8 border-yellow-500/20 bg-yellow-500/5">
-        <div className="flex items-center gap-3 mb-6">
-          <Icon name="Info" size={28} className="text-yellow-400" />
-          <h2 className="text-2xl font-bold">Что такое Flash USDT?</h2>
+      <Card className="p-4 sm:p-6 md:p-8 border-yellow-500/20 bg-yellow-500/5">
+        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+          <Icon name="Info" size={24} className="text-yellow-400 sm:w-7 sm:h-7" />
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Что такое Flash USDT?</h2>
         </div>
         
-        <div className="space-y-4 text-muted-foreground leading-relaxed">
-          <p>
+        <div className="space-y-3 sm:space-y-4 text-muted-foreground leading-relaxed">
+          <p className="text-sm sm:text-base">
             <strong className="text-foreground">Flash USDT</strong> — это временный токен стандарта TRC20, полностью совместимый с экосистемой TRON. 
             Токен имеет ограниченный срок действия и автоматически исчезает через 120 дней после активации.
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mt-4 sm:mt-6">
             <div>
-              <h3 className="font-semibold mb-3 flex items-center gap-2 text-foreground">
-                <Icon name="CheckCircle2" size={20} className="text-green-400" />
+              <h3 className="font-semibold mb-2 sm:mb-3 flex items-center gap-2 text-foreground text-sm sm:text-base">
+                <Icon name="CheckCircle2" size={18} className="text-green-400 sm:w-5 sm:h-5" />
                 Преимущества
               </h3>
-              <ul className="space-y-2 text-sm">
-                <li className="flex items-start gap-2">
-                  <Icon name="Zap" size={16} className="text-yellow-400 mt-0.5 flex-shrink-0" />
+              <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
+                <li className="flex items-start gap-1.5 sm:gap-2">
+                  <Icon name="Zap" size={14} className="text-yellow-400 mt-0.5 flex-shrink-0 sm:w-4 sm:h-4" />
                   <span><strong>Мгновенная активация:</strong> Заходит на кошелек без добавления контракта</span>
                 </li>
                 <li className="flex items-start gap-2">
@@ -47,11 +47,11 @@ export const FlashUsdtInfo = () => {
             </div>
             
             <div>
-              <h3 className="font-semibold mb-3 flex items-center gap-2 text-foreground">
-                <Icon name="AlertCircle" size={20} className="text-orange-400" />
+              <h3 className="font-semibold mb-2 sm:mb-3 flex items-center gap-2 text-foreground text-sm sm:text-base">
+                <Icon name="AlertCircle" size={18} className="text-orange-400 sm:w-5 sm:h-5" />
                 Важно знать
               </h3>
-              <ul className="space-y-2 text-sm">
+              <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
                 <li className="flex items-start gap-2">
                   <Icon name="Clock" size={16} className="text-orange-400 mt-0.5 flex-shrink-0" />
                   <span><strong>Срок действия:</strong> Токен автоматически исчезает через 120 дней</span>
@@ -78,20 +78,20 @@ export const FlashUsdtInfo = () => {
         </div>
       </Card>
 
-      <Card className="p-8 border-red-500/20 bg-red-500/5">
-        <div className="flex items-center gap-3 mb-6">
-          <Icon name="AlertTriangle" size={28} className="text-red-400" />
-          <h2 className="text-2xl font-bold">Предупреждение</h2>
+      <Card className="p-4 sm:p-6 md:p-8 border-red-500/20 bg-red-500/5">
+        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+          <Icon name="AlertTriangle" size={24} className="text-red-400 sm:w-7 sm:h-7" />
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Предупреждение</h2>
         </div>
         
-        <div className="space-y-4 text-muted-foreground">
-          <p>
+        <div className="space-y-3 sm:space-y-4 text-muted-foreground">
+          <p className="text-sm sm:text-base">
             <strong className="text-foreground">Flash USDT — это временный токен.</strong> Перед покупкой убедитесь, что вы понимаете все условия:
           </p>
           
-          <ul className="space-y-2 text-sm">
-            <li className="flex items-start gap-2">
-              <Icon name="AlertCircle" size={16} className="text-red-400 mt-0.5 flex-shrink-0" />
+          <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
+            <li className="flex items-start gap-1.5 sm:gap-2">
+              <Icon name="AlertCircle" size={14} className="text-red-400 mt-0.5 flex-shrink-0 sm:w-4 sm:h-4" />
               <span>Токен автоматически исчезает через 120 дней после активации</span>
             </li>
             <li className="flex items-start gap-2">
@@ -114,19 +114,19 @@ export const FlashUsdtInfo = () => {
         </div>
       </Card>
 
-      <Card className="p-8 border-green-500/20 bg-green-500/5">
-        <div className="flex items-center gap-3 mb-6">
-          <Icon name="HelpCircle" size={28} className="text-green-400" />
-          <h2 className="text-2xl font-bold">Частые вопросы</h2>
+      <Card className="p-4 sm:p-6 md:p-8 border-green-500/20 bg-green-500/5">
+        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+          <Icon name="HelpCircle" size={24} className="text-green-400 sm:w-7 sm:h-7" />
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Частые вопросы</h2>
         </div>
         
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           <div>
-            <h3 className="font-semibold mb-2 flex items-center gap-2">
-              <Icon name="CircleDot" size={16} className="text-green-400" />
+            <h3 className="font-semibold mb-1.5 sm:mb-2 flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base">
+              <Icon name="CircleDot" size={14} className="text-green-400 sm:w-4 sm:h-4" />
               Как активировать Flash USDT?
             </h3>
-            <p className="text-sm text-muted-foreground ml-6">
+            <p className="text-xs sm:text-sm text-muted-foreground ml-5 sm:ml-6">
               После покупки токены автоматически появятся на вашем TRC20 кошельке. Добавление контракта не требуется.
             </p>
           </div>
