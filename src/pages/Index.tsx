@@ -285,7 +285,7 @@ const Index = () => {
             messagesUnread={messagesUnread}
           />
 
-      <div className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'md:ml-64' : 'ml-0'}`}>
+      <div className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'md:ml-64' : 'ml-0'} max-w-full overflow-x-hidden`}>
         <Header
           sidebarOpen={sidebarOpen}
           searchQuery={searchQuery}

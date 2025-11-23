@@ -181,32 +181,32 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+    <div className="space-y-3 sm:space-y-4 md:space-y-6 animate-fade-in">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Гарант-сервис</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 sm:mb-2">Гарант-сервис</h1>
+          <p className="text-xs sm:text-sm md:text-base text-muted-foreground">
             Безопасные сделки с гарантией платформы
           </p>
         </div>
         <Button
           onClick={() => user ? setShowCreateDialog(true) : onShowAuthDialog()}
-          className="bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800"
+          className="bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800 w-full sm:w-auto text-xs sm:text-sm h-9 sm:h-10"
         >
-          <Icon name="Plus" size={18} className="mr-2" />
+          <Icon name="Plus" size={16} className="mr-1.5 sm:mr-2 sm:w-[18px] sm:h-[18px]" />
           Создать сделку
         </Button>
       </div>
 
-      <Card className="p-6 bg-gradient-to-br from-green-800/10 to-green-900/5 border-green-800/20">
-        <div className="space-y-4 sm:space-y-6">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-green-800/20 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Icon name="ShieldCheck" size={24} className="text-green-400" />
+      <Card className="p-3 sm:p-4 md:p-6 bg-gradient-to-br from-green-800/10 to-green-900/5 border-green-800/20">
+        <div className="space-y-3 sm:space-y-4 md:space-y-6">
+          <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-800/20 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+              <Icon name="ShieldCheck" size={20} className="text-green-400 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold mb-2">Как это работает?</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2">Как это работает?</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Мы держим деньги покупателя до тех пор, пока он не получит товар. Продавец получает деньги только после того, как покупатель подтвердит получение. Это защищает обе стороны от обмана.
               </p>
             </div>

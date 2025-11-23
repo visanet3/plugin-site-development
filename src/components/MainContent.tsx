@@ -51,7 +51,7 @@ const MainContent = ({
   onRefreshUserBalance,
 }: MainContentProps) => {
   return (
-    <main className="p-3 sm:p-6 animate-fade-in">
+    <main className="p-2 sm:p-3 md:p-4 lg:p-6 animate-fade-in max-w-full overflow-x-hidden">
       {activeView === 'plugins' ? (
         activeCategory === 'faq' ? (
           <FAQPage />

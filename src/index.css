@@ -161,8 +161,7 @@
     button,
     a,
     [role="button"] {
-      min-height: 44px;
-      min-width: 44px;
+      min-height: 36px;
     }
 
     input,
@@ -170,5 +169,30 @@
     select {
       font-size: 16px;
     }
+  }
+
+  /* Адаптивные утилиты */
+  .mobile-container {
+    @apply px-2 sm:px-4 md:px-6;
+  }
+
+  .mobile-text {
+    @apply text-xs sm:text-sm md:text-base;
+  }
+
+  .mobile-heading {
+    @apply text-lg sm:text-xl md:text-2xl lg:text-3xl;
+  }
+
+  .mobile-card {
+    @apply p-2.5 sm:p-3 md:p-4 lg:p-6;
+  }
+
+  .mobile-gap {
+    @apply gap-2 sm:gap-3 md:gap-4;
+  }
+
+  .mobile-spacing {
+    @apply space-y-2 sm:space-y-3 md:space-y-4;
   }
 }
