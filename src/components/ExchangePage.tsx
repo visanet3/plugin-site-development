@@ -304,6 +304,13 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
     setWithdrawLoading(true);
 
     try {
+      console.log('🔵 Отправка запроса на вывод BTC:', {
+        action: 'withdraw_btc',
+        btc_amount: amount,
+        btc_address: withdrawAddress,
+        user_id: user.id
+      });
+
       const response = await fetch(AUTH_URL, {
         method: 'POST',
         headers: {
@@ -317,7 +324,10 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
         })
       });
 
+      console.log('📡 Статус ответа:', response.status);
+
       const data = await response.json();
+      console.log('📦 Ответ сервера:', data);
 
       if (data.success) {
         toast({
@@ -333,6 +343,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
         setWithdrawAddress('');
         setWithdrawAmount('');
       } else {
+        console.error('❌ Ошибка вывода:', data.error);
         toast({
           title: 'Ошибка',
           description: data.error || 'Ошибка вывода',
@@ -340,6 +351,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
         });
       }
     } catch (error) {
+      console.error('💥 Исключение при выводе:', error);
       toast({
         title: 'Ошибка',
         description: 'Ошибка подключения к серверу',
