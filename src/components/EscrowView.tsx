@@ -421,49 +421,136 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
       )}
 
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Создать сделку</DialogTitle>
-            <DialogDescription>
-              Создайте сделку для безопасной передачи товара
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>Название товара/услуги</Label>
+        <DialogContent className="max-w-[95vw] sm:max-w-md md:max-w-lg p-0 gap-0 overflow-hidden">
+          {/* Красивый градиентный заголовок */}
+          <div className="relative overflow-hidden bg-gradient-to-br from-green-800/20 via-green-900/10 to-background border-b border-green-800/30 p-4 sm:p-5 md:p-6">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-500/10 to-transparent rounded-full blur-3xl"></div>
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-600 to-green-800 rounded-xl flex items-center justify-center shadow-lg">
+                  <Icon name="ShieldCheck" size={20} className="text-white sm:w-6 sm:h-6" />
+                </div>
+                <div>
+                  <DialogTitle className="text-lg sm:text-xl md:text-2xl font-bold">Создать сделку</DialogTitle>
+                  <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
+                    Безопасная передача товара с гарантией
+                  </DialogDescription>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Форма */}
+          <div className="p-4 sm:p-5 md:p-6 space-y-3 sm:space-y-4 max-h-[60vh] sm:max-h-[70vh] overflow-y-auto">
+            {/* Название */}
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label className="text-xs sm:text-sm font-semibold flex items-center gap-1.5">
+                <Icon name="Package" size={14} className="text-green-400 sm:w-4 sm:h-4" />
+                Название товара/услуги
+              </Label>
               <Input
                 value={newDeal.title}
                 onChange={(e) => setNewDeal({ ...newDeal, title: e.target.value })}
-                placeholder="Например: Telegram Premium 12 месяцев"
+                placeholder="Например: Telegram Premium 12 мес"
+                className="text-sm sm:text-base h-10 sm:h-11"
               />
+              <p className="text-[10px] sm:text-xs text-muted-foreground">
+                Краткое и понятное название вашего товара
+              </p>
             </div>
-            <div>
-              <Label>Описание</Label>
+
+            {/* Описание */}
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label className="text-xs sm:text-sm font-semibold flex items-center gap-1.5">
+                <Icon name="FileText" size={14} className="text-green-400 sm:w-4 sm:h-4" />
+                Описание
+              </Label>
               <Textarea
                 value={newDeal.description}
                 onChange={(e) => setNewDeal({ ...newDeal, description: e.target.value })}
-                placeholder="Подробно опишите товар или услугу"
-                className="min-h-[100px]"
+                placeholder="Подробно опишите товар или услугу...\n\nУкажите:\n• Что именно продаёте\n• Срок действия\n• Условия передачи"
+                className="min-h-[100px] sm:min-h-[120px] text-sm sm:text-base resize-none"
               />
+              <p className="text-[10px] sm:text-xs text-muted-foreground">
+                Чем подробнее описание, тем больше доверия
+              </p>
             </div>
-            <div>
-              <Label>Цена (USDT)</Label>
-              <Input
-                type="number"
-                value={newDeal.price}
-                onChange={(e) => setNewDeal({ ...newDeal, price: e.target.value })}
-                placeholder="0.00"
-                min="0"
-                step="0.01"
-              />
+
+            {/* Цена */}
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label className="text-xs sm:text-sm font-semibold flex items-center gap-1.5">
+                <Icon name="DollarSign" size={14} className="text-green-400 sm:w-4 sm:h-4" />
+                Цена (USDT)
+              </Label>
+              <div className="relative">
+                <Input
+                  type="number"
+                  value={newDeal.price}
+                  onChange={(e) => setNewDeal({ ...newDeal, price: e.target.value })}
+                  placeholder="0.00"
+                  min="0"
+                  step="0.01"
+                  className="text-sm sm:text-base h-10 sm:h-11 pl-10 font-mono"
+                />
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                  <Icon name="Coins" size={16} className="sm:w-[18px] sm:h-[18px]" />
+                </div>
+              </div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">
+                Покупатель заблокирует эту сумму до завершения сделки
+              </p>
             </div>
-            <Button
-              onClick={createDeal}
-              className="w-full bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800"
-            >
-              <Icon name="Plus" size={18} className="mr-2" />
-              Создать сделку
-            </Button>
+
+            {/* Информационная карточка */}
+            <Card className="bg-green-800/5 border-green-800/20 p-3 sm:p-4">
+              <div className="flex items-start gap-2 sm:gap-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-green-800/20 flex items-center justify-center flex-shrink-0">
+                  <Icon name="Info" size={14} className="text-green-400 sm:w-4 sm:h-4" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs sm:text-sm font-medium">Как работает гарант?</p>
+                  <ul className="space-y-1 text-[10px] sm:text-xs text-muted-foreground">
+                    <li className="flex items-start gap-1.5">
+                      <Icon name="Check" size={12} className="mt-0.5 text-green-400 flex-shrink-0" />
+                      <span>Покупатель блокирует деньги на платформе</span>
+                    </li>
+                    <li className="flex items-start gap-1.5">
+                      <Icon name="Check" size={12} className="mt-0.5 text-green-400 flex-shrink-0" />
+                      <span>Вы передаёте товар покупателю</span>
+                    </li>
+                    <li className="flex items-start gap-1.5">
+                      <Icon name="Check" size={12} className="mt-0.5 text-green-400 flex-shrink-0" />
+                      <span>Покупатель подтверждает получение</span>
+                    </li>
+                    <li className="flex items-start gap-1.5">
+                      <Icon name="Check" size={12} className="mt-0.5 text-green-400 flex-shrink-0" />
+                      <span>Деньги поступают на ваш баланс</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          {/* Кнопки */}
+          <div className="border-t border-border p-3 sm:p-4 md:p-5 bg-muted/30">
+            <div className="flex gap-2 sm:gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowCreateDialog(false)}
+                className="flex-1 h-10 sm:h-11 text-xs sm:text-sm"
+              >
+                <Icon name="X" size={14} className="mr-1.5 sm:mr-2 sm:w-4 sm:h-4" />
+                Отмена
+              </Button>
+              <Button
+                onClick={createDeal}
+                className="flex-1 bg-gradient-to-r from-green-600 to-green-800 hover:from-green-700 hover:to-green-900 shadow-lg shadow-green-500/20 h-10 sm:h-11 text-xs sm:text-sm font-semibold"
+              >
+                <Icon name="ShieldCheck" size={14} className="mr-1.5 sm:mr-2 sm:w-4 sm:h-4" />
+                Создать сделку
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
