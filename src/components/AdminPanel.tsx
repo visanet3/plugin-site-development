@@ -68,11 +68,18 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
     tickets: 0,
     verification: 0
   });
-  const [readSections, setReadSections] = useState<Set<string>>(new Set());
+  const [readSections, setReadSections] = useState<Set<string>>(() => {
+    const saved = localStorage.getItem('admin_read_sections');
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
 
   useEffect(() => {
     // Отмечаем текущий раздел как прочитанный
-    setReadSections(prev => new Set([...prev, activeTab]));
+    setReadSections(prev => {
+      const newSet = new Set([...prev, activeTab]);
+      localStorage.setItem('admin_read_sections', JSON.stringify([...newSet]));
+      return newSet;
+    });
     
     if (activeTab === 'users') {
       fetchUsers();
@@ -333,6 +340,7 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
         setReadSections(prev => {
           const newSet = new Set(prev);
           sectionsToUnread.forEach(section => newSet.delete(section));
+          localStorage.setItem('admin_read_sections', JSON.stringify([...newSet]));
           return newSet;
         });
       }
