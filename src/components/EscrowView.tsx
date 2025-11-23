@@ -847,114 +847,120 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance 
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <DialogTitle>{currentDeal.title}</DialogTitle>
-              <DialogDescription className="mt-2">
-                {currentDeal.description}
-              </DialogDescription>
+      <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0 gap-0">
+        {/* Красивый градиентный заголовок */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-green-800/20 via-green-900/10 to-background border-b border-green-800/30 p-4 sm:p-5">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-500/10 to-transparent rounded-full blur-3xl"></div>
+          <div className="relative z-10">
+            <div className="flex items-start justify-between gap-2 sm:gap-3 mb-2">
+              <div className="flex-1 min-w-0">
+                <DialogTitle className="text-base sm:text-lg md:text-xl truncate pr-2">{currentDeal.title}</DialogTitle>
+                <DialogDescription className="mt-1 text-xs sm:text-sm line-clamp-2">
+                  {currentDeal.description}
+                </DialogDescription>
+              </div>
+              <div className="flex-shrink-0">
+                {currentDeal.status === 'open' && (
+                  <Badge variant="default" className="bg-green-800 text-[10px] sm:text-xs">Открыта</Badge>
+                )}
+                {currentDeal.status === 'in_progress' && (
+                  <Badge variant="secondary" className="text-[10px] sm:text-xs">В процессе</Badge>
+                )}
+                {currentDeal.status === 'completed' && (
+                  <Badge variant="outline" className="text-[10px] sm:text-xs">Завершена</Badge>
+                )}
+              </div>
             </div>
-            {currentDeal.status === 'open' && (
-              <Badge variant="default" className="bg-green-800">Открыта</Badge>
-            )}
-            {currentDeal.status === 'in_progress' && (
-              <Badge variant="secondary">В процессе</Badge>
-            )}
-            {currentDeal.status === 'completed' && (
-              <Badge variant="outline">Завершена</Badge>
-            )}
           </div>
-        </DialogHeader>
+        </div>
 
-        <div className="space-y-4">
+        <div className="p-3 sm:p-4 md:p-5 space-y-3 sm:space-y-4">
           {currentDeal.status === 'completed' && (
-            <Card className="p-4 bg-gradient-to-r from-green-800/20 to-green-900/10 border-green-800/30">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-green-800/30 flex items-center justify-center">
-                  <Icon name="CheckCircle2" size={24} className="text-green-400" />
+            <Card className="p-3 sm:p-4 bg-gradient-to-r from-green-800/20 to-green-900/10 border-green-800/30">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-green-800/30 flex items-center justify-center flex-shrink-0">
+                  <Icon name="CheckCircle2" size={20} className="text-green-400 sm:w-6 sm:h-6" />
                 </div>
-                <div>
-                  <h4 className="font-semibold text-green-400">Сделка успешно завершена!</h4>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {isSeller ? 'Средства зачислены на ваш баланс' : 'Товар получен, средства переведены продавцу'}
+                <div className="min-w-0">
+                  <h4 className="font-semibold text-green-400 text-sm sm:text-base">Сделка успешно завершена!</h4>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">
+                    {isSeller ? 'Средства зачислены на ваш баланс' : 'Монеты получены, средства переведены продавцу'}
                   </p>
                 </div>
               </div>
             </Card>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
-            <Card className="p-3">
-              <p className="text-xs text-muted-foreground mb-1">Продавец</p>
-              <div className="flex items-center gap-2">
-                <Avatar className="w-8 h-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+            <Card className="p-2.5 sm:p-3">
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-1.5">Продавец</p>
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                <Avatar className="w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0">
                   <AvatarImage src={currentDeal.seller_avatar} />
                   <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(currentDeal.seller_name || '')} text-white text-xs`}>
                     {currentDeal.seller_name?.[0].toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <p className="font-medium">{currentDeal.seller_name}</p>
+                <p className="font-medium text-sm sm:text-base truncate">{currentDeal.seller_name}</p>
               </div>
             </Card>
 
-            <Card className="p-3">
-              <p className="text-xs text-muted-foreground mb-1">Цена</p>
-              <p className="text-2xl font-bold text-green-400">{currentDeal.price} USDT</p>
+            <Card className="p-2.5 sm:p-3">
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-1.5">Цена</p>
+              <p className="text-xl sm:text-2xl font-bold text-green-400">{currentDeal.price} USDT</p>
             </Card>
           </div>
 
           {currentDeal.buyer_id && (
-            <Card className="p-3">
-              <p className="text-xs text-muted-foreground mb-1">Покупатель</p>
-              <div className="flex items-center gap-2">
-                <Avatar className="w-8 h-8">
+            <Card className="p-2.5 sm:p-3">
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-1.5">Покупатель</p>
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                <Avatar className="w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0">
                   <AvatarImage src={currentDeal.buyer_avatar} />
                   <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(currentDeal.buyer_name || '')} text-white text-xs`}>
                     {currentDeal.buyer_name?.[0].toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <p className="font-medium">{currentDeal.buyer_name}</p>
+                <p className="font-medium text-sm sm:text-base truncate">{currentDeal.buyer_name}</p>
               </div>
             </Card>
           )}
 
-          <Card className="p-4 max-h-[300px] overflow-y-auto bg-muted/30">
-            <div className="space-y-2">
+          <Card className="p-2 sm:p-3 max-h-[250px] sm:max-h-[300px] overflow-y-auto bg-muted/30">
+            <div className="space-y-1.5 sm:space-y-2">
               {messages.map((msg) => {
                 const isAdminMessage = msg.user_role === 'admin';
                 return (
                   <div
                     key={msg.id}
-                    className={`p-3 rounded-lg ${
+                    className={`p-2 sm:p-2.5 rounded-lg text-xs sm:text-sm ${
                       msg.is_system
-                        ? 'bg-blue-500/10 border border-blue-500/20 text-center text-sm'
+                        ? 'bg-blue-500/10 border border-blue-500/20 text-center'
                         : isAdminMessage
                         ? 'bg-purple-500/10 border border-purple-500/30'
                         : msg.user_id === user?.id
-                        ? 'bg-green-800/20 border border-green-800/30 ml-8'
-                        : 'bg-card mr-8'
+                        ? 'bg-green-800/20 border border-green-800/30 ml-4 sm:ml-8'
+                        : 'bg-card mr-4 sm:mr-8'
                     }`}
                   >
                     {!msg.is_system && (
-                      <div className="flex items-center gap-2 mb-1">
-                        <Avatar className="w-5 h-5">
+                      <div className="flex items-center gap-1.5 mb-1 min-w-0">
+                        <Avatar className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0">
                           <AvatarImage src={msg.avatar_url} />
-                          <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(msg.username || '')} text-white text-xs`}>
+                          <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(msg.username || '')} text-white text-[10px]`}>
                             {msg.username?.[0].toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        <span className={`text-xs font-medium ${isAdminMessage ? 'text-purple-400' : ''}`}>
+                        <span className={`text-[10px] sm:text-xs font-medium truncate ${isAdminMessage ? 'text-purple-400' : ''}`}>
                           {isAdminMessage && '👑 '}
                           {msg.username}
-                          {isAdminMessage && ' (Администрация)'}
+                          {isAdminMessage && ' (Админ)'}
                         </span>
                       </div>
                     )}
-                    <p className={msg.is_system ? 'text-blue-400 font-medium' : isAdminMessage ? 'text-purple-300' : ''}>{msg.message}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {new Date(msg.created_at).toLocaleString('ru-RU')}
+                    <p className={`break-words ${msg.is_system ? 'text-blue-400 font-medium' : isAdminMessage ? 'text-purple-300' : ''}`}>{msg.message}</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1">
+                      {new Date(msg.created_at).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
                 );
@@ -963,27 +969,28 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance 
           </Card>
 
           {currentDeal.status !== 'completed' && currentDeal.status !== 'cancelled' && (isSeller || isBuyer || isAdmin) && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <Input
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                placeholder={isAdmin ? "Сообщение от администрации..." : "Написать сообщение..."}
+                placeholder={isAdmin ? "От администрации..." : "Сообщение..."}
                 onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+                className="text-xs sm:text-sm h-9 sm:h-10"
               />
-              <Button onClick={sendMessage} size="icon">
-                <Icon name="Send" size={18} />
+              <Button onClick={sendMessage} size="icon" className="h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0">
+                <Icon name="Send" size={16} className="sm:w-[18px] sm:h-[18px]" />
               </Button>
             </div>
           )}
 
-          <div className="space-y-2">
+          <div className="space-y-1.5 sm:space-y-2">
             {currentDeal.status === 'open' && !isSeller && (
               <Button
                 onClick={joinDeal}
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800"
+                className="w-full bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800 h-9 sm:h-10 text-xs sm:text-sm"
               >
-                <Icon name="ShoppingCart" size={18} className="mr-2" />
+                <Icon name="ShoppingCart" size={16} className="mr-1.5 sm:mr-2 sm:w-[18px] sm:h-[18px]" />
                 Купить за {currentDeal.price} USDT
               </Button>
             )}
@@ -992,10 +999,10 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance 
               <Button
                 onClick={buyerPaid}
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600"
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 h-9 sm:h-10 text-xs sm:text-sm"
               >
-                <Icon name="CreditCard" size={18} className="mr-2" />
-                Я оплатил товар
+                <Icon name="CreditCard" size={16} className="mr-1.5 sm:mr-2 sm:w-[18px] sm:h-[18px]" />
+                Я отправил криптовалюту
               </Button>
             )}
 
@@ -1003,10 +1010,10 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance 
               <Button
                 onClick={sellerConfirm}
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600"
+                className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 h-9 sm:h-10 text-xs sm:text-sm"
               >
-                <Icon name="Package" size={18} className="mr-2" />
-                Товар передан покупателю
+                <Icon name="Package" size={16} className="mr-1.5 sm:mr-2 sm:w-[18px] sm:h-[18px]" />
+                Монеты переданы покупателю
               </Button>
             )}
 
@@ -1014,10 +1021,10 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance 
               <Button
                 onClick={buyerConfirm}
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600"
+                className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 h-9 sm:h-10 text-xs sm:text-sm"
               >
-                <Icon name="Check" size={18} className="mr-2" />
-                Подтвердить получение товара
+                <Icon name="Check" size={16} className="mr-1.5 sm:mr-2 sm:w-[18px] sm:h-[18px]" />
+                Подтвердить получение монет
               </Button>
             )}
 
@@ -1026,21 +1033,21 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance 
                 onClick={openDispute}
                 disabled={loading}
                 variant="destructive"
-                className="w-full"
+                className="w-full h-9 sm:h-10 text-xs sm:text-sm"
               >
-                <Icon name="AlertTriangle" size={18} className="mr-2" />
-                Открыть спор / Подать апелляцию
+                <Icon name="AlertTriangle" size={16} className="mr-1.5 sm:mr-2 sm:w-[18px] sm:h-[18px]" />
+                Открыть спор
               </Button>
             )}
 
             {currentDeal.status === 'dispute' && (
-              <Card className="p-4 bg-orange-500/10 border-orange-500/30">
-                <div className="flex items-center gap-3">
-                  <Icon name="AlertTriangle" size={24} className="text-orange-400" />
-                  <div>
-                    <h4 className="font-semibold text-orange-400">Спор открыт</h4>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Администрация рассматривает ситуацию. Все сообщения в чате сохранены.
+              <Card className="p-3 sm:p-4 bg-orange-500/10 border-orange-500/30">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <Icon name="AlertTriangle" size={20} className="text-orange-400 flex-shrink-0 sm:w-6 sm:h-6" />
+                  <div className="min-w-0">
+                    <h4 className="font-semibold text-orange-400 text-sm sm:text-base">Спор открыт</h4>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">
+                      Администрация рассматривает ситуацию. Все сообщения сохранены.
                     </p>
                   </div>
                 </div>
