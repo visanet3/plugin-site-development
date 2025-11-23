@@ -219,7 +219,7 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
             <div className="space-y-4">
               <h4 className="font-semibold text-green-400 flex items-center gap-2">
                 <Icon name="Coins" size={18} />
-                Продаю криптовалюту
+                {t('sellingCrypto')}
               </h4>
               <div className="space-y-3">
                 <div className="flex gap-3">
@@ -227,9 +227,9 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
                     <span className="text-xs font-bold text-green-400">1</span>
                   </div>
                   <div>
-                    <p className="font-medium text-sm">Создаю объявление</p>
+                    <p className="font-medium text-sm">{t('createListing')}</p>
                     <p className="text-xs text-muted-foreground">
-                      Указываю, какую криптовалюту меняю и курс
+                      {t('createListingDesc')}
                     </p>
                   </div>
                 </div>

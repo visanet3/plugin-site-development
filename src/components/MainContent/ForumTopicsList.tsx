@@ -201,7 +201,7 @@ export const ForumTopicsList = ({
                         <span>•</span>
                         <span title={getFullDateTime(topic.updated_at)} className="flex items-center gap-1">
                           <Icon name="Clock" size={12} />
-                          Обновлена: {getTimeAgo(topic.updated_at)}
+                          {t('updated')} {getTimeAgo(topic.updated_at)}
                         </span>
                       </>
                     )}

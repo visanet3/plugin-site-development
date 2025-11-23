@@ -7,6 +7,7 @@ import Icon from '@/components/ui/icon';
 import { Message } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { getAvatarGradient } from '@/utils/avatarColors';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const NOTIFICATIONS_URL = 'https://functions.poehali.dev/6c968792-7d48-41a9-af0a-c92adb047acb';
 
@@ -27,6 +28,7 @@ interface Chat {
 }
 
 const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: MessagesPanelProps) => {
+  const { t } = useLanguage();
   const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
   const [chats, setChats] = useState<Chat[]>([]);

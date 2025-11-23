@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Notification } from '@/types';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const NOTIFICATIONS_URL = 'https://functions.poehali.dev/6c968792-7d48-41a9-af0a-c92adb047acb';
 
@@ -13,6 +14,7 @@ interface NotificationsPanelProps {
 }
 
 const NotificationsPanel = ({ open, onOpenChange, userId }: NotificationsPanelProps) => {
+  const { t } = useLanguage();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -97,7 +99,7 @@ const NotificationsPanel = ({ open, onOpenChange, userId }: NotificationsPanelPr
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Icon name="Bell" size={20} />
-              Уведомления
+              {t('notifications')}
               {unreadCount > 0 && (
                 <span className="px-2 py-0.5 text-xs bg-red-500 text-white rounded-full">
                   {unreadCount}
@@ -110,7 +112,7 @@ const NotificationsPanel = ({ open, onOpenChange, userId }: NotificationsPanelPr
                 variant="outline"
                 size="sm"
               >
-                Отметить все как прочитанные
+                {t('markAllRead')}
               </Button>
             )}
           </DialogTitle>
@@ -118,11 +120,11 @@ const NotificationsPanel = ({ open, onOpenChange, userId }: NotificationsPanelPr
 
         <div className="space-y-2">
           {loading ? (
-            <div className="text-center py-8 text-muted-foreground">Загрузка...</div>
+            <div className="text-center py-8 text-muted-foreground">{t('loading')}</div>
           ) : notifications.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Icon name="Bell" size={48} className="mx-auto mb-2 opacity-50" />
-              <p>Нет уведомлений</p>
+              <p>{t('noNotifications')}</p>
             </div>
           ) : (
             notifications.map((notification) => (

@@ -205,6 +205,101 @@ export const translations = {
     quickPayoutsDesc: 'Выигрыши моментально зачисляются на ваш баланс после окончания игры',
     support247: 'Поддержка 24/7',
     support247Desc: 'Наша команда всегда готова помочь вам в любое время',
+    
+    // Flash USDT Shop
+    flashUsdtShopTitle: 'Flash USDT — Магазин',
+    flashUsdtShopSubtitle: 'Купите Flash USDT токены для временного использования',
+    packages: 'Пакеты',
+    popularPackage: 'Популярный',
+    selectPackage: 'Выбрать пакет',
+    purchasePackage: 'Купить пакет',
+    enterWalletAddress: 'Введите адрес кошелька TRC20',
+    walletAddress: 'Адрес кошелька',
+    confirmPurchase: 'Подтвердить покупку',
+    discount: 'Скидка',
+    
+    // Notifications
+    noNotifications: 'Нет уведомлений',
+    markAllRead: 'Отметить все прочитанными',
+    newNotification: 'Новое уведомление',
+    
+    // Messages  
+    noMessages: 'Нет сообщений',
+    typeMessage: 'Введите сообщение...',
+    
+    // FAQ
+    faqTitle: 'Часто задаваемые вопросы',
+    faqSubtitle: 'Ответы на популярные вопросы',
+    
+    // Support
+    supportTitle: 'Поддержка',
+    supportSubtitle: 'Свяжитесь с нами',
+    contactSupport: 'Связаться с поддержкой',
+    
+    // Terms
+    termsTitle: 'Условия использования',
+    termsSubtitle: 'Правила и условия платформы',
+    
+    // Rules  
+    rulesTitle: 'Правила платформы',
+    rulesSubtitle: 'Ознакомьтесь с правилами',
+    
+    // User Profile
+    myProfile: 'Мой профиль',
+    referralProgram: 'Реферальная программа',
+    myReferrals: 'Мои рефералы',
+    referralLink: 'Реферальная ссылка',
+    copyLink: 'Скопировать ссылку',
+    referralEarnings: 'Заработано с рефералов',
+    totalReferrals: 'Всего рефералов',
+    
+    // Top-up & Withdrawal
+    topUpTitle: 'Пополнение баланса',
+    withdrawTitle: 'Вывод средств',
+    amount: 'Сумма',
+    minAmount: 'Минимальная сумма',
+    maxAmount: 'Максимальная сумма',
+    paymentMethod: 'Способ оплаты',
+    crypto: 'Криптовалюта',
+    selectCrypto: 'Выберите криптовалюту',
+    paymentAddress: 'Адрес для оплаты',
+    sendExactAmount: 'Отправьте точную сумму',
+    paymentInstructions: 'Инструкции по оплате',
+    waitingPayment: 'Ожидание оплаты...',
+    paymentReceived: 'Оплата получена!',
+    withdrawRequest: 'Заявка на вывод',
+    withdrawInProgress: 'Вывод обрабатывается',
+    
+    // Admin Panel
+    adminPanel: 'Админ-панель',
+    users: 'Пользователи',
+    deposits: 'Пополнения',
+    withdrawals: 'Выводы',
+    disputes: 'Споры',
+    tickets: 'Тикеты',
+    topics: 'Темы',
+    statistics: 'Статистика',
+    totalUsers: 'Всего пользователей',
+    totalDeposits: 'Всего пополнений',
+    totalWithdrawals: 'Всего выводов',
+    pendingDisputes: 'Споров на рассмотрении',
+    
+    // Time
+    minutesAgoShort: 'мин. назад',
+    hoursAgoShort: 'ч. назад',
+    daysAgoShort: 'дн. назад',
+    
+    // Additional
+    welcome: 'Добро пожаловать',
+    enterToContinue: 'Войдите, чтобы продолжить',
+    createAccountFast: 'Создайте аккаунт за несколько секунд',
+    noData: 'Нет данных',
+    searchByQuestions: 'Поиск по вопросам...',
+    nothingFound: 'Ничего не найдено',
+    tryChangeQuery: 'Попробуйте изменить поисковый запрос или обратитесь в поддержку',
+    notFoundAnswer: 'Не нашли ответ на свой вопрос?',
+    contactSupportHelp: 'Обратитесь в службу поддержки, и мы поможем вам решить любую проблему',
+    writeToSupport: 'Написать в поддержку →',
   },
   en: {
     // Header
@@ -410,6 +505,101 @@ export const translations = {
     quickPayoutsDesc: 'Winnings are instantly credited to your balance after game ends',
     support247: '24/7 Support',
     support247Desc: 'Our team is always ready to help you anytime',
+    
+    // Flash USDT Shop
+    flashUsdtShopTitle: 'Flash USDT — Shop',
+    flashUsdtShopSubtitle: 'Buy Flash USDT tokens for temporary use',
+    packages: 'Packages',
+    popularPackage: 'Popular',
+    selectPackage: 'Select Package',
+    purchasePackage: 'Purchase Package',
+    enterWalletAddress: 'Enter TRC20 wallet address',
+    walletAddress: 'Wallet Address',
+    confirmPurchase: 'Confirm Purchase',
+    discount: 'Discount',
+    
+    // Notifications
+    noNotifications: 'No notifications',
+    markAllRead: 'Mark all as read',
+    newNotification: 'New notification',
+    
+    // Messages
+    noMessages: 'No messages',
+    typeMessage: 'Type a message...',
+    
+    // FAQ
+    faqTitle: 'Frequently Asked Questions',
+    faqSubtitle: 'Answers to popular questions',
+    
+    // Support
+    supportTitle: 'Support',
+    supportSubtitle: 'Contact us',
+    contactSupport: 'Contact Support',
+    
+    // Terms
+    termsTitle: 'Terms of Service',
+    termsSubtitle: 'Platform rules and conditions',
+    
+    // Rules
+    rulesTitle: 'Platform Rules',
+    rulesSubtitle: 'Read the rules',
+    
+    // User Profile
+    myProfile: 'My Profile',
+    referralProgram: 'Referral Program',
+    myReferrals: 'My Referrals',
+    referralLink: 'Referral Link',
+    copyLink: 'Copy Link',
+    referralEarnings: 'Earned from Referrals',
+    totalReferrals: 'Total Referrals',
+    
+    // Top-up & Withdrawal
+    topUpTitle: 'Top Up Balance',
+    withdrawTitle: 'Withdraw Funds',
+    amount: 'Amount',
+    minAmount: 'Minimum Amount',
+    maxAmount: 'Maximum Amount',
+    paymentMethod: 'Payment Method',
+    crypto: 'Cryptocurrency',
+    selectCrypto: 'Select Cryptocurrency',
+    paymentAddress: 'Payment Address',
+    sendExactAmount: 'Send exact amount',
+    paymentInstructions: 'Payment Instructions',
+    waitingPayment: 'Waiting for payment...',
+    paymentReceived: 'Payment received!',
+    withdrawRequest: 'Withdrawal Request',
+    withdrawInProgress: 'Withdrawal in progress',
+    
+    // Admin Panel
+    adminPanel: 'Admin Panel',
+    users: 'Users',
+    deposits: 'Deposits',
+    withdrawals: 'Withdrawals',
+    disputes: 'Disputes',
+    tickets: 'Tickets',
+    topics: 'Topics',
+    statistics: 'Statistics',
+    totalUsers: 'Total Users',
+    totalDeposits: 'Total Deposits',
+    totalWithdrawals: 'Total Withdrawals',
+    pendingDisputes: 'Pending Disputes',
+    
+    // Time
+    minutesAgoShort: 'min. ago',
+    hoursAgoShort: 'hrs. ago',
+    daysAgoShort: 'days ago',
+    
+    // Additional
+    welcome: 'Welcome',
+    enterToContinue: 'Login to continue',
+    createAccountFast: 'Create account in seconds',
+    noData: 'No data',
+    searchByQuestions: 'Search questions...',
+    nothingFound: 'Nothing found',
+    tryChangeQuery: 'Try changing search query or contact support',
+    notFoundAnswer: 'Didn\'t find answer to your question?',
+    contactSupportHelp: 'Contact support and we will help you solve any problem',
+    writeToSupport: 'Write to support →',
   }
 };
 

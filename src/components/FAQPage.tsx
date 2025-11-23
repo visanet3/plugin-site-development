@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface FAQItem {
   id: number;
@@ -11,6 +12,7 @@ interface FAQItem {
 }
 
 const FAQPage = () => {
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
@@ -112,9 +114,9 @@ const FAQPage = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-3xl font-bold mb-2">❓ Часто задаваемые вопросы</h1>
+        <h1 className="text-3xl font-bold mb-2">❓ {t('faqTitle')}</h1>
         <p className="text-muted-foreground">
-          Найдите ответы на популярные вопросы о работе платформы
+          {t('faqSubtitle')}
         </p>
       </div>
 
@@ -123,7 +125,7 @@ const FAQPage = () => {
           <Icon name="Search" size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input
             type="text"
-            placeholder="Поиск по вопросам..."
+            placeholder={t('search')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
