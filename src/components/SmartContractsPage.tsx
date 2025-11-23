@@ -599,11 +599,29 @@ contract SimpleNFT {
 
               <div className="relative">
                 {contract.id === 'flash-usdt' && !canViewFullCode && (
-                  <div className="mb-3 p-3 bg-orange-500/10 border border-orange-500/30 rounded-lg flex items-start gap-3">
-                    <Icon name="Lock" size={20} className="text-orange-400 flex-shrink-0 mt-0.5" />
-                    <div className="text-sm">
-                      <p className="font-semibold text-orange-400 mb-1">Ограниченный доступ</p>
-                      <p className="text-muted-foreground">Некоторые критические части кода скрыты. Полный доступ доступен администраторам.</p>
+                  <div className="mb-3 p-4 bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/30 rounded-xl">
+                    <div className="flex items-start gap-3 mb-3">
+                      <Icon name="Lock" size={24} className="text-orange-400 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-bold text-orange-400 mb-1 text-base">🔒 Ограниченный доступ</p>
+                        <p className="text-muted-foreground text-sm mb-2">Некоторые критические части кода скрыты.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/30 rounded-lg">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0">
+                        <Icon name="Crown" size={20} className="text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-sm text-foreground mb-0.5">Для полного просмотра кода</p>
+                        <p className="text-xs text-muted-foreground">Приобретите привилегию VIP</p>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold shadow-lg"
+                      >
+                        <Icon name="Crown" size={14} className="mr-1.5" />
+                        VIP
+                      </Button>
                     </div>
                   </div>
                 )}
