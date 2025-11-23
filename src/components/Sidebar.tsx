@@ -44,7 +44,7 @@ const Sidebar = ({
         <div className={`p-4 w-64 transition-opacity duration-300 overflow-y-auto h-full ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}>
           {/* Кнопка закрытия для мобильных */}
           <div className="flex items-center justify-between mb-6 md:hidden">
-            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 via-blue-600 to-cyan-500 bg-clip-text text-transparent tracking-wide">
+            <h1 className="text-xl font-bold bg-gradient-to-r from-zinc-300 via-zinc-600 to-zinc-900 bg-clip-text text-transparent tracking-wide animate-gradient-x bg-[length:200%_auto]">
               Git Crypto
             </h1>
             <Button
@@ -59,7 +59,7 @@ const Sidebar = ({
           
           {/* Заголовок для десктопа */}
           <div className="mb-8 justify-center hidden md:flex">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-blue-600 to-cyan-500 bg-clip-text text-transparent tracking-wide animate-gradient-x bg-[length:200%_auto]">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-zinc-300 via-zinc-600 to-zinc-900 bg-clip-text text-transparent tracking-wide animate-gradient-x bg-[length:200%_auto]">
               Git Crypto
             </h1>
           </div>
