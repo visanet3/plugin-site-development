@@ -1198,6 +1198,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             usdt_amount = float(body_data.get('usdt_amount', 0))
+            btc_price = float(body_data.get('btc_price', 65000))
             
             if usdt_amount < 10:
                 return {
@@ -1222,8 +1223,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            exchange_rate = 0.000015
-            btc_received = usdt_amount * exchange_rate
+            btc_received = usdt_amount / btc_price
             
             cur.execute(
                 f"UPDATE {SCHEMA}.users SET balance = balance - %s, btc_balance = btc_balance + %s WHERE id = %s",
@@ -1232,7 +1232,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             cur.execute(
                 f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES (%s, %s, 'exchange', %s)",
-                (int(user_id), -usdt_amount, f'Обмен {usdt_amount} USDT на {btc_received:.8f} BTC')
+                (int(user_id), -usdt_amount, f'Обмен {usdt_amount} USDT на {btc_received:.8f} BTC по курсу ${btc_price}')
             )
             
             conn.commit()
@@ -1243,6 +1243,142 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({
                     'success': True,
                     'btc_received': btc_received
+                }),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'exchange_btc_to_usdt':
+            headers = event.get('headers', {})
+            user_id = headers.get('X-User-Id') or headers.get('x-user-id')
+            
+            if not user_id:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Требуется авторизация'}),
+                    'isBase64Encoded': False
+                }
+            
+            btc_amount = float(body_data.get('btc_amount', 0))
+            btc_price = float(body_data.get('btc_price', 65000))
+            
+            if btc_amount < 0.0001:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Минимальная сумма обмена: 0.0001 BTC'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute(
+                f"SELECT btc_balance FROM {SCHEMA}.users WHERE id = %s",
+                (int(user_id),)
+            )
+            user_data = cur.fetchone()
+            current_btc_balance = float(user_data['btc_balance']) if user_data and user_data['btc_balance'] else 0
+            
+            if current_btc_balance < btc_amount:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Недостаточно BTC'}),
+                    'isBase64Encoded': False
+                }
+            
+            usdt_received = btc_amount * btc_price
+            
+            cur.execute(
+                f"UPDATE {SCHEMA}.users SET balance = balance + %s, btc_balance = btc_balance - %s WHERE id = %s",
+                (usdt_received, btc_amount, int(user_id))
+            )
+            
+            cur.execute(
+                f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES (%s, %s, 'exchange', %s)",
+                (int(user_id), usdt_received, f'Обмен {btc_amount:.8f} BTC на {usdt_received:.2f} USDT по курсу ${btc_price}')
+            )
+            
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True,
+                    'usdt_received': usdt_received
+                }),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'withdraw_btc':
+            headers = event.get('headers', {})
+            user_id = headers.get('X-User-Id') or headers.get('x-user-id')
+            
+            if not user_id:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Требуется авторизация'}),
+                    'isBase64Encoded': False
+                }
+            
+            btc_amount = float(body_data.get('btc_amount', 0))
+            btc_address = body_data.get('btc_address', '').strip()
+            
+            if not btc_address:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Укажите BTC адрес'}),
+                    'isBase64Encoded': False
+                }
+            
+            if btc_amount < 0.001:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Минимальная сумма вывода: 0.001 BTC'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute(
+                f"SELECT btc_balance FROM {SCHEMA}.users WHERE id = %s",
+                (int(user_id),)
+            )
+            user_data = cur.fetchone()
+            current_btc_balance = float(user_data['btc_balance']) if user_data and user_data['btc_balance'] else 0
+            
+            if current_btc_balance < btc_amount:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Недостаточно BTC'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute(
+                f"UPDATE {SCHEMA}.users SET btc_balance = btc_balance - %s WHERE id = %s",
+                (btc_amount, int(user_id))
+            )
+            
+            cur.execute(
+                f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES (%s, %s, 'btc_withdrawal', %s)",
+                (int(user_id), 0, f'Вывод {btc_amount:.8f} BTC на адрес {btc_address}')
+            )
+            
+            cur.execute(
+                f"""INSERT INTO {SCHEMA}.withdrawals 
+                (user_id, amount, currency, address, status) 
+                VALUES (%s, %s, 'BTC', %s, 'pending')""",
+                (int(user_id), btc_amount, btc_address)
+            )
+            
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True
                 }),
                 'isBase64Encoded': False
             }
