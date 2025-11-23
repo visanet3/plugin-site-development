@@ -124,17 +124,6 @@ const UserProfileDialog = ({ open, onOpenChange, userId, currentUserId, onSendMe
           <div className="flex flex-col">
             {/* Шапка профиля с аватаром и именем */}
             <div className="relative bg-gradient-to-br from-primary/20 via-primary/10 to-background pt-8 pb-20 px-4">
-              <div className="absolute top-2 right-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onOpenChange(false)}
-                  className="h-8 w-8 rounded-full bg-background/50 hover:bg-background/80"
-                >
-                  <Icon name="X" size={18} />
-                </Button>
-              </div>
-              
               <div className="flex flex-col items-center">
                 <div className="relative">
                   <Avatar className="w-24 h-24 sm:w-28 sm:h-28 border-4 border-background shadow-lg">
