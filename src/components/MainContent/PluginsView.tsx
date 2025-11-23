@@ -74,53 +74,113 @@ export const PluginsView = ({
               </p>
 
               {/* Карточки возможностей */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-4 md:mb-5">
-                <div className="bg-background/50 backdrop-blur-sm border border-green-800/20 rounded-lg p-2.5 sm:p-3 hover:border-green-700/40 transition-all hover:scale-[1.02]">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-green-800/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Icon name="MessageSquare" size={14} className="text-green-400 sm:w-4 sm:h-4" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3 mb-3 sm:mb-4 md:mb-5">
+                <div className="bg-background/50 backdrop-blur-sm border border-green-800/20 rounded-xl p-3 sm:p-4 hover:border-green-700/40 transition-all hover:scale-[1.02] hover:shadow-lg group">
+                  <div className="flex items-start gap-3 mb-2">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-800/30 to-green-700/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                      <Icon name="MessageSquare" size={18} className="text-green-400 sm:w-5 sm:h-5" />
                     </div>
-                    <h3 className="text-xs sm:text-sm font-semibold">Обсуждения</h3>
+                    <div className="flex-1">
+                      <h3 className="text-sm sm:text-base font-bold mb-1 text-green-400">Форум</h3>
+                      <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
+                        Активное сообщество для обсуждения криптовалют, обмена опытом и советами по работе с USDT
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground leading-snug">
-                    Делитесь опытом работы с USDT, задавайте вопросы и находите единомышленников
-                  </p>
+                  <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-green-500/80">
+                    <Icon name="Users" size={12} />
+                    <span>Открытые обсуждения</span>
+                  </div>
                 </div>
 
-                <div className="bg-background/50 backdrop-blur-sm border border-green-800/20 rounded-lg p-2.5 sm:p-3 hover:border-green-700/40 transition-all hover:scale-[1.02]">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-green-800/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Icon name="ShieldCheck" size={14} className="text-green-400 sm:w-4 sm:h-4" />
+                <div className="bg-background/50 backdrop-blur-sm border border-cyan-800/20 rounded-xl p-3 sm:p-4 hover:border-cyan-700/40 transition-all hover:scale-[1.02] hover:shadow-lg group">
+                  <div className="flex items-start gap-3 mb-2">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-cyan-800/30 to-cyan-700/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                      <Icon name="Gamepad2" size={18} className="text-cyan-400 sm:w-5 sm:h-5" />
                     </div>
-                    <h3 className="text-xs sm:text-sm font-semibold">Гарант-сервис</h3>
+                    <div className="flex-1">
+                      <h3 className="text-sm sm:text-base font-bold mb-1 text-cyan-400">Казино</h3>
+                      <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
+                        Играйте в Crash, Mines, Roulette и участвуйте в лотереях с реальными выигрышами в USDT
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground leading-snug">
-                    Наша платформа предоставляет услуги гарант-сервиса для безопасных сделок
-                  </p>
+                  <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-cyan-500/80">
+                    <Icon name="Dices" size={12} />
+                    <span>4 игры доступно</span>
+                  </div>
                 </div>
 
-                <div className="bg-background/50 backdrop-blur-sm border border-green-800/20 rounded-lg p-2.5 sm:p-3 hover:border-green-700/40 transition-all hover:scale-[1.02]">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-green-800/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Icon name="Shield" size={14} className="text-green-400 sm:w-4 sm:h-4" />
+                <div className="bg-background/50 backdrop-blur-sm border border-blue-800/20 rounded-xl p-3 sm:p-4 hover:border-blue-700/40 transition-all hover:scale-[1.02] hover:shadow-lg group">
+                  <div className="flex items-start gap-3 mb-2">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-800/30 to-blue-700/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                      <Icon name="Mail" size={18} className="text-blue-400 sm:w-5 sm:h-5" />
                     </div>
-                    <h3 className="text-xs sm:text-sm font-semibold">Безопасность</h3>
+                    <div className="flex-1">
+                      <h3 className="text-sm sm:text-base font-bold mb-1 text-blue-400">Сообщения</h3>
+                      <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
+                        Личные сообщения между пользователями для приватного общения и сделок
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground leading-snug">
-                    Узнайте о лучших практиках защиты ваших криптоактивов и безопасных транзакциях
-                  </p>
+                  <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-blue-500/80">
+                    <Icon name="Lock" size={12} />
+                    <span>Приватные чаты</span>
+                  </div>
                 </div>
 
-                <div className="bg-background/50 backdrop-blur-sm border border-green-800/20 rounded-lg p-2.5 sm:p-3 hover:border-green-700/40 transition-all hover:scale-[1.02]">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-green-800/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Icon name="TrendingUp" size={14} className="text-green-400 sm:w-4 sm:h-4" />
+                <div className="bg-background/50 backdrop-blur-sm border border-purple-800/20 rounded-xl p-3 sm:p-4 hover:border-purple-700/40 transition-all hover:scale-[1.02] hover:shadow-lg group">
+                  <div className="flex items-start gap-3 mb-2">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-800/30 to-purple-700/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                      <Icon name="Bell" size={18} className="text-purple-400 sm:w-5 sm:h-5" />
                     </div>
-                    <h3 className="text-xs sm:text-sm font-semibold">Новости</h3>
+                    <div className="flex-1">
+                      <h3 className="text-sm sm:text-base font-bold mb-1 text-purple-400">Уведомления</h3>
+                      <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
+                        Мгновенные оповещения о новых сообщениях, комментариях и активности на форуме
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground leading-snug">
-                    Следите за последними обновлениями, трендами и изменениями в мире криптовалют
-                  </p>
+                  <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-purple-500/80">
+                    <Icon name="Zap" size={12} />
+                    <span>Real-time уведомления</span>
+                  </div>
+                </div>
+
+                <div className="bg-background/50 backdrop-blur-sm border border-orange-800/20 rounded-xl p-3 sm:p-4 hover:border-orange-700/40 transition-all hover:scale-[1.02] hover:shadow-lg group">
+                  <div className="flex items-start gap-3 mb-2">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-800/30 to-orange-700/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                      <Icon name="Shield" size={18} className="text-orange-400 sm:w-5 sm:h-5" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm sm:text-base font-bold mb-1 text-orange-400">Безопасность</h3>
+                      <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
+                        Защита аккаунтов, безопасные транзакции и система рангов для проверенных пользователей
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-orange-500/80">
+                    <Icon name="ShieldCheck" size={12} />
+                    <span>Система рангов</span>
+                  </div>
+                </div>
+
+                <div className="bg-background/50 backdrop-blur-sm border border-teal-800/20 rounded-xl p-3 sm:p-4 hover:border-teal-700/40 transition-all hover:scale-[1.02] hover:shadow-lg group">
+                  <div className="flex items-start gap-3 mb-2">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-teal-800/30 to-teal-700/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                      <Icon name="Wallet" size={18} className="text-teal-400 sm:w-5 sm:h-5" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm sm:text-base font-bold mb-1 text-teal-400">Баланс USDT</h3>
+                      <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
+                        Внутренний баланс для игр в казино, ставок и участия в лотереях с историей транзакций
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-teal-500/80">
+                    <Icon name="TrendingUp" size={12} />
+                    <span>Пополнение и вывод</span>
+                  </div>
                 </div>
               </div>
 
