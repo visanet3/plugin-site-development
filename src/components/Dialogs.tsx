@@ -410,8 +410,9 @@ const Dialogs = ({
                       <Icon name="BadgeCheck" size={20} className="text-primary" title="Верифицирован" />
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground mb-3">{user.email}</p>
-                  <div className="flex flex-col sm:flex-row gap-2">
+                  <p className="text-sm text-muted-foreground mb-1">{user.email}</p>
+                  <p className="text-xs text-red-500 mb-2 font-bold">DEBUG: Кнопки должны быть ниже ↓</p>
+                  <div className="flex flex-col sm:flex-row gap-2 border-2 border-red-500 p-2 rounded">
                     <Button
                       variant="outline"
                       size="sm"
