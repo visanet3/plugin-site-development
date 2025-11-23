@@ -10,30 +10,9 @@ const GitCryptoLogo = () => {
                 <stop offset="50%" stopColor="#14b8a6" />
                 <stop offset="100%" stopColor="#06b6d4" />
               </linearGradient>
-              <linearGradient id="glowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#10b981" stopOpacity="0.3" />
-                <stop offset="50%" stopColor="#14b8a6" stopOpacity="0.5" />
-                <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.3" />
-              </linearGradient>
-              <filter id="glow">
-                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-                <feMerge>
-                  <feMergeNode in="coloredBlur"/>
-                  <feMergeNode in="SourceGraphic"/>
-                </feMerge>
-              </filter>
             </defs>
             
-            <circle 
-              cx="21" 
-              cy="21" 
-              r="19" 
-              fill="url(#glowGradient)" 
-              className="glow-circle"
-              opacity="0.2"
-            />
-            
-            <g className="letters-group" filter="url(#glow)">
+            <g className="letters-group">
               <path 
                 d="M 14 10 A 8 8 0 0 0 14 32 L 14 28 A 4 4 0 0 1 14 14 L 20 14" 
                 stroke="url(#gcGradient)" 
@@ -92,15 +71,6 @@ const GitCryptoLogo = () => {
                 className="dot dot-4"
               />
             </g>
-            
-            <path 
-              d="M 21 3 L 21 7 M 21 35 L 21 39 M 3 21 L 7 21 M 35 21 L 39 21"
-              stroke="url(#gcGradient)" 
-              strokeWidth="1.5" 
-              strokeLinecap="round"
-              className="crosshair"
-              opacity="0.4"
-            />
           </svg>
         </div>
       </div>
@@ -112,17 +82,6 @@ const GitCryptoLogo = () => {
           }
           50% {
             transform: translateY(-3px) scale(1.02);
-          }
-        }
-
-        @keyframes glow-pulse {
-          0%, 100% {
-            opacity: 0.2;
-            transform: scale(1);
-          }
-          50% {
-            opacity: 0.4;
-            transform: scale(1.05);
           }
         }
 
@@ -148,21 +107,8 @@ const GitCryptoLogo = () => {
           }
         }
 
-        @keyframes rotate-crosshair {
-          0% {
-            transform: rotate(0deg);
-          }
-          100% {
-            transform: rotate(360deg);
-          }
-        }
-
         .git-crypto-logo {
           animation: float 3s ease-in-out infinite;
-        }
-
-        .glow-circle {
-          animation: glow-pulse 2s ease-in-out infinite;
         }
 
         .letters-group {
@@ -203,11 +149,6 @@ const GitCryptoLogo = () => {
           animation-delay: 0.6s;
         }
 
-        .crosshair {
-          transform-origin: center;
-          animation: rotate-crosshair 20s linear infinite;
-        }
-
         .git-crypto-logo:hover {
           animation: float 1s ease-in-out infinite;
         }
@@ -216,10 +157,6 @@ const GitCryptoLogo = () => {
         .git-crypto-logo:hover .letter-c,
         .git-crypto-logo:hover .letter-g-bar {
           animation: letter-draw 0.8s ease-in-out infinite alternate;
-        }
-
-        .git-crypto-logo:hover .glow-circle {
-          animation: glow-pulse 1s ease-in-out infinite;
         }
 
         .git-crypto-logo:hover .dot {
