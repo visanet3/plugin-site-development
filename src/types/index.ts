@@ -34,6 +34,7 @@ export interface User {
   balance?: number;
   referred_by_code?: string;
   referral_bonus_claimed?: boolean;
+  vip_until?: string;
 }
 
 export interface ForumTopic {

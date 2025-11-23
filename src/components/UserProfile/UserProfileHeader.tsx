@@ -33,6 +33,19 @@ export const UserProfileHeader = ({
   onShowTopUpDialog,
   onShowWithdrawalDialog
 }: UserProfileHeaderProps) => {
+  const getVipDaysLeft = () => {
+    if (!user.vip_until) return 0;
+    const now = new Date();
+    const vipEnd = new Date(user.vip_until);
+    if (vipEnd <= now) return 0;
+    const diffTime = vipEnd.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  const vipDaysLeft = getVipDaysLeft();
+  const hasActiveVip = vipDaysLeft > 0;
+
   return (
     <>
       <input
@@ -71,12 +84,21 @@ export const UserProfileHeader = ({
             <p className="text-xs sm:text-sm text-muted-foreground truncate">{user.email}</p>
           </div>
 
-          {user.role === 'admin' && (
-            <span className="px-2 sm:px-3 py-0.5 sm:py-1 bg-red-500/20 text-red-400 rounded-lg text-xs sm:text-sm font-medium inline-flex items-center gap-1">
-              <Icon name="Shield" size={14} />
-              Администратор
-            </span>
-          )}
+          <div className="flex flex-wrap gap-2">
+            {user.role === 'admin' && (
+              <span className="px-2 sm:px-3 py-0.5 sm:py-1 bg-red-500/20 text-red-400 rounded-lg text-xs sm:text-sm font-medium inline-flex items-center gap-1">
+                <Icon name="Shield" size={14} />
+                Администратор
+              </span>
+            )}
+            
+            {hasActiveVip && (
+              <span className="px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 rounded-lg text-xs sm:text-sm font-medium inline-flex items-center gap-1">
+                <Icon name="Crown" size={14} />
+                VIP {isOwnProfile && `(${vipDaysLeft} ${vipDaysLeft === 1 ? 'день' : vipDaysLeft < 5 ? 'дня' : 'дней'})`}
+              </span>
+            )}
+          </div>
 
           {user.bio && (
             <p className="text-xs sm:text-sm text-foreground/80 mt-2 line-clamp-3">{user.bio}</p>
@@ -118,6 +140,25 @@ export const UserProfileHeader = ({
           <p className="text-xs sm:text-sm text-muted-foreground">
             Используйте баланс в USDT для покупки товаров
           </p>
+        </Card>
+      )}
+
+      {isOwnProfile && hasActiveVip && (
+        <Card className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/30 p-3 sm:p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center flex-shrink-0">
+              <Icon name="Crown" size={20} className="text-white sm:w-6 sm:h-6" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs sm:text-sm font-semibold text-amber-400 mb-1">VIP Привилегия активна</p>
+              <p className="text-xs text-muted-foreground">
+                Осталось: <span className="font-semibold text-foreground">{vipDaysLeft} {vipDaysLeft === 1 ? 'день' : vipDaysLeft < 5 ? 'дня' : 'дней'}</span>
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                До: <span className="font-medium">{new Date(user.vip_until!).toLocaleDateString('ru-RU')}</span>
+              </p>
+            </div>
+          </div>
         </Card>
       )}
     </>

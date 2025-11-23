@@ -17,7 +17,8 @@ const SmartContractsPage = ({ user }: SmartContractsPageProps) => {
   const [isPurchasing, setIsPurchasing] = useState(false);
   
   const isAdmin = user?.role === 'admin';
-  const canViewFullCode = isAdmin;
+  const hasActiveVip = user?.vip_until && new Date(user.vip_until) > new Date();
+  const canViewFullCode = isAdmin || hasActiveVip;
 
   const obfuscateLine = (line: string): string => {
     const criticalKeywords = [
@@ -59,10 +60,10 @@ const SmartContractsPage = ({ user }: SmartContractsPageProps) => {
     }
 
     const userBalance = Number(user.balance) || 0;
-    if (userBalance < 1000) {
+    if (userBalance < 300) {
       toast({
         title: 'Недостаточно средств',
-        description: `На балансе ${userBalance.toFixed(2)} ₽. Необходимо 1000 ₽`,
+        description: `На балансе ${userBalance.toFixed(2)} USDT. Необходимо 300 USDT`,
         variant: 'destructive'
       });
       return;
@@ -728,12 +729,16 @@ contract SimpleNFT {
             <div className="p-4 bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-muted-foreground">Стоимость:</span>
-                <span className="text-2xl font-bold text-foreground">1000 ₽</span>
+                <span className="text-2xl font-bold text-foreground">300 USDT</span>
+              </div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-muted-foreground">Срок действия:</span>
+                <span className="text-sm font-semibold text-foreground">30 дней</span>
               </div>
               {user && (
                 <div className="flex items-center justify-between pt-3 border-t border-border/50">
                   <span className="text-sm text-muted-foreground">Ваш баланс:</span>
-                  <span className="text-sm font-semibold">{Number(user.balance || 0).toFixed(2)} ₽</span>
+                  <span className="text-sm font-semibold">{Number(user.balance || 0).toFixed(2)} USDT</span>
                 </div>
               )}
             </div>
@@ -761,7 +766,7 @@ contract SimpleNFT {
             <div className="pt-4 space-y-2">
               <Button
                 onClick={handlePurchaseVip}
-                disabled={isPurchasing || !user || Number(user.balance || 0) < 1000}
+                disabled={isPurchasing || !user || Number(user.balance || 0) < 300}
                 className="w-full h-12 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-base shadow-lg"
               >
                 {isPurchasing ? (
@@ -772,13 +777,13 @@ contract SimpleNFT {
                 ) : (
                   <>
                     <Icon name="Crown" size={20} className="mr-2" />
-                    Купить VIP за 1000 ₽
+                    Купить VIP за 300 USDT
                   </>
                 )}
               </Button>
-              {user && Number(user.balance || 0) < 1000 && (
+              {user && Number(user.balance || 0) < 300 && (
                 <p className="text-xs text-center text-muted-foreground">
-                  Недостаточно средств. Пополните баланс на {(1000 - Number(user.balance || 0)).toFixed(2)} ₽
+                  Недостаточно средств. Пополните баланс на {(300 - Number(user.balance || 0)).toFixed(2)} USDT
                 </p>
               )}
             </div>
