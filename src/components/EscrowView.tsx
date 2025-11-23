@@ -977,6 +977,8 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance 
                 placeholder={isAdmin ? "От администрации..." : "Сообщение..."}
                 onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
                 className="text-xs sm:text-sm h-9 sm:h-10"
+                autoFocus={false}
+                autoComplete="off"
               />
               <Button onClick={sendMessage} size="icon" className="h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0">
                 <Icon name="Send" size={16} className="sm:w-[18px] sm:h-[18px]" />
