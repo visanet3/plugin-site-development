@@ -56,6 +56,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         ft.created_at, ft.updated_at,
                         u.id as author_id, u.username as author_name, u.avatar_url as author_avatar,
                         u.forum_role as author_forum_role, u.last_seen_at as author_last_seen,
+                        u.is_verified as author_is_verified,
                         p.id as plugin_id, p.title as plugin_title
                     FROM forum_topics ft
                     LEFT JOIN users u ON ft.author_id = u.id
@@ -76,7 +77,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     SELECT 
                         fc.id, fc.content, fc.created_at, fc.parent_id,
                         u.id as author_id, u.username as author_name, u.avatar_url as author_avatar,
-                        u.forum_role as author_forum_role, u.last_seen_at as author_last_seen
+                        u.forum_role as author_forum_role, u.last_seen_at as author_last_seen,
+                        u.is_verified as author_is_verified
                     FROM forum_comments fc
                     LEFT JOIN users u ON fc.author_id = u.id
                     WHERE fc.topic_id = %s AND fc.removed_at IS NULL
@@ -103,6 +105,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         ft.id, ft.title, ft.views, ft.is_pinned, ft.created_at, ft.updated_at,
                         u.id as author_id, u.username as author_name, u.avatar_url as author_avatar, 
                         u.forum_role as author_forum_role, u.last_seen_at as author_last_seen,
+                        u.is_verified as author_is_verified,
                         COUNT(fc.id) as comments_count
                     FROM forum_topics ft
                     LEFT JOIN users u ON ft.author_id = u.id

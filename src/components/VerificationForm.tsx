@@ -37,6 +37,13 @@ const VerificationForm = ({ user, onVerified }: VerificationFormProps) => {
 
   useEffect(() => {
     fetchStatus();
+    
+    // Проверяем статус каждые 10 секунд
+    const interval = setInterval(() => {
+      fetchStatus();
+    }, 10000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const fetchStatus = async () => {
@@ -47,6 +54,25 @@ const VerificationForm = ({ user, onVerified }: VerificationFormProps) => {
         }
       });
       const data = await response.json();
+      
+      // Проверяем, изменился ли статус на verified
+      if (data.is_verified && (!status || !status.is_verified)) {
+        toast({
+          title: '✅ Поздравляем!',
+          description: 'Ваша заявка на верификацию одобрена. Теперь рядом с вашим ником отображается значок верификации.',
+          className: 'bg-green-500/10 border-green-500/30 text-foreground',
+          duration: 8000
+        });
+        
+        // Проигрываем звук
+        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5a');
+        audio.volume = 0.5;
+        audio.play().catch(() => {});
+        
+        // Обновляем пользователя
+        onVerified();
+      }
+      
       setStatus(data);
     } catch (error) {
       console.error('Ошибка загрузки статуса:', error);

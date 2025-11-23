@@ -190,6 +190,9 @@ export const ForumTopicsList = ({
                   <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground flex-wrap">
                     <span className="flex items-center gap-1.5">
                       Автор: <button onClick={(e) => { e.stopPropagation(); topic.author_id && onUserClick(topic.author_id); }} className="hover:text-primary transition-colors">{topic.author_name}</button>
+                      {topic.author_is_verified && (
+                        <Icon name="BadgeCheck" size={14} className="text-primary" title="Верифицирован" />
+                      )}
                       <ForumRoleBadge role={topic.author_forum_role} />
                     </span>
                     <span>•</span>

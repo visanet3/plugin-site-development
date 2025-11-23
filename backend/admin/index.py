@@ -82,7 +82,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     SELECT 
                         id, username, avatar_url, bio, 
                         vk_url, telegram, discord, 
-                        forum_role, created_at, last_seen_at
+                        forum_role, created_at, last_seen_at, is_verified
                     FROM {SCHEMA}.users 
                     WHERE id = %s AND is_blocked = FALSE
                 """, (user_profile_id,))

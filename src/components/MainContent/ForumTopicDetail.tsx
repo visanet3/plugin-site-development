@@ -106,6 +106,9 @@ export const ForumTopicDetail = ({
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2 flex-wrap">
               <button onClick={() => comment.author_id && onUserClick(comment.author_id)} className="font-semibold hover:text-primary transition-colors">{comment.author_name}</button>
+              {comment.author_is_verified && (
+                <Icon name="BadgeCheck" size={16} className="text-primary" title="Верифицирован" />
+              )}
               <ForumRoleBadge role={comment.author_forum_role} />
               <span className="text-xs text-muted-foreground">
                 {new Date(comment.created_at).toLocaleDateString('ru', {
@@ -196,6 +199,9 @@ export const ForumTopicDetail = ({
               <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
                 <span className="flex items-center gap-2">
                   Автор: <button onClick={() => selectedTopic.author_id && onUserClick(selectedTopic.author_id)} className="hover:text-primary transition-colors">{selectedTopic.author_name}</button>
+                  {selectedTopic.author_is_verified && (
+                    <Icon name="BadgeCheck" size={16} className="text-primary" title="Верифицирован" />
+                  )}
                   <ForumRoleBadge role={selectedTopic.author_forum_role} />
                 </span>
                 <span>•</span>

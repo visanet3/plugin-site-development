@@ -197,11 +197,29 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     (status, admin_comment, user_id, request_id)
                 )
                 
-                # Если одобрено - устанавливаем is_verified = true
+                # Если одобрено - устанавливаем is_verified = true и создаем уведомление
                 if status == 'approved':
                     cur.execute(
                         f"UPDATE {SCHEMA}.users SET is_verified = TRUE WHERE id = %s",
                         (request['user_id'],)
+                    )
+                    
+                    # Создаем уведомление пользователю
+                    cur.execute(
+                        f"""INSERT INTO {SCHEMA}.notifications 
+                        (user_id, type, title, message, is_read) 
+                        VALUES (%s, 'verification_approved', '✅ Верификация одобрена', 
+                        'Поздравляем! Ваша заявка на верификацию одобрена. Теперь рядом с вашим ником отображается значок верификации.', FALSE)""",
+                        (request['user_id'],)
+                    )
+                elif status == 'rejected':
+                    # Создаем уведомление об отклонении
+                    reject_message = f"Ваша заявка на верификацию отклонена. {admin_comment}" if admin_comment else "Ваша заявка на верификацию отклонена."
+                    cur.execute(
+                        f"""INSERT INTO {SCHEMA}.notifications 
+                        (user_id, type, title, message, is_read) 
+                        VALUES (%s, 'verification_rejected', '❌ Верификация отклонена', %s, FALSE)""",
+                        (request['user_id'], reject_message)
                     )
                 
                 conn.commit()

@@ -52,6 +52,7 @@ export interface ForumTopic {
   author_avatar?: string;
   author_forum_role?: string;
   author_last_seen?: string;
+  author_is_verified?: boolean;
   comments_count: number;
 }
 
@@ -64,6 +65,7 @@ export interface ForumComment {
   author_avatar: string | null;
   author_forum_role?: string;
   author_last_seen?: string;
+  author_is_verified?: boolean;
   parent_id?: number | null;
   replies?: ForumComment[];
 }

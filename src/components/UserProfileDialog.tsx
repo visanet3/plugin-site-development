@@ -20,6 +20,7 @@ interface UserProfile {
   last_seen_at: string;
   topics_count: number;
   comments_count: number;
+  is_verified?: boolean;
 }
 
 interface UserProfileDialogProps {
@@ -146,7 +147,12 @@ const UserProfileDialog = ({ open, onOpenChange, userId, currentUserId, onSendMe
             <div className="px-4 -mt-12 pb-4 space-y-4">
               <Card className="p-4 space-y-3">
                 <div className="text-center">
-                  <h3 className="text-xl sm:text-2xl font-bold mb-2">{profile.username}</h3>
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <h3 className="text-xl sm:text-2xl font-bold">{profile.username}</h3>
+                    {profile.is_verified && (
+                      <Icon name="BadgeCheck" size={24} className="text-primary" title="Верифицирован" />
+                    )}
+                  </div>
                   
                   {profile.last_seen_at && (() => {
                     const status = getOnlineStatus(profile.last_seen_at);
