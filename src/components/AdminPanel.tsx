@@ -571,6 +571,14 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Админ-панель</h1>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
+            <Button
+              onClick={() => setShowBalanceDialog(true)}
+              className="bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800"
+            >
+              <Icon name="Plus" size={18} className="mr-2" />
+              <span className="hidden sm:inline">Пополнить баланс</span>
+              <span className="sm:hidden">Баланс</span>
+            </Button>
             <div className="relative" ref={notificationsRef}>
               <Button 
                 onClick={() => setShowNotifications(!showNotifications)} 
@@ -715,15 +723,6 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
               Верификация
             </button>
           </div>
-          {activeTab === 'users' && (
-            <Button
-              onClick={() => setShowBalanceDialog(true)}
-              className="bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800"
-            >
-              <Icon name="Plus" size={18} className="mr-2" />
-              Пополнить баланс
-            </Button>
-          )}
         </div>
 
         {activeTab === 'users' && (
