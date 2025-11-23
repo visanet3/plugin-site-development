@@ -29,6 +29,10 @@ def generate_token() -> str:
     """Генерация токена для сессии"""
     return secrets.token_urlsafe(32)
 
+def generate_referral_code() -> str:
+    """Генерация уникального реферального кода"""
+    return secrets.token_urlsafe(8).upper().replace('-', '').replace('_', '')[:8]
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'POST')
     
@@ -114,6 +118,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             username = body_data.get('username', '').strip()
             email = body_data.get('email', '').strip()
             password = body_data.get('password', '')
+            referral_code = body_data.get('referral_code', '').strip().upper()
             
             if not username or not email or not password:
                 return {
@@ -138,12 +143,45 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
+            # Проверка реферального кода
+            referrer_id = None
+            if referral_code:
+                cur.execute(
+                    f"SELECT user_id FROM {SCHEMA}.referral_codes WHERE code = %s AND is_active = TRUE",
+                    (referral_code,)
+                )
+                referrer = cur.fetchone()
+                if referrer:
+                    referrer_id = referrer['user_id']
+            
             # Создание пользователя
             cur.execute(
-                f"INSERT INTO {SCHEMA}.users (username, email, password_hash) VALUES (%s, %s, %s) RETURNING id, username, email, avatar_url, role, forum_role, balance, created_at",
-                (username, email, password_hash)
+                f"INSERT INTO {SCHEMA}.users (username, email, password_hash, referred_by_code) VALUES (%s, %s, %s, %s) RETURNING id, username, email, avatar_url, role, forum_role, balance, created_at",
+                (username, email, password_hash, referral_code if referral_code else None)
             )
             user = cur.fetchone()
+            user_id = user['id']
+            
+            # Создание реферального кода для нового пользователя
+            new_user_code = generate_referral_code()
+            while True:
+                try:
+                    cur.execute(
+                        f"INSERT INTO {SCHEMA}.referral_codes (user_id, code) VALUES (%s, %s)",
+                        (user_id, new_user_code)
+                    )
+                    break
+                except psycopg2.errors.UniqueViolation:
+                    conn.rollback()
+                    new_user_code = generate_referral_code()
+            
+            # Если использовался реферальный код, создаем запись в referrals
+            if referrer_id:
+                cur.execute(
+                    f"INSERT INTO {SCHEMA}.referrals (referrer_id, referred_user_id, referral_code, status) VALUES (%s, %s, %s, 'pending')",
+                    (referrer_id, user_id, referral_code)
+                )
+            
             conn.commit()
             
             token = generate_token()
@@ -326,6 +364,25 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES (%s, %s, %s, %s)",
                 (int(user_id), float(amount), transaction_type, description)
             )
+            
+            cur.execute(
+                f"SELECT id, total_deposited FROM {SCHEMA}.referrals WHERE referred_user_id = %s AND status = 'pending'",
+                (int(user_id),)
+            )
+            referral_data = cur.fetchone()
+            
+            if referral_data and transaction_type == 'topup':
+                new_total = float(referral_data['total_deposited']) + float(amount)
+                cur.execute(
+                    f"UPDATE {SCHEMA}.referrals SET total_deposited = %s WHERE id = %s",
+                    (new_total, referral_data['id'])
+                )
+                
+                if new_total >= 100:
+                    cur.execute(
+                        f"UPDATE {SCHEMA}.referrals SET status = 'completed', completed_at = CURRENT_TIMESTAMP WHERE id = %s",
+                        (referral_data['id'],)
+                    )
             
             conn.commit()
             
@@ -937,6 +994,146 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({
                     'success': True,
                     'processed_rounds': len(rounds_to_draw)
+                }),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'get_referral_info':
+            headers = event.get('headers', {})
+            user_id = headers.get('X-User-Id') or headers.get('x-user-id')
+            
+            if not user_id:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Требуется авторизация'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute(
+                f"SELECT code FROM {SCHEMA}.referral_codes WHERE user_id = %s AND is_active = TRUE",
+                (int(user_id),)
+            )
+            code_data = cur.fetchone()
+            referral_code = code_data['code'] if code_data else None
+            
+            cur.execute(
+                f"""SELECT 
+                    r.id, r.status, r.total_deposited, r.created_at, r.completed_at,
+                    u.username as referred_username
+                FROM {SCHEMA}.referrals r
+                LEFT JOIN {SCHEMA}.users u ON r.referred_user_id = u.id
+                WHERE r.referrer_id = %s
+                ORDER BY r.created_at DESC""",
+                (int(user_id),)
+            )
+            referrals = cur.fetchall()
+            
+            completed_count = sum(1 for r in referrals if r['status'] == 'completed')
+            pending_count = sum(1 for r in referrals if r['status'] == 'pending')
+            total_earned = completed_count // 10 * 250
+            
+            cur.execute(
+                f"SELECT SUM(amount) as total_rewards FROM {SCHEMA}.referral_rewards WHERE referrer_id = %s",
+                (int(user_id),)
+            )
+            rewards_data = cur.fetchone()
+            total_rewards = float(rewards_data['total_rewards']) if rewards_data and rewards_data['total_rewards'] else 0
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True,
+                    'referral_code': referral_code,
+                    'referrals': [dict(r) for r in referrals],
+                    'stats': {
+                        'total_referrals': len(referrals),
+                        'completed': completed_count,
+                        'pending': pending_count,
+                        'can_claim': completed_count >= 10 and (completed_count // 10) * 10 > (int(total_rewards / 250) * 10),
+                        'total_earned': total_earned,
+                        'total_claimed': total_rewards
+                    }
+                }, default=str),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'claim_referral_reward':
+            headers = event.get('headers', {})
+            user_id = headers.get('X-User-Id') or headers.get('x-user-id')
+            
+            if not user_id:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Требуется авторизация'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute(
+                f"SELECT COUNT(*) as completed FROM {SCHEMA}.referrals WHERE referrer_id = %s AND status = 'completed'",
+                (int(user_id),)
+            )
+            completed_data = cur.fetchone()
+            completed_count = completed_data['completed']
+            
+            if completed_count < 10:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Недостаточно завершенных рефералов'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute(
+                f"SELECT COALESCE(SUM(amount), 0) as total_rewards FROM {SCHEMA}.referral_rewards WHERE referrer_id = %s",
+                (int(user_id),)
+            )
+            rewards_data = cur.fetchone()
+            total_claimed = float(rewards_data['total_rewards']) if rewards_data['total_rewards'] else 0
+            
+            available_rewards = (completed_count // 10) * 250
+            already_claimed_count = int(total_claimed / 250)
+            
+            if completed_count // 10 <= already_claimed_count:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Нет доступных наград для получения'}),
+                    'isBase64Encoded': False
+                }
+            
+            reward_amount = 250
+            
+            cur.execute(
+                f"UPDATE {SCHEMA}.users SET balance = balance + %s WHERE id = %s",
+                (reward_amount, int(user_id))
+            )
+            
+            cur.execute(
+                f"INSERT INTO {SCHEMA}.referral_rewards (referrer_id, amount, referrals_count) VALUES (%s, %s, %s)",
+                (int(user_id), reward_amount, 10)
+            )
+            
+            cur.execute(
+                f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES (%s, %s, 'referral_reward', 'Реферальная награда за 10 пользователей')",
+                (int(user_id), reward_amount)
+            )
+            
+            conn.commit()
+            
+            cur.execute(f"SELECT balance FROM {SCHEMA}.users WHERE id = %s", (int(user_id),))
+            user_data = cur.fetchone()
+            new_balance = float(user_data['balance']) if user_data else 0
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True,
+                    'reward_amount': reward_amount,
+                    'new_balance': new_balance
                 }),
                 'isBase64Encoded': False
             }

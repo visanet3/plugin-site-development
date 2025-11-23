@@ -52,6 +52,7 @@ const Dialogs = ({
   onAuthDialogAttemptClose,
 }: DialogsProps) => {
   const { toast } = useToast();
+  const savedRefCode = localStorage.getItem('referralCode') || '';
   
   const handleAuthDialogChange = (open: boolean) => {
     if (!open && !user) {
@@ -242,10 +243,24 @@ const Dialogs = ({
               </div>
 
               {authMode === 'register' && (
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Email</label>
-                  <Input name="email" type="email" required />
-                </div>
+                <>
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">Email</label>
+                    <Input name="email" type="email" required />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">
+                      Реферальный код <span className="text-muted-foreground font-normal">(необязательно)</span>
+                    </label>
+                    <Input 
+                      name="referral_code" 
+                      placeholder="Введите код, если есть"
+                      className="uppercase"
+                      maxLength={8}
+                      defaultValue={savedRefCode}
+                    />
+                  </div>
+                </>
               )}
 
               <div>

@@ -10,6 +10,7 @@ import { WithdrawalView } from '@/components/WithdrawalView';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
+import { ReferralTab } from './ReferralTab';
 
 const PASSWORD_RESET_URL = 'https://functions.poehali.dev/d4973344-e5cd-411c-8957-4c1d4d0072ab';
 
@@ -84,9 +85,10 @@ export const UserProfileTabs = ({
   return (
     <>
       <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="settings" className="text-xs sm:text-sm">Настройки</TabsTrigger>
           <TabsTrigger value="transactions" className="text-xs sm:text-sm">Транзакции</TabsTrigger>
+          <TabsTrigger value="referrals" className="text-xs sm:text-sm">Рефералы</TabsTrigger>
         </TabsList>
 
       <TabsContent value="transactions" className="space-y-3 sm:space-y-4 mt-3 sm:mt-4">
@@ -236,6 +238,17 @@ export const UserProfileTabs = ({
               </div>
             </Card>
           </>
+        )}
+      </TabsContent>
+
+      <TabsContent value="referrals" className="space-y-3 sm:space-y-4 mt-3 sm:mt-4">
+        {isOwnProfile ? (
+          <ReferralTab user={user} />
+        ) : (
+          <Card className="p-4 sm:p-6 md:p-8 text-center">
+            <Icon name="Lock" size={48} className="mx-auto mb-4 text-muted-foreground" />
+            <p className="text-muted-foreground">Реферальная информация доступна только владельцу профиля</p>
+          </Card>
         )}
       </TabsContent>
 

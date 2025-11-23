@@ -99,6 +99,13 @@ const Index = () => {
   });
 
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get('ref');
+    if (refCode) {
+      localStorage.setItem('referralCode', refCode.toUpperCase());
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+    
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
       const parsedUser = JSON.parse(savedUser);
@@ -127,6 +134,9 @@ const Index = () => {
       syncUserData();
     } else {
       setAuthDialogOpen(true);
+      if (refCode) {
+        setAuthMode('register');
+      }
     }
     
     if ('Notification' in window && Notification.permission === 'default') {
@@ -175,6 +185,7 @@ const Index = () => {
           username: formData.get('username'),
           email: authMode === 'register' ? formData.get('email') : undefined,
           password: formData.get('password'),
+          referral_code: authMode === 'register' ? formData.get('referral_code') : undefined,
         }),
       });
       
