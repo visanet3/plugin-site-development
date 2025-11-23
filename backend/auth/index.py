@@ -457,75 +457,19 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            import base64
-            import uuid
+            # Сохраняем base64 изображение напрямую в БД
+            cur.execute(f"UPDATE {SCHEMA}.users SET avatar_url = %s WHERE id = %s", (image_base64, user_id))
+            conn.commit()
             
-            try:
-                aws_key = os.environ.get('AWS_ACCESS_KEY_ID')
-                aws_secret = os.environ.get('AWS_SECRET_ACCESS_KEY')
-                bucket_name = os.environ.get('S3_BUCKET_NAME', 'poehali-dev')
-                
-                if not aws_key or not aws_secret:
-                    return {
-                        'statusCode': 500,
-                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'AWS секреты не настроены'}),
-                        'isBase64Encoded': False
-                    }
-                
-                import boto3
-                
-                image_data = base64.b64decode(image_base64.split(',')[1] if ',' in image_base64 else image_base64)
-                
-                s3_client = boto3.client('s3',
-                    endpoint_url='https://storage.yandexcloud.net',
-                    aws_access_key_id=aws_key,
-                    aws_secret_access_key=aws_secret,
-                    region_name='ru-central1'
-                )
-                
-                file_extension = 'jpg'
-                if image_base64.startswith('data:image/png'):
-                    file_extension = 'png'
-                elif image_base64.startswith('data:image/webp'):
-                    file_extension = 'webp'
-                
-                file_name = f'avatars/{user_id}_{uuid.uuid4()}.{file_extension}'
-                
-                s3_client.put_object(
-                    Bucket=bucket_name,
-                    Key=file_name,
-                    Body=image_data,
-                    ContentType=f'image/{file_extension}'
-                )
-                
-                avatar_url = f'https://storage.yandexcloud.net/{bucket_name}/{file_name}'
-                
-                cur.execute(f"UPDATE {SCHEMA}.users SET avatar_url = %s WHERE id = %s", (avatar_url, user_id))
-                conn.commit()
-                
-                return {
-                    'statusCode': 200,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({
-                        'success': True,
-                        'avatar_url': avatar_url
-                    }),
-                    'isBase64Encoded': False
-                }
-            
-            except Exception as e:
-                import traceback
-                error_details = traceback.format_exc()
-                return {
-                    'statusCode': 500,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({
-                        'error': f'Ошибка загрузки: {str(e)}',
-                        'details': error_details
-                    }),
-                    'isBase64Encoded': False
-                }
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True,
+                    'avatar_url': image_base64
+                }),
+                'isBase64Encoded': False
+            }
         
         elif action == 'place_bet':
             headers = event.get('headers', {})
