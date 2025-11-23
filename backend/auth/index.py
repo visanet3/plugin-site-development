@@ -1355,20 +1355,47 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute(
-                f"UPDATE {SCHEMA}.users SET btc_balance = btc_balance - %s WHERE id = %s",
-                (btc_amount, int(user_id))
-            )
+            try:
+                cur.execute(
+                    f"UPDATE {SCHEMA}.users SET btc_balance = btc_balance - %s WHERE id = %s",
+                    (btc_amount, int(user_id))
+                )
+            except Exception as update_error:
+                conn.rollback()
+                return {
+                    'statusCode': 500,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': f'Ошибка UPDATE users: {str(update_error)}'}),
+                    'isBase64Encoded': False
+                }
             
-            cur.execute(
-                f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES (%s, %s, 'btc_withdrawal', %s)",
-                (int(user_id), 0, f'Вывод {btc_amount:.8f} BTC на адрес {btc_address}')
-            )
+            try:
+                cur.execute(
+                    f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES (%s, %s, 'btc_withdrawal', %s)",
+                    (int(user_id), 0, f'Вывод {btc_amount:.8f} BTC на адрес {btc_address}')
+                )
+            except Exception as trans_error:
+                conn.rollback()
+                return {
+                    'statusCode': 500,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': f'Ошибка INSERT transactions: {str(trans_error)}'}),
+                    'isBase64Encoded': False
+                }
             
-            cur.execute(
-                f"INSERT INTO {SCHEMA}.withdrawals (user_id, amount, currency, address, status) VALUES (%s, %s, 'BTC', %s, 'pending')",
-                (int(user_id), btc_amount, btc_address)
-            )
+            try:
+                cur.execute(
+                    f"INSERT INTO {SCHEMA}.withdrawals (user_id, amount, currency, address, status) VALUES (%s, %s, 'BTC', %s, 'pending')",
+                    (int(user_id), btc_amount, btc_address)
+                )
+            except Exception as withdraw_error:
+                conn.rollback()
+                return {
+                    'statusCode': 500,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': f'Ошибка INSERT withdrawals: {str(withdraw_error)}'}),
+                    'isBase64Encoded': False
+                }
             
             conn.commit()
             
