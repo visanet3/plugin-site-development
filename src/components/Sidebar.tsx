@@ -32,7 +32,7 @@ const Sidebar = ({
     <aside className={`fixed top-0 left-0 h-full bg-sidebar border-r border-sidebar-border transition-all duration-300 z-30 overflow-hidden ${sidebarOpen ? 'w-64' : 'w-0'}`}>
       <div className={`p-4 w-64 transition-opacity duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}>
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent tracking-wide animate-gradient-x bg-[length:200%_auto]">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-800 via-blue-900 to-indigo-950 bg-clip-text text-transparent tracking-wide animate-gradient-x bg-[length:200%_auto]">
             Git Crypto
           </h1>
         </div>
