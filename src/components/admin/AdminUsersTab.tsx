@@ -50,7 +50,6 @@ const AdminUsersTab = ({
                   value={user.forum_role || 'new'}
                   onChange={(e) => onChangeForumRole(user.id, e.target.value)}
                   className="px-2 py-1 text-xs rounded bg-background border border-border"
-                  disabled={user.id === currentUser.id}
                 >
                   <option value="new">Новичок</option>
                   <option value="member">Участник</option>

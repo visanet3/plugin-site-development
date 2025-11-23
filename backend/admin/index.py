@@ -433,6 +433,45 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
+            elif action == 'update_views':
+                topic_id = body_data.get('topic_id')
+                views = body_data.get('views')
+                
+                if topic_id is None or views is None:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'topic_id и views обязательны'}),
+                        'isBase64Encoded': False
+                    }
+                
+                try:
+                    views = int(views)
+                    if views < 0:
+                        raise ValueError()
+                except (ValueError, TypeError):
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Некорректное значение просмотров'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cur.execute(
+                    f"UPDATE {SCHEMA}.forum_topics SET views = %s WHERE id = %s",
+                    (views, topic_id)
+                )
+                
+                log_admin_action(user_id, 'update_views', 'topic', topic_id, f'Views: {views}', cur)
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True}),
+                    'isBase64Encoded': False
+                }
+            
             else:
                 return {
                     'statusCode': 400,

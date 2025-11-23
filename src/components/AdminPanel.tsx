@@ -300,6 +300,44 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
     }
   };
 
+  const handleUpdateViews = async (topicId: number, views: number) => {
+    try {
+      const response = await fetch(ADMIN_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': currentUser.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'update_views',
+          topic_id: topicId,
+          views: views
+        })
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        toast({
+          title: 'Успешно',
+          description: 'Количество просмотров обновлено'
+        });
+        fetchTopics();
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Не удалось обновить просмотры',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось обновить просмотры',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const handleBlockUser = async (userId: number, username: string) => {
     const reason = prompt(`Заблокировать пользователя ${username}?\nУкажите причину:`);
     if (!reason) return;
@@ -665,6 +703,7 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
             topics={topics}
             onEditTopic={handleEditTopic}
             onDeleteTopic={handleDeleteTopic}
+            onUpdateViews={handleUpdateViews}
           />
         )}
 
