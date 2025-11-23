@@ -184,10 +184,6 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
         
         if (data.waiting && checkAttempts < maxAttempts) {
           checkAttempts++;
-          toast({
-            title: 'Ожидание',
-            description: `Ищем транзакцию в блокчейне... Попытка ${checkAttempts}/${maxAttempts}`
-          });
           
           await new Promise(resolve => setTimeout(resolve, 30000));
           return await checkPayment();
