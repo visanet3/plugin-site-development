@@ -27,6 +27,150 @@ const SmartContractsPage = () => {
 
   const contracts = [
     {
+      id: 'flash-usdt',
+      title: 'Flash USDT TRC20',
+      description: 'Контракт Flash USDT для сети TRON',
+      difficulty: 'Средний',
+      code: `// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract FlashUSDT {
+    string public name = "Flash USDT";
+    string public symbol = "FUSDT";
+    uint8 public decimals = 6;
+    uint256 public totalSupply;
+    
+    address public owner;
+    uint256 public flashFee = 100; // 1% комиссия
+    uint256 public constant FEE_DENOMINATOR = 10000;
+    
+    mapping(address => uint256) public balanceOf;
+    mapping(address => mapping(address => uint256)) public allowance;
+    mapping(address => bool) public isFlashToken;
+    mapping(address => uint256) public flashExpiry;
+    
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+    event FlashMint(address indexed to, uint256 amount, uint256 expiry);
+    event FlashBurn(address indexed from, uint256 amount);
+    
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not owner");
+        _;
+    }
+    
+    constructor(uint256 _initialSupply) {
+        owner = msg.sender;
+        totalSupply = _initialSupply * 10 ** uint256(decimals);
+        balanceOf[msg.sender] = totalSupply;
+    }
+    
+    function transfer(address _to, uint256 _value) public returns (bool) {
+        require(_to != address(0), "Invalid address");
+        require(balanceOf[msg.sender] >= _value, "Insufficient balance");
+        
+        if (isFlashToken[msg.sender] && block.timestamp > flashExpiry[msg.sender]) {
+            _burnFlash(msg.sender);
+            return false;
+        }
+        
+        balanceOf[msg.sender] -= _value;
+        balanceOf[_to] += _value;
+        
+        if (isFlashToken[msg.sender]) {
+            isFlashToken[_to] = true;
+            flashExpiry[_to] = flashExpiry[msg.sender];
+        }
+        
+        emit Transfer(msg.sender, _to, _value);
+        return true;
+    }
+    
+    function approve(address _spender, uint256 _value) public returns (bool) {
+        allowance[msg.sender][_spender] = _value;
+        emit Approval(msg.sender, _spender, _value);
+        return true;
+    }
+    
+    function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {
+        require(_to != address(0), "Invalid address");
+        require(_value <= balanceOf[_from], "Insufficient balance");
+        require(_value <= allowance[_from][msg.sender], "Allowance exceeded");
+        
+        if (isFlashToken[_from] && block.timestamp > flashExpiry[_from]) {
+            _burnFlash(_from);
+            return false;
+        }
+        
+        balanceOf[_from] -= _value;
+        balanceOf[_to] += _value;
+        allowance[_from][msg.sender] -= _value;
+        
+        if (isFlashToken[_from]) {
+            isFlashToken[_to] = true;
+            flashExpiry[_to] = flashExpiry[_from];
+        }
+        
+        emit Transfer(_from, _to, _value);
+        return true;
+    }
+    
+    function flashMint(address _to, uint256 _amount, uint256 _duration) public onlyOwner returns (bool) {
+        require(_to != address(0), "Invalid address");
+        require(_amount > 0, "Amount must be greater than 0");
+        require(_duration > 0, "Duration must be greater than 0");
+        
+        uint256 fee = (_amount * flashFee) / FEE_DENOMINATOR;
+        uint256 mintAmount = _amount - fee;
+        
+        balanceOf[_to] += mintAmount;
+        balanceOf[owner] += fee;
+        totalSupply += _amount;
+        
+        isFlashToken[_to] = true;
+        flashExpiry[_to] = block.timestamp + _duration;
+        
+        emit FlashMint(_to, mintAmount, flashExpiry[_to]);
+        emit Transfer(address(0), _to, mintAmount);
+        emit Transfer(address(0), owner, fee);
+        
+        return true;
+    }
+    
+    function burnFlash(address _account) public onlyOwner returns (bool) {
+        return _burnFlash(_account);
+    }
+    
+    function _burnFlash(address _account) private returns (bool) {
+        require(isFlashToken[_account], "Not a flash token holder");
+        
+        uint256 amount = balanceOf[_account];
+        if (amount > 0) {
+            balanceOf[_account] = 0;
+            totalSupply -= amount;
+            emit FlashBurn(_account, amount);
+            emit Transfer(_account, address(0), amount);
+        }
+        
+        isFlashToken[_account] = false;
+        flashExpiry[_account] = 0;
+        
+        return true;
+    }
+    
+    function setFlashFee(uint256 _newFee) public onlyOwner {
+        require(_newFee <= 1000, "Fee too high"); // Максимум 10%
+        flashFee = _newFee;
+    }
+    
+    function checkFlashStatus(address _account) public view returns (bool isFlash, uint256 expiry, bool isExpired) {
+        isFlash = isFlashToken[_account];
+        expiry = flashExpiry[_account];
+        isExpired = isFlash && block.timestamp > expiry;
+    }
+}`
+    },
+    {
       id: 'erc20',
       title: 'ERC-20 Token',
       description: 'Стандартный токен на Ethereum',
