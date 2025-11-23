@@ -79,14 +79,14 @@ export const UserProfileHeader = ({
         </div>
 
         <div className="flex-1 space-y-2 sm:space-y-3 min-w-0">
-          <div className="flex items-center gap-2">
-            <div className="flex-1">
+          <div>
+            <div className="flex items-center gap-1.5 mb-1">
               <h3 className="text-lg sm:text-xl md:text-2xl font-bold truncate">{user.username}</h3>
-              <p className="text-xs sm:text-sm text-muted-foreground truncate">{user.email}</p>
+              {user.is_verified && (
+                <Icon name="BadgeCheck" size={20} className="text-primary flex-shrink-0 sm:w-6 sm:h-6" title="Верифицирован" />
+              )}
             </div>
-            {user.is_verified && (
-              <Icon name="BadgeCheck" size={24} className="text-primary flex-shrink-0" title="Верифицирован" />
-            )}
+            <p className="text-xs sm:text-sm text-muted-foreground truncate">{user.email}</p>
           </div>
 
           <div className="flex flex-wrap gap-2">
