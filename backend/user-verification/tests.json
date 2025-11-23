@@ -1,0 +1,17 @@
+{
+  "tests": [
+    {
+      "name": "Get verification status",
+      "method": "GET",
+      "path": "/?action=status",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "is_verified": "boolean"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

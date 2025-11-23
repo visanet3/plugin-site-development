@@ -11,6 +11,7 @@ import AdminWithdrawalsTab from '@/components/admin/AdminWithdrawalsTab';
 import AdminDepositsTab from '@/components/admin/AdminDepositsTab';
 import AdminEscrowTab from '@/components/admin/AdminEscrowTab';
 import AdminTicketsTab from '@/components/admin/AdminTicketsTab';
+import AdminVerificationTab from '@/components/admin/AdminVerificationTab';
 import { useToast } from '@/hooks/use-toast';
 
 interface AdminPanelProps {
@@ -34,7 +35,7 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
   const [escrowDeals, setEscrowDeals] = useState<EscrowDeal[]>([]);
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
   const [deposits, setDeposits] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'users' | 'topics' | 'disputes' | 'deposits' | 'withdrawals' | 'escrow' | 'flash-usdt' | 'tickets'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'topics' | 'disputes' | 'deposits' | 'withdrawals' | 'escrow' | 'flash-usdt' | 'tickets' | 'verification'>('users');
   const [flashUsdtOrders, setFlashUsdtOrders] = useState<any[]>([]);
   const [tickets, setTickets] = useState<any[]>([]);
   const [editingTopic, setEditingTopic] = useState<ForumTopic | null>(null);
@@ -675,6 +676,16 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
             >
               Тикеты
             </button>
+            <button
+              onClick={() => setActiveTab('verification')}
+              className={`px-3 sm:px-6 py-2 rounded-lg transition-all text-xs sm:text-sm whitespace-nowrap ${
+                activeTab === 'verification'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Верификация
+            </button>
           </div>
           {activeTab === 'users' && (
             <Button
@@ -745,6 +756,10 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
             currentUser={currentUser}
             onRefresh={fetchTickets}
           />
+        )}
+
+        {activeTab === 'verification' && (
+          <AdminVerificationTab user={currentUser} />
         )}
 
         {activeTab === 'flash-usdt' && (
