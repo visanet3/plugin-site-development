@@ -14,6 +14,8 @@ from typing import Dict, Any, Optional
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
+SCHEMA = 't_p32599880_plugin_site_developm'
+
 def get_db_connection():
     """Получить подключение к БД"""
     database_url = os.environ.get('DATABASE_URL')
@@ -68,13 +70,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 offset = int(params.get('offset', 0))
                 
                 cur.execute(
-                    "SELECT id, amount, type, description, created_at FROM transactions WHERE user_id = %s ORDER BY created_at DESC LIMIT %s OFFSET %s",
+                    f"SELECT id, amount, type, description, created_at FROM {SCHEMA}.transactions WHERE user_id = %s ORDER BY created_at DESC LIMIT %s OFFSET %s",
                     (int(user_id), limit, offset)
                 )
                 transactions = cur.fetchall()
                 
                 cur.execute(
-                    "SELECT COUNT(*) as total FROM transactions WHERE user_id = %s",
+                    f"SELECT COUNT(*) as total FROM {SCHEMA}.transactions WHERE user_id = %s",
                     (int(user_id),)
                 )
                 total = cur.fetchone()['total']
@@ -125,7 +127,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             # Проверка существующего пользователя
             cur.execute(
-                "SELECT id FROM users WHERE username = %s OR email = %s",
+                f"SELECT id FROM {SCHEMA}.users WHERE username = %s OR email = %s",
                 (username, email)
             )
             if cur.fetchone():
@@ -138,7 +140,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             # Создание пользователя
             cur.execute(
-                "INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s) RETURNING id, username, email, avatar_url, role, forum_role, balance, created_at",
+                f"INSERT INTO {SCHEMA}.users (username, email, password_hash) VALUES (%s, %s, %s) RETURNING id, username, email, avatar_url, role, forum_role, balance, created_at",
                 (username, email, password_hash)
             )
             user = cur.fetchone()
@@ -173,7 +175,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             password_hash = hash_password(password)
             
             cur.execute(
-                "SELECT id, username, email, avatar_url, role, forum_role, is_blocked, balance, created_at FROM users WHERE username = %s AND password_hash = %s",
+                f"SELECT id, username, email, avatar_url, role, forum_role, is_blocked, balance, created_at FROM {SCHEMA}.users WHERE username = %s AND password_hash = %s",
                 (username, password_hash)
             )
             user = cur.fetchone()
@@ -194,7 +196,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute("UPDATE users SET last_seen_at = CURRENT_TIMESTAMP WHERE id = %s", (user['id'],))
+            cur.execute(f"UPDATE {SCHEMA}.users SET last_seen_at = CURRENT_TIMESTAMP WHERE id = %s", (user['id'],))
             conn.commit()
             
             token = generate_token()
@@ -222,7 +224,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute("UPDATE users SET last_seen_at = CURRENT_TIMESTAMP WHERE id = %s", (user_id,))
+            cur.execute(f"UPDATE {SCHEMA}.users SET last_seen_at = CURRENT_TIMESTAMP WHERE id = %s", (user_id,))
             conn.commit()
             
             return {
@@ -244,7 +246,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute("SELECT id, username, email, avatar_url, role, forum_role, balance, created_at FROM users WHERE id = %s", (user_id,))
+            cur.execute(f"SELECT id, username, email, avatar_url, role, forum_role, balance, created_at FROM {SCHEMA}.users WHERE id = %s", (user_id,))
             user = cur.fetchone()
             
             if not user:
@@ -277,7 +279,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute("SELECT balance FROM users WHERE id = %s", (user_id,))
+            cur.execute(f"SELECT balance FROM {SCHEMA}.users WHERE id = %s", (user_id,))
             result = cur.fetchone()
             
             return {
@@ -315,13 +317,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cur.execute(
-                "UPDATE users SET balance = COALESCE(balance, 0) + %s WHERE id = %s RETURNING balance",
+                f"UPDATE {SCHEMA}.users SET balance = COALESCE(balance, 0) + %s WHERE id = %s RETURNING balance",
                 (float(amount), int(user_id))
             )
             result = cur.fetchone()
             
             cur.execute(
-                "INSERT INTO transactions (user_id, amount, type, description) VALUES (%s, %s, %s, %s)",
+                f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES (%s, %s, %s, %s)",
                 (int(user_id), float(amount), transaction_type, description)
             )
             
@@ -348,7 +350,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute("SELECT id, username FROM users WHERE email = %s", (email,))
+            cur.execute(f"SELECT id, username FROM {SCHEMA}.users WHERE email = %s", (email,))
             user = cur.fetchone()
             
             if not user:
@@ -362,7 +364,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             new_password = secrets.token_urlsafe(12)
             password_hash = hash_password(new_password)
             
-            cur.execute("UPDATE users SET password_hash = %s WHERE id = %s", (password_hash, user['id']))
+            cur.execute(f"UPDATE {SCHEMA}.users SET password_hash = %s WHERE id = %s", (password_hash, user['id']))
             conn.commit()
             
             return {
@@ -430,7 +432,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 avatar_url = f'https://storage.yandexcloud.net/{bucket_name}/{file_name}'
                 
-                cur.execute("UPDATE users SET avatar_url = %s WHERE id = %s", (avatar_url, user_id))
+                cur.execute(f"UPDATE {SCHEMA}.users SET avatar_url = %s WHERE id = %s", (avatar_url, user_id))
                 conn.commit()
                 
                 return {
@@ -474,7 +476,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute("SELECT balance FROM users WHERE id = %s", (int(user_id),))
+            cur.execute(f"SELECT balance FROM {SCHEMA}.users WHERE id = %s", (int(user_id),))
             user = cur.fetchone()
             
             if not user or user['balance'] < amount:
@@ -486,13 +488,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cur.execute(
-                "UPDATE users SET balance = balance - %s WHERE id = %s RETURNING balance",
+                f"UPDATE {SCHEMA}.users SET balance = balance - %s WHERE id = %s RETURNING balance",
                 (float(amount), int(user_id))
             )
             result = cur.fetchone()
             
             cur.execute(
-                "INSERT INTO transactions (user_id, amount, type, description) VALUES (%s, %s, %s, %s)",
+                f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES (%s, %s, %s, %s)",
                 (int(user_id), -float(amount), 'bet', f'Ставка в игре {game_type}')
             )
             
@@ -526,13 +528,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             if won and amount > 0:
                 cur.execute(
-                    "UPDATE users SET balance = balance + %s WHERE id = %s RETURNING balance",
+                    f"UPDATE {SCHEMA}.users SET balance = balance + %s WHERE id = %s RETURNING balance",
                     (float(amount), int(user_id))
                 )
                 result = cur.fetchone()
                 
                 cur.execute(
-                    "INSERT INTO transactions (user_id, amount, type, description) VALUES (%s, %s, %s, %s)",
+                    f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES (%s, %s, %s, %s)",
                     (int(user_id), float(amount), 'win', f'Выигрыш в игре {game_type}')
                 )
                 
@@ -548,7 +550,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             else:
-                cur.execute("SELECT balance FROM users WHERE id = %s", (int(user_id),))
+                cur.execute(f"SELECT balance FROM {SCHEMA}.users WHERE id = %s", (int(user_id),))
                 user = cur.fetchone()
                 
                 return {
@@ -563,13 +565,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         elif action == 'get_lottery':
             cur.execute(
-                "SELECT id, status, total_tickets, prize_pool, draw_time, winner_ticket_number, winner_username, created_at FROM lottery_rounds WHERE status IN ('active', 'drawing') ORDER BY id DESC LIMIT 1"
+                "SELECT id, status, total_tickets, prize_pool, draw_time, winner_ticket_number, winner_username, created_at FROM {SCHEMA}.lottery_rounds WHERE status IN ('active', 'drawing') ORDER BY id DESC LIMIT 1"
             )
             round_data = cur.fetchone()
             
             if not round_data:
                 cur.execute(
-                    "INSERT INTO lottery_rounds (status, total_tickets, prize_pool) VALUES ('active', 0, 0) RETURNING id, status, total_tickets, prize_pool, draw_time, winner_ticket_number, winner_username, created_at"
+                    "INSERT INTO {SCHEMA}.lottery_rounds (status, total_tickets, prize_pool) VALUES ('active', 0, 0) RETURNING id, status, total_tickets, prize_pool, draw_time, winner_ticket_number, winner_username, created_at"
                 )
                 round_data = cur.fetchone()
                 conn.commit()
@@ -577,7 +579,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             round_id = round_data['id']
             
             cur.execute(
-                "SELECT id, user_id, username, ticket_number, purchased_at FROM lottery_tickets WHERE round_id = %s ORDER BY ticket_number",
+                "SELECT id, user_id, username, ticket_number, purchased_at FROM {SCHEMA}.lottery_tickets WHERE round_id = %s ORDER BY ticket_number",
                 (round_id,)
             )
             tickets = cur.fetchall()
@@ -607,7 +609,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             amount = body_data.get('amount', 50)
             
-            cur.execute("SELECT id, username, balance FROM users WHERE id = %s", (int(user_id),))
+            cur.execute(f"SELECT id, username, balance FROM {SCHEMA}.users WHERE id = %s", (int(user_id),))
             user = cur.fetchone()
             
             if not user or user['balance'] < amount:
@@ -619,13 +621,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cur.execute(
-                "SELECT id, status, total_tickets FROM lottery_rounds WHERE status = 'active' ORDER BY id DESC LIMIT 1"
+                "SELECT id, status, total_tickets FROM {SCHEMA}.lottery_rounds WHERE status = 'active' ORDER BY id DESC LIMIT 1"
             )
             round_data = cur.fetchone()
             
             if not round_data:
                 cur.execute(
-                    "INSERT INTO lottery_rounds (status, total_tickets, prize_pool) VALUES ('active', 0, 0) RETURNING id, status, total_tickets"
+                    "INSERT INTO {SCHEMA}.lottery_rounds (status, total_tickets, prize_pool) VALUES ('active', 0, 0) RETURNING id, status, total_tickets"
                 )
                 round_data = cur.fetchone()
                 conn.commit()
@@ -652,17 +654,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             )
             
             cur.execute(
-                "INSERT INTO lottery_tickets (round_id, user_id, username, ticket_number) VALUES (%s, %s, %s, %s)",
+                "INSERT INTO {SCHEMA}.lottery_tickets (round_id, user_id, username, ticket_number) VALUES (%s, %s, %s, %s)",
                 (round_id, int(user_id), user['username'], ticket_number)
             )
             
             cur.execute(
-                "UPDATE lottery_rounds SET total_tickets = total_tickets + 1, prize_pool = prize_pool + %s WHERE id = %s",
+                "UPDATE {SCHEMA}.lottery_rounds SET total_tickets = total_tickets + 1, prize_pool = prize_pool + %s WHERE id = %s",
                 (float(amount), round_id)
             )
             
             cur.execute(
-                "SELECT total_tickets FROM lottery_rounds WHERE id = %s",
+                "SELECT total_tickets FROM {SCHEMA}.lottery_rounds WHERE id = %s",
                 (round_id,)
             )
             updated_round = cur.fetchone()
@@ -671,7 +673,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 import datetime
                 draw_time = datetime.datetime.now() + datetime.timedelta(minutes=1)
                 cur.execute(
-                    "UPDATE lottery_rounds SET status = 'drawing', draw_time = %s WHERE id = %s",
+                    "UPDATE {SCHEMA}.lottery_rounds SET status = 'drawing', draw_time = %s WHERE id = %s",
                     (draw_time, round_id)
                 )
             
@@ -689,7 +691,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         elif action == 'get_lottery_chat':
             cur.execute(
-                "SELECT id, user_id, username, message, created_at FROM lottery_chat ORDER BY created_at DESC LIMIT 100"
+                "SELECT id, user_id, username, message, created_at FROM {SCHEMA}.lottery_chat ORDER BY created_at DESC LIMIT 100"
             )
             messages = cur.fetchall()
             
@@ -725,7 +727,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute("SELECT username FROM users WHERE id = %s", (int(user_id),))
+            cur.execute(f"SELECT username FROM {SCHEMA}.users WHERE id = %s", (int(user_id),))
             user = cur.fetchone()
             
             if not user:
@@ -737,7 +739,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cur.execute(
-                "INSERT INTO lottery_chat (user_id, username, message) VALUES (%s, %s, %s)",
+                "INSERT INTO {SCHEMA}.lottery_chat (user_id, username, message) VALUES (%s, %s, %s)",
                 (int(user_id), user['username'], message)
             )
             conn.commit()
@@ -762,7 +764,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cur.execute(
-                "SELECT id, round_id, message, is_read, created_at FROM lottery_notifications WHERE user_id = %s ORDER BY created_at DESC LIMIT 10",
+                "SELECT id, round_id, message, is_read, created_at FROM {SCHEMA}.lottery_notifications WHERE user_id = %s ORDER BY created_at DESC LIMIT 10",
                 (int(user_id),)
             )
             notifications = cur.fetchall()
@@ -790,7 +792,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cur.execute(
-                "UPDATE lottery_notifications SET is_read = TRUE WHERE user_id = %s AND is_read = FALSE",
+                "UPDATE {SCHEMA}.lottery_notifications SET is_read = TRUE WHERE user_id = %s AND is_read = FALSE",
                 (int(user_id),)
             )
             conn.commit()
@@ -814,7 +816,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute("SELECT role FROM users WHERE id = %s", (int(user_id),))
+            cur.execute(f"SELECT role FROM {SCHEMA}.users WHERE id = %s", (int(user_id),))
             user = cur.fetchone()
             
             if not user or user.get('role') != 'admin':
@@ -825,8 +827,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute("DELETE FROM lottery_chat")
-            cur.execute("DELETE FROM lottery_rounds WHERE status = 'completed'")
+            cur.execute("DELETE FROM {SCHEMA}.lottery_chat")
+            cur.execute("DELETE FROM {SCHEMA}.lottery_rounds WHERE status = 'completed'")
             conn.commit()
             
             return {
@@ -838,7 +840,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         elif action == 'get_lottery_history':
             cur.execute(
-                "SELECT id, status, total_tickets, prize_pool, winner_ticket_number, winner_user_id, winner_username, created_at, completed_at FROM lottery_rounds WHERE status = 'completed' ORDER BY completed_at DESC LIMIT 20"
+                "SELECT id, status, total_tickets, prize_pool, winner_ticket_number, winner_user_id, winner_username, created_at, completed_at FROM {SCHEMA}.lottery_rounds WHERE status = 'completed' ORDER BY completed_at DESC LIMIT 20"
             )
             history = cur.fetchall()
             
@@ -856,7 +858,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             import random
             
             cur.execute(
-                "SELECT id, draw_time FROM lottery_rounds WHERE status = 'drawing' AND draw_time <= CURRENT_TIMESTAMP"
+                "SELECT id, draw_time FROM {SCHEMA}.lottery_rounds WHERE status = 'drawing' AND draw_time <= CURRENT_TIMESTAMP"
             )
             rounds_to_draw = cur.fetchall()
             
@@ -864,14 +866,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 round_id = round_data['id']
                 
                 cur.execute(
-                    "SELECT id, user_id, username, ticket_number FROM lottery_tickets WHERE round_id = %s",
+                    "SELECT id, user_id, username, ticket_number FROM {SCHEMA}.lottery_tickets WHERE round_id = %s",
                     (round_id,)
                 )
                 tickets = cur.fetchall()
                 
                 if not tickets:
                     cur.execute(
-                        "UPDATE lottery_rounds SET status = 'completed', completed_at = CURRENT_TIMESTAMP WHERE id = %s",
+                        "UPDATE {SCHEMA}.lottery_rounds SET status = 'completed', completed_at = CURRENT_TIMESTAMP WHERE id = %s",
                         (round_id,)
                     )
                     continue
@@ -879,7 +881,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 winning_ticket = random.choice(tickets)
                 
                 cur.execute(
-                    "UPDATE lottery_rounds SET status = 'completed', winner_ticket_number = %s, winner_user_id = %s, winner_username = %s, completed_at = CURRENT_TIMESTAMP WHERE id = %s",
+                    "UPDATE {SCHEMA}.lottery_rounds SET status = 'completed', winner_ticket_number = %s, winner_user_id = %s, winner_username = %s, completed_at = CURRENT_TIMESTAMP WHERE id = %s",
                     (winning_ticket['ticket_number'], winning_ticket['user_id'], winning_ticket['username'], round_id)
                 )
                 
@@ -902,12 +904,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         message = f'Розыгрыш завершен. Победитель: {winning_ticket["username"]} (билет #{ticket_num}). Удачи в следующий раз!'
                     
                     cur.execute(
-                        "INSERT INTO lottery_notifications (user_id, round_id, message) VALUES (%s, %s, %s)",
+                        "INSERT INTO {SCHEMA}.lottery_notifications (user_id, round_id, message) VALUES (%s, %s, %s)",
                         (ticket['user_id'], round_id, message)
                     )
                 
                 cur.execute(
-                    "INSERT INTO lottery_rounds (status, total_tickets, prize_pool) VALUES ('active', 0, 0)"
+                    "INSERT INTO {SCHEMA}.lottery_rounds (status, total_tickets, prize_pool) VALUES ('active', 0, 0)"
                 )
             
             conn.commit()
