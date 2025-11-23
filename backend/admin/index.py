@@ -304,7 +304,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 target_user_id = body_data.get('user_id')
                 forum_role = body_data.get('forum_role', 'new')
                 
-                cur.execute("UPDATE users SET forum_role = %s WHERE id = %s", (forum_role, target_user_id))
+                cur.execute(f"UPDATE {SCHEMA}.users SET forum_role = %s WHERE id = %s", (forum_role, target_user_id))
                 
                 log_admin_action(user_id, 'set_forum_role', 'user', target_user_id, f'Forum role: {forum_role}', cur)
                 conn.commit()
@@ -445,7 +445,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cur.execute(
-                "UPDATE forum_topics SET title = COALESCE(%s, title), content = COALESCE(%s, content), updated_at = CURRENT_TIMESTAMP WHERE id = %s",
+                f"UPDATE {SCHEMA}.forum_topics SET title = COALESCE(%s, title), content = COALESCE(%s, content), updated_at = CURRENT_TIMESTAMP WHERE id = %s",
                 (title, content, topic_id)
             )
             
@@ -490,14 +490,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             if target_type == 'topic':
                 cur.execute(
-                    "UPDATE forum_topics SET removed_at = CURRENT_TIMESTAMP, removed_by = %s WHERE id = %s",
+                    f"UPDATE {SCHEMA}.forum_topics SET removed_at = CURRENT_TIMESTAMP, removed_by = %s WHERE id = %s",
                     (user_id, target_id)
                 )
                 log_admin_action(user_id, 'remove_topic', 'topic', int(target_id), '', cur)
             
             elif target_type == 'comment':
                 cur.execute(
-                    "UPDATE forum_comments SET removed_at = CURRENT_TIMESTAMP, removed_by = %s WHERE id = %s",
+                    f"UPDATE {SCHEMA}.forum_comments SET removed_at = CURRENT_TIMESTAMP, removed_by = %s WHERE id = %s",
                     (user_id, target_id)
                 )
                 log_admin_action(user_id, 'remove_comment', 'comment', int(target_id), '', cur)
