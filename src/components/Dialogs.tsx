@@ -411,7 +411,7 @@ const Dialogs = ({
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground mb-3">{user.email}</p>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Button
                       variant="outline"
                       size="sm"
@@ -423,9 +423,9 @@ const Dialogs = ({
                       {avatarUploading ? 'Загрузка...' : 'Загрузить фото'}
                     </Button>
                     <Button
-                      variant={user.is_verified ? "default" : "outline"}
+                      variant={user.is_verified ? "default" : "default"}
                       size="sm"
-                      className="gap-2"
+                      className="gap-2 bg-primary"
                       onClick={() => {
                         const verificationSection = document.getElementById('verification-section');
                         if (verificationSection) {
@@ -434,7 +434,7 @@ const Dialogs = ({
                       }}
                     >
                       <Icon name="ShieldCheck" size={16} />
-                      {user.is_verified ? 'Верифицирован' : 'Верификация'}
+                      {user.is_verified ? '✓ Верифицирован' : 'Верификация'}
                     </Button>
                   </div>
                 </div>
