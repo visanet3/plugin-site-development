@@ -167,7 +167,7 @@ const Header = ({
                   </span>
                 )}
               </Button>
-              <div className="flex items-center gap-1.5 sm:gap-3">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <Button 
                   variant="ghost" 
                   className="text-left flex items-center gap-1.5 sm:gap-3 text-white hover:bg-orange-500/10 transition-colors px-2 sm:px-4"
@@ -175,7 +175,7 @@ const Header = ({
                 >
                   <div className="text-right hidden sm:block">
                     <p className="text-sm font-medium text-white">{user.username}</p>
-                    <p className={`text-xs text-green-700 transition-all duration-300 ${isBalanceChanging ? 'scale-110 font-bold' : 'scale-100'}`}>
+                    <p className={`text-xs text-green-400 transition-all duration-300 ${isBalanceChanging ? 'scale-110 font-bold' : 'scale-100'}`}>
                       {Number(animatedBalance).toFixed(2)} USDT
                     </p>
                   </div>
@@ -187,8 +187,14 @@ const Header = ({
                   </div>
                   <Icon name="User" className="w-5 h-5" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={onLogout} className="text-white hover:bg-orange-500/10 transition-colors hidden sm:flex">
-                  Выход
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={onLogout} 
+                  className="text-white hover:bg-red-500/20 hover:text-red-400 transition-colors shrink-0"
+                  title="Выйти"
+                >
+                  <Icon name="LogOut" size={18} />
                 </Button>
               </div>
             </>

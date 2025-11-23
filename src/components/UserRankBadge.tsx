@@ -49,16 +49,19 @@ const UserRankBadge = ({ forumRole, size = 'md', className = '' }: UserRankBadge
   
   const sizes = {
     sm: {
-      badge: 'px-1.5 py-0.5 text-[8px]',
-      icon: 10
+      badge: 'px-1 py-0.5 text-[7px] sm:text-[8px] gap-0.5',
+      icon: 8,
+      hideLabel: true
     },
     md: {
-      badge: 'px-2 py-0.5 text-[10px]',
-      icon: 12
+      badge: 'px-1.5 py-0.5 text-[9px] sm:text-[10px] gap-1',
+      icon: 10,
+      hideLabel: false
     },
     lg: {
-      badge: 'px-2.5 py-1 text-xs',
-      icon: 14
+      badge: 'px-2 py-0.5 text-[10px] sm:text-xs gap-1',
+      icon: 12,
+      hideLabel: false
     }
   };
 
@@ -68,14 +71,17 @@ const UserRankBadge = ({ forumRole, size = 'md', className = '' }: UserRankBadge
         bg-gradient-to-r ${config.gradient}
         border ${config.border}
         text-white font-semibold
-        shadow-lg shadow-black/20
+        shadow-md shadow-black/20
         ${sizes[size].badge}
+        inline-flex items-center justify-center
+        whitespace-nowrap
         ${className}
       `}
       variant="outline"
     >
-      <Icon name={config.icon as any} size={sizes[size].icon} className="mr-1" />
-      {config.label}
+      <Icon name={config.icon as any} size={sizes[size].icon} className={sizes[size].hideLabel ? '' : 'mr-0.5 sm:mr-1'} />
+      {!sizes[size].hideLabel && <span className="hidden sm:inline">{config.label}</span>}
+      {sizes[size].hideLabel && <span className="sr-only">{config.label}</span>}
     </Badge>
   );
 };
