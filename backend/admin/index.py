@@ -278,6 +278,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     )
                 """, (target_user_id, target_user_id))
                 
+                # Delete withdrawal_notifications before withdrawal_requests
+                cur.execute(f"""
+                    DELETE FROM {SCHEMA}.withdrawal_notifications 
+                    WHERE withdrawal_id IN (
+                        SELECT id FROM {SCHEMA}.withdrawal_requests 
+                        WHERE user_id = %s
+                    )
+                """, (target_user_id,))
+                
                 # Now delete other user data
                 cur.execute(f"DELETE FROM {SCHEMA}.forum_comments WHERE author_id = %s", (target_user_id,))
                 cur.execute(f"DELETE FROM {SCHEMA}.forum_topics WHERE author_id = %s", (target_user_id,))
