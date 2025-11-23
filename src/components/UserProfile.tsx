@@ -230,12 +230,32 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
     setIsLoading(false);
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast({
-      title: 'Успешно',
-      description: 'Скопировано в буфер обмена'
-    });
+  const copyToClipboard = async (text: string) => {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+      toast({
+        title: 'Успешно',
+        description: 'Скопировано в буфер обмена'
+      });
+    } catch (error) {
+      console.error('Ошибка копирования:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось скопировать',
+        variant: 'destructive'
+      });
+    }
   };
 
   const handleAvatarSelect = () => {

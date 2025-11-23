@@ -89,21 +89,61 @@ export const ReferralTab = ({ user }: ReferralTabProps) => {
     }
   };
 
-  const copyReferralCode = () => {
-    navigator.clipboard.writeText(referralCode);
-    toast({
-      title: 'Скопировано!',
-      description: 'Реферальный код скопирован в буфер обмена'
-    });
+  const copyReferralCode = async () => {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(referralCode);
+      } else {
+        const textArea = document.createElement('textarea');
+        textArea.value = referralCode;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+      toast({
+        title: 'Скопировано!',
+        description: 'Реферальный код скопирован в буфер обмена'
+      });
+    } catch (error) {
+      console.error('Ошибка копирования:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось скопировать код',
+        variant: 'destructive'
+      });
+    }
   };
 
-  const copyReferralLink = () => {
-    const link = `${window.location.origin}/?ref=${referralCode}`;
-    navigator.clipboard.writeText(link);
-    toast({
-      title: 'Скопировано!',
-      description: 'Реферальная ссылка скопирована в буфер обмена'
-    });
+  const copyReferralLink = async () => {
+    try {
+      const link = `${window.location.origin}/?ref=${referralCode}`;
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(link);
+      } else {
+        const textArea = document.createElement('textarea');
+        textArea.value = link;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+      toast({
+        title: 'Скопировано!',
+        description: 'Реферальная ссылка скопирована в буфер обмена'
+      });
+    } catch (error) {
+      console.error('Ошибка копирования:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось скопировать ссылку',
+        variant: 'destructive'
+      });
+    }
   };
 
   const handleClaimBonus = async () => {
