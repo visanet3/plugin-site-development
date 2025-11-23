@@ -122,18 +122,21 @@ const UserProfileDialog = ({ open, onOpenChange, userId, currentUserId, onSendMe
           </div>
         ) : profile ? (
           <div className="flex flex-col">
-            {/* Шапка профиля с аватаром и именем */}
-            <div className="relative bg-gradient-to-br from-accent/30 via-accent/10 to-background pt-8 pb-20 px-4">
-              <div className="flex flex-col items-center">
-                <div className="relative">
-                  <Avatar className="w-24 h-24 sm:w-28 sm:h-28 border-4 border-background shadow-lg">
-                    <AvatarImage src={profile.avatar_url} />
-                    <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(profile.username)} text-white text-3xl sm:text-4xl font-bold`}>
-                      {profile.username.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="absolute top-0 right-[-65px] sm:top-0 sm:right-[-75px]">
-                    <UserRankBadge forumRole={profile.forum_role} size="lg" />
+            {/* Шапка профиля с аватаром и imenем */}
+            <div className="relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-b from-accent/30 via-accent/15 via-accent/5 to-transparent" />
+              <div className="relative pt-8 pb-20 px-4">
+                <div className="flex flex-col items-center">
+                  <div className="relative">
+                    <Avatar className="w-24 h-24 sm:w-28 sm:h-28 border-4 border-background shadow-lg">
+                      <AvatarImage src={profile.avatar_url} />
+                      <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(profile.username)} text-white text-3xl sm:text-4xl font-bold`}>
+                        {profile.username.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="absolute top-0 right-[-65px] sm:top-0 sm:right-[-75px]">
+                      <UserRankBadge forumRole={profile.forum_role} size="lg" />
+                    </div>
                   </div>
                 </div>
               </div>
