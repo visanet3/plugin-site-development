@@ -9,6 +9,8 @@ interface CryptoPaymentDialogProps {
   open: boolean;
   isLoading: boolean;
   cryptoPayment: any;
+  checkingStatus?: string;
+  checkAttempt?: number;
   onOpenChange: (open: boolean) => void;
   onConfirmPayment: () => void;
   onCopyToClipboard: (text: string) => void;
@@ -18,6 +20,8 @@ export const CryptoPaymentDialog = ({
   open,
   isLoading,
   cryptoPayment,
+  checkingStatus,
+  checkAttempt,
   onOpenChange,
   onConfirmPayment,
   onCopyToClipboard
@@ -90,6 +94,46 @@ export const CryptoPaymentDialog = ({
                 </div>
               </div>
             </div>
+
+            {checkingStatus && (
+              <div className={`space-y-2 p-4 rounded-lg ${
+                checkingStatus.includes('Ошибка') 
+                  ? 'bg-red-500/10 border border-red-500/20' 
+                  : checkingStatus.includes('подтверждён')
+                  ? 'bg-green-500/10 border border-green-500/20'
+                  : 'bg-blue-500/10 border border-blue-500/20'
+              }`}>
+                <div className="flex items-start gap-2">
+                  <Icon 
+                    name={
+                      checkingStatus.includes('Ошибка') ? 'XCircle' :
+                      checkingStatus.includes('подтверждён') ? 'CheckCircle' : 
+                      'Loader2'
+                    } 
+                    size={18} 
+                    className={`mt-0.5 ${
+                      checkingStatus.includes('Ошибка') ? 'text-red-400' :
+                      checkingStatus.includes('подтверждён') ? 'text-green-400' :
+                      'text-blue-400 animate-spin'
+                    }`} 
+                  />
+                  <div className="text-sm flex-1">
+                    <p className={`font-medium ${
+                      checkingStatus.includes('Ошибка') ? 'text-red-400' :
+                      checkingStatus.includes('подтверждён') ? 'text-green-400' :
+                      'text-blue-400'
+                    }`}>
+                      {checkingStatus}
+                    </p>
+                    {isLoading && !checkingStatus.includes('Ошибка') && !checkingStatus.includes('подтверждён') && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Это может занять до 30 минут. Проверка каждые 30 секунд.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
             <Button
               onClick={onConfirmPayment}

@@ -36,6 +36,8 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
   const [paymentNetwork, setPaymentNetwork] = useState('TRC20');
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [checkingStatus, setCheckingStatus] = useState<string>('');
+  const [checkAttempt, setCheckAttempt] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -146,6 +148,8 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
     if (!cryptoPayment) return;
     
     setIsLoading(true);
+    setCheckingStatus('Начинаем поиск транзакции в блокчейне...');
+    setCheckAttempt(0);
     let checkAttempts = 0;
     const maxAttempts = 60;
     
@@ -170,8 +174,13 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
             const updatedUser = { ...user, balance: data.new_balance };
             Object.assign(user, updatedUser);
           }
-          setShowCryptoDialog(false);
-          setCryptoPayment(null);
+          setCheckingStatus('Платёж подтверждён! Баланс пополнен.');
+          setTimeout(() => {
+            setShowCryptoDialog(false);
+            setCryptoPayment(null);
+            setCheckingStatus('');
+            setCheckAttempt(0);
+          }, 2000);
           if (activeTab === 'transactions') {
             fetchTransactions();
           }
@@ -184,11 +193,14 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
         
         if (data.waiting && checkAttempts < maxAttempts) {
           checkAttempts++;
+          setCheckAttempt(checkAttempts);
+          setCheckingStatus(`Ищем транзакцию в блокчейне... Попытка ${checkAttempts}/${maxAttempts}`);
           
           await new Promise(resolve => setTimeout(resolve, 30000));
           return await checkPayment();
         }
         
+        setCheckingStatus('Ошибка: ' + (data.message || 'Транзакция не найдена'));
         toast({
           title: 'Ошибка',
           description: data.message || 'Транзакция не найдена. Проверьте данные и попробуйте позже.',
@@ -198,6 +210,7 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
         
       } catch (error) {
         console.error('Ошибка проверки платежа:', error);
+        setCheckingStatus('Ошибка проверки платежа');
         toast({
           title: 'Ошибка',
           description: 'Ошибка проверки платежа',
@@ -206,11 +219,6 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
         return false;
       }
     };
-    
-    toast({
-      title: 'Проверка',
-      description: 'Начинаем поиск транзакции в блокчейне. Это может занять до 30 минут.'
-    });
     
     await checkPayment();
     setIsLoading(false);
@@ -358,6 +366,8 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
         open={showCryptoDialog}
         isLoading={isLoading}
         cryptoPayment={cryptoPayment}
+        checkingStatus={checkingStatus}
+        checkAttempt={checkAttempt}
         onOpenChange={setShowCryptoDialog}
         onConfirmPayment={handleConfirmPayment}
         onCopyToClipboard={copyToClipboard}
