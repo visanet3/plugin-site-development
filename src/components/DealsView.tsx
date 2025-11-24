@@ -569,7 +569,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
       {/* Диалог детальной сделки */}
       {selectedDeal && (
         <Dialog open={!!selectedDeal} onOpenChange={(open) => !open && setSelectedDeal(null)}>
-          <DialogContent className="w-[90vw] max-w-3xl h-[90dvh] sm:h-[80vh] overflow-hidden flex flex-col p-3 sm:p-5">
+          <DialogContent className="w-[90vw] max-w-3xl h-[90dvh] sm:h-[80vh] overflow-hidden flex flex-col p-3 sm:p-5 rounded-3xl sm:rounded-lg">
             <DialogHeader className="flex-shrink-0 pb-2">
               <DialogTitle className="pr-8 text-sm sm:text-lg leading-tight">{selectedDeal.title}</DialogTitle>
               <DialogDescription className="text-xs sm:text-sm line-clamp-1 mt-0.5">{selectedDeal.description}</DialogDescription>
@@ -594,43 +594,114 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                 </Card>
               )}
 
-              <div className="grid grid-cols-3 gap-1.5 sm:gap-2 flex-shrink-0">
-                <Card className="p-1.5 sm:p-2.5 bg-gradient-to-br from-green-500/5 to-green-600/10 border-green-500/20 shadow-md hover:shadow-green-500/10 transition-shadow">
-                  <p className="text-[9px] sm:text-xs text-muted-foreground/70 mb-0.5 sm:mb-1 font-medium">Продавец</p>
-                  <div className="flex items-center gap-1">
-                    <Avatar className="w-6 h-6 sm:w-8 sm:h-8 ring-1 ring-green-500/20">
-                      <AvatarImage src={selectedDeal.seller_avatar} />
-                      <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(selectedDeal.seller_name)} text-white text-[10px]`}>
-                        {selectedDeal.seller_name[0].toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <p className="font-bold text-[10px] sm:text-sm truncate text-green-300">{selectedDeal.seller_name}</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2 flex-shrink-0">
+                <Card className="p-2 sm:p-2.5 bg-gradient-to-br from-green-500/10 to-green-600/15 border-green-500/30 shadow-lg hover:shadow-green-500/20 transition-all backdrop-blur-sm">
+                  <div className="flex items-center gap-1.5 sm:gap-1">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-green-500/30 to-green-600/40 flex items-center justify-center flex-shrink-0 shadow-inner">
+                      <Icon name="Store" size={14} className="text-green-300" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[9px] sm:text-xs text-muted-foreground/70 mb-0.5 font-medium">Продавец</p>
+                      <div className="flex items-center gap-1">
+                        <Avatar className="w-4 h-4 sm:w-5 sm:h-5 ring-1 ring-green-500/30">
+                          <AvatarImage src={selectedDeal.seller_avatar} />
+                          <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(selectedDeal.seller_name)} text-white text-[8px]`}>
+                            {selectedDeal.seller_name[0].toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <p className="font-bold text-[10px] sm:text-xs truncate text-green-300">{selectedDeal.seller_name}</p>
+                      </div>
+                    </div>
                   </div>
                 </Card>
 
-                <Card className="p-1.5 sm:p-2.5 bg-gradient-to-br from-green-600/15 to-green-700/25 border-green-600/30 shadow-md hover:shadow-green-600/20 transition-shadow">
-                  <p className="text-[9px] sm:text-xs text-muted-foreground/70 mb-0.5 sm:mb-1 font-medium">Цена</p>
-                  <p className="text-base sm:text-2xl font-black text-green-400 truncate leading-tight">
-                    {selectedDeal.price}
-                    <span className="text-[10px] sm:text-base text-muted-foreground/60 ml-0.5 font-semibold">USDT</span>
-                  </p>
+                <Card className="p-2 sm:p-2.5 bg-gradient-to-br from-amber-500/10 to-yellow-600/15 border-amber-500/30 shadow-lg hover:shadow-amber-500/20 transition-all backdrop-blur-sm">
+                  <div className="flex items-center gap-1.5 sm:gap-1">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-amber-500/30 to-yellow-600/40 flex items-center justify-center flex-shrink-0 shadow-inner">
+                      <Icon name="DollarSign" size={16} className="text-amber-300" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[9px] sm:text-xs text-muted-foreground/70 mb-0.5 font-medium">Сумма</p>
+                      <p className="text-sm sm:text-lg font-black text-amber-300 truncate leading-tight">
+                        {selectedDeal.price}
+                        <span className="text-[9px] sm:text-xs text-muted-foreground/60 ml-0.5 font-semibold">USDT</span>
+                      </p>
+                    </div>
+                  </div>
                 </Card>
 
-                {selectedDeal.buyer_id && (
-                  <Card className="p-1.5 sm:p-2.5 bg-gradient-to-br from-blue-500/5 to-blue-600/10 border-blue-500/20 shadow-md hover:shadow-blue-500/10 transition-shadow">
-                    <p className="text-[9px] sm:text-xs text-muted-foreground/70 mb-0.5 sm:mb-1 font-medium">Покупатель</p>
-                    <div className="flex items-center gap-1">
-                      <Avatar className="w-6 h-6 sm:w-8 sm:h-8 ring-1 ring-blue-500/20">
-                        <AvatarImage src={selectedDeal.buyer_avatar} />
-                        <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(selectedDeal.buyer_name || '')} text-white text-[10px]`}>
-                          {selectedDeal.buyer_name?.[0].toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <p className="font-bold text-[10px] sm:text-sm truncate text-blue-300">{selectedDeal.buyer_name}</p>
+                {selectedDeal.buyer_id ? (
+                  <Card className="p-2 sm:p-2.5 bg-gradient-to-br from-blue-500/10 to-blue-600/15 border-blue-500/30 shadow-lg hover:shadow-blue-500/20 transition-all backdrop-blur-sm">
+                    <div className="flex items-center gap-1.5 sm:gap-1">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-blue-500/30 to-blue-600/40 flex items-center justify-center flex-shrink-0 shadow-inner">
+                        <Icon name="ShoppingCart" size={14} className="text-blue-300" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[9px] sm:text-xs text-muted-foreground/70 mb-0.5 font-medium">Покупатель</p>
+                        <div className="flex items-center gap-1">
+                          <Avatar className="w-4 h-4 sm:w-5 sm:h-5 ring-1 ring-blue-500/30">
+                            <AvatarImage src={selectedDeal.buyer_avatar} />
+                            <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(selectedDeal.buyer_name || '')} text-white text-[8px]`}>
+                              {selectedDeal.buyer_name?.[0].toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <p className="font-bold text-[10px] sm:text-xs truncate text-blue-300">{selectedDeal.buyer_name}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                ) : (
+                  <Card className="p-2 sm:p-2.5 bg-gradient-to-br from-gray-500/10 to-gray-600/15 border-gray-500/30 shadow-lg backdrop-blur-sm">
+                    <div className="flex items-center gap-1.5 sm:gap-1">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-gray-500/30 to-gray-600/40 flex items-center justify-center flex-shrink-0 shadow-inner">
+                        <Icon name="UserX" size={14} className="text-gray-400" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[9px] sm:text-xs text-muted-foreground/70 mb-0.5 font-medium">Покупатель</p>
+                        <p className="text-[10px] sm:text-xs text-gray-400 font-semibold">Ожидается</p>
+                      </div>
                     </div>
                   </Card>
                 )}
+                <Card className="p-2 sm:p-2.5 bg-gradient-to-br from-purple-500/10 to-indigo-600/15 border-purple-500/30 shadow-lg hover:shadow-purple-500/20 transition-all backdrop-blur-sm">
+                  <div className="flex items-center gap-1.5 sm:gap-1">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-purple-500/30 to-indigo-600/40 flex items-center justify-center flex-shrink-0 shadow-inner">
+                      <Icon name="Clock" size={14} className="text-purple-300" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[9px] sm:text-xs text-muted-foreground/70 mb-0.5 font-medium">Статус</p>
+                      <p className="text-[10px] sm:text-xs font-bold text-purple-300 truncate capitalize">
+                        {selectedDeal.status === 'active' ? 'Активна' : selectedDeal.status === 'in_progress' ? 'В процессе' : selectedDeal.status === 'completed' ? 'Завершена' : 'Отменена'}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
               </div>
+
+              <Card className="p-2 bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border-indigo-500/30 shadow-lg flex-shrink-0">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500/30 to-violet-500/30 flex items-center justify-center flex-shrink-0 shadow-inner">
+                      <Icon name="CalendarClock" size={12} className="text-indigo-300" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[9px] text-muted-foreground/70 mb-0.5">Создана</p>
+                      <p className="text-[10px] sm:text-xs font-semibold text-indigo-300 truncate">
+                        {new Date(selectedDeal.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-teal-500/30 to-cyan-500/30 flex items-center justify-center flex-shrink-0 shadow-inner">
+                      <Icon name="Hash" size={12} className="text-teal-300" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[9px] text-muted-foreground/70 mb-0.5">ID сделки</p>
+                      <p className="text-[10px] sm:text-xs font-mono font-bold text-teal-300 truncate">#{selectedDeal.id}</p>
+                    </div>
+                  </div>
+                </div>
+              </Card>
 
               {/* Чат */}
               <Card className="p-2 sm:p-3 flex-1 min-h-0 overflow-y-auto bg-gradient-to-br from-muted/30 to-muted/10 border-border/50 shadow-inner">
