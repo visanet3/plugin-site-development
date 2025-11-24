@@ -75,6 +75,7 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
     fetchDeals();
     if (user) {
       checkDisputeNotifications();
+      checkUserActivePurchases();
     }
   }, [statusFilter, categoryFilter, user]);
 
@@ -87,6 +88,30 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
 
     return () => clearInterval(interval);
   }, [user]);
+
+  const checkUserActivePurchases = async () => {
+    if (!user) return;
+    
+    // Проверяем есть ли у пользователя активные покупки
+    try {
+      const response = await fetch(`${ESCROW_URL}?action=list&status=in_progress`, {
+        headers: {
+          'X-User-Id': user.id.toString()
+        }
+      });
+      const data = await response.json();
+      
+      if (data.deals && data.deals.length > 0) {
+        // Если есть активные покупки и пользователь на вкладке "В продаже"
+        // автоматически переключаем на "Мои покупки"
+        if (statusFilter === 'open') {
+          setStatusFilter('in_progress');
+        }
+      }
+    } catch (error) {
+      console.error('Ошибка проверки активных покупок:', error);
+    }
+  };
 
   const checkDisputeNotifications = async () => {
     if (!user) return;
@@ -201,16 +226,12 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
   };
 
   const createDeal = async () => {
-    console.log('createDeal вызвана', { user, creating, newDeal });
-    
     if (!user) {
-      console.log('Нет пользователя');
       onShowAuthDialog();
       return;
     }
 
     if (!newDeal.title || !newDeal.description || !newDeal.price) {
-      console.log('Не все поля заполнены');
       toast({
         title: 'Ошибка',
         description: 'Заполните все поля',
@@ -220,11 +241,9 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
     }
 
     if (creating) {
-      console.log('Уже создается');
       return;
     }
     
-    console.log('Начинаем создание товара...');
     setCreating(true);
 
     try {
@@ -656,10 +675,7 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
                 Отмена
               </Button>
               <Button
-                onClick={() => {
-                  console.log('Клик на кнопку Разместить товар');
-                  createDeal();
-                }}
+                onClick={createDeal}
                 disabled={creating}
                 className="flex-1 bg-gradient-to-r from-green-600 to-green-800 hover:from-green-700 hover:to-green-900 shadow-lg shadow-green-500/20 h-10 sm:h-11 text-xs sm:text-sm font-semibold"
               >
@@ -794,15 +810,11 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance,
   };
 
   const joinDeal = async () => {
-    console.log('joinDeal вызвана', { user, loading, currentDeal });
-    
     if (!user) {
-      console.log('Нет пользователя');
       return;
     }
     
     if (loading) {
-      console.log('Уже загружается');
       return;
     }
     
@@ -1277,10 +1289,7 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance,
           <div className="space-y-1.5 sm:space-y-2">
             {currentDeal.status === 'open' && !isSeller && (
               <Button
-                onClick={() => {
-                  console.log('Клик на кнопку Купить');
-                  joinDeal();
-                }}
+                onClick={joinDeal}
                 disabled={loading}
                 className="w-full bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800 h-9 sm:h-10 text-xs sm:text-sm"
               >
