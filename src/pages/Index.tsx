@@ -1,4 +1,5 @@
 import { useEffect, lazy, Suspense } from 'react';
+import { Helmet } from 'react-helmet';
 import { useIndexState } from './index/IndexState';
 import { useIndexHandlers } from './index/IndexHandlers';
 import IndexLayout from './index/IndexLayout';
@@ -106,8 +107,19 @@ const Index = () => {
     }
   }, [state.forumTopics, state.activeView]);
 
+  // Получаем текущий URL с реферальным кодом если есть
+  const currentUrl = window.location.href;
+  const ogImage = 'https://cdn.poehali.dev/projects/6d3b4148-043d-4749-9e28-f8a525e15c33/files/og-image-1763925008534.jpg';
+
   return (
-    <div className="min-h-screen bg-background text-foreground flex relative" onClick={() => state.setShowSearchResults(false)}>
+    <>
+      <Helmet>
+        <meta property="og:url" content={currentUrl} />
+        <meta property="og:image" content={ogImage} />
+        <meta name="twitter:url" content={currentUrl} />
+        <meta name="twitter:image" content={ogImage} />
+      </Helmet>
+      <div className="min-h-screen bg-background text-foreground flex relative" onClick={() => state.setShowSearchResults(false)}>
       {state.showAdminPanel && state.user?.role === 'admin' ? (
         <Suspense fallback={<div className="flex items-center justify-center h-screen w-full"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>}>
           <AdminPanel currentUser={state.user} onClose={() => state.setShowAdminPanel(false)} />
@@ -288,6 +300,7 @@ const Index = () => {
         </Suspense>
       )}
     </div>
+    </>
   );
 };
 
