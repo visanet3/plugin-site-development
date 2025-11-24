@@ -36,25 +36,35 @@ const RouletteBetManager = ({
 }: RouletteBetManagerProps) => {
   return (
     <div className="space-y-4">
-      <div className="flex gap-3">
-        <Input
-          type="number"
-          value={betAmount}
-          onChange={(e) => setBetAmount(e.target.value)}
-          min="0.1"
-          step="0.1"
-          placeholder="Сумма ставки"
-          disabled={!user}
-          className="flex-1"
-        />
-        <Button
-          onClick={addBet}
-          disabled={!user || !selectedBetType}
-          className="bg-blue-600 hover:bg-blue-700"
-        >
-          <Icon name="Plus" size={18} className="mr-2" />
-          Добавить
-        </Button>
+      <div className="flex items-center justify-between gap-4 mb-4 p-4 bg-green-800/20 border border-green-700/30 rounded-lg">
+        <div className="flex gap-3 flex-1">
+          <div className="flex-1">
+            <label className="block text-sm font-medium mb-2">Ставка (USDT)</label>
+            <Input
+              type="number"
+              value={betAmount}
+              onChange={(e) => setBetAmount(e.target.value)}
+              min="0.1"
+              step="0.1"
+              placeholder="Сумма ставки"
+              disabled={!user}
+            />
+          </div>
+          <Button
+            onClick={addBet}
+            disabled={!user || !selectedBetType}
+            className="bg-blue-600 hover:bg-blue-700 self-end"
+          >
+            <Icon name="Plus" size={18} className="mr-2" />
+            Добавить
+          </Button>
+        </div>
+        <div className="text-right">
+          <div className="text-sm text-muted-foreground mb-1">Ваш баланс</div>
+          <div className="text-2xl font-bold text-primary">
+            {user ? `${user.balance.toFixed(2)} USDT` : '0.00 USDT'}
+          </div>
+        </div>
       </div>
 
       {bets.length > 0 && (
