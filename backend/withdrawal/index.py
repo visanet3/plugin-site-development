@@ -47,9 +47,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     dsn = os.environ.get('DATABASE_URL')
-    conn = psycopg2.connect(dsn)
+    conn = None
     
     try:
+        conn = psycopg2.connect(dsn)
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
         if method == 'GET':
@@ -331,7 +332,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             cursor.close()
     
     finally:
-        conn.close()
+        if conn:
+            conn.close()
     
     return {
         'statusCode': 400,

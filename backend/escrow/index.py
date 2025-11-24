@@ -39,9 +39,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     user_id = headers.get('X-User-Id') or headers.get('x-user-id')
     
     dsn = os.environ.get('DATABASE_URL')
-    conn = psycopg2.connect(dsn)
+    conn = None
     
     try:
+        conn = psycopg2.connect(dsn)
         if method == 'GET':
             params = event.get('queryStringParameters', {}) or {}
             action = params.get('action', 'list')
@@ -650,7 +651,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             cursor.close()
     
     finally:
-        conn.close()
+        if conn:
+            conn.close()
     
     return {
         'statusCode': 400,
