@@ -28,10 +28,10 @@ interface WithdrawalRequest {
 interface AdminWithdrawalsTabProps {
   withdrawals: WithdrawalRequest[];
   currentUser: User;
-  onUpdate: () => void;
+  onRefresh: () => void;
 }
 
-const AdminWithdrawalsTab = ({ withdrawals, currentUser, onUpdate }: AdminWithdrawalsTabProps) => {
+const AdminWithdrawalsTab = ({ withdrawals, currentUser, onRefresh }: AdminWithdrawalsTabProps) => {
   const { toast } = useToast();
   const [selectedWithdrawal, setSelectedWithdrawal] = useState<WithdrawalRequest | null>(null);
   const [adminComment, setAdminComment] = useState('');
@@ -70,7 +70,7 @@ const AdminWithdrawalsTab = ({ withdrawals, currentUser, onUpdate }: AdminWithdr
         });
         setSelectedWithdrawal(null);
         setAdminComment('');
-        onUpdate();
+        onRefresh();
       } else {
         toast({
           title: 'Ошибка',

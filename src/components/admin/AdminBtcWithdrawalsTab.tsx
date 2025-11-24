@@ -20,13 +20,13 @@ interface BtcWithdrawal {
 
 interface AdminBtcWithdrawalsTabProps {
   withdrawals: BtcWithdrawal[];
-  currentUserId: number;
+  currentUser: { id: number };
   onRefresh: () => void;
 }
 
 const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
 
-const AdminBtcWithdrawalsTab = ({ withdrawals, currentUserId, onRefresh }: AdminBtcWithdrawalsTabProps) => {
+const AdminBtcWithdrawalsTab = ({ withdrawals, currentUser, onRefresh }: AdminBtcWithdrawalsTabProps) => {
   const { toast } = useToast();
   const [processing, setProcessing] = useState<number | null>(null);
   const [adminComment, setAdminComment] = useState<{ [key: number]: string }>({});
@@ -39,7 +39,7 @@ const AdminBtcWithdrawalsTab = ({ withdrawals, currentUserId, onRefresh }: Admin
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-User-Id': currentUserId.toString()
+          'X-User-Id': currentUser.id.toString()
         },
         body: JSON.stringify({
           action: 'process_btc_withdrawal',

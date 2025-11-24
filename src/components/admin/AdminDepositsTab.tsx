@@ -24,10 +24,10 @@ interface Deposit {
 interface AdminDepositsTabProps {
   deposits: Deposit[];
   currentUser: User;
-  onUpdate: () => void;
+  onRefresh: () => void;
 }
 
-const AdminDepositsTab = ({ deposits, currentUser, onUpdate }: AdminDepositsTabProps) => {
+const AdminDepositsTab = ({ deposits, currentUser, onRefresh }: AdminDepositsTabProps) => {
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'confirmed' | 'expired'>('all');
 
   const getStatusBadge = (status: string) => {
