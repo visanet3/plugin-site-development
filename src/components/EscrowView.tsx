@@ -961,30 +961,30 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance 
         </button>
 
         {/* Красивый градиентный заголовок */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-green-800/20 via-green-900/10 to-background border-b border-green-800/30 p-4 sm:p-5 pr-12">
+        <div className="relative overflow-hidden bg-gradient-to-br from-green-800/20 via-green-900/10 to-background border-b border-green-800/30 p-4 sm:p-5 pr-14">
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-500/10 to-transparent rounded-full blur-3xl"></div>
           <div className="relative z-10">
             <div className="flex items-start justify-between gap-2 sm:gap-3 mb-2">
-              <div className="flex-1 min-w-0 pr-8">
-                <DialogTitle className="text-base sm:text-lg md:text-xl truncate">{currentDeal.title}</DialogTitle>
-                <DialogDescription className="mt-1 text-xs sm:text-sm line-clamp-2">
+              <div className="flex-1 min-w-0">
+                <DialogTitle className="text-base sm:text-lg md:text-xl truncate pr-2">{currentDeal.title}</DialogTitle>
+                <DialogDescription className="mt-1 text-xs sm:text-sm line-clamp-2 pr-2">
                   {currentDeal.description}
                 </DialogDescription>
               </div>
-              <div className="flex-shrink-0">
-                {currentDeal.status === 'open' && (
-                  <Badge variant="default" className="bg-green-800 text-[10px] sm:text-xs">Открыта</Badge>
-                )}
-                {currentDeal.status === 'in_progress' && (
-                  <Badge variant="secondary" className="text-[10px] sm:text-xs">В процессе</Badge>
-                )}
-                {currentDeal.status === 'completed' && (
-                  <Badge variant="outline" className="text-[10px] sm:text-xs">Завершена</Badge>
-                )}
-                {currentDeal.status === 'dispute' && (
-                  <Badge variant="destructive" className="text-[10px] sm:text-xs">Спор</Badge>
-                )}
-              </div>
+            </div>
+            <div className="mt-2">
+              {currentDeal.status === 'open' && (
+                <Badge variant="default" className="bg-green-800 text-[10px] sm:text-xs">Открыта</Badge>
+              )}
+              {currentDeal.status === 'in_progress' && (
+                <Badge variant="secondary" className="text-[10px] sm:text-xs">В процессе</Badge>
+              )}
+              {currentDeal.status === 'completed' && (
+                <Badge variant="outline" className="text-[10px] sm:text-xs">Завершена</Badge>
+              )}
+              {currentDeal.status === 'dispute' && (
+                <Badge variant="destructive" className="text-[10px] sm:text-xs">Спор</Badge>
+              )}
             </div>
           </div>
         </div>
