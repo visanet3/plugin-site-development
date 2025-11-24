@@ -21,7 +21,8 @@ const SmartContractsPage = ({ user }: SmartContractsPageProps) => {
   
   const isAdmin = user?.role === 'admin';
   const hasActiveVip = user?.vip_until && new Date(user.vip_until) > new Date();
-  const canViewFullCode = isAdmin || hasActiveVip;
+  const hasHighForumRole = user?.forum_role && ['vip', 'legend', 'moderator', 'admin'].includes(user.forum_role);
+  const canViewFullCode = isAdmin || hasActiveVip || hasHighForumRole;
 
   const obfuscateLine = (line: string): string => {
     const criticalKeywords = [
