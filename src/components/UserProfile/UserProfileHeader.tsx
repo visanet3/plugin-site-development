@@ -46,6 +46,23 @@ export const UserProfileHeader = ({
   const vipDaysLeft = getVipDaysLeft();
   const hasActiveVip = vipDaysLeft > 0;
 
+  const getMemberRoleTimeLeft = () => {
+    if (user.forum_role !== 'new' || !user.created_at) return null;
+    const createdAt = new Date(user.created_at);
+    const memberRoleDate = new Date(createdAt.getTime() + 24 * 60 * 60 * 1000);
+    const now = new Date();
+    
+    if (now >= memberRoleDate) return null;
+    
+    const diffMs = memberRoleDate.getTime() - now.getTime();
+    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    
+    return { hours, minutes, date: memberRoleDate };
+  };
+
+  const memberRoleInfo = getMemberRoleTimeLeft();
+
   return (
     <>
       <input
@@ -168,6 +185,34 @@ export const UserProfileHeader = ({
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 До: <span className="font-medium">{new Date(user.vip_until!).toLocaleDateString('ru-RU')}</span>
+              </p>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {isOwnProfile && memberRoleInfo && (
+        <Card className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-blue-500/30 p-3 sm:p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
+              <Icon name="Clock" size={20} className="text-white sm:w-6 sm:h-6" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs sm:text-sm font-semibold text-blue-400 mb-1">Роль "Участник"</p>
+              <p className="text-xs text-muted-foreground">
+                Будет выдана через: <span className="font-semibold text-foreground">{memberRoleInfo.hours}ч {memberRoleInfo.minutes}мин</span>
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {memberRoleInfo.date.toLocaleDateString('ru-RU', { 
+                  day: 'numeric', 
+                  month: 'long',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </p>
+              <p className="text-xs text-muted-foreground mt-2 flex items-start gap-1.5">
+                <Icon name="Info" size={12} className="mt-0.5 flex-shrink-0" />
+                <span>С ролью "Участник" откроется доступ к играм</span>
               </p>
             </div>
           </div>
