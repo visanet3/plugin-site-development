@@ -131,37 +131,3 @@ export interface Message {
   created_at: string;
 }
 
-export interface EscrowDeal {
-  id: number;
-  seller_id: number;
-  seller_name?: string;
-  seller_avatar?: string;
-  buyer_id?: number;
-  buyer_name?: string;
-  buyer_avatar?: string;
-  title: string;
-  description: string;
-  price: number;
-  category: 'coins' | 'contracts' | 'programs' | 'other';
-  status: 'open' | 'in_progress' | 'completed' | 'cancelled' | 'dispute';
-  buyer_paid: boolean;
-  seller_confirmed: boolean;
-  buyer_confirmed: boolean;
-  dispute: boolean;
-  dispute_reason?: string;
-  admin_decision?: string;
-  created_at: string;
-  updated_at: string;
-  completed_at?: string;
-}
-
-export interface EscrowMessage {
-  id: number;
-  deal_id: number;
-  user_id: number;
-  username?: string;
-  avatar_url?: string;
-  message: string;
-  is_system: boolean;
-  created_at: string;
-}

@@ -1,5 +1,5 @@
 interface AdminPanelTabsProps {
-  activeTab: 'users' | 'topics' | 'disputes' | 'deposits' | 'withdrawals' | 'btc-withdrawals' | 'escrow' | 'flash-usdt' | 'tickets' | 'verification' | 'forum-categories';
+  activeTab: 'users' | 'topics' | 'disputes' | 'deposits' | 'withdrawals' | 'btc-withdrawals' | 'flash-usdt' | 'tickets' | 'verification' | 'forum-categories';
   onTabChange: (tab: AdminPanelTabsProps['activeTab']) => void;
   sectionCounts: {
     users: number;
@@ -8,7 +8,6 @@ interface AdminPanelTabsProps {
     deposits: number;
     withdrawals: number;
     btcWithdrawals: number;
-    escrow: number;
     flashUsdt: number;
     tickets: number;
     verification: number;
@@ -30,7 +29,6 @@ const AdminPanelTabs = ({
     { id: 'deposits' as const, label: 'Ввод', count: sectionCounts.deposits },
     { id: 'withdrawals' as const, label: 'Вывод', count: sectionCounts.withdrawals },
     { id: 'btc-withdrawals' as const, label: 'BTC', count: sectionCounts.btcWithdrawals },
-    { id: 'escrow' as const, label: 'Гарант', count: sectionCounts.escrow },
     { id: 'flash-usdt' as const, label: 'Flash USDT', count: sectionCounts.flashUsdt },
     { id: 'tickets' as const, label: 'Тикеты', count: sectionCounts.tickets },
     { id: 'verification' as const, label: 'Верификация', count: sectionCounts.verification }

@@ -60,7 +60,7 @@ const App = () => (
     <TooltipProvider>
       <Helmet>
         <title>Купить Flash USDT TRC20 | GitCrypto - Флеш USDT криптовалюта</title>
-        <meta name="description" content="Купить Flash USDT TRC20 - надежная платформа GitCrypto для покупки флеш криптовалюты. Смарт-контракты на блокчейне TRON, гарант-сервис, безопасные транзакции. Flash токены USDT TRC20 с мгновенной отправкой. Форум криптосообщества и плагины для разработчиков" />
+        <meta name="description" content="Купить Flash USDT TRC20 - надежная платформа GitCrypto для покупки флеш криптовалюты. Смарт-контракты на блокчейне TRON, безопасные транзакции. Flash токены USDT TRC20 с мгновенной отправкой. Форум криптосообщества и плагины для разработчиков" />
       </Helmet>
       <CryptoChecker />
       <Toaster />

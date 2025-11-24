@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User, ForumTopic, EscrowDeal } from '@/types';
+import { User, ForumTopic } from '@/types';
 import AdminPanelHeader from '@/components/admin/AdminPanelHeader';
 import AdminPanelTabs from '@/components/admin/AdminPanelTabs';
 import AdminPanelContent from '@/components/admin/AdminPanelContent';
@@ -14,7 +14,7 @@ interface AdminPanelProps {
 
 const FORUM_URL = 'https://functions.poehali.dev/045d6571-633c-4239-ae69-8d76c933532c';
 const ADMIN_URL = 'https://functions.poehali.dev/d4678b1c-2acd-40bb-b8c5-cefe8d14fad4';
-const ESCROW_URL = 'https://functions.poehali.dev/82c75fbc-83e4-4448-9ff8-1c8ef9bbec09';
+
 const WITHDRAWAL_URL = 'https://functions.poehali.dev/09f16983-ec42-41fe-a7bd-695752ee11c5';
 const CRYPTO_URL = 'https://functions.poehali.dev/8caa3b76-72e5-42b5-9415-91d1f9b05210';
 const FLASH_USDT_URL = 'https://functions.poehali.dev/9d93686d-9a6f-47bc-85a8-7b7c28e4edd7';
@@ -24,12 +24,11 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
   const { toast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
   const [topics, setTopics] = useState<ForumTopic[]>([]);
-  const [disputes, setDisputes] = useState<EscrowDeal[]>([]);
-  const [escrowDeals, setEscrowDeals] = useState<EscrowDeal[]>([]);
+  const [disputes, setDisputes] = useState<any[]>([]);
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
   const [deposits, setDeposits] = useState<any[]>([]);
   const [btcWithdrawals, setBtcWithdrawals] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'users' | 'topics' | 'disputes' | 'deposits' | 'withdrawals' | 'btc-withdrawals' | 'escrow' | 'flash-usdt' | 'tickets' | 'verification' | 'forum-categories'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'topics' | 'disputes' | 'deposits' | 'withdrawals' | 'btc-withdrawals' | 'flash-usdt' | 'tickets' | 'verification' | 'forum-categories'>('users');
   const [flashUsdtOrders, setFlashUsdtOrders] = useState<any[]>([]);
   const [tickets, setTickets] = useState<any[]>([]);
   const [editingTopic, setEditingTopic] = useState<ForumTopic | null>(null);
@@ -56,7 +55,6 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
       deposits: 0,
       withdrawals: 0,
       btcWithdrawals: 0,
-      escrow: 0,
       flashUsdt: 0,
       tickets: 0,
       verification: 0
@@ -79,8 +77,6 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
       fetchWithdrawals();
     } else if (activeTab === 'deposits') {
       fetchDeposits();
-    } else if (activeTab === 'escrow') {
-      fetchAllEscrowDeals();
     } else if (activeTab === 'flash-usdt') {
       fetchFlashUsdtOrders();
     } else if (activeTab === 'tickets') {
@@ -151,26 +147,9 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
 
   const fetchDisputes = async () => {
     try {
-      const response = await fetch(`${ESCROW_URL}?action=list&status=dispute`);
-      const data = await response.json();
-      setDisputes(data.deals || []);
+      setDisputes([]);
     } catch (error) {
       console.error('Ошибка загрузки споров:', error);
-    }
-  };
-
-  const fetchAllEscrowDeals = async () => {
-    try {
-      const [openResponse, completedResponse] = await Promise.all([
-        fetch(`${ESCROW_URL}?action=list&status=open`),
-        fetch(`${ESCROW_URL}?action=list&status=completed`)
-      ]);
-      const openData = await openResponse.json();
-      const completedData = await completedResponse.json();
-      const allDeals = [...(openData.deals || []), ...(completedData.deals || [])];
-      setEscrowDeals(allDeals);
-    } catch (error) {
-      console.error('Ошибка загрузки сделок:', error);
     }
   };
 
@@ -249,27 +228,24 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
         disputesRes,
         withdrawalsRes,
         depositsRes,
-        escrowRes,
         flashUsdtRes,
         btcWithdrawalsRes
       ] = await Promise.all([
         fetch(`${ADMIN_URL}?action=users`, { headers: { 'X-User-Id': currentUser.id.toString() } }),
         fetch(FORUM_URL),
-        fetch(`${ESCROW_URL}?action=list&status=dispute`),
+        Promise.resolve({ json: async () => ({ deals: [] }) }),
         fetch(`${WITHDRAWAL_URL}?action=all_withdrawals&status=processing`, { headers: { 'X-User-Id': currentUser.id.toString() } }),
         fetch(`${CRYPTO_URL}?action=all_deposits&status=pending`, { headers: { 'X-User-Id': currentUser.id.toString() } }),
-        fetch(`${ESCROW_URL}?action=list&status=open`),
         fetch(`${FLASH_USDT_URL}?action=admin_orders`, { headers: { 'X-User-Id': currentUser.id.toString() } }),
         fetch(`${ADMIN_URL}?action=btc_withdrawals`, { headers: { 'X-User-Id': currentUser.id.toString() } })
       ]);
 
-      const [usersData, topicsData, disputesData, withdrawalsData, depositsData, escrowData, flashUsdtData, btcWithdrawalsData] = await Promise.all([
+      const [usersData, topicsData, disputesData, withdrawalsData, depositsData, flashUsdtData, btcWithdrawalsData] = await Promise.all([
         usersRes.json(),
         topicsRes.json(),
         disputesRes.json(),
         withdrawalsRes.json(),
         depositsRes.json(),
-        escrowRes.json(),
         flashUsdtRes.json(),
         btcWithdrawalsRes.json()
       ]);
@@ -299,7 +275,6 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
         deposits: (depositsData.deposits || []).filter((d: any) => d.status === 'pending').length,
         withdrawals: (withdrawalsData.withdrawals || []).filter((w: any) => w.status === 'processing').length,
         btcWithdrawals: (btcWithdrawalsData.withdrawals || []).filter((w: any) => w.status === 'pending').length,
-        escrow: (escrowData.deals || []).filter((d: any) => d.status === 'open' && !d.buyer_id).length,
         flashUsdt: (flashUsdtData.orders || []).filter((o: any) => o.status === 'pending').length,
         tickets: openTicketsCount,
         verification: notificationCounts.verification_request
@@ -313,7 +288,6 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
         deposits: 'Новое пополнение',
         withdrawals: 'Новая заявка на вывод USDT',
         btcWithdrawals: 'Новая заявка на вывод BTC',
-        escrow: 'Новая гарант-сделка',
         flashUsdt: 'Новый заказ Flash USDT',
         tickets: 'Новый тикет',
         verification: 'Новая заявка на верификацию'
@@ -786,7 +760,6 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
           withdrawals={withdrawals}
           deposits={deposits}
           btcWithdrawals={btcWithdrawals}
-          escrowDeals={escrowDeals}
           flashUsdtOrders={flashUsdtOrders}
           tickets={tickets}
           currentUser={currentUser}
@@ -800,7 +773,6 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
           onRefreshWithdrawals={fetchWithdrawals}
           onRefreshDeposits={fetchDeposits}
           onRefreshBtcWithdrawals={fetchBtcWithdrawals}
-          onRefreshEscrow={fetchAllEscrowDeals}
           onRefreshFlashUsdt={fetchFlashUsdtOrders}
           onRefreshTickets={fetchTickets}
           onRefreshTopics={fetchTopics}

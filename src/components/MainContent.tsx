@@ -2,7 +2,6 @@ import { Plugin, Category, ForumTopic, ForumComment, User } from '@/types';
 import { PluginsView } from './MainContent/PluginsView';
 import { ForumTopicsList } from './MainContent/ForumTopicsList';
 import { ForumTopicDetail } from './MainContent/ForumTopicDetail';
-import { EscrowView } from './EscrowView';
 import CasinoHub from './CasinoHub';
 import FlashUsdtShop from './FlashUsdtShop';
 import FAQPage from './FAQPage';
@@ -77,12 +76,6 @@ const MainContent = ({
           user ? <ReferralProgramPage user={user} /> : <div className="text-center py-12"><p className="text-muted-foreground">Требуется авторизация</p></div>
         ) : activeCategory === 'smart-contracts' ? (
           <SmartContractsPage user={user} />
-        ) : activeCategory === 'popular' ? (
-          <EscrowView 
-            user={user} 
-            onShowAuthDialog={onShowAuthDialog} 
-            onRefreshUserBalance={onRefreshUserBalance}
-          />
         ) : activeCategory === 'new' ? (
           <CasinoHub
             user={user}

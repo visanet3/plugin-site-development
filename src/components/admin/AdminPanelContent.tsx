@@ -4,7 +4,6 @@ import AdminTopicsTab from '@/components/admin/AdminTopicsTab';
 import AdminDisputesTab from '@/components/admin/AdminDisputesTab';
 import AdminWithdrawalsTab from '@/components/admin/AdminWithdrawalsTab';
 import AdminDepositsTab from '@/components/admin/AdminDepositsTab';
-import AdminEscrowTab from '@/components/admin/AdminEscrowTab';
 import AdminTicketsTab from '@/components/admin/AdminTicketsTab';
 import AdminVerificationTab from '@/components/admin/AdminVerificationTab';
 import AdminBtcWithdrawalsTab from '@/components/admin/AdminBtcWithdrawalsTab';
@@ -13,14 +12,13 @@ import AdminForumModeration from '@/components/admin/AdminForumModeration';
 import AdminFlashUsdtTab from '@/components/admin/AdminFlashUsdtTab';
 
 interface AdminPanelContentProps {
-  activeTab: 'users' | 'topics' | 'disputes' | 'deposits' | 'withdrawals' | 'btc-withdrawals' | 'escrow' | 'flash-usdt' | 'tickets' | 'verification' | 'forum-categories';
+  activeTab: 'users' | 'topics' | 'disputes' | 'deposits' | 'withdrawals' | 'btc-withdrawals' | 'flash-usdt' | 'tickets' | 'verification' | 'forum-categories';
   users: User[];
   topics: ForumTopic[];
   disputes: EscrowDeal[];
   withdrawals: any[];
   deposits: any[];
   btcWithdrawals: any[];
-  escrowDeals: EscrowDeal[];
   flashUsdtOrders: any[];
   tickets: any[];
   currentUser: User;
@@ -34,7 +32,6 @@ interface AdminPanelContentProps {
   onRefreshWithdrawals: () => void;
   onRefreshDeposits: () => void;
   onRefreshBtcWithdrawals: () => void;
-  onRefreshEscrow: () => void;
   onRefreshFlashUsdt: () => void;
   onRefreshTickets: () => void;
   onRefreshTopics: () => void;
@@ -49,7 +46,6 @@ const AdminPanelContent = ({
   withdrawals,
   deposits,
   btcWithdrawals,
-  escrowDeals,
   flashUsdtOrders,
   tickets,
   currentUser,
@@ -63,7 +59,6 @@ const AdminPanelContent = ({
   onRefreshWithdrawals,
   onRefreshDeposits,
   onRefreshBtcWithdrawals,
-  onRefreshEscrow,
   onRefreshFlashUsdt,
   onRefreshTickets,
   onRefreshTopics,
@@ -118,14 +113,6 @@ const AdminPanelContent = ({
           withdrawals={btcWithdrawals}
           currentUser={currentUser}
           onRefresh={onRefreshBtcWithdrawals}
-        />
-      )}
-
-      {activeTab === 'escrow' && (
-        <AdminEscrowTab 
-          deals={escrowDeals}
-          currentUser={currentUser}
-          onRefresh={onRefreshEscrow}
         />
       )}
 
