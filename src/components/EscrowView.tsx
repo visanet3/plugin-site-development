@@ -196,7 +196,7 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
     const url = new URL(window.location.href);
     url.searchParams.delete('deal');
     window.history.replaceState({}, '', url.toString());
-    fetchDeals();
+    // НЕ обновляем список при закрытии - обновление только при реальных изменениях статуса
   };
 
   const createDeal = async () => {
