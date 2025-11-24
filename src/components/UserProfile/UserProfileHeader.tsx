@@ -3,7 +3,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
-import UserRankBadge from '@/components/UserRankBadge';
+import ForumRoleBadge from '@/components/ForumRoleBadge';
 import { getAvatarGradient } from '@/utils/avatarColors';
 
 interface UserProfileHeaderProps {
@@ -81,9 +81,6 @@ export const UserProfileHeader = ({
               {user.username[0].toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2">
-            <UserRankBadge forumRole={user.forum_role} size="sm" />
-          </div>
           {isOwnProfile && (
             <div className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               {avatarUploading ? (
@@ -112,6 +109,10 @@ export const UserProfileHeader = ({
                 <Icon name="Shield" size={14} />
                 Администратор
               </span>
+            )}
+            
+            {user.forum_role && (
+              <ForumRoleBadge role={user.forum_role} />
             )}
             
             {hasActiveVip && (
