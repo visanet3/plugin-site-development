@@ -715,7 +715,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'isBase64Encoded': False
                     }
                 
-                cur.execute(f"SELECT COUNT(*) as count FROM {SCHEMA}.forum_topics WHERE category_id = %s", (category_id,))
+                cur.execute(f"SELECT COUNT(*) as count FROM {SCHEMA}.forum_topics WHERE category_id = %s AND removed_at IS NULL", (category_id,))
                 topics_count = cur.fetchone()['count']
                 
                 if topics_count > 0:
