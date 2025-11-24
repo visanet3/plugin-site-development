@@ -58,7 +58,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         u.forum_role as author_forum_role, u.last_seen_at as author_last_seen,
                         u.is_verified as author_is_verified,
                         p.id as plugin_id, p.title as plugin_title,
-                        fc.name as category_name, fc.slug as category_slug, fc.color as category_color
+                        fc.name as category_name, fc.slug as category_slug, fc.color as category_color, fc.icon as category_icon
                     FROM forum_topics ft
                     LEFT JOIN users u ON ft.author_id = u.id
                     LEFT JOIN plugins p ON ft.plugin_id = p.id
@@ -109,7 +109,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         u.id as author_id, u.username as author_name, u.avatar_url as author_avatar, 
                         u.forum_role as author_forum_role, u.last_seen_at as author_last_seen,
                         u.is_verified as author_is_verified,
-                        fcat.name as category_name, fcat.slug as category_slug, fcat.color as category_color,
+                        fcat.name as category_name, fcat.slug as category_slug, fcat.color as category_color, fcat.icon as category_icon,
                         COUNT(fcom.id) as comments_count
                     FROM forum_topics ft
                     LEFT JOIN users u ON ft.author_id = u.id
@@ -127,7 +127,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     query += " AND fcat.slug = %s"
                     query_params.append(category_slug)
                 
-                query += " GROUP BY ft.id, ft.updated_at, u.id, u.username, u.avatar_url, u.forum_role, u.last_seen_at, fcat.id, fcat.name, fcat.slug, fcat.color ORDER BY ft.is_pinned DESC, ft.created_at DESC LIMIT 50"
+                query += " GROUP BY ft.id, ft.updated_at, u.id, u.username, u.avatar_url, u.forum_role, u.last_seen_at, fcat.id, fcat.name, fcat.slug, fcat.color, fcat.icon ORDER BY ft.is_pinned DESC, ft.created_at DESC LIMIT 50"
                 
                 cur.execute(query, query_params)
                 topics = cur.fetchall()

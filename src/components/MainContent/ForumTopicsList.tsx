@@ -6,8 +6,8 @@ import Icon from '@/components/ui/icon';
 import UserRankBadge from '@/components/UserRankBadge';
 import ForumRoleBadge from '@/components/ForumRoleBadge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ForumTopic, User } from '@/types';
-import { useState } from 'react';
+import { ForumTopic, ForumCategory, User } from '@/types';
+import { useState, useEffect } from 'react';
 import { getAvatarGradient } from '@/utils/avatarColors';
 
 interface ForumTopicsListProps {
@@ -55,6 +55,8 @@ const getFullDateTime = (dateString: string) => {
   });
 };
 
+const FORUM_URL = 'https://functions.poehali.dev/045d6571-633c-4239-ae69-8d76c933532c';
+
 export const ForumTopicsList = ({
   forumTopics,
   user,
@@ -64,6 +66,34 @@ export const ForumTopicsList = ({
 }: ForumTopicsListProps) => {
   const [forumSortBy, setForumSortBy] = useState<'newest' | 'hot' | 'views'>('newest');
   const [searchQuery, setSearchQuery] = useState('');
+  const [categories, setCategories] = useState<ForumCategory[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(FORUM_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user?.id.toString() || ''
+        },
+        body: JSON.stringify({
+          action: 'get_categories'
+        })
+      });
+
+      const data = await response.json();
+      if (data.success && data.categories) {
+        setCategories(data.categories);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки категорий:', error);
+    }
+  };
 
   const sortForumTopics = (topics: ForumTopic[]) => {
     const sorted = [...topics];
@@ -98,12 +128,22 @@ export const ForumTopicsList = ({
     );
   };
 
+  const filterTopicsByCategory = (topics: ForumTopic[]) => {
+    if (!selectedCategory) return topics;
+    return topics.filter(topic => topic.category_slug === selectedCategory);
+  };
+
+  const filteredTopics = sortForumTopics(filterTopicsByCategory(filterTopicsBySearch(forumTopics)));
+
   return (
     <>
       <div className="mb-3 sm:mb-4 md:mb-6 animate-slide-up">
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 sm:mb-2">Форум</h1>
         <p className="text-xs sm:text-sm md:text-base text-muted-foreground">
-          {forumTopics.length} {forumTopics.length === 1 ? 'тема' : 'тем'}
+          {selectedCategory || searchQuery 
+            ? `${filteredTopics.length} из ${forumTopics.length} ${forumTopics.length === 1 ? 'темы' : 'тем'}` 
+            : `${forumTopics.length} ${forumTopics.length === 1 ? 'тема' : 'тем'}`
+          }
         </p>
       </div>
 
@@ -146,8 +186,38 @@ export const ForumTopicsList = ({
         )}
       </div>
 
+      {categories.length > 0 && (
+        <div className="mb-4 flex flex-wrap gap-2">
+          <Button
+            variant={selectedCategory === null ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setSelectedCategory(null)}
+            className="h-8 text-xs"
+          >
+            Все категории
+          </Button>
+          {categories.map((category) => (
+            <Button
+              key={category.id}
+              variant={selectedCategory === category.slug ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedCategory(category.slug)}
+              className="h-8 text-xs gap-1.5"
+              style={{
+                backgroundColor: selectedCategory === category.slug ? category.color : undefined,
+                borderColor: category.color,
+                color: selectedCategory === category.slug ? 'white' : category.color
+              }}
+            >
+              <Icon name={category.icon as any} size={14} />
+              {category.name}
+            </Button>
+          ))}
+        </div>
+      )}
+
       <div className="space-y-2">
-        {sortForumTopics(filterTopicsBySearch(forumTopics)).map((topic, index) => (
+        {filteredTopics.map((topic, index) => (
           <div
             key={topic.id}
             className="bg-card border border-border rounded-lg p-2.5 sm:p-3 md:p-4 hover:border-primary/50 transition-all duration-300 cursor-pointer group animate-slide-up hover:shadow-lg active:scale-[0.99] tap-highlight"
@@ -176,11 +246,25 @@ export const ForumTopicsList = ({
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
                     {topic.is_pinned && (
                       <Badge variant="default" className="bg-primary">
                         <Icon name="Pin" size={12} className="mr-1" />
                         Закреплено
+                      </Badge>
+                    )}
+                    {topic.category_name && topic.category_color && topic.category_icon && (
+                      <Badge 
+                        variant="outline" 
+                        className="text-xs gap-1"
+                        style={{
+                          borderColor: topic.category_color,
+                          color: topic.category_color,
+                          backgroundColor: `${topic.category_color}10`
+                        }}
+                      >
+                        <Icon name={topic.category_icon as any} size={12} />
+                        {topic.category_name}
                       </Badge>
                     )}
                   </div>

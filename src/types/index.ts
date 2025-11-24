@@ -70,6 +70,7 @@ export interface ForumTopic {
   category_name?: string;
   category_slug?: string;
   category_color?: string;
+  category_icon?: string;
 }
 
 export interface ForumComment {

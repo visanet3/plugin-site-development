@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import UserRankBadge from '@/components/UserRankBadge';
 import ForumRoleBadge from '@/components/ForumRoleBadge';
@@ -195,6 +196,22 @@ export const ForumTopicDetail = ({
               )}
             </div>
             <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
+                {selectedTopic.category_name && selectedTopic.category_color && selectedTopic.category_icon && (
+                  <Badge 
+                    variant="outline" 
+                    className="text-xs gap-1.5"
+                    style={{
+                      borderColor: selectedTopic.category_color,
+                      color: selectedTopic.category_color,
+                      backgroundColor: `${selectedTopic.category_color}10`
+                    }}
+                  >
+                    <Icon name={selectedTopic.category_icon as any} size={14} />
+                    {selectedTopic.category_name}
+                  </Badge>
+                )}
+              </div>
               <h1 className="text-2xl font-bold mb-2">{selectedTopic.title}</h1>
               <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
                 <span className="flex items-center gap-2">
