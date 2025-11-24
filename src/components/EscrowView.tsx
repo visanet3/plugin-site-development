@@ -181,6 +181,33 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
     return colors[status] || colors.open;
   };
 
+  const getStageComment = (status: string, isSeller: boolean) => {
+    const comments: Record<string, { seller: string; buyer: string }> = {
+      open: {
+        seller: '💰 Сделка открыта. Ожидается покупатель, который примет ваше предложение.',
+        buyer: '🔍 Вы можете принять эту сделку. После принятия ваши средства будут заблокированы для безопасности.'
+      },
+      in_progress: {
+        seller: '🔄 Покупатель внес средства в гарант. Отправьте криптовалюту покупателю. После получения он подтвердит сделку.',
+        buyer: '✅ Ваши средства заблокированы в гаранте. Ожидайте получение криптовалюты от продавца. После получения подтвердите сделку.'
+      },
+      completed: {
+        seller: '✅ Сделка завершена успешно! Средства переведены на ваш баланс.',
+        buyer: '✅ Сделка завершена успешно! Продавец получил оплату, вы получили криптовалюту.'
+      },
+      dispute: {
+        seller: '⚠️ Открыт спор по сделке. Администрация рассмотрит ситуацию и примет решение.',
+        buyer: '⚠️ Открыт спор по сделке. Администрация рассмотрит ситуацию и примет решение.'
+      },
+      cancelled: {
+        seller: '❌ Сделка отменена.',
+        buyer: '❌ Сделка отменена. Ваши средства возвращены на баланс.'
+      }
+    };
+    const comment = comments[status] || comments.open;
+    return isSeller ? comment.seller : comment.buyer;
+  };
+
   return (
     <div className="space-y-3 sm:space-y-4 md:space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -852,16 +879,52 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance 
   const isBuyer = user?.id === currentDeal.buyer_id;
   const isAdmin = user?.role === 'admin';
 
+  const getStageComment = (status: string, isSeller: boolean) => {
+    const comments: Record<string, { seller: string; buyer: string }> = {
+      open: {
+        seller: '💰 Сделка открыта. Ожидается покупатель, который примет ваше предложение.',
+        buyer: '🔍 Вы можете принять эту сделку. После принятия ваши средства будут заблокированы для безопасности.'
+      },
+      in_progress: {
+        seller: '🔄 Покупатель внес средства в гарант. Отправьте криптовалюту покупателю. После получения он подтвердит сделку.',
+        buyer: '✅ Ваши средства заблокированы в гаранте. Ожидайте получение криптовалюты от продавца. После получения подтвердите сделку.'
+      },
+      completed: {
+        seller: '✅ Сделка завершена успешно! Средства переведены на ваш баланс.',
+        buyer: '✅ Сделка завершена успешно! Продавец получил оплату, вы получили криптовалюту.'
+      },
+      dispute: {
+        seller: '⚠️ Открыт спор по сделке. Администрация рассмотрит ситуацию и примет решение.',
+        buyer: '⚠️ Открыт спор по сделке. Администрация рассмотрит ситуацию и примет решение.'
+      },
+      cancelled: {
+        seller: '❌ Сделка отменена.',
+        buyer: '❌ Сделка отменена. Ваши средства возвращены на баланс.'
+      }
+    };
+    const comment = comments[status] || comments.open;
+    return isSeller ? comment.seller : comment.buyer;
+  };
+
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
       <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0 gap-0">
+        {/* Кнопка закрытия */}
+        <button
+          onClick={handleClose}
+          className="absolute right-4 top-4 w-8 h-8 rounded-full bg-background/80 hover:bg-destructive/20 flex items-center justify-center transition-colors z-50 border border-border shadow-lg backdrop-blur-sm"
+          aria-label="Закрыть"
+        >
+          <Icon name="X" size={18} className="text-foreground hover:text-destructive transition-colors" />
+        </button>
+
         {/* Красивый градиентный заголовок */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-green-800/20 via-green-900/10 to-background border-b border-green-800/30 p-4 sm:p-5">
+        <div className="relative overflow-hidden bg-gradient-to-br from-green-800/20 via-green-900/10 to-background border-b border-green-800/30 p-4 sm:p-5 pr-12">
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-500/10 to-transparent rounded-full blur-3xl"></div>
           <div className="relative z-10">
             <div className="flex items-start justify-between gap-2 sm:gap-3 mb-2">
-              <div className="flex-1 min-w-0">
-                <DialogTitle className="text-base sm:text-lg md:text-xl truncate pr-2">{currentDeal.title}</DialogTitle>
+              <div className="flex-1 min-w-0 pr-8">
+                <DialogTitle className="text-base sm:text-lg md:text-xl truncate">{currentDeal.title}</DialogTitle>
                 <DialogDescription className="mt-1 text-xs sm:text-sm line-clamp-2">
                   {currentDeal.description}
                 </DialogDescription>
@@ -876,12 +939,53 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance 
                 {currentDeal.status === 'completed' && (
                   <Badge variant="outline" className="text-[10px] sm:text-xs">Завершена</Badge>
                 )}
+                {currentDeal.status === 'dispute' && (
+                  <Badge variant="destructive" className="text-[10px] sm:text-xs">Спор</Badge>
+                )}
               </div>
             </div>
           </div>
         </div>
 
         <div className="p-3 sm:p-4 md:p-5 space-y-3 sm:space-y-4">
+          {/* Системная информация о текущем этапе */}
+          {user && (isSeller || isBuyer) && (
+            <Card className={`p-3 sm:p-4 border-2 ${
+              currentDeal.status === 'dispute' ? 'bg-orange-800/10 border-orange-500/30' :
+              currentDeal.status === 'in_progress' ? 'bg-blue-800/10 border-blue-500/30' :
+              currentDeal.status === 'completed' ? 'bg-green-800/10 border-green-500/30' :
+              currentDeal.status === 'cancelled' ? 'bg-red-800/10 border-red-500/30' :
+              'bg-yellow-800/10 border-yellow-500/30'
+            }`}>
+              <div className="flex items-start gap-2 sm:gap-3">
+                <Icon 
+                  name={
+                    currentDeal.status === 'dispute' ? 'AlertTriangle' :
+                    currentDeal.status === 'completed' ? 'CheckCircle2' :
+                    currentDeal.status === 'cancelled' ? 'XCircle' :
+                    'Info'
+                  } 
+                  size={20} 
+                  className={`flex-shrink-0 mt-0.5 ${
+                    currentDeal.status === 'dispute' ? 'text-orange-400' :
+                    currentDeal.status === 'in_progress' ? 'text-blue-400' :
+                    currentDeal.status === 'completed' ? 'text-green-400' :
+                    currentDeal.status === 'cancelled' ? 'text-red-400' :
+                    'text-yellow-400'
+                  }`} 
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-semibold mb-1">
+                    {isSeller ? 'Ваша роль: Продавец' : 'Ваша роль: Покупатель'}
+                  </p>
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                    {getStageComment(currentDeal.status, isSeller)}
+                  </p>
+                </div>
+              </div>
+            </Card>
+          )}
+
           {currentDeal.status === 'completed' && (
             <Card className="p-3 sm:p-4 bg-gradient-to-r from-green-800/20 to-green-900/10 border-green-800/30">
               <div className="flex items-center gap-2 sm:gap-3">
@@ -1027,26 +1131,42 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance 
             )}
 
             {currentDeal.status === 'in_progress' && isBuyer && currentDeal.seller_confirmed && (
-              <Button
-                onClick={buyerConfirm}
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 h-9 sm:h-10 text-xs sm:text-sm"
-              >
-                <Icon name="Check" size={16} className="mr-1.5 sm:mr-2 sm:w-[18px] sm:h-[18px]" />
-                Подтвердить получение монет
-              </Button>
+              <Card className="p-3 sm:p-4 bg-green-800/10 border border-green-500/30 space-y-3">
+                <div className="flex items-start gap-2">
+                  <Icon name="AlertCircle" size={18} className="text-green-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                    <strong className="text-green-400">⚠️ Внимание!</strong> Нажимайте эту кнопку только если вы реально получили криптовалюту от продавца. После подтверждения средства будут переведены продавцу и отменить операцию будет невозможно.
+                  </p>
+                </div>
+                <Button
+                  onClick={buyerConfirm}
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 h-9 sm:h-10 text-xs sm:text-sm"
+                >
+                  <Icon name="Check" size={16} className="mr-1.5 sm:mr-2 sm:w-[18px] sm:h-[18px]" />
+                  {loading ? 'Обработка...' : 'Подтвердить получение криптовалюты'}
+                </Button>
+              </Card>
             )}
 
             {currentDeal.status === 'in_progress' && (isSeller || isBuyer) && currentDeal.status !== 'dispute' && (
-              <Button
-                onClick={openDispute}
-                disabled={loading}
-                variant="destructive"
-                className="w-full h-9 sm:h-10 text-xs sm:text-sm"
-              >
-                <Icon name="AlertTriangle" size={16} className="mr-1.5 sm:mr-2 sm:w-[18px] sm:h-[18px]" />
-                Открыть спор
-              </Button>
+              <Card className="p-3 sm:p-4 bg-orange-800/10 border border-orange-500/30 space-y-3">
+                <div className="flex items-start gap-2">
+                  <Icon name="AlertTriangle" size={18} className="text-orange-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                    ⚠️ Открывайте спор, если {isSeller ? 'покупатель не оплачивает или' : 'продавец не отправляет криптовалюту или'} возникли другие проблемы. Администрация рассмотрит вашу заявку и все сообщения в чате.
+                  </p>
+                </div>
+                <Button
+                  onClick={openDispute}
+                  disabled={loading}
+                  variant="destructive"
+                  className="w-full h-9 sm:h-10 text-xs sm:text-sm"
+                >
+                  <Icon name="AlertTriangle" size={16} className="mr-1.5 sm:mr-2 sm:w-[18px] sm:h-[18px]" />
+                  {loading ? 'Обработка...' : 'Открыть спор'}
+                </Button>
+              </Card>
             )}
 
             {currentDeal.status === 'dispute' && (

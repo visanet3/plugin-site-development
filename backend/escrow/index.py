@@ -419,7 +419,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             elif action == 'buyer_confirm':
                 deal_id = body.get('deal_id')
                 
-                cursor.execute('SELECT seller_id, buyer_id, price, title FROM escrow_deals WHERE id = %s AND buyer_id = %s', (deal_id, user_id))
+                cursor.execute('SELECT seller_id, buyer_id, price, title, seller_confirmed FROM escrow_deals WHERE id = %s AND buyer_id = %s', (deal_id, user_id))
                 deal = cursor.fetchone()
                 
                 if not deal:
@@ -428,6 +428,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'statusCode': 400,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                         'body': json.dumps({'error': 'Deal not found'}),
+                        'isBase64Encoded': False
+                    }
+                
+                # Проверка что продавец подтвердил передачу товара
+                if not deal.get('seller_confirmed'):
+                    cursor.close()
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Seller must confirm delivery first'}),
                         'isBase64Encoded': False
                     }
                 
