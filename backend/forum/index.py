@@ -107,6 +107,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cur.execute("""
                     SELECT id, name, slug, description, icon, color, display_order, created_at, parent_id
                     FROM forum_categories
+                    WHERE removed_at IS NULL
                     ORDER BY display_order ASC, name ASC
                 """)
                 all_categories = cur.fetchall()
@@ -320,6 +321,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cur.execute("""
                     SELECT id, name, slug, description, icon, color, display_order, created_at, parent_id
                     FROM forum_categories
+                    WHERE removed_at IS NULL
                     ORDER BY display_order ASC, name ASC
                 """)
                 all_categories = cur.fetchall()
