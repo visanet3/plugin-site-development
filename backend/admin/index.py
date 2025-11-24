@@ -328,13 +328,52 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'isBase64Encoded': False
                     }
                 
-                # Instead of deleting, permanently block the user
+                # Step 1: Block user permanently (for instant logout)
                 cur.execute(
                     f"UPDATE {SCHEMA}.users SET is_blocked = TRUE, blocked_at = CURRENT_TIMESTAMP, blocked_by = %s, block_reason = %s WHERE id = %s",
                     (user_id, 'Пользователь удалён навсегда', target_user_id)
                 )
+                conn.commit()
                 
-                log_admin_action(user_id, 'delete_user', 'user', target_user_id, f"Permanently blocked user: {target_user['username']}", cur)
+                # Step 2: Delete all user data in correct order (reverse foreign key dependencies)
+                cur.execute(f"DELETE FROM {SCHEMA}.verification_requests WHERE user_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.withdrawal_notifications WHERE user_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.lottery_notifications WHERE user_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.admin_notifications WHERE user_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.escrow_dispute_notifications WHERE user_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.notifications WHERE user_id = %s", (target_user_id,))
+                
+                cur.execute(f"DELETE FROM {SCHEMA}.messages WHERE from_user_id = %s OR to_user_id = %s", (target_user_id, target_user_id))
+                cur.execute(f"DELETE FROM {SCHEMA}.password_reset_tokens WHERE user_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.security_logs WHERE user_id = %s", (target_user_id,))
+                
+                cur.execute(f"DELETE FROM {SCHEMA}.forum_comments WHERE author_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.forum_topics WHERE author_id = %s", (target_user_id,))
+                
+                cur.execute(f"DELETE FROM {SCHEMA}.escrow_messages WHERE user_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.escrow_deals WHERE seller_id = %s OR buyer_id = %s", (target_user_id, target_user_id))
+                
+                cur.execute(f"DELETE FROM {SCHEMA}.lottery_chat WHERE user_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.lottery_tickets WHERE user_id = %s", (target_user_id,))
+                
+                cur.execute(f"DELETE FROM {SCHEMA}.active_game_sessions WHERE user_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.casino_wins WHERE user_id = %s", (target_user_id,))
+                
+                cur.execute(f"DELETE FROM {SCHEMA}.flash_usdt_orders WHERE user_id = %s", (target_user_id,))
+                
+                cur.execute(f"DELETE FROM {SCHEMA}.crypto_payments WHERE user_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.withdrawal_requests WHERE user_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.withdrawals WHERE user_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.transactions WHERE user_id = %s", (target_user_id,))
+                
+                cur.execute(f"DELETE FROM {SCHEMA}.referral_rewards WHERE user_id = %s OR referrer_id = %s", (target_user_id, target_user_id))
+                cur.execute(f"DELETE FROM {SCHEMA}.referrals WHERE referrer_id = %s OR referred_id = %s", (target_user_id, target_user_id))
+                cur.execute(f"DELETE FROM {SCHEMA}.referral_codes WHERE user_id = %s", (target_user_id,))
+                
+                # Step 3: Finally delete the user
+                cur.execute(f"DELETE FROM {SCHEMA}.users WHERE id = %s", (target_user_id,))
+                
+                log_admin_action(user_id, 'delete_user', 'user', target_user_id, f"Completely deleted user: {target_user['username']}", cur)
                 conn.commit()
                 
                 return {
