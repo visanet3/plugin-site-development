@@ -68,6 +68,7 @@ export const ForumTopicsList = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [categories, setCategories] = useState<ForumCategory[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedParentCategory, setSelectedParentCategory] = useState<number | null>(null);
 
   useEffect(() => {
     fetchCategories();
@@ -125,8 +126,20 @@ export const ForumTopicsList = ({
   };
 
   const filterTopicsByCategory = (topics: ForumTopic[]) => {
-    if (!selectedCategory) return topics;
-    return topics.filter(topic => topic.category_slug === selectedCategory);
+    if (selectedParentCategory !== null) {
+      const parentCategory = categories.find(cat => cat.id === selectedParentCategory);
+      if (parentCategory) {
+        const allCategorySlugs = [
+          parentCategory.slug,
+          ...(parentCategory.subcategories || []).map(sub => sub.slug)
+        ];
+        return topics.filter(topic => allCategorySlugs.includes(topic.category_slug || ''));
+      }
+    }
+    if (selectedCategory) {
+      return topics.filter(topic => topic.category_slug === selectedCategory);
+    }
+    return topics;
   };
 
   const filteredTopics = sortForumTopics(filterTopicsByCategory(filterTopicsBySearch(forumTopics)));
@@ -183,59 +196,41 @@ export const ForumTopicsList = ({
       </div>
 
       {categories.length > 0 && (
-        <div className="mb-4 space-y-3">
-          <button
-            onClick={() => setSelectedCategory(null)}
-            className={`h-8 px-3 rounded-md text-xs font-medium transition-all ${
-              selectedCategory === null
-                ? 'bg-zinc-700 text-zinc-100 border border-zinc-600'
-                : 'bg-zinc-900/40 text-zinc-400 border border-zinc-800/60 hover:bg-zinc-900/60 hover:border-zinc-700'
-            }`}
-          >
-            Все категории
-          </button>
-          
-          {categories.map((parentCategory) => (
-            <div key={parentCategory.id} className="space-y-2">
-              <div className="flex items-center gap-2 text-xs font-medium text-zinc-500">
-                <Icon name={parentCategory.icon as any} size={14} style={{ color: parentCategory.color }} />
-                <span>{parentCategory.name}</span>
-              </div>
-              
-              <div className="flex flex-wrap gap-2 pl-5">
-                {parentCategory.subcategories && parentCategory.subcategories.length > 0 ? (
-                  parentCategory.subcategories.map((subcategory) => (
-                    <button
-                      key={subcategory.id}
-                      onClick={() => setSelectedCategory(subcategory.slug)}
-                      className="h-8 px-3 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 border hover:brightness-110"
-                      style={{
-                        backgroundColor: selectedCategory === subcategory.slug ? `${subcategory.color}25` : `${subcategory.color}12`,
-                        borderColor: selectedCategory === subcategory.slug ? `${subcategory.color}50` : `${subcategory.color}30`,
-                        color: selectedCategory === subcategory.slug ? subcategory.color : `${subcategory.color}cc`
-                      }}
-                    >
-                      <Icon name={subcategory.icon as any} size={14} />
-                      {subcategory.name}
-                    </button>
-                  ))
-                ) : (
-                  <button
-                    onClick={() => setSelectedCategory(parentCategory.slug)}
-                    className="h-8 px-3 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 border hover:brightness-110"
-                    style={{
-                      backgroundColor: selectedCategory === parentCategory.slug ? `${parentCategory.color}25` : `${parentCategory.color}12`,
-                      borderColor: selectedCategory === parentCategory.slug ? `${parentCategory.color}50` : `${parentCategory.color}30`,
-                      color: selectedCategory === parentCategory.slug ? parentCategory.color : `${parentCategory.color}cc`
-                    }}
-                  >
-                    <Icon name={parentCategory.icon as any} size={14} />
-                    {parentCategory.name}
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
+        <div className="mb-4">
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => {
+                setSelectedCategory(null);
+                setSelectedParentCategory(null);
+              }}
+              className={`h-9 px-4 rounded-md text-sm font-medium transition-all border ${
+                selectedCategory === null && selectedParentCategory === null
+                  ? 'bg-zinc-700 text-zinc-100 border-zinc-600'
+                  : 'bg-zinc-900/40 text-zinc-400 border-zinc-800/60 hover:bg-zinc-900/60 hover:border-zinc-700'
+              }`}
+            >
+              Все категории
+            </button>
+            
+            {categories.map((parentCategory) => (
+              <button
+                key={parentCategory.id}
+                onClick={() => {
+                  setSelectedCategory(null);
+                  setSelectedParentCategory(parentCategory.id);
+                }}
+                className="h-9 px-4 rounded-md text-sm font-medium transition-all flex items-center gap-2 border hover:brightness-110"
+                style={{
+                  backgroundColor: selectedParentCategory === parentCategory.id ? `${parentCategory.color}25` : `${parentCategory.color}12`,
+                  borderColor: selectedParentCategory === parentCategory.id ? `${parentCategory.color}50` : `${parentCategory.color}30`,
+                  color: selectedParentCategory === parentCategory.id ? parentCategory.color : `${parentCategory.color}cc`
+                }}
+              >
+                <Icon name={parentCategory.icon as any} size={16} />
+                {parentCategory.name}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
