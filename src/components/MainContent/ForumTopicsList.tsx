@@ -184,30 +184,34 @@ export const ForumTopicsList = ({
 
       {categories.length > 0 && (
         <div className="mb-4 flex flex-wrap gap-2">
-          <Button
-            variant={selectedCategory === null ? 'default' : 'outline'}
-            size="sm"
+          <button
             onClick={() => setSelectedCategory(null)}
-            className="h-8 text-xs"
+            className={`h-8 px-3 rounded-md text-xs font-medium transition-all ${
+              selectedCategory === null
+                ? 'bg-zinc-700 text-zinc-100 border border-zinc-600'
+                : 'bg-zinc-900/40 text-zinc-400 border border-zinc-800/60 hover:bg-zinc-900/60 hover:border-zinc-700'
+            }`}
           >
             Все категории
-          </Button>
+          </button>
           {categories.map((category) => (
-            <Button
+            <button
               key={category.id}
-              variant={selectedCategory === category.slug ? 'default' : 'outline'}
-              size="sm"
               onClick={() => setSelectedCategory(category.slug)}
-              className="h-8 text-xs gap-1.5"
+              className={`h-8 px-3 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
+                selectedCategory === category.slug
+                  ? 'border shadow-sm'
+                  : 'bg-zinc-900/40 border border-zinc-800/60 hover:bg-zinc-900/60 hover:border-zinc-700/80'
+              }`}
               style={{
-                backgroundColor: selectedCategory === category.slug ? category.color : undefined,
-                borderColor: category.color,
-                color: selectedCategory === category.slug ? 'white' : category.color
+                backgroundColor: selectedCategory === category.slug ? `${category.color}20` : undefined,
+                borderColor: selectedCategory === category.slug ? `${category.color}60` : undefined,
+                color: selectedCategory === category.slug ? category.color : '#a1a1aa'
               }}
             >
               <Icon name={category.icon as any} size={14} />
               {category.name}
-            </Button>
+            </button>
           ))}
         </div>
       )}
