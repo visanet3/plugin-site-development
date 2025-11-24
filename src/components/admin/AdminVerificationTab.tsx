@@ -48,21 +48,37 @@ const AdminVerificationTab = ({ user }: AdminVerificationTabProps) => {
     setLoading(true);
     try {
       console.log('[Verification] Загрузка заявок с фильтром:', filter);
+      console.log('[Verification] URL:', `${VERIFICATION_URL}?action=admin_list&status=${filter}`);
+      console.log('[Verification] User ID:', user.id);
+      
       const response = await fetch(`${VERIFICATION_URL}?action=admin_list&status=${filter}`, {
         headers: {
           'X-User-Id': user.id.toString()
         }
       });
+      
       console.log('[Verification] Ответ сервера, статус:', response.status);
+      console.log('[Verification] Response OK:', response.ok);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[Verification] Текст ошибки:', errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+      
       const data = await response.json();
       console.log('[Verification] Данные:', data);
+      console.log('[Verification] Тип данных:', typeof data);
+      console.log('[Verification] data.requests:', data.requests);
+      
       setRequests(data.requests || []);
       console.log('[Verification] Установлено заявок:', data.requests?.length || 0);
     } catch (error) {
       console.error('[Verification] Ошибка загрузки:', error);
+      console.error('[Verification] Стек ошибки:', error instanceof Error ? error.stack : 'нет стека');
       toast({
         title: 'Ошибка',
-        description: 'Не удалось загрузить заявки',
+        description: error instanceof Error ? error.message : 'Не удалось загрузить заявки',
         variant: 'destructive'
       });
     } finally {
