@@ -78,8 +78,9 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
   const [gameState, setGameState] = useState<'betting' | 'playing' | 'dealer' | 'finished'>('betting');
   const [result, setResult] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [sessionLoaded, setSessionLoaded] = useState(false);
 
-  const startNewGame = (e?: React.MouseEvent) => {
+  const startNewGame = async (e?: React.MouseEvent) => {
     e?.preventDefault();
     if (!user) {
       onShowAuthDialog();
@@ -105,23 +106,69 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
       return;
     }
 
-    const newDeck = createDeck();
-    const playerCards = [newDeck.pop()!, newDeck.pop()!];
-    const dealerCards = [newDeck.pop()!, newDeck.pop()!];
+    setIsProcessing(true);
 
-    setDeck(newDeck);
-    setPlayerHand(playerCards);
-    setDealerHand(dealerCards);
-    setGameState('playing');
-    setResult('');
+    try {
+      const betResponse = await fetch(AUTH_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'place_bet',
+          amount: betAmount,
+          game_type: 'Blackjack'
+        })
+      });
 
-    const playerValue = calculateHandValue(playerCards);
-    if (playerValue === 21) {
-      finishGame(playerCards, dealerCards, newDeck);
+      const betData = await betResponse.json();
+      if (!betData.success) {
+        toast({
+          title: 'Ошибка',
+          description: betData.message || 'Не удалось сделать ставку',
+          variant: 'destructive'
+        });
+        setIsProcessing(false);
+        return;
+      }
+
+      onRefreshUserBalance?.();
+
+      const newDeck = createDeck();
+      const playerCards = [newDeck.pop()!, newDeck.pop()!];
+      const dealerCards = [newDeck.pop()!, newDeck.pop()!];
+
+      setDeck(newDeck);
+      setPlayerHand(playerCards);
+      setDealerHand(dealerCards);
+      setGameState('playing');
+      setResult('');
+
+      await saveGameSession({
+        deck: newDeck,
+        playerHand: playerCards,
+        dealerHand: dealerCards,
+        betAmount
+      });
+
+      const playerValue = calculateHandValue(playerCards);
+      if (playerValue === 21) {
+        finishGame(playerCards, dealerCards, newDeck);
+      }
+    } catch (error) {
+      console.error('Ошибка при начале игры:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось начать игру',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  const hit = (e?: React.MouseEvent) => {
+  const hit = async (e?: React.MouseEvent) => {
     e?.preventDefault();
     if (gameState !== 'playing' || deck.length === 0) return;
 
@@ -131,6 +178,13 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
     
     setDeck(newDeck);
     setPlayerHand(newHand);
+
+    await saveGameSession({
+      deck: newDeck,
+      playerHand: newHand,
+      dealerHand,
+      betAmount: parseFloat(bet)
+    });
 
     const value = calculateHandValue(newHand);
     if (value > 21) {
@@ -194,33 +248,6 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
 
     if (user) {
       try {
-        // Сначала списываем ставку
-        const betResponse = await fetch(AUTH_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-User-Id': user.id.toString()
-          },
-          body: JSON.stringify({
-            action: 'place_bet',
-            amount: betAmount,
-            game_type: 'Blackjack'
-          })
-        });
-
-        const betData = await betResponse.json();
-        if (!betData.success) {
-          toast({
-            title: 'Ошибка',
-            description: betData.message || 'Не удалось сделать ставку',
-            variant: 'destructive'
-          });
-          setIsProcessing(false);
-          resetGame();
-          return;
-        }
-
-        // Затем начисляем выигрыш если победил или возвращаем при ничьей
         if (won || winMultiplier === 1) {
           const winAmount = betAmount * winMultiplier;
           const completeResponse = await fetch(AUTH_URL, {
@@ -249,7 +276,6 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
             }
           }
         } else {
-          // Просто обновляем баланс при проигрыше
           onRefreshUserBalance?.();
           toast({
             title: '😔 Проигрыш',
@@ -257,6 +283,8 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
             variant: 'destructive'
           });
         }
+
+        await clearGameSession();
       } catch (error) {
         console.error('Ошибка при завершении игры:', error);
         toast({
@@ -270,14 +298,100 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
     setIsProcessing(false);
   };
 
-  const resetGame = (e?: React.MouseEvent) => {
+  const saveGameSession = async (state: any) => {
+    if (!user) return;
+    try {
+      await fetch(AUTH_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'save_game_session',
+          game_type: 'blackjack',
+          bet_amount: state.betAmount,
+          game_state: state
+        })
+      });
+    } catch (error) {
+      console.error('Ошибка сохранения сессии:', error);
+    }
+  };
+
+  const loadGameSession = async () => {
+    if (!user || sessionLoaded) return;
+    try {
+      const response = await fetch(AUTH_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'get_game_session',
+          game_type: 'blackjack'
+        })
+      });
+
+      const data = await response.json();
+      if (data.success && data.session) {
+        const state = data.session.game_state;
+        setDeck(state.deck);
+        setPlayerHand(state.playerHand);
+        setDealerHand(state.dealerHand);
+        setBet(state.betAmount.toString());
+        setGameState('playing');
+        setResult('');
+        
+        toast({
+          title: 'Игра восстановлена',
+          description: 'Ваша незавершенная игра загружена',
+          variant: 'default'
+        });
+      }
+      setSessionLoaded(true);
+    } catch (error) {
+      console.error('Ошибка загрузки сессии:', error);
+      setSessionLoaded(true);
+    }
+  };
+
+  const clearGameSession = async () => {
+    if (!user) return;
+    try {
+      await fetch(AUTH_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'clear_game_session',
+          game_type: 'blackjack'
+        })
+      });
+    } catch (error) {
+      console.error('Ошибка очистки сессии:', error);
+    }
+  };
+
+  const resetGame = async (e?: React.MouseEvent) => {
     e?.preventDefault();
+    await clearGameSession();
     setPlayerHand([]);
     setDealerHand([]);
     setDeck([]);
     setGameState('betting');
     setResult('');
+    setSessionLoaded(false);
   };
+
+  useEffect(() => {
+    if (user && !sessionLoaded) {
+      loadGameSession();
+    }
+  }, [user, sessionLoaded]);
 
   const playerValue = calculateHandValue(playerHand);
   const dealerValue = calculateHandValue(dealerHand);

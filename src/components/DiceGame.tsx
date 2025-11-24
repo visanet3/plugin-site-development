@@ -25,6 +25,7 @@ const DiceGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: DiceGameProp
   const [result, setResult] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [rotation, setRotation] = useState(0);
+  const [sessionLoaded, setSessionLoaded] = useState(false);
 
   const rollDice = async (e?: React.MouseEvent) => {
     e?.preventDefault();
@@ -65,6 +66,33 @@ const DiceGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: DiceGameProp
     setGameState('rolling');
 
     try {
+      const betResponse = await fetch(AUTH_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'place_bet',
+          amount: betAmount,
+          game_type: 'Dice'
+        })
+      });
+
+      const betData = await betResponse.json();
+      if (!betData.success) {
+        toast({
+          title: 'Ошибка',
+          description: betData.message || 'Не удалось сделать ставку',
+          variant: 'destructive'
+        });
+        setIsProcessing(false);
+        setGameState('betting');
+        return;
+      }
+
+      onRefreshUserBalance?.();
+
       const result = Math.floor(Math.random() * 6) + 1;
       const spins = 3 + Math.random() * 2;
       setRotation(rotation + (360 * spins));
@@ -116,31 +144,6 @@ const DiceGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: DiceGameProp
     const winAmount = won ? betAmount * multiplier : 0;
 
     try {
-      const betResponse = await fetch(AUTH_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': user!.id.toString()
-        },
-        body: JSON.stringify({
-          action: 'place_bet',
-          amount: betAmount,
-          game_type: 'Dice'
-        })
-      });
-
-      const betData = await betResponse.json();
-      if (!betData.success) {
-        toast({
-          title: 'Ошибка',
-          description: betData.message || 'Не удалось сделать ставку',
-          variant: 'destructive'
-        });
-        setIsProcessing(false);
-        resetGame();
-        return;
-      }
-
       if (won) {
         await fetch(AUTH_URL, {
           method: 'POST',
@@ -162,6 +165,8 @@ const DiceGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: DiceGameProp
       
       setGameState('finished');
       
+      await clearGameSession();
+      
       if (onRefreshUserBalance) {
         onRefreshUserBalance();
       }
@@ -176,12 +181,33 @@ const DiceGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: DiceGameProp
     }
   };
 
-  const resetGame = (e?: React.MouseEvent) => {
+  const clearGameSession = async () => {
+    if (!user) return;
+    try {
+      await fetch(AUTH_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'clear_game_session',
+          game_type: 'dice'
+        })
+      });
+    } catch (error) {
+      console.error('Ошибка очистки сессии:', error);
+    }
+  };
+
+  const resetGame = async (e?: React.MouseEvent) => {
     e?.preventDefault();
+    await clearGameSession();
     setDiceResult(null);
     setResult('');
     setGameState('betting');
     setBetType(null);
+    setSessionLoaded(false);
   };
 
   const getBetLabel = (type: BetType): string => {

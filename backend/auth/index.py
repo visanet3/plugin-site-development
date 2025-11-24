@@ -963,6 +963,134 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
+        elif action == 'save_game_session':
+            headers = event.get('headers', {})
+            user_id = headers.get('X-User-Id') or headers.get('x-user-id')
+            
+            if not user_id:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'message': 'Требуется авторизация'}),
+                    'isBase64Encoded': False
+                }
+            
+            game_type = body_data.get('game_type')
+            bet_amount = body_data.get('bet_amount')
+            game_state = body_data.get('game_state')
+            
+            if not game_type or not bet_amount or not game_state:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'message': 'Не все параметры переданы'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute(
+                f"""INSERT INTO {SCHEMA}.active_game_sessions (user_id, game_type, bet_amount, game_state, updated_at)
+                VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP)
+                ON CONFLICT (user_id, game_type) 
+                DO UPDATE SET 
+                    bet_amount = EXCLUDED.bet_amount,
+                    game_state = EXCLUDED.game_state,
+                    updated_at = CURRENT_TIMESTAMP""",
+                (int(user_id), game_type, float(bet_amount), json.dumps(game_state))
+            )
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True}),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'get_game_session':
+            headers = event.get('headers', {})
+            user_id = headers.get('X-User-Id') or headers.get('x-user-id')
+            
+            if not user_id:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'message': 'Требуется авторизация'}),
+                    'isBase64Encoded': False
+                }
+            
+            game_type = body_data.get('game_type')
+            
+            if not game_type:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'message': 'Тип игры не указан'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute(
+                f"SELECT bet_amount, game_state, created_at FROM {SCHEMA}.active_game_sessions WHERE user_id = %s AND game_type = %s AND expires_at > CURRENT_TIMESTAMP",
+                (int(user_id), game_type)
+            )
+            session = cur.fetchone()
+            
+            if session:
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'success': True,
+                        'session': {
+                            'bet_amount': float(session['bet_amount']),
+                            'game_state': session['game_state'],
+                            'created_at': str(session['created_at'])
+                        }
+                    }),
+                    'isBase64Encoded': False
+                }
+            else:
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True, 'session': None}),
+                    'isBase64Encoded': False
+                }
+        
+        elif action == 'clear_game_session':
+            headers = event.get('headers', {})
+            user_id = headers.get('X-User-Id') or headers.get('x-user-id')
+            
+            if not user_id:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'message': 'Требуется авторизация'}),
+                    'isBase64Encoded': False
+                }
+            
+            game_type = body_data.get('game_type')
+            
+            if not game_type:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'message': 'Тип игры не указан'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute(
+                f"DELETE FROM {SCHEMA}.active_game_sessions WHERE user_id = %s AND game_type = %s",
+                (int(user_id), game_type)
+            )
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True}),
+                'isBase64Encoded': False
+            }
+        
         elif action == 'get_referral_info':
             headers = event.get('headers', {})
             user_id = headers.get('X-User-Id') or headers.get('x-user-id')

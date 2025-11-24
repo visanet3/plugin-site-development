@@ -59,6 +59,7 @@ const BaccaratGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: Baccarat
   const [gameState, setGameState] = useState<'betting' | 'dealing' | 'finished'>('betting');
   const [result, setResult] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [sessionLoaded, setSessionLoaded] = useState(false);
 
   useEffect(() => {
     setDeck(createDeck());
@@ -102,6 +103,32 @@ const BaccaratGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: Baccarat
     setIsProcessing(true);
 
     try {
+      const betResponse = await fetch(AUTH_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'place_bet',
+          amount: betAmount,
+          game_type: 'Baccarat'
+        })
+      });
+
+      const betData = await betResponse.json();
+      if (!betData.success) {
+        toast({
+          title: 'Ошибка',
+          description: betData.message || 'Не удалось сделать ставку',
+          variant: 'destructive'
+        });
+        setIsProcessing(false);
+        return;
+      }
+
+      onRefreshUserBalance?.();
+
       const newDeck = createDeck();
       const newPlayerHand = [newDeck[0], newDeck[2]];
       const newBankerHand = [newDeck[1], newDeck[3]];
@@ -186,31 +213,6 @@ const BaccaratGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: Baccarat
 
   const finishGame = async (won: boolean, winAmount: number, winner: 'player' | 'banker' | 'tie', betAmount: number) => {
     try {
-      const betResponse = await fetch(AUTH_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': user!.id.toString()
-        },
-        body: JSON.stringify({
-          action: 'place_bet',
-          amount: betAmount,
-          game_type: 'Baccarat'
-        })
-      });
-
-      const betData = await betResponse.json();
-      if (!betData.success) {
-        toast({
-          title: 'Ошибка',
-          description: betData.message || 'Не удалось сделать ставку',
-          variant: 'destructive'
-        });
-        setIsProcessing(false);
-        resetGame();
-        return;
-      }
-
       if (won || (winner === 'tie' && betType !== 'tie')) {
         const response = await fetch(AUTH_URL, {
           method: 'POST',
@@ -240,6 +242,8 @@ const BaccaratGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: Baccarat
       setResult(resultText);
       setGameState('finished');
       
+      await clearGameSession();
+      
       if (onRefreshUserBalance) {
         onRefreshUserBalance();
       }
@@ -254,14 +258,35 @@ const BaccaratGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: Baccarat
     }
   };
 
-  const resetGame = (e?: React.MouseEvent) => {
+  const clearGameSession = async () => {
+    if (!user) return;
+    try {
+      await fetch(AUTH_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'clear_game_session',
+          game_type: 'baccarat'
+        })
+      });
+    } catch (error) {
+      console.error('Ошибка очистки сессии:', error);
+    }
+  };
+
+  const resetGame = async (e?: React.MouseEvent) => {
     e?.preventDefault();
+    await clearGameSession();
     setPlayerHand([]);
     setBankerHand([]);
     setResult('');
     setGameState('betting');
     setBetType(null);
     setDeck(createDeck());
+    setSessionLoaded(false);
   };
 
   const playerValue = calculateHandValue(playerHand);
