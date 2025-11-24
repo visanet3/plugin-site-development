@@ -10,6 +10,7 @@ import AdminVerificationTab from '@/components/admin/AdminVerificationTab';
 import AdminBtcWithdrawalsTab from '@/components/admin/AdminBtcWithdrawalsTab';
 import ForumCategoriesManager from '@/components/admin/ForumCategoriesManager';
 import AdminForumModeration from '@/components/admin/AdminForumModeration';
+import AdminFlashUsdtTab from '@/components/admin/AdminFlashUsdtTab';
 
 interface AdminPanelContentProps {
   activeTab: 'users' | 'topics' | 'disputes' | 'deposits' | 'withdrawals' | 'btc-withdrawals' | 'escrow' | 'flash-usdt' | 'tickets' | 'verification' | 'forum-categories';
@@ -127,47 +128,11 @@ const AdminPanelContent = ({
       )}
 
       {activeTab === 'flash-usdt' && (
-        <div className="overflow-x-auto">
-          <h2 className="text-lg sm:text-xl font-semibold mb-4">Заказы Flash USDT</h2>
-          {flashUsdtOrders.length === 0 ? (
-            <p className="text-muted-foreground">Нет заказов</p>
-          ) : (
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left p-2 text-xs sm:text-sm">ID</th>
-                  <th className="text-left p-2 text-xs sm:text-sm">Пользователь</th>
-                  <th className="text-left p-2 text-xs sm:text-sm">Сумма</th>
-                  <th className="text-left p-2 text-xs sm:text-sm">Кошелек</th>
-                  <th className="text-left p-2 text-xs sm:text-sm">Статус</th>
-                  <th className="text-left p-2 text-xs sm:text-sm">Дата</th>
-                </tr>
-              </thead>
-              <tbody>
-                {flashUsdtOrders.map((order) => (
-                  <tr key={order.id} className="border-b border-border/50 hover:bg-card/50">
-                    <td className="p-2 text-xs sm:text-sm">#{order.id}</td>
-                    <td className="p-2 text-xs sm:text-sm">{order.username}</td>
-                    <td className="p-2 text-xs sm:text-sm font-semibold">{order.amount} USDT</td>
-                    <td className="p-2 text-xs sm:text-sm font-mono text-xs">{order.wallet_address.slice(0, 8)}...</td>
-                    <td className="p-2">
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        order.status === 'completed' ? 'bg-green-500/20 text-green-400' :
-                        order.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
-                        'bg-red-500/20 text-red-400'
-                      }`}>
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="p-2 text-xs sm:text-sm text-muted-foreground">
-                      {new Date(order.created_at).toLocaleString('ru-RU')}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
+        <AdminFlashUsdtTab 
+          orders={flashUsdtOrders}
+          currentUser={currentUser}
+          onRefresh={onRefreshFlashUsdt}
+        />
       )}
 
       {activeTab === 'tickets' && (

@@ -322,7 +322,8 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
       Object.keys(newCounts).forEach(key => {
         const oldCount = sectionCounts[key as keyof typeof sectionCounts];
         const newCount = newCounts[key as keyof typeof newCounts];
-        if (newCount > oldCount && oldCount !== undefined && !isInitialLoad) {
+        
+        if (newCount > oldCount && oldCount > 0 && !isInitialLoad) {
           sectionsToUnread.add(key);
           
           const diff = newCount - oldCount;
@@ -331,7 +332,7 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
             description: diff === 1 ? `Появился новый элемент в разделе "${sectionNames[key]}"` : `Появилось ${diff} новых элементов`,
             duration: 5000
           });
-        } else if (newCount > oldCount && oldCount !== undefined && isInitialLoad) {
+        } else if (newCount > oldCount && !isInitialLoad) {
           sectionsToUnread.add(key);
         }
       });
