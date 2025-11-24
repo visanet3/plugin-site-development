@@ -47,14 +47,19 @@ const AdminVerificationTab = ({ user }: AdminVerificationTabProps) => {
   const fetchRequests = async () => {
     setLoading(true);
     try {
+      console.log('[Verification] Загрузка заявок с фильтром:', filter);
       const response = await fetch(`${VERIFICATION_URL}?action=admin_list&status=${filter}`, {
         headers: {
           'X-User-Id': user.id.toString()
         }
       });
+      console.log('[Verification] Ответ сервера, статус:', response.status);
       const data = await response.json();
+      console.log('[Verification] Данные:', data);
       setRequests(data.requests || []);
+      console.log('[Verification] Установлено заявок:', data.requests?.length || 0);
     } catch (error) {
+      console.error('[Verification] Ошибка загрузки:', error);
       toast({
         title: 'Ошибка',
         description: 'Не удалось загрузить заявки',

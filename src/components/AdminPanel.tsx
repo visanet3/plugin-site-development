@@ -87,6 +87,8 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
     } else if (activeTab === 'btc-withdrawals') {
       fetchBtcWithdrawals();
     }
+    
+    markSectionAsRead(activeTab);
   }, [activeTab]);
 
   useEffect(() => {
