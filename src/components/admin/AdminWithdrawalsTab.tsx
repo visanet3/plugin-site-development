@@ -123,51 +123,51 @@ const AdminWithdrawalsTab = ({ withdrawals, currentUser, onUpdate }: AdminWithdr
   };
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="p-4 bg-yellow-500/10 border-yellow-500/30">
-          <div className="flex items-center gap-3">
-            <Icon name="Clock" size={24} className="text-yellow-400" />
+    <div className="space-y-4 sm:space-y-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        <Card className="p-3 sm:p-4 bg-yellow-500/10 border-yellow-500/30">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Icon name="Clock" size={20} className="text-yellow-400 sm:w-6 sm:h-6" />
             <div>
-              <p className="text-sm text-muted-foreground">Ожидают</p>
-              <p className="text-2xl font-bold">{stats.pending}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Ожидают</p>
+              <p className="text-lg sm:text-2xl font-bold">{stats.pending}</p>
             </div>
           </div>
         </Card>
 
-        <Card className="p-4 bg-green-500/10 border-green-500/30">
-          <div className="flex items-center gap-3">
-            <Icon name="CheckCircle" size={24} className="text-green-400" />
+        <Card className="p-3 sm:p-4 bg-green-500/10 border-green-500/30">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Icon name="CheckCircle" size={20} className="text-green-400 sm:w-6 sm:h-6" />
             <div>
-              <p className="text-sm text-muted-foreground">Завершено</p>
-              <p className="text-2xl font-bold">{stats.completed}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Завершено</p>
+              <p className="text-lg sm:text-2xl font-bold">{stats.completed}</p>
             </div>
           </div>
         </Card>
 
-        <Card className="p-4 bg-red-500/10 border-red-500/30">
-          <div className="flex items-center gap-3">
-            <Icon name="XCircle" size={24} className="text-red-400" />
+        <Card className="p-3 sm:p-4 bg-red-500/10 border-red-500/30">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Icon name="XCircle" size={20} className="text-red-400 sm:w-6 sm:h-6" />
             <div>
-              <p className="text-sm text-muted-foreground">Отклонено</p>
-              <p className="text-2xl font-bold">{stats.rejected}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Отклонено</p>
+              <p className="text-lg sm:text-2xl font-bold">{stats.rejected}</p>
             </div>
           </div>
         </Card>
 
-        <Card className="p-4 bg-blue-500/10 border-blue-500/30">
-          <div className="flex items-center gap-3">
-            <Icon name="DollarSign" size={24} className="text-blue-400" />
+        <Card className="p-3 sm:p-4 bg-blue-500/10 border-blue-500/30 col-span-2 md:col-span-1">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Icon name="DollarSign" size={20} className="text-blue-400 sm:w-6 sm:h-6" />
             <div>
-              <p className="text-sm text-muted-foreground">В обработке</p>
-              <p className="text-2xl font-bold">{stats.total.toFixed(2)} USDT</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">В обработке</p>
+              <p className="text-base sm:text-2xl font-bold">{stats.total.toFixed(2)} USDT</p>
             </div>
           </div>
         </Card>
       </div>
 
-      <Card className="p-4">
-        <div className="flex gap-2 mb-4">
+      <Card className="p-3 sm:p-4">
+        <div className="flex flex-wrap gap-2 mb-4">
           <Button
             variant={filterStatus === 'all' ? 'default' : 'outline'}
             size="sm"

@@ -16,9 +16,9 @@ const AdminTopicsTab = ({ topics, onEditTopic, onDeleteTopic, onUpdateViews }: A
   const [viewsValue, setViewsValue] = useState('');
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">Управление темами форума</h2>
-        <span className="text-sm text-muted-foreground">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+        <h2 className="text-lg sm:text-xl font-semibold">Управление темами форума</h2>
+        <span className="text-xs sm:text-sm text-muted-foreground">
           Всего тем: {topics.length}
         </span>
       </div>
@@ -27,22 +27,22 @@ const AdminTopicsTab = ({ topics, onEditTopic, onDeleteTopic, onUpdateViews }: A
         {topics.map(topic => (
           <div
             key={topic.id}
-            className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-4 hover:border-primary/50 transition-colors"
+            className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-3 sm:p-4 hover:border-primary/50 transition-colors"
           >
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="font-semibold">{topic.title}</h3>
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <h3 className="font-semibold text-sm sm:text-base">{topic.title}</h3>
                   {topic.is_pinned && (
                     <span className="px-2 py-0.5 bg-primary/20 text-primary text-xs rounded">
                       Закреплено
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground mb-2">
+                <p className="text-xs sm:text-sm text-muted-foreground mb-2 line-clamp-2">
                   {topic.content?.substring(0, 150)}...
                 </p>
-                <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Icon name="User" size={14} />
                     {topic.author_name}
@@ -97,22 +97,23 @@ const AdminTopicsTab = ({ topics, onEditTopic, onDeleteTopic, onUpdateViews }: A
                   </span>
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 self-start">
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={() => onEditTopic(topic)}
                   disabled
+                  className="h-8 w-8 p-0"
                 >
-                  <Icon name="Edit" size={16} />
+                  <Icon name="Edit" size={14} />
                 </Button>
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={() => onDeleteTopic(topic.id)}
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8 p-0"
                 >
-                  <Icon name="Trash2" size={16} />
+                  <Icon name="Trash2" size={14} />
                 </Button>
               </div>
             </div>

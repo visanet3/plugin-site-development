@@ -109,21 +109,21 @@ const AdminDisputesTab = ({ disputes, currentUser, onUpdate }: AdminDisputesTabP
   return (
     <div className="space-y-4">
       {disputes.length === 0 ? (
-        <Card className="p-12 text-center">
-          <Icon name="CheckCircle2" size={48} className="mx-auto mb-4 text-green-400" />
-          <p className="text-muted-foreground">Нет активных споров</p>
+        <Card className="p-8 sm:p-12 text-center">
+          <Icon name="CheckCircle2" size={40} className="mx-auto mb-4 text-green-400 sm:w-12 sm:h-12" />
+          <p className="text-sm sm:text-base text-muted-foreground">Нет активных споров</p>
         </Card>
       ) : (
         disputes.map((deal) => (
-          <Card key={deal.id} className="p-4 border-orange-500/30">
-            <div className="flex items-start justify-between gap-4">
+          <Card key={deal.id} className="p-3 sm:p-4 border-orange-500/30">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
               <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <h3 className="font-semibold text-lg">{deal.title}</h3>
-                  <Badge variant="destructive">Спор</Badge>
+                <div className="flex items-center gap-2 sm:gap-3 mb-2 flex-wrap">
+                  <h3 className="font-semibold text-base sm:text-lg">{deal.title}</h3>
+                  <Badge variant="destructive" className="text-xs">Спор</Badge>
                 </div>
-                <p className="text-sm text-muted-foreground mb-3">{deal.description}</p>
-                <div className="flex items-center gap-4 text-sm">
+                <p className="text-xs sm:text-sm text-muted-foreground mb-3 line-clamp-2">{deal.description}</p>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm">
                   <div className="flex items-center gap-2">
                     <Icon name="Store" size={16} className="text-green-400" />
                     <span>Продавец: {deal.seller_name}</span>
@@ -142,9 +142,10 @@ const AdminDisputesTab = ({ disputes, currentUser, onUpdate }: AdminDisputesTabP
               </div>
               <Button
                 onClick={() => openDealChat(deal)}
-                className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600"
+                className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 w-full sm:w-auto text-sm"
+                size="sm"
               >
-                <Icon name="MessageSquare" size={18} className="mr-2" />
+                <Icon name="MessageSquare" size={16} className="mr-2" />
                 Открыть чат
               </Button>
             </div>
@@ -154,7 +155,7 @@ const AdminDisputesTab = ({ disputes, currentUser, onUpdate }: AdminDisputesTabP
 
       {selectedDeal && (
         <Dialog open={!!selectedDeal} onOpenChange={() => setSelectedDeal(null)}>
-          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
             <DialogHeader>
               <DialogTitle>Спор: {selectedDeal.title}</DialogTitle>
             </DialogHeader>
@@ -168,7 +169,7 @@ const AdminDisputesTab = ({ disputes, currentUser, onUpdate }: AdminDisputesTabP
                     <p className="text-sm text-muted-foreground">{selectedDeal.description}</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
                   <div>
                     <p className="text-muted-foreground mb-1">Продавец</p>
                     <p className="font-medium">{selectedDeal.seller_name}</p>
@@ -188,7 +189,7 @@ const AdminDisputesTab = ({ disputes, currentUser, onUpdate }: AdminDisputesTabP
                 </div>
               </Card>
 
-              <Card className="p-4 max-h-[400px] overflow-y-auto bg-muted/30">
+              <Card className="p-3 sm:p-4 max-h-[300px] sm:max-h-[400px] overflow-y-auto bg-muted/30">
                 <h4 className="font-semibold mb-3">История сообщений:</h4>
                 <div className="space-y-2">
                   {messages.map((msg) => (
@@ -234,24 +235,26 @@ const AdminDisputesTab = ({ disputes, currentUser, onUpdate }: AdminDisputesTabP
                 </Button>
               </div>
 
-              <div className="border-t pt-4">
-                <h4 className="font-semibold mb-3">Разрешить спор:</h4>
-                <div className="grid grid-cols-2 gap-3">
+              <div className="border-t pt-3 sm:pt-4">
+                <h4 className="font-semibold mb-3 text-sm sm:text-base">Разрешить спор:</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                   <Button
                     onClick={() => resolveDispute(selectedDeal.id, selectedDeal.seller_id)}
                     disabled={loading}
-                    className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600"
+                    className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-sm"
+                    size="sm"
                   >
-                    <Icon name="Check" size={18} className="mr-2" />
+                    <Icon name="Check" size={16} className="mr-2" />
                     В пользу продавца
                   </Button>
                   {selectedDeal.buyer_id && (
                     <Button
                       onClick={() => resolveDispute(selectedDeal.id, selectedDeal.buyer_id)}
                       disabled={loading}
-                      className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600"
+                      className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-sm"
+                      size="sm"
                     >
-                      <Icon name="Check" size={18} className="mr-2" />
+                      <Icon name="Check" size={16} className="mr-2" />
                       В пользу покупателя
                     </Button>
                   )}

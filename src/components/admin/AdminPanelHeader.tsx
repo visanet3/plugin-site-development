@@ -66,7 +66,7 @@ const AdminPanelHeader = ({
             )}
           </Button>
           {showNotifications && adminNotifications.length > 0 && (
-            <div className="absolute right-0 mt-2 w-80 bg-card border border-border rounded-lg shadow-lg p-4 z-50 max-h-96 overflow-y-auto animate-fade-in">
+            <div className="absolute right-0 mt-2 w-[90vw] sm:w-80 bg-card border border-border rounded-lg shadow-lg p-3 sm:p-4 z-50 max-h-[80vh] sm:max-h-96 overflow-y-auto animate-fade-in">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-semibold">Уведомления</h3>
                 <Button size="sm" variant="ghost" onClick={onMarkNotificationsRead}>
