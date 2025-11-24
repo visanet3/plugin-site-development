@@ -420,6 +420,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 try:
                     cur.execute(f"DELETE FROM {SCHEMA}.admin_actions WHERE admin_id = %s", (target_user_id,))
                 except: pass
+                try:
+                    cur.execute(f"UPDATE {SCHEMA}.lottery_rounds SET winner_user_id = NULL WHERE winner_user_id = %s", (target_user_id,))
+                except: pass
                 
                 # Step 3: Finally delete the user
                 try:
