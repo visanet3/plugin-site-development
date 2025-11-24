@@ -1117,7 +1117,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     u.username as referred_username
                 FROM {SCHEMA}.referrals r
                 LEFT JOIN {SCHEMA}.users u ON r.referred_user_id = u.id
-                WHERE r.referrer_id = %s AND (u.username NOT LIKE '[DELETED_%' OR u.username IS NULL)
+                WHERE r.referrer_id = %s AND (u.username NOT LIKE ''[DELETED_%%' OR u.username IS NULL)
                 ORDER BY r.created_at DESC""",
                 (int(user_id),)
             )
