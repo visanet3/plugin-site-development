@@ -646,16 +646,6 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                 </div>
               )}
 
-              {/* DEBUG INFO */}
-              {user && (
-                <Card className="p-3 bg-yellow-500/10 border-yellow-500/30 text-xs space-y-1">
-                  <p>DEBUG: user.id={user.id}, seller_id={selectedDeal.seller_id}, buyer_id={selectedDeal.buyer_id}</p>
-                  <p>step={selectedDeal.step}, status={selectedDeal.status}</p>
-                  <p>Условие кнопки: step=seller_sent? {selectedDeal.step === 'seller_sent' ? 'ДА' : 'НЕТ'}, user.id==buyer_id? {Number(user.id) === Number(selectedDeal.buyer_id) ? 'ДА' : 'НЕТ'}</p>
-                  <p>Кнопка должна показаться: {selectedDeal.step === 'seller_sent' && user && Number(user.id) === Number(selectedDeal.buyer_id) ? 'ДА ✅' : 'НЕТ ❌'}</p>
-                </Card>
-              )}
-
               {/* Кнопки действий */}
               <div className="space-y-2">
                 {selectedDeal.status === 'active' && !selectedDeal.buyer_id && user && Number(user.id) !== Number(selectedDeal.seller_id) && (
@@ -680,16 +670,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                   </Button>
                 )}
 
-                {(() => {
-                  console.log('Проверка кнопки подтверждения:', {
-                    step: selectedDeal.step,
-                    hasUser: !!user,
-                    userId: user?.id,
-                    buyerId: selectedDeal.buyer_id,
-                    match: user && Number(user.id) === Number(selectedDeal.buyer_id)
-                  });
-                  return selectedDeal.step === 'seller_sent' && user && Number(user.id) === Number(selectedDeal.buyer_id);
-                })() && (
+                {selectedDeal.step === 'seller_sent' && user && Number(user.id) === Number(selectedDeal.buyer_id) && (
                   <Card className="p-4 bg-green-800/10 border border-green-500/30 space-y-3">
                     <div className="flex items-start gap-2">
                       <Icon name="AlertCircle" size={18} className="text-green-400 flex-shrink-0 mt-0.5" />
