@@ -560,88 +560,106 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
       {/* Диалог детальной сделки */}
       {selectedDeal && (
         <Dialog open={!!selectedDeal} onOpenChange={(open) => !open && setSelectedDeal(null)}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="pr-8">{selectedDeal.title}</DialogTitle>
-              <DialogDescription>{selectedDeal.description}</DialogDescription>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+            <DialogHeader className="flex-shrink-0">
+              <DialogTitle className="pr-8 text-xl">{selectedDeal.title}</DialogTitle>
+              <DialogDescription className="text-base">{selectedDeal.description}</DialogDescription>
             </DialogHeader>
 
-            <div className="space-y-4">
+            <div className="flex-1 overflow-y-auto space-y-4 pr-2">
               {user && (Number(user.id) === Number(selectedDeal.seller_id) || Number(user.id) === Number(selectedDeal.buyer_id)) && (
-                <Card className="p-4 bg-blue-500/10 border-blue-500/30">
-                  <p className="text-sm font-medium mb-1">
-                    {Number(user.id) === Number(selectedDeal.seller_id) ? 'Вы - продавец' : 'Вы - покупатель'}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {getStepText(selectedDeal.step, Number(user.id) === Number(selectedDeal.seller_id))}
-                  </p>
+                <Card className="p-3 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/30">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                      <Icon name={Number(user.id) === Number(selectedDeal.seller_id) ? "Store" : "ShoppingCart"} size={20} className="text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">
+                        {Number(user.id) === Number(selectedDeal.seller_id) ? 'Вы - продавец' : 'Вы - покупатель'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {getStepText(selectedDeal.step, Number(user.id) === Number(selectedDeal.seller_id))}
+                      </p>
+                    </div>
+                  </div>
                 </Card>
               )}
 
-              <div className="grid grid-cols-2 gap-3">
-                <Card className="p-3">
-                  <p className="text-xs text-muted-foreground mb-1">Продавец</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <Card className="p-4 bg-gradient-to-br from-green-500/5 to-green-600/10 border-green-500/20">
+                  <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wide">Продавец</p>
                   <div className="flex items-center gap-2">
-                    <Avatar className="w-8 h-8">
+                    <Avatar className="w-10 h-10">
                       <AvatarImage src={selectedDeal.seller_avatar} />
-                      <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(selectedDeal.seller_name)} text-white text-xs`}>
+                      <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(selectedDeal.seller_name)} text-white text-sm`}>
                         {selectedDeal.seller_name[0].toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    <p className="font-medium text-sm">{selectedDeal.seller_name}</p>
+                    <p className="font-semibold text-sm">{selectedDeal.seller_name}</p>
                   </div>
                 </Card>
 
-                <Card className="p-3">
-                  <p className="text-xs text-muted-foreground mb-1">Цена</p>
-                  <p className="text-2xl font-bold text-green-400">{selectedDeal.price} USDT</p>
+                <Card className="p-4 bg-gradient-to-br from-green-600/10 to-green-700/20 border-green-600/30">
+                  <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wide">Цена</p>
+                  <p className="text-2xl font-bold text-green-400">{selectedDeal.price} <span className="text-lg text-muted-foreground">USDT</span></p>
                 </Card>
+
+                {selectedDeal.buyer_id && (
+                  <Card className="p-4 bg-gradient-to-br from-blue-500/5 to-blue-600/10 border-blue-500/20">
+                    <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wide">Покупатель</p>
+                    <div className="flex items-center gap-2">
+                      <Avatar className="w-10 h-10">
+                        <AvatarImage src={selectedDeal.buyer_avatar} />
+                        <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(selectedDeal.buyer_name || '')} text-white text-sm`}>
+                          {selectedDeal.buyer_name?.[0].toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <p className="font-semibold text-sm">{selectedDeal.buyer_name}</p>
+                    </div>
+                  </Card>
+                )}
               </div>
 
-              {selectedDeal.buyer_id && (
-                <Card className="p-3">
-                  <p className="text-xs text-muted-foreground mb-1">Покупатель</p>
-                  <div className="flex items-center gap-2">
-                    <Avatar className="w-8 h-8">
-                      <AvatarImage src={selectedDeal.buyer_avatar} />
-                      <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(selectedDeal.buyer_name || '')} text-white text-xs`}>
-                        {selectedDeal.buyer_name?.[0].toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <p className="font-medium text-sm">{selectedDeal.buyer_name}</p>
-                  </div>
-                </Card>
-              )}
-
               {/* Чат */}
-              <Card className="p-3 max-h-[300px] overflow-y-auto bg-muted/30">
-                <div className="space-y-2">
+              <Card className="p-4 h-[400px] md:h-[500px] overflow-y-auto bg-gradient-to-br from-muted/30 to-muted/10 border-border/50">
+                <div className="space-y-3">
                   {dealMessages.map((msg) => (
                     <div
                       key={msg.id}
-                      className={`p-2 rounded-lg text-sm ${
+                      className={`${
                         msg.is_system
-                          ? 'bg-blue-500/10 border border-blue-500/20 text-center'
+                          ? 'flex justify-center'
                           : msg.user_id === user?.id
-                          ? 'bg-green-800/20 border border-green-800/30 ml-8'
-                          : 'bg-card mr-8'
+                          ? 'flex justify-end'
+                          : 'flex justify-start'
                       }`}
                     >
-                      {!msg.is_system && (
-                        <div className="flex items-center gap-2 mb-1">
-                          <Avatar className="w-5 h-5">
-                            <AvatarImage src={msg.avatar_url} />
-                            <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(msg.username || '')} text-white text-[10px]`}>
-                              {msg.username?.[0].toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="text-xs font-medium">{msg.username}</span>
+                      {msg.is_system ? (
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20">
+                          <Icon name="Info" size={12} className="text-blue-400" />
+                          <p className="text-xs text-blue-400 font-medium">{msg.message}</p>
+                        </div>
+                      ) : (
+                        <div className={`max-w-[75%] ${
+                          msg.user_id === user?.id
+                            ? 'bg-green-800/30 border border-green-700/40'
+                            : 'bg-card border border-border'
+                        } p-3 rounded-2xl space-y-1`}>
+                          <div className="flex items-center gap-2">
+                            <Avatar className="w-6 h-6">
+                              <AvatarImage src={msg.avatar_url} />
+                              <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(msg.username || '')} text-white text-[10px]`}>
+                                {msg.username?.[0].toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="text-xs font-semibold">{msg.username}</span>
+                            <span className="text-[10px] text-muted-foreground ml-auto">
+                              {new Date(msg.created_at).toLocaleString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                          <p className="text-sm leading-relaxed">{msg.message}</p>
                         </div>
                       )}
-                      <p className={msg.is_system ? 'text-blue-400 font-medium' : ''}>{msg.message}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {new Date(msg.created_at).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                      </p>
                     </div>
                   ))}
                 </div>
@@ -652,10 +670,11 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                   <Input
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Сообщение..."
+                    placeholder="Напишите сообщение..."
                     onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+                    className="flex-1 bg-muted/50"
                   />
-                  <Button onClick={sendMessage} size="icon">
+                  <Button onClick={sendMessage} size="icon" className="bg-green-700 hover:bg-green-600">
                     <Icon name="Send" size={16} />
                   </Button>
                 </div>
@@ -667,9 +686,9 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                   <Button
                     onClick={handleBuyerPay}
                     disabled={actionLoading}
-                    className="w-full bg-gradient-to-r from-green-800 to-green-900"
+                    className="w-full bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800 h-12 text-base"
                   >
-                    <Icon name={actionLoading ? "Loader2" : "ShoppingCart"} size={16} className={`mr-2 ${actionLoading ? 'animate-spin' : ''}`} />
+                    <Icon name={actionLoading ? "Loader2" : "ShoppingCart"} size={18} className={`mr-2 ${actionLoading ? 'animate-spin' : ''}`} />
                     {actionLoading ? 'Оплачиваем...' : `Купить за ${selectedDeal.price} USDT`}
                   </Button>
                 )}
@@ -678,20 +697,25 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                   <Button
                     onClick={handleSellerSent}
                     disabled={actionLoading}
-                    className="w-full bg-gradient-to-r from-purple-600 to-purple-700"
+                    className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 h-12 text-base"
                   >
-                    <Icon name="Package" size={16} className="mr-2" />
-                    Товар передан покупателю
+                    <Icon name="Package" size={18} className="mr-2" />
+                    {actionLoading ? 'Обработка...' : 'Товар передан покупателю'}
                   </Button>
                 )}
 
                 {selectedDeal.step === 'seller_sent' && user && Number(user.id) === Number(selectedDeal.buyer_id) && (
-                  <Card className="p-4 bg-green-800/10 border border-green-500/30 space-y-3">
-                    <div className="flex items-start gap-2">
-                      <Icon name="AlertCircle" size={18} className="text-green-400 flex-shrink-0 mt-0.5" />
-                      <p className="text-sm text-muted-foreground">
-                        <strong className="text-green-400">⚠️ Внимание!</strong> Нажимайте только если получили товар. {selectedDeal.price} USDT будут переведены продавцу
-                      </p>
+                  <Card className="p-4 bg-gradient-to-br from-green-800/10 to-green-900/20 border border-green-500/30 space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                        <Icon name="AlertCircle" size={20} className="text-green-400" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-green-400 mb-1">⚠️ Внимание!</p>
+                        <p className="text-sm text-muted-foreground">
+                          Нажимайте только если получили товар. {selectedDeal.price} USDT будут переведены продавцу
+                        </p>
+                      </div>
                     </div>
                     <Button
                       onClick={(e) => {
@@ -700,21 +724,23 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                         handleBuyerConfirm();
                       }}
                       disabled={actionLoading}
-                      className="w-full bg-gradient-to-r from-green-600 to-green-700 cursor-pointer"
+                      className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 cursor-pointer h-12 text-base"
                       type="button"
                     >
-                      <Icon name="Check" size={16} className="mr-2" />
+                      <Icon name="Check" size={18} className="mr-2" />
                       {actionLoading ? 'Обработка...' : 'Подтвердить получение товара'}
                     </Button>
                   </Card>
                 )}
 
                 {selectedDeal.status === 'completed' && (
-                  <Card className="p-4 bg-green-800/10 border-green-500/30">
-                    <div className="flex items-center gap-3">
-                      <Icon name="CheckCircle2" size={24} className="text-green-400" />
+                  <Card className="p-4 bg-gradient-to-br from-green-800/10 to-green-900/20 border-green-500/30">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                        <Icon name="CheckCircle2" size={24} className="text-green-400" />
+                      </div>
                       <div>
-                        <h4 className="font-semibold text-green-400">Сделка завершена!</h4>
+                        <h4 className="font-bold text-green-400 text-base">Сделка завершена!</h4>
                         <p className="text-sm text-muted-foreground mt-1">
                           {user && Number(user.id) === Number(selectedDeal.seller_id) ? `Вы получили ${(selectedDeal.price - selectedDeal.commission).toFixed(2)} USDT (комиссия ${selectedDeal.commission.toFixed(2)} USDT)` : `Средства ${selectedDeal.price} USDT переведены продавцу`}
                         </p>
