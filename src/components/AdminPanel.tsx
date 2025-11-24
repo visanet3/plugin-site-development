@@ -103,10 +103,13 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
     const interval = setInterval(() => {
       fetchAdminNotifications();
       fetchAllCounts();
+      if (activeTab === 'users') {
+        fetchUsers();
+      }
     }, 10000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [activeTab]);
 
   const fetchUsers = async () => {
     try {
