@@ -42,31 +42,31 @@ const Sidebar = ({
         />
       )}
       
-      <aside className={`fixed top-0 left-0 h-full bg-sidebar border-r border-sidebar-border transition-all duration-300 z-30 overflow-hidden ${sidebarOpen ? 'w-64' : 'w-0'} md:z-30`}>
-        <div className={`p-4 w-64 transition-opacity duration-300 overflow-y-auto h-full ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}>
+      <aside className={`fixed top-0 left-0 h-full bg-sidebar border-r border-sidebar-border transition-all duration-300 z-30 overflow-hidden flex flex-col ${sidebarOpen ? 'w-64' : 'w-0'} md:z-30`}>
+        <div className={`w-64 transition-opacity duration-300 flex flex-col h-full ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}>
           {/* Кнопка закрытия для мобильных */}
-          <div className="flex items-center justify-center mb-6 md:hidden relative">
-            <h1 className="text-xl font-bold bg-gradient-to-r from-zinc-300 via-zinc-600 to-zinc-900 bg-clip-text text-transparent tracking-wide animate-gradient-x bg-[length:200%_auto] mr-8">
+          <div className="flex items-center justify-center py-3 px-4 md:hidden relative shrink-0">
+            <h1 className="text-lg font-bold bg-gradient-to-r from-zinc-300 via-zinc-600 to-zinc-900 bg-clip-text text-transparent tracking-wide animate-gradient-x bg-[length:200%_auto] mr-8">
               Git Crypto
             </h1>
             <Button
               variant="ghost"
               size="icon"
               onClick={onToggleSidebar}
-              className="h-8 w-8 absolute right-0"
+              className="h-8 w-8 absolute right-2"
             >
               <Icon name="X" size={20} />
             </Button>
           </div>
           
           {/* Заголовок для десктопа */}
-          <div className="mb-8 justify-center hidden md:flex">
+          <div className="py-6 justify-center hidden md:flex shrink-0">
             <h1 className="text-2xl font-bold bg-gradient-to-r from-zinc-300 via-zinc-600 to-zinc-900 bg-clip-text text-transparent tracking-wide animate-gradient-x bg-[length:200%_auto]">
               Git Crypto
             </h1>
           </div>
 
-        <nav className="space-y-1">
+        <nav className="space-y-1 px-3 md:px-4 overflow-y-auto flex-1 pb-3">
           {[
             { icon: 'Home', label: 'Главная', id: 'all', view: 'plugins' },
             { icon: 'Zap', label: 'Flash USDT', id: 'categories', view: 'plugins' },
@@ -84,7 +84,7 @@ const Sidebar = ({
                   onToggleSidebar();
                 }
               }}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 tap-highlight ${
+              className={`w-full flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-2.5 rounded-lg transition-all duration-200 tap-highlight ${
                 (activeView === item.view && (item.view === 'forum' || activeCategory === item.id)) ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'hover:bg-sidebar-accent/50 active:bg-sidebar-accent/70'
               }`}
             >
@@ -95,52 +95,54 @@ const Sidebar = ({
           
           {user && (
             <>
-              <button
-                onClick={() => {
-                  onShowMessagesPanel?.();
-                  if (window.innerWidth < 768 && onToggleSidebar) {
-                    onToggleSidebar();
-                  }
-                }}
-                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 tap-highlight hover:bg-sidebar-accent/50 active:bg-sidebar-accent/70 mt-4 relative"
-              >
-                <Icon name="Mail" size={18} />
-                <span className="text-sm font-medium">Сообщения</span>
-                {messagesUnread > 0 && (
-                  <span className="absolute right-4 px-1.5 py-0.5 text-xs bg-red-500 text-white rounded-full">
-                    {messagesUnread}
-                  </span>
-                )}
-              </button>
-              <button
-                onClick={() => {
-                  onShowProfileDialog();
-                  if (window.innerWidth < 768 && onToggleSidebar) {
-                    onToggleSidebar();
-                  }
-                }}
-                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 tap-highlight hover:bg-sidebar-accent/50 active:bg-sidebar-accent/70"
-              >
-                <Icon name="User" size={18} />
-                <span className="text-sm font-medium">Личный кабинет</span>
-              </button>
-              <button
-                onClick={() => {
-                  onCategoryChange('rules', 'plugins');
-                  if (window.innerWidth < 768 && onToggleSidebar) {
-                    onToggleSidebar();
-                  }
-                }}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 tap-highlight ${
-                  activeCategory === 'rules' ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'hover:bg-sidebar-accent/50 active:bg-sidebar-accent/70'
-                }`}
-              >
-                <Icon name="BookOpen" size={18} />
-                <span className="text-sm font-medium">Правила</span>
-              </button>
+              <div className="border-t border-sidebar-border/50 mt-2 pt-2">
+                <button
+                  onClick={() => {
+                    onShowMessagesPanel?.();
+                    if (window.innerWidth < 768 && onToggleSidebar) {
+                      onToggleSidebar();
+                    }
+                  }}
+                  className="w-full flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-2.5 rounded-lg transition-all duration-200 tap-highlight hover:bg-sidebar-accent/50 active:bg-sidebar-accent/70 relative"
+                >
+                  <Icon name="Mail" size={18} />
+                  <span className="text-sm font-medium">Сообщения</span>
+                  {messagesUnread > 0 && (
+                    <span className="absolute right-3 px-1.5 py-0.5 text-xs bg-red-500 text-white rounded-full">
+                      {messagesUnread}
+                    </span>
+                  )}
+                </button>
+                <button
+                  onClick={() => {
+                    onShowProfileDialog();
+                    if (window.innerWidth < 768 && onToggleSidebar) {
+                      onToggleSidebar();
+                    }
+                  }}
+                  className="w-full flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-2.5 rounded-lg transition-all duration-200 tap-highlight hover:bg-sidebar-accent/50 active:bg-sidebar-accent/70"
+                >
+                  <Icon name="User" size={18} />
+                  <span className="text-sm font-medium">Личный кабинет</span>
+                </button>
+                <button
+                  onClick={() => {
+                    onCategoryChange('rules', 'plugins');
+                    if (window.innerWidth < 768 && onToggleSidebar) {
+                      onToggleSidebar();
+                    }
+                  }}
+                  className={`w-full flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-2.5 rounded-lg transition-all duration-200 tap-highlight ${
+                    activeCategory === 'rules' ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'hover:bg-sidebar-accent/50 active:bg-sidebar-accent/70'
+                  }`}
+                >
+                  <Icon name="BookOpen" size={18} />
+                  <span className="text-sm font-medium">Правила</span>
+                </button>
+              </div>
               {user.role === 'admin' && (
                 <div className="mt-2 pt-2 border-t border-sidebar-border/50">
-                  <div className="px-4 py-1 mb-1">
+                  <div className="px-3 md:px-4 py-1 mb-1">
                     <span className="text-xs font-semibold text-primary">АДМИНИСТРАТОР</span>
                   </div>
                   <button
@@ -150,12 +152,12 @@ const Sidebar = ({
                         onToggleSidebar();
                       }
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 tap-highlight hover:bg-sidebar-accent/50 active:bg-sidebar-accent/70 bg-primary/10 border border-primary/30 relative"
+                    className="w-full flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-2.5 rounded-lg transition-all duration-200 tap-highlight hover:bg-sidebar-accent/50 active:bg-sidebar-accent/70 bg-primary/10 border border-primary/30 relative"
                   >
                     <Icon name="Shield" size={18} className="text-primary" />
                     <span className="text-sm font-medium text-primary">Админ-панель</span>
                     {adminNotificationsUnread > 0 && (
-                      <span className="absolute right-4 px-1.5 py-0.5 text-xs bg-red-500 text-white rounded-full">
+                      <span className="absolute right-3 px-1.5 py-0.5 text-xs bg-red-500 text-white rounded-full">
                         {adminNotificationsUnread}
                       </span>
                     )}
@@ -164,36 +166,36 @@ const Sidebar = ({
               )}
             </>
           )}
+          
+          <div className="border-t border-sidebar-border/50 mt-2 pt-2">
+            <p className="text-xs text-muted-foreground px-3 md:px-4 mb-2">ДРУГОЕ</p>
+            {[
+              { slug: 'referral-program', name: 'Реферальная система', icon: 'Users' },
+              { slug: 'faq', name: 'FAQ', icon: 'HelpCircle' },
+              { slug: 'support', name: 'Поддержка', icon: 'MessageCircle' },
+              ...(user ? [{ slug: 'my-tickets', name: 'Мои обращения', icon: 'Inbox' }] : []),
+              { slug: 'terms', name: 'Условия пользования', icon: 'FileText' },
+              { slug: 'about', name: 'О нас', icon: 'Info' }
+            ].map(item => (
+              <button
+                key={item.slug}
+                onClick={() => {
+                  onCategoryChange(item.slug, 'plugins');
+                  if (window.innerWidth < 768 && onToggleSidebar) {
+                    onToggleSidebar();
+                  }
+                }}
+                className={`w-full flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 rounded-lg transition-all duration-200 tap-highlight text-sm ${
+                  activeCategory === item.slug ? 'bg-sidebar-accent' : 'hover:bg-sidebar-accent/50 active:bg-sidebar-accent/70'
+                }`}
+                data-support-link={item.slug === 'flash' ? 'true' : undefined}
+              >
+                <Icon name={item.icon as any} size={16} />
+                {item.name}
+              </button>
+            ))}
+          </div>
         </nav>
-
-        <div className="mt-8 pt-8 border-t border-sidebar-border">
-          <p className="text-xs text-muted-foreground px-4 mb-3">ДРУГОЕ</p>
-          {[
-            { slug: 'referral-program', name: 'Реферальная система', icon: 'Users' },
-            { slug: 'faq', name: 'FAQ', icon: 'HelpCircle' },
-            { slug: 'support', name: 'Поддержка', icon: 'MessageCircle' },
-            ...(user ? [{ slug: 'my-tickets', name: 'Мои обращения', icon: 'Inbox' }] : []),
-            { slug: 'terms', name: 'Условия пользования', icon: 'FileText' },
-            { slug: 'about', name: 'О нас', icon: 'Info' }
-          ].map(item => (
-            <button
-              key={item.slug}
-              onClick={() => {
-                onCategoryChange(item.slug, 'plugins');
-                if (window.innerWidth < 768 && onToggleSidebar) {
-                  onToggleSidebar();
-                }
-              }}
-              className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 tap-highlight text-sm ${
-                activeCategory === item.slug ? 'bg-sidebar-accent' : 'hover:bg-sidebar-accent/50 active:bg-sidebar-accent/70'
-              }`}
-              data-support-link={item.slug === 'flash' ? 'true' : undefined}
-            >
-              <Icon name={item.icon as any} size={16} />
-              {item.name}
-            </button>
-          ))}
-        </div>
       </div>
     </aside>
     </>
