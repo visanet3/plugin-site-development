@@ -857,23 +857,20 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance,
         // 1. Обновляем баланс пользователя
         onRefreshUserBalance?.();
         
-        // 2. Переключаем вкладку (синхронно меняет state)
-        onStatusChange?.('in_progress');
-        
-        // 3. Даём React полностью отрендерить компонент с новой вкладкой
-        // ВАЖНО: useState обновляется асинхронно, поэтому нужна задержка
-        await new Promise(resolve => setTimeout(resolve, 200));
-        
-        // 4. Теперь fetchDeals() будет запрашивать правильную вкладку (in_progress)
-        onUpdate();
-        
-        // 5. Обновляем детали текущей сделки
+        // 2. Обновляем детали СНАЧАЛА (чтобы диалог показал новый статус)
         await fetchDealDetails();
         
-        // 6. Закрываем диалог с задержкой
-        setTimeout(() => {
-          handleClose();
-        }, 1500);
+        // 3. Переключаем вкладку (синхронно меняет state)
+        onStatusChange?.('in_progress');
+        
+        // 4. Даём React полностью отрендерить компонент с новой вкладкой
+        // ВАЖНО: useState обновляется асинхронно, поэтому нужна задержка
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // 5. Теперь fetchDeals() будет запрашивать правильную вкладку (in_progress)
+        onUpdate();
+        
+        // НЕ ЗАКРЫВАЕМ диалог - покупатель остается в сделке и видит новый статус
       } else if (data.error === 'Insufficient balance') {
         toast({
           title: 'Недостаточно средств',
@@ -998,22 +995,22 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance,
         // 1. Обновляем баланс
         onRefreshUserBalance?.();
         
-        // 2. Переключаем вкладку
-        onStatusChange?.('completed');
-        
-        // 3. Даём React полностью обновить state
-        await new Promise(resolve => setTimeout(resolve, 200));
-        
-        // 4. Обновляем список сделок (уже на правильной вкладке)
-        onUpdate();
-        
-        // 5. Обновляем детали сделки
+        // 2. Обновляем детали СНАЧАЛА
         await fetchDealDetails();
         
-        // 6. Закрываем диалог
+        // 3. Переключаем вкладку
+        onStatusChange?.('completed');
+        
+        // 4. Даём React полностью обновить state
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // 5. Обновляем список сделок (уже на правильной вкладке)
+        onUpdate();
+        
+        // 6. Закрываем диалог с задержкой
         setTimeout(() => {
           handleClose();
-        }, 1500);
+        }, 2000);
       }
     } catch (error) {
       console.error('Ошибка:', error);
@@ -1058,22 +1055,19 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance,
         });
         
         // КРИТИЧЕСКИ ВАЖНЫЙ ПОРЯДОК:
-        // 1. Переключаем вкладку
-        onStatusChange?.('dispute');
-        
-        // 2. Даём React полностью обновить state
-        await new Promise(resolve => setTimeout(resolve, 200));
-        
-        // 3. Обновляем список сделок (уже на правильной вкладке)
-        onUpdate();
-        
-        // 4. Обновляем детали сделки
+        // 1. Обновляем детали СНАЧАЛА
         await fetchDealDetails();
         
-        // 5. Закрываем диалог
-        setTimeout(() => {
-          handleClose();
-        }, 1500);
+        // 2. Переключаем вкладку
+        onStatusChange?.('dispute');
+        
+        // 3. Даём React полностью обновить state
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // 4. Обновляем список сделок (уже на правильной вкладке)
+        onUpdate();
+        
+        // НЕ ЗАКРЫВАЕМ диалог - пользователь остается в споре
       } else {
         toast({
           title: 'Ошибка',
