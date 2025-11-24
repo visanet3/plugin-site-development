@@ -180,8 +180,9 @@ export const ForumTopicsList = ({
         </p>
       </div>
 
-      {/* Поиск - только на мобильных */}
-      <div className="sm:hidden mb-3">
+      {/* Компактная панель управления на мобильных */}
+      <div className="flex flex-col gap-3 mb-4 sm:hidden">
+        {/* Поиск */}
         <div className="relative">
           <Icon name="Search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -189,7 +190,7 @@ export const ForumTopicsList = ({
             placeholder="Поиск по темам..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 h-9 text-sm"
+            className="pl-9 h-10 text-sm"
           />
           {searchQuery && (
             <button
@@ -200,9 +201,32 @@ export const ForumTopicsList = ({
             </button>
           )}
         </div>
+
+        {/* Фильтры и сортировка */}
+        <div className="grid grid-cols-2 gap-2">
+          {/* Сортировка */}
+          <select
+            value={forumSortBy}
+            onChange={(e) => setForumSortBy(e.target.value as any)}
+            className="h-10 px-3 rounded-md border bg-background text-sm font-medium flex items-center justify-between"
+          >
+            <option value="newest">🕒 Последние</option>
+            <option value="hot">🔥 Горячие</option>
+            <option value="views">👁️ Популярные</option>
+          </select>
+
+          {/* Кнопка создать тему */}
+          {user && (
+            <Button onClick={onShowTopicDialog} className="bg-primary h-10 text-sm px-3">
+              <Icon name="Plus" size={16} className="mr-1.5" />
+              Новая
+            </Button>
+          )}
+        </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 mb-3 sm:mb-4 md:mb-6">
+      {/* Десктопная версия панели управления */}
+      <div className="hidden sm:flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 mb-3 sm:mb-4 md:mb-6">
         <Tabs value={forumSortBy} onValueChange={(v) => setForumSortBy(v as any)} className="w-full sm:w-auto">
           <TabsList className="grid w-full grid-cols-3 h-9 sm:h-10">
             <TabsTrigger value="newest" className="text-[10px] sm:text-xs md:text-sm">Последние</TabsTrigger>
@@ -219,8 +243,99 @@ export const ForumTopicsList = ({
         )}
       </div>
 
+      {/* Категории - мобильная версия */}
+      <div className="sm:hidden mb-4">
+        {categories.length > 0 && (
+          <div className="space-y-3">
+            {/* Выбранная категория или кнопка выбора */}
+            <div className="space-y-2">
+              <div className="text-xs font-medium text-muted-foreground px-1">Категория</div>
+              {!selectedCategory && selectedParentCategory === null ? (
+                <select
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === 'all') {
+                      setSelectedCategory(null);
+                      setSelectedParentCategory(null);
+                    } else if (value.startsWith('parent-')) {
+                      const parentId = parseInt(value.replace('parent-', ''));
+                      setSelectedParentCategory(parentId);
+                      setSelectedCategory(null);
+                    } else {
+                      setSelectedCategory(value);
+                      setSelectedParentCategory(null);
+                    }
+                  }}
+                  className="w-full h-10 px-3 rounded-md border bg-background text-sm font-medium"
+                >
+                  <option value="all">📂 Все категории</option>
+                  {categories.map((parentCategory) => (
+                    <optgroup key={parentCategory.id} label={parentCategory.name}>
+                      <option value={`parent-${parentCategory.id}`}>📁 {parentCategory.name} (все)</option>
+                      {parentCategory.subcategories?.map((sub) => (
+                        <option key={sub.id} value={sub.slug}>
+                          └─ {sub.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+              ) : (
+                <button
+                  onClick={() => {
+                    setSelectedCategory(null);
+                    setSelectedParentCategory(null);
+                  }}
+                  className="w-full h-10 px-3 rounded-md border flex items-center justify-between text-sm font-medium"
+                  style={{
+                    backgroundColor: selectedCategory
+                      ? `${categories.find(c => c.subcategories?.find(s => s.slug === selectedCategory))?.subcategories?.find(s => s.slug === selectedCategory)?.color}25`
+                      : selectedParentCategory !== null
+                      ? `${categories.find(c => c.id === selectedParentCategory)?.color}25`
+                      : undefined,
+                    borderColor: selectedCategory
+                      ? `${categories.find(c => c.subcategories?.find(s => s.slug === selectedCategory))?.subcategories?.find(s => s.slug === selectedCategory)?.color}50`
+                      : selectedParentCategory !== null
+                      ? `${categories.find(c => c.id === selectedParentCategory)?.color}50`
+                      : undefined,
+                    color: selectedCategory
+                      ? categories.find(c => c.subcategories?.find(s => s.slug === selectedCategory))?.subcategories?.find(s => s.slug === selectedCategory)?.color
+                      : selectedParentCategory !== null
+                      ? categories.find(c => c.id === selectedParentCategory)?.color
+                      : undefined
+                  }}
+                >
+                  <div className="flex items-center gap-2">
+                    <Icon 
+                      name={
+                        selectedCategory
+                          ? (categories.find(c => c.subcategories?.find(s => s.slug === selectedCategory))?.subcategories?.find(s => s.slug === selectedCategory)?.icon as any)
+                          : selectedParentCategory !== null
+                          ? (categories.find(c => c.id === selectedParentCategory)?.icon as any)
+                          : 'Folder'
+                      } 
+                      size={16} 
+                    />
+                    <span>
+                      {selectedCategory
+                        ? categories.find(c => c.subcategories?.find(s => s.slug === selectedCategory))?.subcategories?.find(s => s.slug === selectedCategory)?.name
+                        : selectedParentCategory !== null
+                        ? categories.find(c => c.id === selectedParentCategory)?.name
+                        : 'Выбрать категорию'
+                      }
+                    </span>
+                  </div>
+                  <Icon name="X" size={16} />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Категории - десктопная версия */}
       {categories.length > 0 && (
-        <div className="mb-4">
+        <div className="hidden sm:block mb-4">
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => {
