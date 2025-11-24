@@ -755,14 +755,14 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance,
           description: 'Вы присоединились к сделке! Средства заблокированы до завершения.'
         });
         await fetchDealDetails();
-        onUpdate();
         onRefreshUserBalance?.();
         
-        // Переключаем на вкладку "Незавершенные" и закрываем диалог
+        // Сразу переключаем на вкладку "Незавершенные" и закрываем диалог
+        onStatusChange?.('in_progress');
+        onUpdate();
         setTimeout(() => {
-          onStatusChange?.('in_progress');
           handleClose();
-        }, 2000);
+        }, 1500);
       } else if (data.error === 'Insufficient balance') {
         toast({
           title: 'Недостаточно средств',
@@ -883,14 +883,14 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance,
           duration: 5000
         });
         await fetchDealDetails();
-        onUpdate();
         onRefreshUserBalance?.();
         
-        // Переключаем на вкладку "Завершенные" и закрываем диалог
+        // Сразу переключаем на вкладку "Завершенные" и закрываем диалог
+        onStatusChange?.('completed');
+        onUpdate();
         setTimeout(() => {
-          onStatusChange?.('completed');
           handleClose();
-        }, 2000);
+        }, 1500);
       }
     } catch (error) {
       console.error('Ошибка:', error);
@@ -934,13 +934,13 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance,
           duration: 5000
         });
         await fetchDealDetails();
-        onUpdate();
         
-        // Переключаем на вкладку "Споры" и закрываем диалог
+        // Сразу переключаем на вкладку "Споры" и закрываем диалог
+        onStatusChange?.('dispute');
+        onUpdate();
         setTimeout(() => {
-          onStatusChange?.('dispute');
           handleClose();
-        }, 2000);
+        }, 1500);
       } else {
         toast({
           title: 'Ошибка',
