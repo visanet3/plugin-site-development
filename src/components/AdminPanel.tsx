@@ -93,13 +93,26 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
 
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
+      console.log('Событие storage:', e.key);
       if (e.key === 'admin_mock_tickets') {
+        console.log('Обнаружено изменение тикетов, обновляем...');
         fetchTickets();
         fetchAllCounts();
       }
     };
 
+    const handleTicketCreated = (e: CustomEvent) => {
+      console.log('Событие ticket-created получено:', e.detail);
+      fetchTickets();
+      fetchAllCounts();
+      toast({
+        title: '🎫 Новый тикет!',
+        description: `От пользователя ${e.detail.username}: ${e.detail.subject}`
+      });
+    };
+
     window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('ticket-created', handleTicketCreated as EventListener);
     
     const interval = setInterval(() => {
       fetchTickets();
@@ -107,6 +120,7 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('ticket-created', handleTicketCreated as EventListener);
       clearInterval(interval);
     };
   }, []);

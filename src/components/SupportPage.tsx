@@ -35,13 +35,20 @@ const SupportPage = ({ user, onShowAuthDialog }: SupportPageProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('=== НАЧАЛО СОЗДАНИЯ ТИКЕТА ===');
+    console.log('User:', user);
+    console.log('Category:', category);
+    console.log('Subject:', subject);
+    console.log('Message:', message);
 
     if (!user) {
+      console.log('Ошибка: пользователь не авторизован');
       onShowAuthDialog();
       return;
     }
 
     if (!category) {
+      console.log('Ошибка: категория не выбрана');
       toast({
         title: 'Ошибка',
         description: 'Выберите категорию проблемы',
@@ -51,6 +58,7 @@ const SupportPage = ({ user, onShowAuthDialog }: SupportPageProps) => {
     }
 
     if (!subject.trim() || !message.trim()) {
+      console.log('Ошибка: поля не заполнены');
       toast({
         title: 'Ошибка',
         description: 'Заполните все поля',
@@ -59,6 +67,7 @@ const SupportPage = ({ user, onShowAuthDialog }: SupportPageProps) => {
       return;
     }
 
+    console.log('Валидация пройдена, начинаем сохранение');
     setIsSubmitting(true);
 
     try {
@@ -80,11 +89,18 @@ const SupportPage = ({ user, onShowAuthDialog }: SupportPageProps) => {
       tickets.push(newTicket);
       localStorage.setItem('admin_mock_tickets', JSON.stringify(tickets));
       console.log('Тикет сохранен. Всего тикетов:', tickets.length);
+      console.log('Тикеты в localStorage после сохранения:', localStorage.getItem('admin_mock_tickets'));
       
       window.dispatchEvent(new StorageEvent('storage', {
         key: 'admin_mock_tickets',
         newValue: JSON.stringify(tickets)
       }));
+      console.log('Событие storage отправлено');
+      
+      window.dispatchEvent(new CustomEvent('ticket-created', { 
+        detail: newTicket 
+      }));
+      console.log('Событие ticket-created отправлено');
       
       toast({
         title: 'Тикет создан!',
