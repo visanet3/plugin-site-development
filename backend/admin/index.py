@@ -339,9 +339,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cur.execute(f"DELETE FROM {SCHEMA}.verification_requests WHERE user_id = %s", (target_user_id,))
                 cur.execute(f"DELETE FROM {SCHEMA}.withdrawal_notifications WHERE user_id = %s", (target_user_id,))
                 cur.execute(f"DELETE FROM {SCHEMA}.lottery_notifications WHERE user_id = %s", (target_user_id,))
-                cur.execute(f"DELETE FROM {SCHEMA}.admin_notifications WHERE user_id = %s", (target_user_id,))
-                cur.execute(f"DELETE FROM {SCHEMA}.escrow_dispute_notifications WHERE user_id = %s", (target_user_id,))
                 cur.execute(f"DELETE FROM {SCHEMA}.notifications WHERE user_id = %s", (target_user_id,))
+                
+                cur.execute(f"DELETE FROM {SCHEMA}.escrow_dispute_notifications WHERE user_id = %s", (target_user_id,))
+                cur.execute(f"DELETE FROM {SCHEMA}.escrow_messages WHERE user_id = %s", (target_user_id,))
                 
                 cur.execute(f"DELETE FROM {SCHEMA}.messages WHERE from_user_id = %s OR to_user_id = %s", (target_user_id, target_user_id))
                 cur.execute(f"DELETE FROM {SCHEMA}.password_reset_tokens WHERE user_id = %s", (target_user_id,))
@@ -350,7 +351,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cur.execute(f"DELETE FROM {SCHEMA}.forum_comments WHERE author_id = %s", (target_user_id,))
                 cur.execute(f"DELETE FROM {SCHEMA}.forum_topics WHERE author_id = %s", (target_user_id,))
                 
-                cur.execute(f"DELETE FROM {SCHEMA}.escrow_messages WHERE user_id = %s", (target_user_id,))
                 cur.execute(f"DELETE FROM {SCHEMA}.escrow_deals WHERE seller_id = %s OR buyer_id = %s", (target_user_id, target_user_id))
                 
                 cur.execute(f"DELETE FROM {SCHEMA}.lottery_chat WHERE user_id = %s", (target_user_id,))
