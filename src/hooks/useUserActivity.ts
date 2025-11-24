@@ -105,14 +105,32 @@ export const useUserActivity = ({
               'Content-Type': 'application/json',
               'X-User-Id': user.id.toString()
             },
-            body: JSON.stringify({ action: 'get_balance' })
+            body: JSON.stringify({ action: 'get_user' })
           });
           if (!response.ok) return;
           const data = await response.json();
-          if (data.success && data.balance !== undefined) {
+          
+          if (data.success && data.user) {
+            // Check if user is blocked
+            if (data.user.is_blocked) {
+              localStorage.removeItem('user');
+              if (showToast) {
+                showToast(
+                  '🚫 Аккаунт заблокирован',
+                  'Вы заблокированы навсегда. Доступ к сайту закрыт.',
+                  'bg-red-500/10 border-red-500/30 text-foreground',
+                  0
+                );
+              }
+              setTimeout(() => {
+                window.location.reload();
+              }, 2000);
+              return;
+            }
+            
             const currentBalance = user.balance || 0;
-            if (data.balance !== currentBalance) {
-              const updatedUser = { ...user, balance: data.balance };
+            if (data.user.balance !== currentBalance) {
+              const updatedUser = { ...user, balance: data.user.balance };
               setUser(updatedUser);
               localStorage.setItem('user', JSON.stringify(updatedUser));
             }
