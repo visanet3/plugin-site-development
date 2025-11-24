@@ -212,81 +212,91 @@ export const ForumTopicsList = ({
         </div>
       )}
 
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         {filteredTopics.map((topic, index) => (
           <div
             key={topic.id}
-            className="bg-zinc-900/40 border border-zinc-800/60 rounded-md p-2 sm:p-2.5 hover:border-zinc-700/80 hover:bg-zinc-900/60 transition-all duration-200 cursor-pointer group animate-slide-up active:scale-[0.99]"
-            style={{ animationDelay: `${index * 0.03}s` }}
-            onClick={() => onTopicSelect(topic)}
+            className="bg-card border border-border rounded-lg p-2.5 sm:p-3 md:p-4 hover:border-primary/50 transition-all duration-300 cursor-pointer group animate-slide-up hover:shadow-lg active:scale-[0.99] tap-highlight"
+            style={{ animationDelay: `${index * 0.05}s` }}
           >
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex items-start gap-2 flex-1 min-w-0">
-                <div className="relative flex-shrink-0">
+            <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
+              <div className="flex items-start gap-2 sm:gap-3 flex-1 w-full sm:w-auto" onClick={() => onTopicSelect(topic)}>
+                <div className="relative">
                   <Avatar 
-                    className="w-7 h-7 sm:w-8 sm:h-8 hover:scale-105 transition-transform"
+                    className="w-8 h-8 sm:w-10 sm:h-10 hover:scale-110 transition-transform"
                     onClick={(e) => {
                       e.stopPropagation();
                       topic.author_id && onUserClick(topic.author_id);
                     }}
                   >
                     <AvatarImage src={topic.author_avatar} />
-                    <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(topic.author_name)} text-white text-[10px] sm:text-xs font-bold`}>
+                    <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(topic.author_name)} text-white text-xs sm:text-sm font-bold`}>
                       {topic.author_name[0].toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
+                  <div className="absolute -top-0.5 -right-0.5">
+                    <UserRankBadge forumRole={topic.author_forum_role} size="sm" />
+                  </div>
                   {isUserOnline(topic.author_last_seen) && (
-                    <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-500 rounded-full border border-zinc-900"></div>
+                    <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-background"></div>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
                     {topic.is_pinned && (
-                      <Badge variant="default" className="h-4 px-1.5 text-[10px] bg-zinc-700 text-zinc-300">
-                        <Icon name="Pin" size={10} className="mr-0.5" />
-                        PIN
+                      <Badge variant="default" className="bg-primary">
+                        <Icon name="Pin" size={12} className="mr-1" />
+                        Закреплено
                       </Badge>
                     )}
                     {topic.category_name && topic.category_color && topic.category_icon && (
                       <Badge 
                         variant="outline" 
-                        className="h-4 px-1.5 text-[10px] gap-1 border-zinc-700/50"
+                        className="text-xs gap-1"
                         style={{
+                          borderColor: topic.category_color,
                           color: topic.category_color,
-                          backgroundColor: `${topic.category_color}15`
+                          backgroundColor: `${topic.category_color}10`
                         }}
                       >
-                        <Icon name={topic.category_icon as any} size={10} />
+                        <Icon name={topic.category_icon as any} size={12} />
                         {topic.category_name}
                       </Badge>
                     )}
                   </div>
-                  <h3 className="font-medium text-sm sm:text-base text-zinc-100 group-hover:text-zinc-50 transition-colors truncate mb-1 leading-snug">
+                  <h3 className="font-semibold text-base sm:text-lg group-hover:text-primary transition-colors truncate mb-1">
                     {topic.title}
                   </h3>
-                  <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-zinc-500 flex-wrap">
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); topic.author_id && onUserClick(topic.author_id); }} 
-                      className="hover:text-zinc-400 transition-colors flex items-center gap-1"
-                    >
-                      {topic.author_name}
+                  <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground flex-wrap">
+                    <span className="flex items-center gap-1.5">
+                      Автор: <button onClick={(e) => { e.stopPropagation(); topic.author_id && onUserClick(topic.author_id); }} className="hover:text-primary transition-colors">{topic.author_name}</button>
                       {topic.author_is_verified && (
-                        <Icon name="BadgeCheck" size={11} className="text-emerald-500" />
+                        <Icon name="BadgeCheck" size={14} className="text-primary" title="Верифицирован" />
                       )}
-                    </button>
-                    <span className="text-zinc-700">•</span>
-                    <span title={getFullDateTime(topic.created_at)}>{getTimeAgo(topic.created_at)}</span>
+                      <ForumRoleBadge role={topic.author_forum_role} />
+                    </span>
+                    <span>•</span>
+                    <span title={getFullDateTime(topic.created_at)}>Создана: {getTimeAgo(topic.created_at)}</span>
+                    {topic.updated_at && topic.updated_at !== topic.created_at && (
+                      <>
+                        <span>•</span>
+                        <span title={getFullDateTime(topic.updated_at)} className="flex items-center gap-1">
+                          <Icon name="Clock" size={12} />
+                          Обновлена: {getTimeAgo(topic.updated_at)}
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 text-[10px] sm:text-xs text-zinc-500 flex-shrink-0">
-                <div className="flex items-center gap-1 hover:text-zinc-400 transition-colors">
-                  <Icon name="MessageCircle" size={13} />
+              <div className="flex items-center gap-3 sm:gap-6 text-xs sm:text-sm text-muted-foreground flex-shrink-0 ml-10 sm:ml-0">
+                <div className="flex items-center gap-1">
+                  <Icon name="MessageCircle" size={14} />
                   <span>{topic.comments_count}</span>
                 </div>
-                <div className="flex items-center gap-1 hover:text-zinc-400 transition-colors">
-                  <Icon name="Eye" size={13} />
+                <div className="flex items-center gap-1">
+                  <Icon name="Eye" size={14} />
                   <span>{topic.views}</span>
                 </div>
               </div>
