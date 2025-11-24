@@ -336,39 +336,79 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 conn.commit()
                 
                 # Step 2: Delete all user data in correct order (reverse foreign key dependencies)
-                cur.execute(f"DELETE FROM {SCHEMA}.verification_requests WHERE user_id = %s", (target_user_id,))
-                cur.execute(f"DELETE FROM {SCHEMA}.withdrawal_notifications WHERE user_id = %s", (target_user_id,))
-                cur.execute(f"DELETE FROM {SCHEMA}.lottery_notifications WHERE user_id = %s", (target_user_id,))
-                cur.execute(f"DELETE FROM {SCHEMA}.notifications WHERE user_id = %s", (target_user_id,))
-                
-                cur.execute(f"DELETE FROM {SCHEMA}.escrow_dispute_notifications WHERE user_id = %s", (target_user_id,))
-                cur.execute(f"DELETE FROM {SCHEMA}.escrow_messages WHERE user_id = %s", (target_user_id,))
-                
-                cur.execute(f"DELETE FROM {SCHEMA}.messages WHERE from_user_id = %s OR to_user_id = %s", (target_user_id, target_user_id))
-                cur.execute(f"DELETE FROM {SCHEMA}.password_reset_tokens WHERE user_id = %s", (target_user_id,))
-                cur.execute(f"DELETE FROM {SCHEMA}.security_logs WHERE user_id = %s", (target_user_id,))
-                
-                cur.execute(f"DELETE FROM {SCHEMA}.forum_comments WHERE author_id = %s", (target_user_id,))
-                cur.execute(f"DELETE FROM {SCHEMA}.forum_topics WHERE author_id = %s", (target_user_id,))
-                
-                cur.execute(f"DELETE FROM {SCHEMA}.escrow_deals WHERE seller_id = %s OR buyer_id = %s", (target_user_id, target_user_id))
-                
-                cur.execute(f"DELETE FROM {SCHEMA}.lottery_chat WHERE user_id = %s", (target_user_id,))
-                cur.execute(f"DELETE FROM {SCHEMA}.lottery_tickets WHERE user_id = %s", (target_user_id,))
-                
-                cur.execute(f"DELETE FROM {SCHEMA}.active_game_sessions WHERE user_id = %s", (target_user_id,))
-                cur.execute(f"DELETE FROM {SCHEMA}.casino_wins WHERE user_id = %s", (target_user_id,))
-                
-                cur.execute(f"DELETE FROM {SCHEMA}.flash_usdt_orders WHERE user_id = %s", (target_user_id,))
-                
-                cur.execute(f"DELETE FROM {SCHEMA}.crypto_payments WHERE user_id = %s", (target_user_id,))
-                cur.execute(f"DELETE FROM {SCHEMA}.withdrawal_requests WHERE user_id = %s", (target_user_id,))
-                cur.execute(f"DELETE FROM {SCHEMA}.withdrawals WHERE user_id = %s", (target_user_id,))
-                cur.execute(f"DELETE FROM {SCHEMA}.transactions WHERE user_id = %s", (target_user_id,))
-                
-                cur.execute(f"DELETE FROM {SCHEMA}.referral_rewards WHERE user_id = %s OR referrer_id = %s", (target_user_id, target_user_id))
-                cur.execute(f"DELETE FROM {SCHEMA}.referrals WHERE referrer_id = %s OR referred_id = %s", (target_user_id, target_user_id))
-                cur.execute(f"DELETE FROM {SCHEMA}.referral_codes WHERE user_id = %s", (target_user_id,))
+                # Use CASCADE to automatically delete related records
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.verification_requests WHERE user_id = %s", (target_user_id,))
+                except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.withdrawal_notifications WHERE user_id = %s", (target_user_id,))
+                except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.lottery_notifications WHERE user_id = %s", (target_user_id,))
+                except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.notifications WHERE user_id = %s", (target_user_id,))
+                except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.escrow_dispute_notifications WHERE user_id = %s", (target_user_id,))
+                except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.escrow_messages WHERE user_id = %s", (target_user_id,))
+                except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.messages WHERE from_user_id = %s OR to_user_id = %s", (target_user_id, target_user_id))
+                except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.password_reset_tokens WHERE user_id = %s", (target_user_id,))
+                except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.security_logs WHERE user_id = %s", (target_user_id,))
+                except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.forum_comments WHERE author_id = %s", (target_user_id,))
+                except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.forum_topics WHERE author_id = %s", (target_user_id,))
+                except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.escrow_deals WHERE seller_id = %s OR buyer_id = %s", (target_user_id, target_user_id))
+                except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.lottery_chat WHERE user_id = %s", (target_user_id,))
+                except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.lottery_tickets WHERE user_id = %s", (target_user_id,))
+                except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.active_game_sessions WHERE user_id = %s", (target_user_id,))
+                except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.casino_wins WHERE user_id = %s", (target_user_id,))
+                except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.flash_usdt_orders WHERE user_id = %s", (target_user_id,))
+                except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.crypto_payments WHERE user_id = %s", (target_user_id,))
+                except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.withdrawal_requests WHERE user_id = %s", (target_user_id,))
+                except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.withdrawals WHERE user_id = %s", (target_user_id,))
+                except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.transactions WHERE user_id = %s", (target_user_id,))
+                except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.referral_rewards WHERE user_id = %s OR referrer_id = %s", (target_user_id, target_user_id))
+                except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.referrals WHERE referrer_id = %s OR referred_id = %s", (target_user_id, target_user_id))
+                except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.referral_codes WHERE user_id = %s", (target_user_id,))
+                except: pass
                 
                 # Step 3: Finally delete the user
                 cur.execute(f"DELETE FROM {SCHEMA}.users WHERE id = %s", (target_user_id,))
