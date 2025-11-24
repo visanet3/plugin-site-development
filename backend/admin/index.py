@@ -329,14 +329,22 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
                 
                 # Step 1: Block user permanently (for instant logout)
-                cur.execute(
-                    f"UPDATE {SCHEMA}.users SET is_blocked = TRUE, blocked_at = CURRENT_TIMESTAMP, blocked_by = %s, block_reason = %s WHERE id = %s",
-                    (user_id, 'Пользователь удалён навсегда', target_user_id)
-                )
-                conn.commit()
+                try:
+                    cur.execute(
+                        f"UPDATE {SCHEMA}.users SET is_blocked = TRUE, blocked_at = CURRENT_TIMESTAMP, blocked_by = %s, block_reason = %s WHERE id = %s",
+                        (user_id, 'Пользователь удалён навсегда', target_user_id)
+                    )
+                    conn.commit()
+                except Exception as e:
+                    conn.rollback()
+                    return {
+                        'statusCode': 500,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': f'Ошибка блокировки: {str(e)}'}),
+                        'isBase64Encoded': False
+                    }
                 
                 # Step 2: Delete all user data in correct order (reverse foreign key dependencies)
-                # Use CASCADE to automatically delete related records
                 try:
                     cur.execute(f"DELETE FROM {SCHEMA}.verification_requests WHERE user_id = %s", (target_user_id,))
                 except: pass
