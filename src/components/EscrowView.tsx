@@ -415,6 +415,20 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
             </p>
           </Card>
         )}
+        
+        {statusFilter === 'in_progress' && user && deals.length === 0 && (
+          <Card className="p-3 sm:p-4 bg-blue-500/5 border-blue-500/20">
+            <div className="flex items-start gap-2 sm:gap-3">
+              <Icon name="Info" size={18} className="text-blue-400 flex-shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="text-xs sm:text-sm text-blue-400 font-medium">У вас пока нет активных покупок</p>
+                <p className="text-xs text-muted-foreground">
+                  Перейдите на вкладку "В продаже" чтобы купить товары
+                </p>
+              </div>
+            </div>
+          </Card>
+        )}
       </div>
 
       {loading ? (
@@ -437,6 +451,15 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
             >
               <Icon name="Plus" size={16} className="mr-2" />
               Разместить первый товар
+            </Button>
+          )}
+          {statusFilter === 'in_progress' && user && (
+            <Button
+              onClick={() => setStatusFilter('open')}
+              className="bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800"
+            >
+              <Icon name="Store" size={16} className="mr-2" />
+              Перейти к товарам
             </Button>
           )}
         </Card>
@@ -759,15 +782,11 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance,
   };
 
   const joinDeal = async () => {
-    console.log('joinDeal вызвана', { user, loading, currentDeal });
-    
     if (!user) {
-      console.log('Нет пользователя - молча выходим');
       return;
     }
     
     if (loading) {
-      console.log('Уже загружается - выходим');
       return;
     }
     
@@ -780,7 +799,6 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance,
       return;
     }
     
-    console.log('Начинаем покупку...');
     setLoading(true);
 
     try {
@@ -799,14 +817,15 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance,
       const data = await response.json();
       if (data.success) {
         toast({
-          title: 'Успешно',
-          description: 'Вы купили товар! Средства заблокированы до получения.'
+          title: '🎉 Покупка успешна!',
+          description: 'Товар теперь в разделе "Мои покупки". Средства заблокированы до получения.',
+          duration: 7000
         });
         
         onRefreshUserBalance?.();
         await fetchDealDetails();
         onStatusChange?.('in_progress');
-        await new Promise(resolve => setTimeout(resolve, 300));
+        await new Promise(resolve => setTimeout(resolve, 500));
         onUpdate();
         
       } else if (data.error === 'Insufficient balance') {
@@ -1006,16 +1025,6 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance,
   const isSeller = user?.id === currentDeal.seller_id;
   const isBuyer = user?.id === currentDeal.buyer_id;
   const isAdmin = user?.role === 'admin';
-  
-  console.log('DealDetailDialog render', { 
-    status: currentDeal.status, 
-    isSeller, 
-    isBuyer, 
-    userId: user?.id, 
-    sellerId: currentDeal.seller_id,
-    buyerId: currentDeal.buyer_id,
-    showBuyButton: currentDeal.status === 'open' && !isSeller
-  });
 
   const getStageComment = (status: string, isSeller: boolean) => {
     const comments: Record<string, { seller: string; buyer: string }> = {
@@ -1024,8 +1033,8 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance,
         buyer: '🛒 Вы можете купить этот товар. Средства будут заблокированы до получения.'
       },
       in_progress: {
-        seller: '📦 Покупатель оплатил товар. Передайте товар покупателю.',
-        buyer: '⏳ Средства заблокированы. Ожидайте получение товара от продавца.'
+        seller: '📦 Покупатель оплатил товар. Свяжитесь с ним в чате и передайте товар.',
+        buyer: '✅ Товар куплен! Средства заблокированы. Свяжитесь с продавцом в чате для получения товара.'
       },
       completed: {
         seller: '✅ Сделка завершена! Средства на вашем балансе.',
