@@ -30,6 +30,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
   const [dealMessages, setDealMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   
   const [statusFilter, setStatusFilter] = useState<'active' | 'my_deals' | 'completed'>('active');
   
@@ -249,9 +250,13 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
     console.log('handleBuyerConfirm вызвана', { user, selectedDeal, actionLoading });
     if (!user || !selectedDeal || actionLoading) return;
     
-    const confirmed = window.confirm('Подтвердить получение товара? Средства будут переведены продавцу (комиссия 1%)');
-    if (!confirmed) return;
+    setShowConfirmDialog(true);
+  };
+
+  const confirmBuyerConfirm = async () => {
+    if (!user || !selectedDeal || actionLoading) return;
     
+    setShowConfirmDialog(false);
     setActionLoading(true);
 
     try {
@@ -707,6 +712,45 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Диалог подтверждения получения товара */}
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>⚠️ Подтверждение получения</DialogTitle>
+            <DialogDescription>
+              Вы уверены, что получили товар?
+            </DialogDescription>
+          </DialogHeader>
+
+          <Card className="bg-orange-500/5 border-orange-500/20 p-4">
+            <p className="text-sm text-muted-foreground">
+              После подтверждения средства <strong className="text-orange-400">{selectedDeal?.price} USDT</strong> будут переведены продавцу (комиссия 1%). 
+              <br /><br />
+              <strong>Это действие нельзя отменить!</strong>
+            </p>
+          </Card>
+
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowConfirmDialog(false)}
+              className="flex-1"
+              disabled={actionLoading}
+            >
+              Отмена
+            </Button>
+            <Button
+              onClick={confirmBuyerConfirm}
+              disabled={actionLoading}
+              className="flex-1 bg-gradient-to-r from-green-600 to-green-700"
+            >
+              <Icon name={actionLoading ? "Loader2" : "Check"} size={16} className={`mr-2 ${actionLoading ? 'animate-spin' : ''}`} />
+              {actionLoading ? 'Обработка...' : 'Да, подтверждаю'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
