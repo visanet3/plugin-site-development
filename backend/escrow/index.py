@@ -51,87 +51,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 status_filter = params.get('status', 'all')
                 cursor = conn.cursor(cursor_factory=RealDictCursor)
                 
-                # Для открытых сделок
+                # НОВАЯ ПРОСТАЯ ЛОГИКА:
+                # open - сделки БЕЗ покупателя (все видят)
+                # in_progress - сделки С покупателем и status='in_progress' (только участники)
+                # completed - сделки status='completed' (только участники)
+                # dispute - сделки status='dispute' (только участники)
+                
                 if status_filter == 'open':
-                    if user_id:
-                        # Авторизованный пользователь видит:
-                        # 1. Все сделки БЕЗ покупателя (status='open' AND buyer_id IS NULL)
-                        # 2. Свои открытые сделки с покупателем (status='open' И есть покупатель)
-                        query = """
-                            SELECT ed.*, 
-                                seller.username as seller_name, seller.avatar_url as seller_avatar,
-                                buyer.username as buyer_name, buyer.avatar_url as buyer_avatar
-                            FROM escrow_deals ed
-                            LEFT JOIN users seller ON ed.seller_id = seller.id
-                            LEFT JOIN users buyer ON ed.buyer_id = buyer.id
-                            WHERE ed.status = 'open' 
-                               AND (ed.buyer_id IS NULL OR ed.seller_id = %s OR ed.buyer_id = %s)
-                            ORDER BY ed.created_at DESC
-                        """
-                        cursor.execute(query, (user_id, user_id))
-                    else:
-                        # Неавторизованный видит только открытые без покупателя
-                        query = """
-                            SELECT ed.*, 
-                                seller.username as seller_name, seller.avatar_url as seller_avatar,
-                                buyer.username as buyer_name, buyer.avatar_url as buyer_avatar
-                            FROM escrow_deals ed
-                            LEFT JOIN users seller ON ed.seller_id = seller.id
-                            LEFT JOIN users buyer ON ed.buyer_id = buyer.id
-                            WHERE ed.status = 'open' AND ed.buyer_id IS NULL
-                            ORDER BY ed.created_at DESC
-                        """
-                        cursor.execute(query)
-                # Для незавершенных (в процессе) - только участники видят свои сделки
-                elif status_filter == 'in_progress':
-                    if user_id:
-                        query = """
-                            SELECT ed.*, 
-                                seller.username as seller_name, seller.avatar_url as seller_avatar,
-                                buyer.username as buyer_name, buyer.avatar_url as buyer_avatar
-                            FROM escrow_deals ed
-                            LEFT JOIN users seller ON ed.seller_id = seller.id
-                            LEFT JOIN users buyer ON ed.buyer_id = buyer.id
-                            WHERE ed.status = 'in_progress' AND (ed.seller_id = %s OR ed.buyer_id = %s)
-                            ORDER BY ed.created_at DESC
-                        """
-                        cursor.execute(query, (user_id, user_id))
-                    else:
-                        # Неавторизованные пользователи не видят незавершенные сделки
-                        deals = []
-                        cursor.close()
-                        return {
-                            'statusCode': 200,
-                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'deals': deals}, default=serialize_datetime),
-                            'isBase64Encoded': False
-                        }
-                # Для завершенных и споров - только участники видят сделки
-                elif status_filter == 'completed' or status_filter == 'dispute':
-                    if user_id:
-                        query = """
-                            SELECT ed.*, 
-                                seller.username as seller_name, seller.avatar_url as seller_avatar,
-                                buyer.username as buyer_name, buyer.avatar_url as buyer_avatar
-                            FROM escrow_deals ed
-                            LEFT JOIN users seller ON ed.seller_id = seller.id
-                            LEFT JOIN users buyer ON ed.buyer_id = buyer.id
-                            WHERE ed.status = %s AND (ed.seller_id = %s OR ed.buyer_id = %s)
-                            ORDER BY ed.created_at DESC
-                        """
-                        cursor.execute(query, (status_filter, user_id, user_id))
-                    else:
-                        # Неавторизованные пользователи не видят завершенные сделки
-                        deals = []
-                        cursor.close()
-                        return {
-                            'statusCode': 200,
-                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'deals': deals}, default=serialize_datetime),
-                            'isBase64Encoded': False
-                        }
-                else:
-                    # Для всех остальных фильтров показываем только открытые без покупателя
+                    # Открытые сделки БЕЗ покупателя - видят все
                     query = """
                         SELECT ed.*, 
                             seller.username as seller_name, seller.avatar_url as seller_avatar,
@@ -139,7 +66,96 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         FROM escrow_deals ed
                         LEFT JOIN users seller ON ed.seller_id = seller.id
                         LEFT JOIN users buyer ON ed.buyer_id = buyer.id
-                        WHERE ed.status = 'open' AND ed.buyer_id IS NULL
+                        WHERE ed.buyer_id IS NULL
+                        ORDER BY ed.created_at DESC
+                    """
+                    cursor.execute(query)
+                    
+                elif status_filter == 'in_progress':
+                    # Незавершенные сделки - только участники видят свои
+                    if not user_id:
+                        deals = []
+                        cursor.close()
+                        return {
+                            'statusCode': 200,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'deals': deals}, default=serialize_datetime),
+                            'isBase64Encoded': False
+                        }
+                    
+                    query = """
+                        SELECT ed.*, 
+                            seller.username as seller_name, seller.avatar_url as seller_avatar,
+                            buyer.username as buyer_name, buyer.avatar_url as buyer_avatar
+                        FROM escrow_deals ed
+                        LEFT JOIN users seller ON ed.seller_id = seller.id
+                        LEFT JOIN users buyer ON ed.buyer_id = buyer.id
+                        WHERE ed.status = 'in_progress' 
+                          AND (ed.seller_id = %s OR ed.buyer_id = %s)
+                        ORDER BY ed.created_at DESC
+                    """
+                    cursor.execute(query, (user_id, user_id))
+                    
+                elif status_filter == 'completed':
+                    # Завершенные сделки - только участники видят свои
+                    if not user_id:
+                        deals = []
+                        cursor.close()
+                        return {
+                            'statusCode': 200,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'deals': deals}, default=serialize_datetime),
+                            'isBase64Encoded': False
+                        }
+                    
+                    query = """
+                        SELECT ed.*, 
+                            seller.username as seller_name, seller.avatar_url as seller_avatar,
+                            buyer.username as buyer_name, buyer.avatar_url as buyer_avatar
+                        FROM escrow_deals ed
+                        LEFT JOIN users seller ON ed.seller_id = seller.id
+                        LEFT JOIN users buyer ON ed.buyer_id = buyer.id
+                        WHERE ed.status = 'completed' 
+                          AND (ed.seller_id = %s OR ed.buyer_id = %s)
+                        ORDER BY ed.created_at DESC
+                    """
+                    cursor.execute(query, (user_id, user_id))
+                    
+                elif status_filter == 'dispute':
+                    # Споры - только участники видят свои
+                    if not user_id:
+                        deals = []
+                        cursor.close()
+                        return {
+                            'statusCode': 200,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'deals': deals}, default=serialize_datetime),
+                            'isBase64Encoded': False
+                        }
+                    
+                    query = """
+                        SELECT ed.*, 
+                            seller.username as seller_name, seller.avatar_url as seller_avatar,
+                            buyer.username as buyer_name, buyer.avatar_url as buyer_avatar
+                        FROM escrow_deals ed
+                        LEFT JOIN users seller ON ed.seller_id = seller.id
+                        LEFT JOIN users buyer ON ed.buyer_id = buyer.id
+                        WHERE ed.status = 'dispute' 
+                          AND (ed.seller_id = %s OR ed.buyer_id = %s)
+                        ORDER BY ed.created_at DESC
+                    """
+                    cursor.execute(query, (user_id, user_id))
+                    
+                else:
+                    # По умолчанию показываем открытые без покупателя
+                    query = """
+                        SELECT ed.*, 
+                            seller.username as seller_name, seller.avatar_url as seller_avatar,
+                            buyer.username as buyer_name, buyer.avatar_url as buyer_avatar
+                        FROM escrow_deals ed
+                        LEFT JOIN users seller ON ed.seller_id = seller.id
+                        LEFT JOIN users buyer ON ed.buyer_id = buyer.id
+                        WHERE ed.buyer_id IS NULL
                         ORDER BY ed.created_at DESC
                     """
                     cursor.execute(query)

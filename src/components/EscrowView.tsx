@@ -129,6 +129,17 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
       const data = await response.json();
       if (data.deal) {
         setSelectedDeal(data.deal);
+        
+        // Автоматически переключаемся на нужную вкладку
+        if (!data.deal.buyer_id) {
+          setStatusFilter('open');
+        } else if (data.deal.status === 'in_progress') {
+          setStatusFilter('in_progress');
+        } else if (data.deal.status === 'completed') {
+          setStatusFilter('completed');
+        } else if (data.deal.status === 'dispute') {
+          setStatusFilter('dispute');
+        }
       } else {
         // Убираем параметр из URL если сделка не найдена
         const url = new URL(window.location.href);
@@ -194,11 +205,14 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
       if (data.success) {
         setShowCreateDialog(false);
         setNewDeal({ title: '', description: '', price: '' });
-        fetchDeals();
         toast({
           title: 'Успешно',
-          description: 'Сделка создана!'
+          description: 'Сделка создана и ждёт покупателя!'
         });
+        
+        // Переключаемся на вкладку "Открытые" где появится новая сделка
+        setStatusFilter('open');
+        fetchDeals();
       }
     } catch (error) {
       console.error('Ошибка создания сделки:', error);
@@ -412,24 +426,45 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
         </div>
       </Card>
 
-      <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-2 -mx-1 px-1">
-        {[
-          { id: 'open', label: 'Открытые', icon: 'Clock' },
-          { id: 'in_progress', label: 'Незавершенные', icon: 'Loader2' },
-          { id: 'completed', label: 'Завершенные', icon: 'Check' },
-          { id: 'dispute', label: 'Споры', icon: 'AlertTriangle' }
-        ].map((filter) => (
-          <Button
-            key={filter.id}
-            variant={statusFilter === filter.id ? 'default' : 'outline'}
-            size="sm"
-            className={`text-xs sm:text-sm whitespace-nowrap ${statusFilter === filter.id ? 'bg-green-800 hover:bg-green-700' : ''}`}
-            onClick={() => setStatusFilter(filter.id as any)}
-          >
-            <Icon name={filter.icon as any} size={16} className="mr-2" />
-            {filter.label}
-          </Button>
-        ))}
+      <div className="space-y-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-2 -mx-1 px-1">
+          {[
+            { id: 'open', label: 'Открытые', icon: 'Clock', desc: 'Сделки без покупателя' },
+            { id: 'in_progress', label: 'Незавершенные', icon: 'Loader2', desc: 'Ваши активные сделки' },
+            { id: 'completed', label: 'Завершенные', icon: 'Check', desc: 'Успешные сделки' },
+            { id: 'dispute', label: 'Споры', icon: 'AlertTriangle', desc: 'Требуют решения админа' }
+          ].map((filter) => (
+            <Button
+              key={filter.id}
+              variant={statusFilter === filter.id ? 'default' : 'outline'}
+              size="sm"
+              className={`text-xs sm:text-sm whitespace-nowrap ${statusFilter === filter.id ? 'bg-green-800 hover:bg-green-700' : ''}`}
+              onClick={() => setStatusFilter(filter.id as any)}
+              title={filter.desc}
+            >
+              <Icon name={filter.icon as any} size={16} className="mr-2" />
+              {filter.label}
+            </Button>
+          ))}
+        </div>
+        
+        {statusFilter === 'open' && !user && (
+          <Card className="p-2 sm:p-3 bg-blue-500/5 border-blue-500/20">
+            <p className="text-xs text-blue-400 flex items-center gap-2">
+              <Icon name="Info" size={14} />
+              <span>Войдите, чтобы принять сделку и начать обмен</span>
+            </p>
+          </Card>
+        )}
+        
+        {statusFilter !== 'open' && !user && (
+          <Card className="p-2 sm:p-3 bg-orange-500/5 border-orange-500/20">
+            <p className="text-xs text-orange-400 flex items-center gap-2">
+              <Icon name="Lock" size={14} />
+              <span>Войдите, чтобы увидеть свои сделки</span>
+            </p>
+          </Card>
+        )}
       </div>
 
       {loading ? (
@@ -437,9 +472,23 @@ export const EscrowView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Esc
           <Icon name="Loader2" size={32} className="animate-spin text-muted-foreground" />
         </div>
       ) : deals.length === 0 ? (
-        <Card className="p-6 sm:p-8 md:p-12 text-center">
+        <Card className="p-6 sm:p-8 md:p-12 text-center space-y-3">
           <Icon name="Package" size={36} className="mx-auto mb-4 text-muted-foreground sm:w-12 sm:h-12" />
-          <p className="text-muted-foreground">Сделок не найдено</p>
+          <p className="text-muted-foreground font-medium">
+            {statusFilter === 'open' && 'Нет открытых сделок'}
+            {statusFilter === 'in_progress' && 'У вас нет активных сделок'}
+            {statusFilter === 'completed' && 'У вас нет завершенных сделок'}
+            {statusFilter === 'dispute' && 'У вас нет споров'}
+          </p>
+          {statusFilter === 'open' && user && (
+            <Button
+              onClick={() => setShowCreateDialog(true)}
+              className="bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800"
+            >
+              <Icon name="Plus" size={16} className="mr-2" />
+              Создать первую сделку
+            </Button>
+          )}
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
