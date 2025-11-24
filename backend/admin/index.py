@@ -430,10 +430,31 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     cur.execute(f"UPDATE {SCHEMA}.plugins SET author_id = NULL WHERE author_id = %s", (target_user_id,))
                 except: pass
                 
-                # Step 3: Finally delete the user
+                # Step 3: Anonymize user data (instead of full deletion)
                 try:
-                    cur.execute(f"DELETE FROM {SCHEMA}.users WHERE id = %s", (target_user_id,))
-                    log_admin_action(user_id, 'delete_user', 'user', target_user_id, f"Completely deleted user: {target_user['username']}", cur)
+                    deleted_email = f"deleted_{target_user_id}@deleted.local"
+                    deleted_username = f"[DELETED_{target_user_id}]"
+                    
+                    cur.execute(
+                        f"""UPDATE {SCHEMA}.users 
+                        SET username = %s, 
+                            email = %s, 
+                            avatar_url = NULL, 
+                            vk_url = NULL, 
+                            telegram = NULL, 
+                            discord = NULL, 
+                            bio = NULL, 
+                            balance = 0, 
+                            btc_balance = 0,
+                            is_blocked = TRUE,
+                            blocked_at = CURRENT_TIMESTAMP,
+                            blocked_by = %s,
+                            block_reason = 'Пользователь удалён навсегда'
+                        WHERE id = %s""",
+                        (deleted_username, deleted_email, user_id, target_user_id)
+                    )
+                    
+                    log_admin_action(user_id, 'delete_user', 'user', target_user_id, f"Anonymized and deleted user: {target_user['username']}", cur)
                     conn.commit()
                 except Exception as e:
                     conn.rollback()
