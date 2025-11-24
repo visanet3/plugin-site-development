@@ -754,7 +754,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                       <div className="min-w-0 flex-1">
                         <h4 className="font-black text-green-300 text-xs sm:text-base leading-tight">Сделка завершена!</h4>
                         <p className="text-[9px] sm:text-xs text-muted-foreground/80 leading-tight">
-                          {user && Number(user.id) === Number(selectedDeal.seller_id) ? `Вы получили ${(selectedDeal.price - selectedDeal.commission).toFixed(2)} USDT (комиссия ${selectedDeal.commission.toFixed(2)} USDT)` : `Средства ${selectedDeal.price} USDT переведены продавцу`}
+                          {user && Number(user.id) === Number(selectedDeal.seller_id) ? `Вы получили ${(selectedDeal.price - selectedDeal.commission).toFixed(2)} USDT (комиссия ${selectedDeal.commission.toFixed(2)} USDT)` : `Сделка успешно завершена`}
                         </p>
                       </div>
                     </div>
