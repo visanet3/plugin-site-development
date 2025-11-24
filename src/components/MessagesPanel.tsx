@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getAvatarGradient } from '@/utils/avatarColors';
 
 const NOTIFICATIONS_URL = 'https://functions.poehali.dev/6c968792-7d48-41a9-af0a-c92adb047acb';
+const ADMIN_URL = 'https://functions.poehali.dev/d4678b1c-2acd-40bb-b8c5-cefe8d14fad4';
 
 interface MessagesPanelProps {
   open: boolean;
@@ -35,7 +36,8 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
   const [newMessageText, setNewMessageText] = useState('');
   const [loading, setLoading] = useState(false);
   const [showNewChat, setShowNewChat] = useState(false);
-  const [newChatUserId, setNewChatUserId] = useState('');
+  const [newChatUsername, setNewChatUsername] = useState('');
+  const [searchingUser, setSearchingUser] = useState(false);
   const [showChatList, setShowChatList] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -175,20 +177,70 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
   };
 
   const startNewChat = async () => {
-    const targetUserId = parseInt(newChatUserId);
-    if (!targetUserId || targetUserId === userId) {
+    if (!newChatUsername.trim()) {
       toast({
         title: 'Ошибка',
-        description: 'Введите корректный ID пользователя',
+        description: 'Введите никнейм пользователя',
         variant: 'destructive'
       });
       return;
     }
 
-    setSelectedChat(targetUserId);
-    setShowNewChat(false);
-    setNewChatUserId('');
-    setShowChatList(false);
+    setSearchingUser(true);
+
+    try {
+      const response = await fetch(`${ADMIN_URL}?action=users`, {
+        headers: { 'X-User-Id': userId.toString() }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch users');
+      }
+
+      const data = await response.json();
+      const users = data.users || [];
+      
+      const targetUser = users.find((u: any) => 
+        u.username.toLowerCase() === newChatUsername.trim().toLowerCase()
+      );
+
+      if (!targetUser) {
+        toast({
+          title: 'Пользователь не найден',
+          description: `Пользователь с никнеймом "${newChatUsername}" не существует`,
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      if (targetUser.id === userId) {
+        toast({
+          title: 'Ошибка',
+          description: 'Нельзя начать чат с самим собой',
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      setSelectedChat(targetUser.id);
+      setShowNewChat(false);
+      setNewChatUsername('');
+      setShowChatList(false);
+      
+      toast({
+        title: 'Чат найден',
+        description: `Открыт чат с пользователем ${targetUser.username}`
+      });
+    } catch (error) {
+      console.error('Failed to search user:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось найти пользователя',
+        variant: 'destructive'
+      });
+    } finally {
+      setSearchingUser(false);
+    }
   };
 
   const formatTime = (dateString: string) => {
@@ -236,15 +288,41 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
               <div className="px-4 py-3 border-b border-border bg-muted/20">
                 <div className="space-y-2">
                   <Input
-                    placeholder="ID пользователя"
-                    type="number"
-                    value={newChatUserId}
-                    onChange={(e) => setNewChatUserId(e.target.value)}
+                    placeholder="Никнейм пользователя"
+                    type="text"
+                    value={newChatUsername}
+                    onChange={(e) => setNewChatUsername(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && !searchingUser && startNewChat()}
                     className="h-10"
+                    disabled={searchingUser}
                   />
                   <div className="flex gap-2">
-                    <Button size="sm" onClick={startNewChat} className="flex-1">Начать</Button>
-                    <Button size="sm" variant="outline" onClick={() => setShowNewChat(false)}>Отмена</Button>
+                    <Button 
+                      size="sm" 
+                      onClick={startNewChat} 
+                      className="flex-1"
+                      disabled={searchingUser}
+                    >
+                      {searchingUser ? (
+                        <>
+                          <Icon name="Loader2" size={14} className="animate-spin mr-2" />
+                          Поиск...
+                        </>
+                      ) : (
+                        'Начать'
+                      )}
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => {
+                        setShowNewChat(false);
+                        setNewChatUsername('');
+                      }}
+                      disabled={searchingUser}
+                    >
+                      Отмена
+                    </Button>
                   </div>
                 </div>
               </div>
