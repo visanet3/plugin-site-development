@@ -318,11 +318,11 @@ const BaccaratGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: Baccarat
               </div>
             </div>
             {bankerHand.length > 0 && gameState !== 'betting' && (
-              <div className="flex gap-2 sm:gap-3 justify-center">
+              <div className="flex gap-2 sm:gap-2.5 justify-center">
                 {bankerHand.map((card, i) => (
                   <div
                     key={i}
-                    className={`w-16 h-24 sm:w-20 sm:h-28 bg-white rounded-lg sm:rounded-xl flex flex-col items-center justify-center text-2xl sm:text-3xl font-bold shadow-2xl transform transition-all duration-300 ${
+                    className={`w-12 h-18 sm:w-16 sm:h-24 bg-white rounded-md sm:rounded-lg flex flex-col items-center justify-center text-lg sm:text-2xl font-bold shadow-2xl transform transition-all duration-300 ${
                       card.suit === '♥' || card.suit === '♦' ? 'text-red-600' : 'text-black'
                     }`}
                     style={{ 
@@ -331,7 +331,7 @@ const BaccaratGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: Baccarat
                     }}
                   >
                     <span>{card.rank}</span>
-                    <span className="text-lg sm:text-2xl">{card.suit}</span>
+                    <span className="text-base sm:text-xl">{card.suit}</span>
                   </div>
                 ))}
               </div>
@@ -348,11 +348,11 @@ const BaccaratGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: Baccarat
 
           <div className="space-y-4 sm:space-y-6 pt-4 sm:pt-6 border-t border-purple-800/20 min-h-[180px] sm:min-h-[200px]">
             {playerHand.length > 0 && (
-              <div className="flex gap-2 sm:gap-3 justify-center">
+              <div className="flex gap-2 sm:gap-2.5 justify-center">
                 {playerHand.map((card, i) => (
                   <div
                     key={i}
-                    className={`w-16 h-24 sm:w-20 sm:h-28 bg-white rounded-lg sm:rounded-xl flex flex-col items-center justify-center text-2xl sm:text-3xl font-bold shadow-2xl transform transition-all duration-300 ${
+                    className={`w-12 h-18 sm:w-16 sm:h-24 bg-white rounded-md sm:rounded-lg flex flex-col items-center justify-center text-lg sm:text-2xl font-bold shadow-2xl transform transition-all duration-300 ${
                       card.suit === '♥' || card.suit === '♦' ? 'text-red-600' : 'text-black'
                     }`}
                     style={{ 
@@ -361,7 +361,7 @@ const BaccaratGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: Baccarat
                     }}
                   >
                     <span>{card.rank}</span>
-                    <span className="text-lg sm:text-2xl">{card.suit}</span>
+                    <span className="text-base sm:text-xl">{card.suit}</span>
                   </div>
                 ))}
               </div>

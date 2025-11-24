@@ -232,7 +232,7 @@ const DiceGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: DiceGameProp
     };
 
     return (
-      <div className="w-24 h-24 bg-white rounded-2xl shadow-2xl grid grid-cols-3 grid-rows-3 gap-2 p-3">
+      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-xl shadow-2xl grid grid-cols-3 grid-rows-3 gap-1 sm:gap-1.5 p-2 sm:p-2.5">
         {Array.from({ length: 9 }).map((_, i) => {
           const row = Math.floor(i / 3);
           const col = i % 3;
@@ -308,14 +308,14 @@ const DiceGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: DiceGameProp
               
               <div>
                 <label className="block text-sm font-medium mb-3">Ставка на конкретное число (6x)</label>
-                <div className="grid grid-cols-6 gap-2">
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                   {[1, 2, 3, 4, 5, 6].map((num) => (
                     <Button
                       key={num}
                       type="button"
                       onClick={() => setBetType(num as BetType)}
                       variant={betType === num ? 'default' : 'outline'}
-                      className={`h-16 text-xl font-bold ${
+                      className={`h-12 sm:h-14 text-lg sm:text-xl font-bold ${
                         betType === num ? 'bg-orange-600 hover:bg-orange-700' : ''
                       }`}
                     >

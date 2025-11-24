@@ -422,11 +422,11 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
               </div>
             </div>
             {dealerHand.length > 0 && gameState !== 'betting' && (
-              <div className="flex gap-3 justify-center perspective-1000">
+              <div className="flex gap-2 sm:gap-2.5 justify-center perspective-1000">
                 {dealerHand.map((card, i) => (
                   <div
                     key={i}
-                    className={`w-16 h-24 sm:w-20 sm:h-28 bg-white rounded-lg sm:rounded-xl flex flex-col items-center justify-center text-2xl sm:text-3xl font-bold shadow-2xl transform transition-all duration-300 hover:scale-105 ${
+                    className={`w-12 h-18 sm:w-16 sm:h-24 bg-white rounded-md sm:rounded-lg flex flex-col items-center justify-center text-lg sm:text-2xl font-bold shadow-2xl transform transition-all duration-300 hover:scale-105 ${
                       gameState === 'playing' && i === 1 ? 'bg-gradient-to-br from-blue-600 to-blue-800 text-white' : card.suit === '♥' || card.suit === '♦' ? 'text-red-600' : 'text-black'
                     }`}
                     style={{ 
@@ -435,11 +435,11 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
                     }}
                   >
                     {gameState === 'playing' && i === 1 ? (
-                      <Icon name="HelpCircle" size={36} />
+                      <Icon name="HelpCircle" size={24} className="sm:w-9 sm:h-9" />
                     ) : (
                       <>
                         <span>{card.rank}</span>
-                        <span className="text-2xl">{card.suit}</span>
+                        <span className="text-base sm:text-xl">{card.suit}</span>
                       </>
                     )}
                   </div>
@@ -460,11 +460,11 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
 
           <div className="space-y-4 sm:space-y-6 pt-4 sm:pt-6 border-t border-green-800/20 min-h-[200px]">
             {playerHand.length > 0 && (
-              <div className="flex gap-3 justify-center perspective-1000">
+              <div className="flex gap-2 sm:gap-2.5 justify-center perspective-1000">
                 {playerHand.map((card, i) => (
                   <div
                     key={i}
-                    className={`w-20 h-28 bg-white rounded-xl flex flex-col items-center justify-center text-3xl font-bold shadow-2xl transform transition-all duration-300 hover:scale-110 hover:-translate-y-2 ${
+                    className={`w-12 h-18 sm:w-16 sm:h-24 bg-white rounded-md sm:rounded-lg flex flex-col items-center justify-center text-lg sm:text-2xl font-bold shadow-2xl transform transition-all duration-300 hover:scale-110 hover:-translate-y-2 ${
                       card.suit === '♥' || card.suit === '♦' ? 'text-red-600' : 'text-black'
                     }`}
                     style={{ 
@@ -473,7 +473,7 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
                     }}
                   >
                     <span>{card.rank}</span>
-                    <span className="text-2xl">{card.suit}</span>
+                    <span className="text-base sm:text-xl">{card.suit}</span>
                   </div>
                 ))}
               </div>

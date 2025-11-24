@@ -325,11 +325,11 @@ const PokerGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: PokerGamePr
               </div>
             </div>
             {dealerHand.length > 0 && (
-              <div className="flex gap-3 justify-center">
+              <div className="flex gap-2 sm:gap-2.5 justify-center flex-wrap">
                 {dealerHand.map((card, i) => (
                   <div
                     key={i}
-                    className={`w-20 h-28 rounded-xl flex flex-col items-center justify-center text-3xl font-bold shadow-2xl transform transition-all duration-300 ${
+                    className={`w-12 h-18 sm:w-16 sm:h-24 rounded-md sm:rounded-lg flex flex-col items-center justify-center text-lg sm:text-2xl font-bold shadow-2xl transform transition-all duration-300 ${
                       gameState === 'showdown' || gameState === 'finished'
                         ? `bg-white ${card.suit === '♥' || card.suit === '♦' ? 'text-red-600' : 'text-black'}`
                         : 'bg-gradient-to-br from-blue-600 to-blue-800 text-white'
@@ -342,10 +342,10 @@ const PokerGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: PokerGamePr
                     {gameState === 'showdown' || gameState === 'finished' ? (
                       <>
                         <span>{card.rank}</span>
-                        <span className="text-2xl">{card.suit}</span>
+                        <span className="text-base sm:text-xl">{card.suit}</span>
                       </>
                     ) : (
-                      <Icon name="HelpCircle" size={36} />
+                      <Icon name="HelpCircle" size={24} className="sm:w-9 sm:h-9" />
                     )}
                   </div>
                 ))}
@@ -363,11 +363,11 @@ const PokerGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: PokerGamePr
 
           <div className="space-y-6 pt-6 border-t border-blue-800/20">
             {playerHand.length > 0 && (
-              <div className="flex gap-3 justify-center">
+              <div className="flex gap-2 sm:gap-2.5 justify-center flex-wrap">
                 {playerHand.map((card, i) => (
                   <div
                     key={i}
-                    className={`w-20 h-28 bg-white rounded-xl flex flex-col items-center justify-center text-3xl font-bold shadow-2xl transform transition-all duration-300 hover:scale-110 hover:-translate-y-2 ${
+                    className={`w-12 h-18 sm:w-16 sm:h-24 bg-white rounded-md sm:rounded-lg flex flex-col items-center justify-center text-lg sm:text-2xl font-bold shadow-2xl transform transition-all duration-300 hover:scale-110 hover:-translate-y-2 ${
                       card.suit === '♥' || card.suit === '♦' ? 'text-red-600' : 'text-black'
                     }`}
                     style={{ 
@@ -376,7 +376,7 @@ const PokerGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: PokerGamePr
                     }}
                   >
                     <span>{card.rank}</span>
-                    <span className="text-2xl">{card.suit}</span>
+                    <span className="text-base sm:text-xl">{card.suit}</span>
                   </div>
                 ))}
               </div>
