@@ -174,7 +174,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             if action == 'users':
                 cur.execute(f"""
-                    SELECT id, username, email, role, forum_role, is_blocked, created_at 
+                    SELECT id, username, email, role, forum_role, is_blocked, created_at, last_seen_at 
                     FROM {SCHEMA}.users 
                     ORDER BY created_at DESC 
                     LIMIT 100
