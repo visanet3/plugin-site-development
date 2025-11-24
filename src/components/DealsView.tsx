@@ -683,13 +683,19 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                         <strong className="text-green-400">⚠️ Внимание!</strong> Нажимайте только если получили товар. Средства будут переведены продавцу
                       </p>
                     </div>
+                    <div className="text-xs text-muted-foreground mb-2">
+                      DEBUG: actionLoading={actionLoading ? 'TRUE' : 'FALSE'}, disabled={actionLoading ? 'TRUE' : 'FALSE'}
+                    </div>
                     <Button
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         console.log('🔴 КЛИК ПО КНОПКЕ!', { user, selectedDeal, actionLoading });
                         handleBuyerConfirm();
                       }}
                       disabled={actionLoading}
-                      className="w-full bg-gradient-to-r from-green-600 to-green-700"
+                      className="w-full bg-gradient-to-r from-green-600 to-green-700 cursor-pointer"
+                      type="button"
                     >
                       <Icon name="Check" size={16} className="mr-2" />
                       {actionLoading ? 'Обработка...' : 'Подтвердить получение товара'}
