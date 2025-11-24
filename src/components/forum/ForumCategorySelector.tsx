@@ -16,45 +16,24 @@ const ForumCategorySelector = ({
   return (
     <div className="space-y-3">
       <label className="block text-sm font-medium">Выберите категорию *</label>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="flex flex-wrap gap-2">
         {categories.map((category) => (
-          <Card
+          <button
             key={category.id}
-            className={`p-4 cursor-pointer transition-all hover:scale-105 ${
-              selectedCategory === category.id
-                ? 'border-2 ring-2 ring-offset-2 ring-primary'
-                : 'border hover:border-primary/50'
-            }`}
-            style={{
-              borderColor: selectedCategory === category.id ? category.color : undefined,
-              backgroundColor: selectedCategory === category.id ? `${category.color}10` : undefined
-            }}
             onClick={() => onSelectCategory(category.id)}
+            className="h-9 px-4 rounded-md text-sm font-medium transition-all flex items-center gap-2 border hover:brightness-110"
+            style={{
+              backgroundColor: selectedCategory === category.id ? `${category.color}25` : `${category.color}12`,
+              borderColor: selectedCategory === category.id ? `${category.color}50` : `${category.color}30`,
+              color: selectedCategory === category.id ? category.color : `${category.color}cc`
+            }}
           >
-            <div className="flex items-center gap-3">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: `${category.color}20` }}
-              >
-                <Icon
-                  name={category.icon as any}
-                  size={20}
-                  style={{ color: category.color }}
-                />
-              </div>
-              <div className="flex-1">
-                <h4 className="font-semibold">{category.name}</h4>
-                {category.description && (
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {category.description}
-                  </p>
-                )}
-              </div>
-              {selectedCategory === category.id && (
-                <Icon name="Check" size={20} style={{ color: category.color }} />
-              )}
-            </div>
-          </Card>
+            <Icon name={category.icon as any} size={16} />
+            {category.name}
+            {selectedCategory === category.id && (
+              <Icon name="Check" size={14} />
+            )}
+          </button>
         ))}
       </div>
     </div>
