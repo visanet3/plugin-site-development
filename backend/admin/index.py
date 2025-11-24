@@ -331,48 +331,79 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 log_admin_action(user_id, 'delete_user', 'user', target_user_id, f"Deleted user: {target_user['username']}", cur)
                 
                 # Delete in correct order to avoid foreign key violations
-                # First: delete data that references escrow_deals
-                cur.execute(f"""
-                    DELETE FROM {SCHEMA}.escrow_dispute_notifications 
-                    WHERE deal_id IN (
-                        SELECT id FROM {SCHEMA}.escrow_deals 
-                        WHERE buyer_id = %s OR seller_id = %s
-                    )
-                """, (target_user_id, target_user_id))
-                
-                cur.execute(f"""
-                    DELETE FROM {SCHEMA}.escrow_messages 
-                    WHERE deal_id IN (
-                        SELECT id FROM {SCHEMA}.escrow_deals 
-                        WHERE buyer_id = %s OR seller_id = %s
-                    )
-                """, (target_user_id, target_user_id))
-                
-                # Delete withdrawal_notifications before withdrawal_requests
-                cur.execute(f"""
-                    DELETE FROM {SCHEMA}.withdrawal_notifications 
-                    WHERE withdrawal_id IN (
-                        SELECT id FROM {SCHEMA}.withdrawal_requests 
-                        WHERE user_id = %s
-                    )
-                """, (target_user_id,))
-                
-                # Now delete other user data
-                cur.execute(f"DELETE FROM {SCHEMA}.forum_comments WHERE author_id = %s", (target_user_id,))
-                cur.execute(f"DELETE FROM {SCHEMA}.forum_topics WHERE author_id = %s", (target_user_id,))
-                cur.execute(f"DELETE FROM {SCHEMA}.messages WHERE from_user_id = %s OR to_user_id = %s", (target_user_id, target_user_id))
-                cur.execute(f"DELETE FROM {SCHEMA}.notifications WHERE user_id = %s", (target_user_id,))
-                cur.execute(f"DELETE FROM {SCHEMA}.transactions WHERE user_id = %s", (target_user_id,))
-                cur.execute(f"DELETE FROM {SCHEMA}.escrow_deals WHERE buyer_id = %s OR seller_id = %s", (target_user_id, target_user_id))
-                cur.execute(f"DELETE FROM {SCHEMA}.crypto_payments WHERE user_id = %s", (target_user_id,))
-                cur.execute(f"DELETE FROM {SCHEMA}.withdrawal_requests WHERE user_id = %s", (target_user_id,))
-                cur.execute(f"DELETE FROM {SCHEMA}.flash_usdt_orders WHERE user_id = %s", (target_user_id,))
-                cur.execute(f"DELETE FROM {SCHEMA}.lottery_tickets WHERE user_id = %s", (target_user_id,))
-                cur.execute(f"DELETE FROM {SCHEMA}.lottery_chat WHERE user_id = %s", (target_user_id,))
-                cur.execute(f"DELETE FROM {SCHEMA}.password_reset_tokens WHERE user_id = %s", (target_user_id,))
-                
-                cur.execute(f"DELETE FROM {SCHEMA}.users WHERE id = %s", (target_user_id,))
-                conn.commit()
+                try:
+                    # First: delete data that references escrow_deals
+                    cur.execute(f"""
+                        DELETE FROM {SCHEMA}.escrow_dispute_notifications 
+                        WHERE deal_id IN (
+                            SELECT id FROM {SCHEMA}.escrow_deals 
+                            WHERE buyer_id = %s OR seller_id = %s
+                        )
+                    """, (target_user_id, target_user_id))
+                    
+                    cur.execute(f"""
+                        DELETE FROM {SCHEMA}.escrow_messages 
+                        WHERE deal_id IN (
+                            SELECT id FROM {SCHEMA}.escrow_deals 
+                            WHERE buyer_id = %s OR seller_id = %s
+                        )
+                    """, (target_user_id, target_user_id))
+                    
+                    # Delete withdrawal_notifications before withdrawal_requests
+                    cur.execute(f"""
+                        DELETE FROM {SCHEMA}.withdrawal_notifications 
+                        WHERE withdrawal_id IN (
+                            SELECT id FROM {SCHEMA}.withdrawal_requests 
+                            WHERE user_id = %s
+                        )
+                    """, (target_user_id,))
+                    
+                    # Delete admin_notifications related to user
+                    cur.execute(f"DELETE FROM {SCHEMA}.admin_notifications WHERE related_type = 'user' AND related_id = %s", (target_user_id,))
+                    
+                    # Delete verification requests
+                    cur.execute(f"DELETE FROM {SCHEMA}.verification_requests WHERE user_id = %s", (target_user_id,))
+                    
+                    # Delete lottery notifications
+                    cur.execute(f"DELETE FROM {SCHEMA}.lottery_notifications WHERE user_id = %s", (target_user_id,))
+                    
+                    # Delete casino wins
+                    cur.execute(f"DELETE FROM {SCHEMA}.casino_wins WHERE user_id = %s", (target_user_id,))
+                    
+                    # Delete active game sessions
+                    cur.execute(f"DELETE FROM {SCHEMA}.active_game_sessions WHERE user_id = %s", (target_user_id,))
+                    
+                    # Delete referral data (referrer and referred)
+                    cur.execute(f"DELETE FROM {SCHEMA}.referral_rewards WHERE referrer_id = %s", (target_user_id,))
+                    cur.execute(f"DELETE FROM {SCHEMA}.referrals WHERE referrer_id = %s OR referred_user_id = %s", (target_user_id, target_user_id))
+                    cur.execute(f"DELETE FROM {SCHEMA}.referral_codes WHERE user_id = %s", (target_user_id,))
+                    
+                    # Now delete other user data
+                    cur.execute(f"DELETE FROM {SCHEMA}.forum_comments WHERE author_id = %s", (target_user_id,))
+                    cur.execute(f"DELETE FROM {SCHEMA}.forum_topics WHERE author_id = %s", (target_user_id,))
+                    cur.execute(f"DELETE FROM {SCHEMA}.messages WHERE from_user_id = %s OR to_user_id = %s", (target_user_id, target_user_id))
+                    cur.execute(f"DELETE FROM {SCHEMA}.notifications WHERE user_id = %s", (target_user_id,))
+                    cur.execute(f"DELETE FROM {SCHEMA}.transactions WHERE user_id = %s", (target_user_id,))
+                    cur.execute(f"DELETE FROM {SCHEMA}.escrow_deals WHERE buyer_id = %s OR seller_id = %s", (target_user_id, target_user_id))
+                    cur.execute(f"DELETE FROM {SCHEMA}.crypto_payments WHERE user_id = %s", (target_user_id,))
+                    cur.execute(f"DELETE FROM {SCHEMA}.withdrawals WHERE user_id = %s", (target_user_id,))
+                    cur.execute(f"DELETE FROM {SCHEMA}.withdrawal_requests WHERE user_id = %s", (target_user_id,))
+                    cur.execute(f"DELETE FROM {SCHEMA}.flash_usdt_orders WHERE user_id = %s", (target_user_id,))
+                    cur.execute(f"DELETE FROM {SCHEMA}.lottery_tickets WHERE user_id = %s", (target_user_id,))
+                    cur.execute(f"DELETE FROM {SCHEMA}.lottery_chat WHERE user_id = %s", (target_user_id,))
+                    cur.execute(f"DELETE FROM {SCHEMA}.password_reset_tokens WHERE user_id = %s", (target_user_id,))
+                    
+                    # Finally delete the user
+                    cur.execute(f"DELETE FROM {SCHEMA}.users WHERE id = %s", (target_user_id,))
+                    conn.commit()
+                except Exception as delete_error:
+                    conn.rollback()
+                    return {
+                        'statusCode': 500,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': f'Ошибка удаления: {str(delete_error)}'}),
+                        'isBase64Encoded': False
+                    }
                 
                 return {
                     'statusCode': 200,
