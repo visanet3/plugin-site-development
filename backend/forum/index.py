@@ -148,7 +148,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 category_slug = params.get('category')
                 query = """
                     SELECT 
-                        ft.id, ft.title, ft.views, ft.is_pinned, ft.created_at, ft.updated_at, ft.category_id,
+                        ft.id, ft.title, ft.content, ft.views, ft.is_pinned, ft.is_closed, ft.created_at, ft.updated_at, ft.category_id,
                         u.id as author_id, u.username as author_name, u.avatar_url as author_avatar, 
                         u.forum_role as author_forum_role, u.last_seen_at as author_last_seen,
                         u.is_verified as author_is_verified,
