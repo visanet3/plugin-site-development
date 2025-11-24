@@ -372,7 +372,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
         </div>
         <Button
           onClick={() => user ? setShowCreateDialog(true) : onShowAuthDialog()}
-          className="bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800 w-full sm:w-auto h-9 sm:h-10 text-sm"
+          className="bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800 w-full sm:w-auto h-9 sm:h-10 text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-green-800/50 active:scale-95 touch-manipulation"
         >
           <Icon name="Plus" size={16} className="mr-2" />
           Разместить объявление
@@ -392,7 +392,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-            <div className="flex gap-2 p-2 sm:p-3 rounded-lg bg-gradient-to-br from-green-500/5 to-green-600/10 border border-green-500/20">
+            <div className="flex gap-2 p-2 sm:p-3 rounded-lg bg-gradient-to-br from-green-500/5 to-green-600/10 border border-green-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-green-500/10 hover:border-green-500/40 cursor-default">
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0 text-xs sm:text-sm font-bold text-green-400">1</div>
               <div className="min-w-0">
                 <p className="text-xs sm:text-sm font-semibold text-green-300">Создание сделки</p>
@@ -400,7 +400,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
               </div>
             </div>
 
-            <div className="flex gap-2 p-2 sm:p-3 rounded-lg bg-gradient-to-br from-blue-500/5 to-blue-600/10 border border-blue-500/20">
+            <div className="flex gap-2 p-2 sm:p-3 rounded-lg bg-gradient-to-br from-blue-500/5 to-blue-600/10 border border-blue-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/10 hover:border-blue-500/40 cursor-default">
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0 text-xs sm:text-sm font-bold text-blue-400">2</div>
               <div className="min-w-0">
                 <p className="text-xs sm:text-sm font-semibold text-blue-300">Оплата</p>
@@ -408,7 +408,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
               </div>
             </div>
 
-            <div className="flex gap-2 p-2 sm:p-3 rounded-lg bg-gradient-to-br from-purple-500/5 to-purple-600/10 border border-purple-500/20">
+            <div className="flex gap-2 p-2 sm:p-3 rounded-lg bg-gradient-to-br from-purple-500/5 to-purple-600/10 border border-purple-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/10 hover:border-purple-500/40 cursor-default">
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0 text-xs sm:text-sm font-bold text-purple-400">3</div>
               <div className="min-w-0">
                 <p className="text-xs sm:text-sm font-semibold text-purple-300">Передача товара</p>
@@ -416,7 +416,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
               </div>
             </div>
 
-            <div className="flex gap-2 p-2 sm:p-3 rounded-lg bg-gradient-to-br from-amber-500/5 to-amber-600/10 border border-amber-500/20">
+            <div className="flex gap-2 p-2 sm:p-3 rounded-lg bg-gradient-to-br from-amber-500/5 to-amber-600/10 border border-amber-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-amber-500/10 hover:border-amber-500/40 cursor-default">
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0 text-xs sm:text-sm font-bold text-amber-400">4</div>
               <div className="min-w-0">
                 <p className="text-xs sm:text-sm font-semibold text-amber-300">Завершение</p>
@@ -426,7 +426,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-green-800/20">
-            <div className="flex items-center gap-2 p-2 rounded-lg bg-green-500/5">
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-green-500/5 transition-all duration-300 hover:bg-green-500/10 hover:scale-[1.02] cursor-default">
               <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
                 <Icon name="Lock" size={14} className="text-green-400" />
               </div>
@@ -436,7 +436,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
               </div>
             </div>
 
-            <div className="flex items-center gap-2 p-2 rounded-lg bg-blue-500/5">
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-blue-500/5 transition-all duration-300 hover:bg-blue-500/10 hover:scale-[1.02] cursor-default">
               <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
                 <Icon name="MessageSquare" size={14} className="text-blue-400" />
               </div>
@@ -446,7 +446,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
               </div>
             </div>
 
-            <div className="flex items-center gap-2 p-2 rounded-lg bg-purple-500/5">
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-purple-500/5 transition-all duration-300 hover:bg-purple-500/10 hover:scale-[1.02] cursor-default">
               <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
                 <Icon name="Zap" size={14} className="text-purple-400" />
               </div>
@@ -468,7 +468,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
           <Button
             key={filter.id}
             variant={statusFilter === filter.id ? 'default' : 'outline'}
-            className={`whitespace-nowrap h-8 sm:h-9 text-xs sm:text-sm ${statusFilter === filter.id ? 'bg-green-800 hover:bg-green-700' : ''}`}
+            className={`whitespace-nowrap h-8 sm:h-9 text-xs sm:text-sm transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation ${statusFilter === filter.id ? 'bg-green-800 hover:bg-green-700 shadow-lg shadow-green-800/30' : 'hover:shadow-md'}`}
             onClick={() => setStatusFilter(filter.id as any)}
           >
             <Icon name={filter.icon as any} size={14} className="mr-1.5 sm:mr-2" />
@@ -504,7 +504,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
           {deals.map((deal) => (
             <Card
               key={deal.id}
-              className="p-4 transition-all cursor-pointer hover:border-green-700/70"
+              className="p-4 transition-all duration-300 cursor-pointer hover:border-green-700/70 hover:shadow-xl hover:shadow-green-800/20 hover:scale-[1.02] active:scale-[0.98] touch-manipulation"
               onClick={() => {
                 setSelectedDeal(deal);
                 fetchDealDetails(deal.id);
@@ -560,6 +560,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                 value={newDeal.title}
                 onChange={(e) => setNewDeal({ ...newDeal, title: e.target.value })}
                 placeholder="Например: Bitcoin 0.01 BTC"
+                className="transition-all duration-200 focus:scale-[1.01] focus:shadow-md"
               />
             </div>
 
@@ -569,7 +570,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                 value={newDeal.description}
                 onChange={(e) => setNewDeal({ ...newDeal, description: e.target.value })}
                 placeholder="Подробное описание товара..."
-                className="min-h-[100px] resize-none"
+                className="min-h-[100px] resize-none transition-all duration-200 focus:scale-[1.01] focus:shadow-md"
               />
             </div>
 
@@ -582,6 +583,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                 placeholder="0.00"
                 min="0"
                 step="0.01"
+                className="transition-all duration-200 focus:scale-[1.01] focus:shadow-md"
               />
             </div>
 
@@ -599,7 +601,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                   e.stopPropagation();
                   setShowCreateDialog(false);
                 }}
-                className="flex-1"
+                className="flex-1 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation"
                 type="button"
               >
                 Отмена
@@ -616,7 +618,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                   }
                 }}
                 disabled={creating}
-                className="flex-1 bg-gradient-to-r from-green-600 to-green-800 touch-manipulation"
+                className="flex-1 bg-gradient-to-r from-green-600 to-green-800 touch-manipulation transition-all duration-300 hover:scale-105 active:scale-95 hover:shadow-lg hover:shadow-green-700/50 disabled:opacity-50 disabled:hover:scale-100"
                 type="button"
               >
                 <Icon name={creating ? "Loader2" : "Plus"} size={16} className={`mr-2 ${creating ? 'animate-spin' : ''}`} />
@@ -816,9 +818,9 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Сообщение..."
                     onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-                    className="flex-1 bg-muted/50 h-8 sm:h-9 text-xs sm:text-sm border-border/50"
+                    className="flex-1 bg-muted/50 h-8 sm:h-9 text-xs sm:text-sm border-border/50 transition-all duration-200 focus:scale-[1.01] focus:shadow-md"
                   />
-                  <Button onClick={sendMessage} size="icon" className="bg-gradient-to-r from-green-700 to-green-800 hover:from-green-600 hover:to-green-700 h-8 w-8 sm:h-9 sm:w-9 shadow-md shadow-green-900/30">
+                  <Button onClick={sendMessage} size="icon" className="bg-gradient-to-r from-green-700 to-green-800 hover:from-green-600 hover:to-green-700 h-8 w-8 sm:h-9 sm:w-9 shadow-md shadow-green-900/30 transition-all duration-300 hover:scale-110 active:scale-95 hover:shadow-lg hover:shadow-green-800/50 touch-manipulation">
                     <Icon name="Send" size={13} />
                   </Button>
                 </div>
@@ -830,7 +832,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                   <Button
                     onClick={handleBuyerPay}
                     disabled={actionLoading}
-                    className="w-full bg-gradient-to-r from-green-700 to-green-900 hover:from-green-600 hover:to-green-800 h-9 sm:h-11 text-xs sm:text-base font-bold shadow-lg shadow-green-900/40"
+                    className="w-full bg-gradient-to-r from-green-700 to-green-900 hover:from-green-600 hover:to-green-800 h-9 sm:h-11 text-xs sm:text-base font-bold shadow-lg shadow-green-900/40 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:shadow-xl hover:shadow-green-800/60 touch-manipulation disabled:opacity-50 disabled:hover:scale-100"
                   >
                     <Icon name={actionLoading ? "Loader2" : "ShoppingCart"} size={14} className={`mr-1 ${actionLoading ? 'animate-spin' : ''}`} />
                     {actionLoading ? 'Оплата...' : `Купить ${selectedDeal.price} USDT`}
@@ -841,7 +843,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                   <Button
                     onClick={handleSellerSent}
                     disabled={actionLoading}
-                    className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 h-9 sm:h-11 text-xs sm:text-base font-bold shadow-lg shadow-purple-900/40"
+                    className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 h-9 sm:h-11 text-xs sm:text-base font-bold shadow-lg shadow-purple-900/40 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:shadow-xl hover:shadow-purple-800/60 touch-manipulation disabled:opacity-50 disabled:hover:scale-100"
                   >
                     <Icon name="Package" size={14} className="mr-1" />
                     {actionLoading ? 'Обработка...' : 'Товар передан'}
@@ -849,7 +851,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                 )}
 
                 {selectedDeal.step === 'seller_sent' && user && Number(user.id) === Number(selectedDeal.buyer_id) && (
-                  <Card className="p-2 bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/30 space-y-1.5 shadow-lg shadow-orange-900/20">
+                  <Card className="p-2 bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/30 space-y-1.5 shadow-lg shadow-orange-900/20 transition-all duration-300 hover:shadow-xl hover:shadow-orange-800/30 animate-pulse-subtle">
                     <div className="flex items-start gap-1.5">
                       <div className="w-7 h-7 rounded-full bg-gradient-to-br from-orange-500/30 to-red-500/20 flex items-center justify-center flex-shrink-0 shadow-inner">
                         <Icon name="AlertCircle" size={14} className="text-orange-300" />
@@ -868,7 +870,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                         handleBuyerConfirm();
                       }}
                       disabled={actionLoading}
-                      className="w-full bg-gradient-to-r from-green-600 to-green-800 hover:from-green-500 hover:to-green-700 cursor-pointer h-9 sm:h-10 text-xs sm:text-base font-bold shadow-lg shadow-green-900/40"
+                      className="w-full bg-gradient-to-r from-green-600 to-green-800 hover:from-green-500 hover:to-green-700 cursor-pointer h-9 sm:h-10 text-xs sm:text-base font-bold shadow-lg shadow-green-900/40 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:shadow-xl hover:shadow-green-800/60 touch-manipulation disabled:opacity-50 disabled:hover:scale-100"
                       type="button"
                     >
                       <Icon name="Check" size={14} className="mr-1" />
@@ -920,7 +922,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
             <Button
               variant="outline"
               onClick={() => setShowConfirmDialog(false)}
-              className="flex-1"
+              className="flex-1 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation"
               disabled={actionLoading}
             >
               Отмена
@@ -928,7 +930,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
             <Button
               onClick={confirmBuyerConfirm}
               disabled={actionLoading}
-              className="flex-1 bg-gradient-to-r from-green-600 to-green-700"
+              className="flex-1 bg-gradient-to-r from-green-600 to-green-700 transition-all duration-300 hover:scale-105 active:scale-95 hover:shadow-lg hover:shadow-green-700/50 touch-manipulation disabled:opacity-50 disabled:hover:scale-100"
             >
               <Icon name={actionLoading ? "Loader2" : "Check"} size={16} className={`mr-2 ${actionLoading ? 'animate-spin' : ''}`} />
               {actionLoading ? 'Обработка...' : 'Да, подтверждаю'}
