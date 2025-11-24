@@ -569,15 +569,15 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
       {/* Диалог детальной сделки */}
       {selectedDeal && (
         <Dialog open={!!selectedDeal} onOpenChange={(open) => !open && setSelectedDeal(null)}>
-          <DialogContent className="max-w-4xl h-[100dvh] sm:h-[90vh] overflow-hidden flex flex-col p-3 sm:p-6 max-h-[100dvh] sm:max-h-[90vh]">
-            <DialogHeader className="flex-shrink-0 pb-2 sm:pb-3">
-              <DialogTitle className="pr-8 text-sm sm:text-xl leading-tight">{selectedDeal.title}</DialogTitle>
-              <DialogDescription className="text-xs sm:text-sm line-clamp-1 sm:line-clamp-2 mt-1">{selectedDeal.description}</DialogDescription>
+          <DialogContent className="w-[90vw] max-w-3xl h-[90dvh] sm:h-[80vh] overflow-hidden flex flex-col p-3 sm:p-5">
+            <DialogHeader className="flex-shrink-0 pb-2">
+              <DialogTitle className="pr-8 text-sm sm:text-lg leading-tight">{selectedDeal.title}</DialogTitle>
+              <DialogDescription className="text-xs sm:text-sm line-clamp-1 mt-0.5">{selectedDeal.description}</DialogDescription>
             </DialogHeader>
 
-            <div className="flex-1 overflow-y-auto space-y-2 sm:space-y-3 pr-1 min-h-0">
+            <div className="flex-1 flex flex-col space-y-2 sm:space-y-2.5 min-h-0 overflow-hidden">
               {user && (Number(user.id) === Number(selectedDeal.seller_id) || Number(user.id) === Number(selectedDeal.buyer_id)) && (
-                <Card className="p-2 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/30 shadow-lg shadow-blue-500/5">
+                <Card className="p-2 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/30 shadow-lg shadow-blue-500/5 flex-shrink-0">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500/30 to-purple-500/30 flex items-center justify-center flex-shrink-0 shadow-inner">
                       <Icon name={Number(user.id) === Number(selectedDeal.seller_id) ? "Store" : "ShoppingCart"} size={14} className="text-blue-300" />
@@ -594,7 +594,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                 </Card>
               )}
 
-              <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+              <div className="grid grid-cols-3 gap-1.5 sm:gap-2 flex-shrink-0">
                 <Card className="p-1.5 sm:p-2.5 bg-gradient-to-br from-green-500/5 to-green-600/10 border-green-500/20 shadow-md hover:shadow-green-500/10 transition-shadow">
                   <p className="text-[9px] sm:text-xs text-muted-foreground/70 mb-0.5 sm:mb-1 font-medium">Продавец</p>
                   <div className="flex items-center gap-1">
@@ -633,8 +633,8 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
               </div>
 
               {/* Чат */}
-              <Card className="p-2 flex-1 min-h-0 overflow-y-auto bg-gradient-to-br from-muted/30 to-muted/10 border-border/50 shadow-inner">
-                <div className="space-y-1.5 sm:space-y-2">
+              <Card className="p-2 sm:p-3 flex-1 min-h-0 overflow-y-auto bg-gradient-to-br from-muted/30 to-muted/10 border-border/50 shadow-inner">
+                <div className="space-y-1.5 sm:space-y-2 h-full">
                   {dealMessages.map((msg) => (
                     <div
                       key={msg.id}
@@ -678,7 +678,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
               </Card>
 
               {selectedDeal.status !== 'completed' && selectedDeal.status !== 'cancelled' && user && (Number(user.id) === Number(selectedDeal.seller_id) || Number(user.id) === Number(selectedDeal.buyer_id)) && (
-                <div className="flex items-center gap-1.5 flex-shrink-0 sticky bottom-0 bg-background/95 backdrop-blur-sm p-2 -mx-1 rounded-lg border border-border/50">
+                <div className="flex items-center gap-1.5 flex-shrink-0">
                   <Input
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
@@ -693,7 +693,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
               )}
 
               {/* Кнопки действий */}
-              <div className="space-y-1.5 flex-shrink-0 pt-1">
+              <div className="space-y-1.5 flex-shrink-0">
                 {selectedDeal.status === 'active' && !selectedDeal.buyer_id && user && Number(user.id) !== Number(selectedDeal.seller_id) && (
                   <Button
                     onClick={handleBuyerPay}
