@@ -593,6 +593,7 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
       });
       
       const data = await response.json();
+      console.log('Delete user response:', data);
       if (data.success) {
         fetchUsers();
         toast({
@@ -600,10 +601,12 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
           description: 'Пользователь удалён'
         });
       } else {
+        console.error('Delete user error:', data.error);
         toast({
-          title: 'Ошибка',
-          description: data.error || 'Ошибка удаления пользователя',
-          variant: 'destructive'
+          title: 'Ошибка удаления пользователя',
+          description: data.error || 'Неизвестная ошибка',
+          variant: 'destructive',
+          duration: 10000
         });
       }
     } catch (error) {
