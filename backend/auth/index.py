@@ -305,6 +305,41 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
+        elif action == 'search_user':
+            username = body_data.get('username', '').strip()
+            
+            if not username:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'error': 'Username required'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute(
+                f"SELECT id, username, avatar FROM {SCHEMA}.users WHERE LOWER(username) = LOWER(%s) AND is_blocked = FALSE",
+                (username,)
+            )
+            user = cur.fetchone()
+            
+            if user:
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'success': True,
+                        'user': dict(user)
+                    }),
+                    'isBase64Encoded': False
+                }
+            else:
+                return {
+                    'statusCode': 404,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'error': 'User not found'}),
+                    'isBase64Encoded': False
+                }
+        
         elif action == 'get_balance':
             headers = event.get('headers', {})
             user_id = headers.get('X-User-Id') or headers.get('x-user-id')

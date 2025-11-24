@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getAvatarGradient } from '@/utils/avatarColors';
 
 const NOTIFICATIONS_URL = 'https://functions.poehali.dev/6c968792-7d48-41a9-af0a-c92adb047acb';
-const ADMIN_URL = 'https://functions.poehali.dev/d4678b1c-2acd-40bb-b8c5-cefe8d14fad4';
+const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
 
 interface MessagesPanelProps {
   open: boolean;
@@ -189,22 +189,21 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
     setSearchingUser(true);
 
     try {
-      const response = await fetch(`${ADMIN_URL}?action=users`, {
-        headers: { 'X-User-Id': userId.toString() }
+      const response = await fetch(AUTH_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': userId.toString()
+        },
+        body: JSON.stringify({
+          action: 'search_user',
+          username: newChatUsername.trim()
+        })
       });
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch users');
-      }
 
       const data = await response.json();
-      const users = data.users || [];
-      
-      const targetUser = users.find((u: any) => 
-        u.username.toLowerCase() === newChatUsername.trim().toLowerCase()
-      );
 
-      if (!targetUser) {
+      if (!data.success) {
         toast({
           title: 'Пользователь не найден',
           description: `Пользователь с никнеймом "${newChatUsername}" не существует`,
@@ -212,6 +211,8 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
         });
         return;
       }
+
+      const targetUser = data.user;
 
       if (targetUser.id === userId) {
         toast({
