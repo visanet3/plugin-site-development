@@ -409,12 +409,23 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 try:
                     cur.execute(f"DELETE FROM {SCHEMA}.referral_codes WHERE user_id = %s", (target_user_id,))
                 except: pass
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.admin_actions WHERE admin_id = %s", (target_user_id,))
+                except: pass
                 
                 # Step 3: Finally delete the user
-                cur.execute(f"DELETE FROM {SCHEMA}.users WHERE id = %s", (target_user_id,))
-                
-                log_admin_action(user_id, 'delete_user', 'user', target_user_id, f"Completely deleted user: {target_user['username']}", cur)
-                conn.commit()
+                try:
+                    cur.execute(f"DELETE FROM {SCHEMA}.users WHERE id = %s", (target_user_id,))
+                    log_admin_action(user_id, 'delete_user', 'user', target_user_id, f"Completely deleted user: {target_user['username']}", cur)
+                    conn.commit()
+                except Exception as e:
+                    conn.rollback()
+                    return {
+                        'statusCode': 500,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': f'Ошибка удаления: {str(e)}'}),
+                        'isBase64Encoded': False
+                    }
                 
                 return {
                     'statusCode': 200,
