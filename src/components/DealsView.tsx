@@ -247,25 +247,17 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
   };
 
   const handleBuyerConfirm = async () => {
-    console.log('handleBuyerConfirm вызвана', { user, selectedDeal, actionLoading });
     if (!user || !selectedDeal || actionLoading) return;
-    
     setShowConfirmDialog(true);
   };
 
   const confirmBuyerConfirm = async () => {
-    console.log('🟢 confirmBuyerConfirm НАЧАЛО');
-    if (!user || !selectedDeal || actionLoading) {
-      console.log('🔴 Прервано:', { hasUser: !!user, hasDeal: !!selectedDeal, isLoading: actionLoading });
-      return;
-    }
+    if (!user || !selectedDeal || actionLoading) return;
     
     setShowConfirmDialog(false);
     setActionLoading(true);
 
     try {
-      console.log('🟡 Отправка запроса:', { action: 'buyer_confirm', deal_id: selectedDeal.id, user_id: user.id });
-      
       const response = await fetch(DEALS_URL, {
         method: 'POST',
         headers: {
@@ -278,10 +270,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
         })
       });
       
-      console.log('🟡 Response status:', response.status);
-      
       const data = await response.json();
-      console.log('🟡 Response data:', data);
       
       if (data.success) {
         toast({
@@ -299,7 +288,6 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
           setSelectedDeal(null);
         }, 2000);
       } else {
-        console.error('🔴 Ошибка от сервера:', data.error);
         toast({
           title: 'Ошибка',
           description: data.error || 'Ошибка завершения сделки',
@@ -307,7 +295,6 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
         });
       }
     } catch (error) {
-      console.error('🔴 Exception:', error);
       toast({
         title: 'Ошибка',
         description: 'Ошибка завершения сделки',
@@ -697,17 +684,13 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                     <div className="flex items-start gap-2">
                       <Icon name="AlertCircle" size={18} className="text-green-400 flex-shrink-0 mt-0.5" />
                       <p className="text-sm text-muted-foreground">
-                        <strong className="text-green-400">⚠️ Внимание!</strong> Нажимайте только если получили товар. Средства будут переведены продавцу
+                        <strong className="text-green-400">⚠️ Внимание!</strong> Нажимайте только если получили товар. {selectedDeal.price} USDT будут переведены продавцу
                       </p>
-                    </div>
-                    <div className="text-xs text-muted-foreground mb-2">
-                      DEBUG: actionLoading={actionLoading ? 'TRUE' : 'FALSE'}, disabled={actionLoading ? 'TRUE' : 'FALSE'}
                     </div>
                     <Button
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        console.log('🔴 КЛИК ПО КНОПКЕ!', { user, selectedDeal, actionLoading });
                         handleBuyerConfirm();
                       }}
                       disabled={actionLoading}
@@ -727,7 +710,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                       <div>
                         <h4 className="font-semibold text-green-400">Сделка завершена!</h4>
                         <p className="text-sm text-muted-foreground mt-1">
-                          {user && Number(user.id) === Number(selectedDeal.seller_id) ? `Вы получили ${(selectedDeal.price - selectedDeal.commission).toFixed(2)} USDT (комиссия ${selectedDeal.commission.toFixed(2)} USDT)` : 'Средства переведены продавцу'}
+                          {user && Number(user.id) === Number(selectedDeal.seller_id) ? `Вы получили ${(selectedDeal.price - selectedDeal.commission).toFixed(2)} USDT (комиссия ${selectedDeal.commission.toFixed(2)} USDT)` : `Средства ${selectedDeal.price} USDT переведены продавцу`}
                         </p>
                       </div>
                     </div>
@@ -751,7 +734,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
 
           <Card className="bg-orange-500/5 border-orange-500/20 p-4">
             <p className="text-sm text-muted-foreground">
-              После подтверждения средства <strong className="text-orange-400">{selectedDeal?.price} USDT</strong> будут переведены продавцу (комиссия 1%). 
+              После подтверждения средства <strong className="text-orange-400">{selectedDeal?.price} USDT</strong> будут переведены продавцу. 
               <br /><br />
               <strong>Это действие нельзя отменить!</strong>
             </p>
