@@ -402,13 +402,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     """, (deal['seller_id'], seller_amount, f'Продажа через гарант (сделка #{deal_id}, комиссия 1%)'))
                     print("DEBUG: Inserted seller transaction")
                     
-                    # Транзакция покупателя (0 USDT, просто запись о завершении)
-                    cursor.execute("""
-                        INSERT INTO transactions (user_id, amount, type, description)
-                        VALUES (%s, %s, 'deal_complete', %s)
-                    """, (deal['buyer_id'], 0, f'Покупка завершена: {deal["title"]}'))
-                    print("DEBUG: Inserted buyer transaction")
-                    
                     # Обновляем сделку
                     print(f"DEBUG: About to update deal with commission={commission}")
                     cursor.execute("""
