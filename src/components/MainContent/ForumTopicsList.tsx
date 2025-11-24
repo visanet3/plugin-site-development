@@ -269,8 +269,13 @@ export const ForumTopicsList = ({
                   <option value="all">📂 Все категории</option>
                   {categories.map((parentCategory) => {
                     const iconMap: Record<string, string> = {
+                      'FileCode': '📜',
+                      'Coins': '🪙',
+                      'TrendingUp': '📈',
                       'MessageSquare': '💬',
                       'HelpCircle': '❓',
+                      'Code2': '💻',
+                      'MoreHorizontal': '➕',
                       'Megaphone': '📢',
                       'Settings': '⚙️',
                       'ShoppingCart': '🛒',
@@ -279,16 +284,11 @@ export const ForumTopicsList = ({
                       'Users': '👥',
                       'Code': '💻',
                       'Briefcase': '💼',
-                      'Heart': '❤️',
-                      'Star': '⭐',
-                      'Zap': '⚡',
                       'Shield': '🛡️',
-                      'Lock': '🔒',
-                      'Globe': '🌐',
-                      'Book': '📚',
-                      'FileText': '📄',
-                      'Wrench': '🔧',
-                      'Package': '📦'
+                      'Wallet': '💳',
+                      'Gift': '🎁',
+                      'Bell': '🔔',
+                      'Star': '⭐'
                     };
                     const emoji = iconMap[parentCategory.icon || ''] || '📁';
                     return (
