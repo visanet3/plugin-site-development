@@ -8,6 +8,7 @@ import UserProfileDialog from '@/components/UserProfileDialog';
 import UserProfile from '@/components/UserProfile';
 import MessagesPanel from '@/components/MessagesPanel';
 import NotificationsPanel from '@/components/NotificationsPanel';
+import DDoSMonitor from '@/components/DDoSMonitor';
 import { Plugin, Category, User, ForumTopic, ForumComment, SearchResult } from '@/types';
 import { useDataFetching } from '@/hooks/useDataFetching';
 import { useUserActivity } from '@/hooks/useUserActivity';
@@ -522,6 +523,9 @@ const Index = () => {
           </div>
         </>
       )}
+
+      {/* DDoS Monitor для админов */}
+      {user && <DDoSMonitor currentUser={user} />}
     </div>
   );
 };

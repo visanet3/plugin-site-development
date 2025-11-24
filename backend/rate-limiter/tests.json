@@ -1,0 +1,25 @@
+{
+  "tests": [
+    {
+      "name": "Check rate limit status",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "rate_limit": {
+          "limit": "number",
+          "remaining": "number",
+          "reset": "number"
+        }
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "OPTIONS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}
