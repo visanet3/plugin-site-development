@@ -759,9 +759,17 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance,
   };
 
   const joinDeal = async () => {
-    if (!user) return;
+    console.log('joinDeal вызвана', { user, loading, currentDeal });
     
-    if (loading) return;
+    if (!user) {
+      console.log('Нет пользователя - молча выходим');
+      return;
+    }
+    
+    if (loading) {
+      console.log('Уже загружается - выходим');
+      return;
+    }
     
     if ((user.balance || 0) < currentDeal.price) {
       toast({
@@ -772,6 +780,7 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance,
       return;
     }
     
+    console.log('Начинаем покупку...');
     setLoading(true);
 
     try {
@@ -997,6 +1006,16 @@ const DealDetailDialog = ({ deal, user, onClose, onUpdate, onRefreshUserBalance,
   const isSeller = user?.id === currentDeal.seller_id;
   const isBuyer = user?.id === currentDeal.buyer_id;
   const isAdmin = user?.role === 'admin';
+  
+  console.log('DealDetailDialog render', { 
+    status: currentDeal.status, 
+    isSeller, 
+    isBuyer, 
+    userId: user?.id, 
+    sellerId: currentDeal.seller_id,
+    buyerId: currentDeal.buyer_id,
+    showBuyButton: currentDeal.status === 'open' && !isSeller
+  });
 
   const getStageComment = (status: string, isSeller: boolean) => {
     const comments: Record<string, { seller: string; buyer: string }> = {
