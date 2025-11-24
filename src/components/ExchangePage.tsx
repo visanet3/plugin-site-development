@@ -40,7 +40,8 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
     try {
       const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
       const data = await response.json();
-      const newPrice = data.bitcoin.usd;
+      const realPrice = data.bitcoin.usd;
+      const newPrice = realPrice - 500;
       
       if (btcPrice > 0) {
         setPrevBtcPrice(btcPrice);
@@ -59,7 +60,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
     } catch (error) {
       console.error('Ошибка загрузки курса BTC:', error);
       if (btcPrice === 0) {
-        setBtcPrice(65000);
+        setBtcPrice(64500);
       }
     } finally {
       setPriceLoading(false);
