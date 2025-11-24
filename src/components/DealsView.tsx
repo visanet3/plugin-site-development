@@ -362,42 +362,104 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 animate-fade-in">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+    <div className="space-y-3 sm:space-y-6 animate-fade-in">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Гарант-сервис</h1>
-          <p className="text-sm text-muted-foreground">
-            Безопасные сделки с защитой средств. Комиссия 1% с продавца
+          <h1 className="text-xl sm:text-3xl font-bold mb-1 sm:mb-2">🛡️ Гарант-сервис</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            Безопасные сделки с защитой средств
           </p>
         </div>
         <Button
           onClick={() => user ? setShowCreateDialog(true) : onShowAuthDialog()}
-          className="bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800 w-full sm:w-auto"
+          className="bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800 w-full sm:w-auto h-9 sm:h-10 text-sm"
         >
           <Icon name="Plus" size={16} className="mr-2" />
           Разместить объявление
         </Button>
       </div>
 
-      <Card className="p-4 sm:p-6 bg-gradient-to-br from-green-800/10 to-green-900/5 border-green-800/20">
-        <div className="flex items-start gap-3">
-          <div className="w-12 h-12 bg-green-800/20 rounded-xl flex items-center justify-center flex-shrink-0">
-            <Icon name="ShieldCheck" size={24} className="text-green-400" />
+      <Card className="p-3 sm:p-6 bg-gradient-to-br from-green-800/10 to-green-900/5 border-green-800/20">
+        <div className="space-y-3 sm:space-y-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-800/20 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Icon name="ShieldCheck" size={20} className="text-green-400 sm:w-6 sm:h-6" />
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-bold">Как работает гарант?</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground/80">Полная защита ваших средств</p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Как работает?</h3>
-            <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
-              <li>Продавец размещает объявление</li>
-              <li>Покупатель оплачивает (средства блокируются)</li>
-              <li>Продавец передает товар</li>
-              <li>Покупатель подтверждает получение</li>
-              <li>Средства переводятся продавцу (минус 1% комиссия)</li>
-            </ol>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+            <div className="flex gap-2 p-2 sm:p-3 rounded-lg bg-gradient-to-br from-green-500/5 to-green-600/10 border border-green-500/20">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0 text-xs sm:text-sm font-bold text-green-400">1</div>
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm font-semibold text-green-300">Создание сделки</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground/70">Продавец размещает объявление с описанием и ценой</p>
+              </div>
+            </div>
+
+            <div className="flex gap-2 p-2 sm:p-3 rounded-lg bg-gradient-to-br from-blue-500/5 to-blue-600/10 border border-blue-500/20">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0 text-xs sm:text-sm font-bold text-blue-400">2</div>
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm font-semibold text-blue-300">Оплата</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground/70">Покупатель переводит средства, они блокируются сервисом</p>
+              </div>
+            </div>
+
+            <div className="flex gap-2 p-2 sm:p-3 rounded-lg bg-gradient-to-br from-purple-500/5 to-purple-600/10 border border-purple-500/20">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0 text-xs sm:text-sm font-bold text-purple-400">3</div>
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm font-semibold text-purple-300">Передача товара</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground/70">Продавец передает товар/услугу покупателю</p>
+              </div>
+            </div>
+
+            <div className="flex gap-2 p-2 sm:p-3 rounded-lg bg-gradient-to-br from-amber-500/5 to-amber-600/10 border border-amber-500/20">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0 text-xs sm:text-sm font-bold text-amber-400">4</div>
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm font-semibold text-amber-300">Завершение</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground/70">Покупатель подтверждает → средства продавцу (комиссия 1%)</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-green-800/20">
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-green-500/5">
+              <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                <Icon name="Lock" size={14} className="text-green-400" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-green-300">Безопасность</p>
+                <p className="text-[10px] text-muted-foreground/70">Средства защищены</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-blue-500/5">
+              <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                <Icon name="MessageSquare" size={14} className="text-blue-400" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-blue-300">Чат сделки</p>
+                <p className="text-[10px] text-muted-foreground/70">Общение в реальном времени</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-purple-500/5">
+              <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                <Icon name="Zap" size={14} className="text-purple-400" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-purple-300">Быстро</p>
+                <p className="text-[10px] text-muted-foreground/70">Моментальные переводы</p>
+              </div>
+            </div>
           </div>
         </div>
       </Card>
 
-      <div className="flex items-center gap-2 overflow-x-auto pb-2">
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
         {[
           { id: 'active', label: 'Активные', icon: 'Store' },
           { id: 'my_deals', label: 'Мои сделки', icon: 'ShoppingCart' },
@@ -406,33 +468,32 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
           <Button
             key={filter.id}
             variant={statusFilter === filter.id ? 'default' : 'outline'}
-            size="sm"
-            className={`whitespace-nowrap ${statusFilter === filter.id ? 'bg-green-800 hover:bg-green-700' : ''}`}
+            className={`whitespace-nowrap h-8 sm:h-9 text-xs sm:text-sm ${statusFilter === filter.id ? 'bg-green-800 hover:bg-green-700' : ''}`}
             onClick={() => setStatusFilter(filter.id as any)}
           >
-            <Icon name={filter.icon as any} size={16} className="mr-2" />
+            <Icon name={filter.icon as any} size={14} className="mr-1.5 sm:mr-2" />
             {filter.label}
           </Button>
         ))}
       </div>
 
       {statusFilter !== 'active' && !user && (
-        <Card className="p-3 bg-orange-500/5 border-orange-500/20">
-          <p className="text-sm text-orange-400 flex items-center gap-2">
-            <Icon name="Lock" size={16} />
+        <Card className="p-2.5 sm:p-3 bg-orange-500/5 border-orange-500/20">
+          <p className="text-xs sm:text-sm text-orange-400 flex items-center gap-2">
+            <Icon name="Lock" size={14} className="sm:w-4 sm:h-4" />
             <span>Войдите, чтобы увидеть свои сделки</span>
           </p>
         </Card>
       )}
 
       {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <Icon name="Loader2" size={32} className="animate-spin text-muted-foreground" />
+        <div className="flex items-center justify-center py-8 sm:py-12">
+          <Icon name="Loader2" size={24} className="animate-spin text-muted-foreground sm:w-8 sm:h-8" />
         </div>
       ) : deals.length === 0 ? (
-        <Card className="p-12 text-center space-y-3">
-          <Icon name="Package" size={48} className="mx-auto mb-4 text-muted-foreground" />
-          <p className="text-muted-foreground font-medium">
+        <Card className="p-8 sm:p-12 text-center space-y-2 sm:space-y-3">
+          <Icon name="Package" size={36} className="mx-auto mb-3 sm:mb-4 text-muted-foreground sm:w-12 sm:h-12" />
+          <p className="text-sm sm:text-base text-muted-foreground font-medium">
             {statusFilter === 'active' && 'Нет активных объявлений'}
             {statusFilter === 'my_deals' && 'У вас нет активных сделок'}
             {statusFilter === 'completed' && 'У вас нет завершенных сделок'}
