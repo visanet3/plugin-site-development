@@ -264,13 +264,39 @@ export const ForumTopicsList = ({
                     }
                   }}
                   className="w-full h-10 px-3 rounded-md border bg-background text-sm font-medium"
+                  style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
                 >
                   <option value="all">📂 Все категории</option>
-                  {categories.map((parentCategory) => (
-                    <option key={parentCategory.id} value={`parent-${parentCategory.id}`}>
-                      {parentCategory.name}
-                    </option>
-                  ))}
+                  {categories.map((parentCategory) => {
+                    const iconMap: Record<string, string> = {
+                      'MessageSquare': '💬',
+                      'HelpCircle': '❓',
+                      'Megaphone': '📢',
+                      'Settings': '⚙️',
+                      'ShoppingCart': '🛒',
+                      'Trophy': '🏆',
+                      'Lightbulb': '💡',
+                      'Users': '👥',
+                      'Code': '💻',
+                      'Briefcase': '💼',
+                      'Heart': '❤️',
+                      'Star': '⭐',
+                      'Zap': '⚡',
+                      'Shield': '🛡️',
+                      'Lock': '🔒',
+                      'Globe': '🌐',
+                      'Book': '📚',
+                      'FileText': '📄',
+                      'Wrench': '🔧',
+                      'Package': '📦'
+                    };
+                    const emoji = iconMap[parentCategory.icon || ''] || '📁';
+                    return (
+                      <option key={parentCategory.id} value={`parent-${parentCategory.id}`}>
+                        {emoji} {parentCategory.name}
+                      </option>
+                    );
+                  })}
                 </select>
               ) : (
                 <button
