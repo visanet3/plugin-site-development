@@ -684,7 +684,10 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                       </p>
                     </div>
                     <Button
-                      onClick={handleBuyerConfirm}
+                      onClick={() => {
+                        console.log('🔴 КЛИК ПО КНОПКЕ!', { user, selectedDeal, actionLoading });
+                        handleBuyerConfirm();
+                      }}
                       disabled={actionLoading}
                       className="w-full bg-gradient-to-r from-green-600 to-green-700"
                     >
