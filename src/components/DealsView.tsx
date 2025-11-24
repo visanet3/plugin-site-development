@@ -533,20 +533,29 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
             <div className="flex gap-3">
               <Button
                 variant="outline"
-                onClick={() => setShowCreateDialog(false)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowCreateDialog(false);
+                }}
                 className="flex-1"
                 type="button"
               >
                 Отмена
               </Button>
               <Button
+                onTouchStart={(e) => {
+                  e.stopPropagation();
+                }}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  createDeal();
+                  if (!creating) {
+                    createDeal();
+                  }
                 }}
                 disabled={creating}
-                className="flex-1 bg-gradient-to-r from-green-600 to-green-800"
+                className="flex-1 bg-gradient-to-r from-green-600 to-green-800 touch-manipulation"
                 type="button"
               >
                 <Icon name={creating ? "Loader2" : "Plus"} size={16} className={`mr-2 ${creating ? 'animate-spin' : ''}`} />
