@@ -64,6 +64,16 @@ const AdminUsersTab = ({
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground break-all">{user.email}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs font-medium text-green-500">
+                    💵 {(user.balance || 0).toFixed(2)} USDT
+                  </span>
+                  {user.btc_balance && user.btc_balance > 0 && (
+                    <span className="text-xs font-medium text-orange-500">
+                      ₿ {(user.btc_balance || 0).toFixed(8)} BTC
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
