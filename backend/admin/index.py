@@ -176,6 +176,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cur.execute(f"""
                     SELECT id, username, email, role, forum_role, is_blocked, balance, btc_balance, created_at, last_seen_at 
                     FROM {SCHEMA}.users 
+                    WHERE username NOT LIKE '[DELETED_%'
                     ORDER BY created_at DESC 
                     LIMIT 100
                 """)
