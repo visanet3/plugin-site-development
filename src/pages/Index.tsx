@@ -1,124 +1,34 @@
-import { useState, useEffect } from 'react';
-import Sidebar from '@/components/Sidebar';
-import Header from '@/components/Header';
-import MainContent from '@/components/MainContent';
-import Dialogs from '@/components/Dialogs';
+import { useEffect } from 'react';
 import AdminPanel from '@/components/AdminPanel';
 import UserProfileDialog from '@/components/UserProfileDialog';
 import UserProfile from '@/components/UserProfile';
 import MessagesPanel from '@/components/MessagesPanel';
 import NotificationsPanel from '@/components/NotificationsPanel';
 import DDoSMonitor from '@/components/DDoSMonitor';
-import { Plugin, Category, User, ForumTopic, ForumComment, SearchResult } from '@/types';
-import { useDataFetching } from '@/hooks/useDataFetching';
-import { useUserActivity } from '@/hooks/useUserActivity';
-import { useForumHandlers } from '@/hooks/useForumHandlers';
-import { useSearchHandlers } from '@/hooks/useSearchHandlers';
-import { useToast } from '@/hooks/use-toast';
+import Dialogs from '@/components/Dialogs';
+import { useIndexState } from './index/IndexState';
+import { useIndexHandlers } from './index/IndexHandlers';
+import IndexLayout from './index/IndexLayout';
 
 const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
 const NOTIFICATIONS_URL = 'https://functions.poehali.dev/6c968792-7d48-41a9-af0a-c92adb047acb';
 
 const Index = () => {
-  const { toast } = useToast();
-  const [plugins, setPlugins] = useState<Plugin[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [activeCategory, setActiveCategory] = useState<string>(() => {
-    return localStorage.getItem('activeCategory') || 'all';
-  });
-  const [activeView, setActiveView] = useState<'plugins' | 'forum'>(() => {
-    return (localStorage.getItem('activeView') as 'plugins' | 'forum') || 'plugins';
-  });
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [authDialogOpen, setAuthDialogOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
-  const [forumTopics, setForumTopics] = useState<ForumTopic[]>([]);
-  const [selectedTopic, setSelectedTopic] = useState<ForumTopic | null>(null);
-  const [topicComments, setTopicComments] = useState<ForumComment[]>([]);
-  const [showTopicDialog, setShowTopicDialog] = useState(false);
-  const [showProfileDialog, setShowProfileDialog] = useState(false);
-  const [newTopicTitle, setNewTopicTitle] = useState('');
-  const [newTopicContent, setNewTopicContent] = useState('');
-  const [newComment, setNewComment] = useState('');
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [showSearchResults, setShowSearchResults] = useState(false);
-  const [showAdminPanel, setShowAdminPanel] = useState(false);
-  const [showUserProfile, setShowUserProfile] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
-  const [showMessagesPanel, setShowMessagesPanel] = useState(false);
-  const [showNotificationsPanel, setShowNotificationsPanel] = useState(false);
-  const [notificationsUnread, setNotificationsUnread] = useState(0);
-  const [messagesUnread, setMessagesUnread] = useState(0);
-  const [adminNotificationsUnread, setAdminNotificationsUnread] = useState(0);
-  const [messageRecipientId, setMessageRecipientId] = useState<number | null>(null);
+  const state = useIndexState();
 
-  const { fetchPlugins, fetchForumTopics } = useDataFetching({
-    activeView,
-    activeCategory,
-    searchQuery,
-    setPlugins,
-    setCategories,
-    setForumTopics
-  });
-
-  const showAdminToast = (title: string, description: string) => {
-    toast({
-      title,
-      description,
-      className: 'bg-yellow-500/10 border-yellow-500/30 text-foreground',
-      duration: 5000
-    });
-  };
-
-  const showToast = (title: string, description: string, className?: string, duration?: number) => {
-    toast({
-      title,
-      description,
-      className,
-      duration
-    });
-  };
-
-  useUserActivity({
-    user,
-    setUser,
-    setNotificationsUnread,
-    setMessagesUnread,
-    setAdminNotificationsUnread,
-    showAdminToast,
-    showToast
-  });
-
-  const { handleCreateTopic, handleCreateComment, handleTopicSelect } = useForumHandlers({
-    user,
-    selectedTopic,
-    newTopicTitle,
-    newTopicContent,
-    newComment,
-    setSelectedTopic,
-    setTopicComments,
-    setNewTopicTitle,
-    setNewTopicContent,
-    setShowTopicDialog,
-    setActiveView,
-    fetchForumTopics,
-    setNewComment,
-    setForumTopics
-  });
-
-  const { handleSearchResultClick } = useSearchHandlers({
-    searchQuery,
-    plugins,
-    categories,
-    forumTopics,
-    setSearchResults,
-    setShowSearchResults,
-    setActiveView,
-    setActiveCategory,
-    setSelectedTopic,
-    setTopicComments
+  const handlers = useIndexHandlers({
+    user: state.user,
+    setUser: state.setUser,
+    authMode: state.authMode,
+    setAuthDialogOpen: state.setAuthDialogOpen,
+    setSelectedTopic: state.setSelectedTopic,
+    setSelectedUserId: state.setSelectedUserId,
+    setShowUserProfile: state.setShowUserProfile,
+    setMessageRecipientId: state.setMessageRecipientId,
+    setShowMessagesPanel: state.setShowMessagesPanel,
+    setActiveView: state.setActiveView,
+    setActiveCategory: state.setActiveCategory,
+    toast: state.toast
   });
 
   useEffect(() => {
@@ -132,7 +42,7 @@ const Index = () => {
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
       const parsedUser = JSON.parse(savedUser);
-      setUser(parsedUser);
+      state.setUser(parsedUser);
       
       const syncUserData = async () => {
         try {
@@ -146,7 +56,7 @@ const Index = () => {
           });
           const data = await response.json();
           if (data.success && data.user) {
-            setUser(data.user);
+            state.setUser(data.user);
             localStorage.setItem('user', JSON.stringify(data.user));
           }
         } catch (error) {
@@ -156,9 +66,9 @@ const Index = () => {
       
       syncUserData();
     } else {
-      setAuthDialogOpen(true);
+      state.setAuthDialogOpen(true);
       if (refCode) {
-        setAuthMode('register');
+        state.setAuthMode('register');
       }
     }
     
@@ -187,331 +97,169 @@ const Index = () => {
 
   useEffect(() => {
     const savedTopicId = localStorage.getItem('selectedTopicId');
-    if (savedTopicId && activeView === 'forum' && forumTopics.length > 0 && !selectedTopic) {
-      const topic = forumTopics.find(t => t.id === parseInt(savedTopicId));
+    if (savedTopicId && state.activeView === 'forum' && state.forumTopics.length > 0 && !state.selectedTopic) {
+      const topic = state.forumTopics.find(t => t.id === parseInt(savedTopicId));
       if (topic) {
-        handleTopicSelect(topic);
+        state.handleTopicSelect(topic);
       }
     }
-  }, [forumTopics, activeView]);
-
-  const handleAuth = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    
-    try {
-      const response = await fetch(AUTH_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: authMode,
-          username: formData.get('username'),
-          email: authMode === 'register' ? formData.get('email') : undefined,
-          password: formData.get('password'),
-          referral_code: authMode === 'register' ? formData.get('referral_code') : undefined,
-        }),
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setUser(data.user);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('token', data.token);
-        setAuthDialogOpen(false);
-        toast({
-          title: 'Успешно',
-          description: authMode === 'login' ? 'Вы вошли в систему' : 'Регистрация успешно завершена'
-        });
-      } else {
-        toast({
-          title: 'Ошибка',
-          description: data.error || 'Ошибка авторизации',
-          variant: 'destructive'
-        });
-      }
-    } catch (error) {
-      console.error('Ошибка:', error);
-      toast({
-        title: 'Ошибка',
-        description: 'Ошибка подключения к серверу',
-        variant: 'destructive'
-      });
-    }
-  };
-
-  const handleLogout = () => {
-    const confirmed = window.confirm('Вы точно хотите выйти из аккаунта?');
-    if (confirmed) {
-      setUser(null);
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
-      toast({
-        title: 'Выход выполнен',
-        description: 'Вы вышли из аккаунта'
-      });
-    }
-  };
-
-  const handleUpdateProfile = async (profileData: Partial<User>) => {
-    if (!user) return;
-    const updatedUser = { ...user, ...profileData };
-    setUser(updatedUser);
-    localStorage.setItem('user', JSON.stringify(updatedUser));
-  };
-
-  const handleTopUpBalance = async (amount: number) => {
-    if (!user) return;
-    try {
-      const response = await fetch(AUTH_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': user.id.toString()
-        },
-        body: JSON.stringify({
-          action: 'topup_balance',
-          amount: amount
-        })
-      });
-      const data = await response.json();
-      if (data.success) {
-        const updatedUser = { ...user, balance: data.new_balance };
-        setUser(updatedUser);
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-      }
-    } catch (error) {
-      console.error('Ошибка пополнения баланса:', error);
-      throw error;
-    }
-  };
-
-  const refreshUserBalance = async () => {
-    if (!user) return;
-    try {
-      const response = await fetch(`${AUTH_URL}?action=get_balance`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': user.id.toString()
-        },
-        body: JSON.stringify({
-          action: 'get_balance'
-        })
-      });
-      const data = await response.json();
-      if (data.success) {
-        const updatedUser = { ...user, balance: data.balance };
-        setUser(updatedUser);
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-      }
-    } catch (error) {
-      console.error('Ошибка обновления баланса:', error);
-    }
-  };
-
-  const handleCategoryChange = (category: string, view: 'plugins' | 'forum') => {
-    setActiveView(view);
-    localStorage.setItem('activeView', view);
-    if (view === 'plugins') {
-      setActiveCategory(category);
-      localStorage.setItem('activeCategory', category);
-    }
-    setSelectedTopic(null);
-    localStorage.removeItem('selectedTopicId');
-    window.scrollTo(0, 0);
-  };
-
-  const handleUserClick = (userId: number) => {
-    setSelectedUserId(userId);
-    setShowUserProfile(true);
-  };
-
-  const handleSendMessage = (recipientId: number) => {
-    setMessageRecipientId(recipientId);
-    setShowMessagesPanel(true);
-  };
-
-  const handleAuthDialogAttemptClose = () => {
-    if (!user) {
-      toast({
-        title: 'Требуется авторизация',
-        description: 'Платформой могут пользоваться только зарегистрированные и авторизованные пользователи',
-        variant: 'destructive',
-        duration: 5000
-      });
-    }
-  };
+  }, [state.forumTopics, state.activeView]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex relative" onClick={() => setShowSearchResults(false)}>
-      {showAdminPanel && user?.role === 'admin' ? (
-        <AdminPanel currentUser={user} onClose={() => setShowAdminPanel(false)} />
+    <div className="min-h-screen bg-background text-foreground flex relative" onClick={() => state.setShowSearchResults(false)}>
+      {state.showAdminPanel && state.user?.role === 'admin' ? (
+        <AdminPanel currentUser={state.user} onClose={() => state.setShowAdminPanel(false)} />
       ) : (
         <>
-          <Sidebar
-            sidebarOpen={sidebarOpen && !authDialogOpen}
-            activeCategory={activeCategory}
-            activeView={activeView}
-            categories={categories}
-            user={user || undefined}
-            onCategoryChange={handleCategoryChange}
+          <IndexLayout 
+            sidebarOpen={state.sidebarOpen}
+            authDialogOpen={state.authDialogOpen}
+            activeCategory={state.activeCategory}
+            activeView={state.activeView}
+            categories={state.categories}
+            user={state.user}
+            messagesUnread={state.messagesUnread}
+            adminNotificationsUnread={state.adminNotificationsUnread}
+            searchQuery={state.searchQuery}
+            searchResults={state.searchResults}
+            showSearchResults={state.showSearchResults}
+            notificationsUnread={state.notificationsUnread}
+            plugins={state.plugins}
+            forumTopics={state.forumTopics}
+            selectedTopic={state.selectedTopic}
+            topicComments={state.topicComments}
+            newComment={state.newComment}
+            onToggleSidebar={() => state.setSidebarOpen(!state.sidebarOpen)}
+            onCategoryChange={handlers.handleCategoryChange}
             onShowProfileDialog={() => {
-              if (user) {
-                setSelectedUserId(user.id);
-                setShowUserProfile(true);
+              if (state.user) {
+                state.setSelectedUserId(state.user.id);
+                state.setShowUserProfile(true);
               }
             }}
-            onShowAdminPanel={() => setShowAdminPanel(true)}
-            onShowMessagesPanel={() => setShowMessagesPanel(true)}
-            messagesUnread={messagesUnread}
-            adminNotificationsUnread={adminNotificationsUnread}
-            onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-          />
-
-      <div className={`flex-1 transition-all duration-300 ${sidebarOpen && !authDialogOpen ? 'md:ml-64' : 'ml-0'} max-w-full overflow-x-hidden`}>
-        <Header
-          sidebarOpen={sidebarOpen}
-          searchQuery={searchQuery}
-          searchResults={searchResults}
-          showSearchResults={showSearchResults}
-          user={user}
-          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-          onSearchChange={setSearchQuery}
-          onSearchFocus={() => searchQuery && setShowSearchResults(true)}
-          onSearchResultClick={handleSearchResultClick}
-          onAuthDialogOpen={(mode) => {
-            setAuthMode(mode);
-            setAuthDialogOpen(true);
-          }}
-          onLogout={handleLogout}
-          notificationsUnread={notificationsUnread}
-          onShowNotifications={() => setShowNotificationsPanel(true)}
-          onShowProfile={() => {
-            if (user) {
-              setSelectedUserId(user.id);
-              setShowUserProfile(true);
-            }
-          }}
-        />
-
-        <MainContent
-          activeView={authDialogOpen ? 'plugins' : activeView}
-          activeCategory={authDialogOpen ? 'all' : activeCategory}
-          plugins={plugins}
-          categories={categories}
-          forumTopics={forumTopics}
-          selectedTopic={selectedTopic}
-          topicComments={topicComments}
-          user={user}
-          newComment={newComment}
-          onShowTopicDialog={() => setShowTopicDialog(true)}
-          onTopicSelect={handleTopicSelect}
-          onBackToTopics={() => {
-            setSelectedTopic(null);
-            localStorage.removeItem('selectedTopicId');
-          }}
-          onCommentChange={setNewComment}
-          onCreateComment={handleCreateComment}
-          onUserClick={handleUserClick}
-          onNavigateToForum={() => setActiveView('forum')}
-          onShowAuthDialog={() => setAuthDialogOpen(true)}
-          onRefreshUserBalance={refreshUserBalance}
-        />
-      </div>
-
-      <Dialogs
-        authDialogOpen={authDialogOpen}
-        authMode={authMode}
-        showTopicDialog={showTopicDialog}
-        showProfileDialog={showProfileDialog}
-        user={user}
-        newTopicTitle={newTopicTitle}
-        newTopicContent={newTopicContent}
-        onAuthDialogChange={setAuthDialogOpen}
-        onAuthModeChange={setAuthMode}
-        onAuthSubmit={handleAuth}
-        onTopicDialogChange={setShowTopicDialog}
-        onTopicTitleChange={setNewTopicTitle}
-        onTopicContentChange={setNewTopicContent}
-        onCreateTopic={handleCreateTopic}
-        onProfileDialogChange={setShowProfileDialog}
-        onUpdateProfile={handleUpdateProfile}
-        onAuthDialogAttemptClose={handleAuthDialogAttemptClose}
-      />
-
-      {showUserProfile && selectedUserId && user && selectedUserId === user.id ? (
-        <UserProfile
-          user={user}
-          isOwnProfile={true}
-          onClose={() => setShowUserProfile(false)}
-          onTopUpBalance={handleTopUpBalance}
-          onUpdateProfile={handleUpdateProfile}
-        />
-      ) : (
-        <UserProfileDialog
-          open={showUserProfile}
-          onOpenChange={setShowUserProfile}
-          userId={selectedUserId}
-          currentUserId={user?.id}
-          onSendMessage={handleSendMessage}
-        />
-      )}
-
-      {user && (
-        <>
-          <NotificationsPanel
-            open={showNotificationsPanel}
-            onOpenChange={(open) => {
-              setShowNotificationsPanel(open);
-              if (!open) {
-                fetch(`${NOTIFICATIONS_URL}?action=notifications`, {
-                  headers: { 'X-User-Id': user.id.toString() }
-                }).then(res => res.json()).then(data => {
-                  setNotificationsUnread(data.unread_count || 0);
-                }).catch(() => {});
+            onShowAdminPanel={() => state.setShowAdminPanel(true)}
+            onShowMessagesPanel={() => state.setShowMessagesPanel(true)}
+            onSearchChange={state.setSearchQuery}
+            onSearchFocus={() => state.searchQuery && state.setShowSearchResults(true)}
+            onSearchResultClick={state.handleSearchResultClick}
+            onAuthDialogOpen={(mode) => {
+              state.setAuthMode(mode);
+              state.setAuthDialogOpen(true);
+            }}
+            onLogout={handlers.handleLogout}
+            onShowNotifications={() => state.setShowNotificationsPanel(true)}
+            onShowProfile={() => {
+              if (state.user) {
+                state.setSelectedUserId(state.user.id);
+                state.setShowUserProfile(true);
               }
             }}
-            userId={user.id}
-          />
-          
-          <MessagesPanel
-            open={showMessagesPanel}
-            onOpenChange={(open) => {
-              setShowMessagesPanel(open);
-              if (!open) {
-                setMessageRecipientId(null);
-                fetch(`${NOTIFICATIONS_URL}?action=messages`, {
-                  headers: { 'X-User-Id': user.id.toString() }
-                }).then(res => res.json()).then(data => {
-                  setMessagesUnread(data.unread_count || 0);
-                }).catch(() => {});
-              }
+            onShowTopicDialog={() => state.setShowTopicDialog(true)}
+            onTopicSelect={state.handleTopicSelect}
+            onBackToTopics={() => {
+              state.setSelectedTopic(null);
+              localStorage.removeItem('selectedTopicId');
             }}
-            userId={user.id}
-            initialRecipientId={messageRecipientId}
+            onCommentChange={state.setNewComment}
+            onCreateComment={state.handleCreateComment}
+            onUserClick={handlers.handleUserClick}
+            onNavigateToForum={() => state.setActiveView('forum')}
+            onShowAuthDialog={() => state.setAuthDialogOpen(true)}
+            onRefreshUserBalance={handlers.refreshUserBalance}
           />
-        </>
-      )}
+
+          <Dialogs
+            authDialogOpen={state.authDialogOpen}
+            authMode={state.authMode}
+            showTopicDialog={state.showTopicDialog}
+            showProfileDialog={state.showProfileDialog}
+            user={state.user}
+            newTopicTitle={state.newTopicTitle}
+            newTopicContent={state.newTopicContent}
+            onAuthDialogChange={state.setAuthDialogOpen}
+            onAuthModeChange={state.setAuthMode}
+            onAuthSubmit={handlers.handleAuth}
+            onTopicDialogChange={state.setShowTopicDialog}
+            onTopicTitleChange={state.setNewTopicTitle}
+            onTopicContentChange={state.setNewTopicContent}
+            onCreateTopic={state.handleCreateTopic}
+            onProfileDialogChange={state.setShowProfileDialog}
+            onUpdateProfile={handlers.handleUpdateProfile}
+            onAuthDialogAttemptClose={handlers.handleAuthDialogAttemptClose}
+          />
+
+          {state.showUserProfile && state.selectedUserId && state.user && state.selectedUserId === state.user.id ? (
+            <UserProfile
+              user={state.user}
+              isOwnProfile={true}
+              onClose={() => state.setShowUserProfile(false)}
+              onTopUpBalance={handlers.handleTopUpBalance}
+              onUpdateProfile={handlers.handleUpdateProfile}
+            />
+          ) : (
+            <UserProfileDialog
+              open={state.showUserProfile}
+              onOpenChange={state.setShowUserProfile}
+              userId={state.selectedUserId}
+              currentUserId={state.user?.id}
+              onSendMessage={handlers.handleSendMessage}
+            />
+          )}
+
+          {state.user && (
+            <>
+              <NotificationsPanel
+                open={state.showNotificationsPanel}
+                onOpenChange={(open) => {
+                  state.setShowNotificationsPanel(open);
+                  if (!open) {
+                    fetch(`${NOTIFICATIONS_URL}?action=notifications`, {
+                      headers: { 'X-User-Id': state.user!.id.toString() }
+                    }).then(res => res.json()).then(data => {
+                      state.setNotificationsUnread(data.unread_count || 0);
+                    }).catch(() => {});
+                  }
+                }}
+                userId={state.user.id}
+              />
+              
+              <MessagesPanel
+                open={state.showMessagesPanel}
+                onOpenChange={(open) => {
+                  state.setShowMessagesPanel(open);
+                  if (!open) {
+                    state.setMessageRecipientId(null);
+                    fetch(`${NOTIFICATIONS_URL}?action=messages`, {
+                      headers: { 'X-User-Id': state.user!.id.toString() }
+                    }).then(res => res.json()).then(data => {
+                      state.setMessagesUnread(data.unread_count || 0);
+                    }).catch(() => {});
+                  }
+                }}
+                userId={state.user.id}
+                initialRecipientId={state.messageRecipientId}
+              />
+            </>
+          )}
         </>
       )}
 
-      {!user && (
+      {!state.user && (
         <>
           <div className="fixed inset-0 backdrop-blur-[2px] bg-background/9 z-40 pointer-events-none" />
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="bg-background/95 backdrop-blur-xl border-2 border-primary/50 rounded-2xl shadow-2xl max-w-md w-full animate-scale-in">
               <Dialogs
                 authDialogOpen={true}
-                authMode={authMode}
+                authMode={state.authMode}
                 showTopicDialog={false}
                 showProfileDialog={false}
                 user={null}
                 newTopicTitle=""
                 newTopicContent=""
                 onAuthDialogChange={() => {}}
-                onAuthModeChange={setAuthMode}
-                onAuthSubmit={handleAuth}
+                onAuthModeChange={state.setAuthMode}
+                onAuthSubmit={handlers.handleAuth}
                 onTopicDialogChange={() => {}}
                 onTopicTitleChange={() => {}}
                 onTopicContentChange={() => {}}
@@ -524,8 +272,7 @@ const Index = () => {
         </>
       )}
 
-      {/* DDoS Monitor для админов */}
-      {user && <DDoSMonitor currentUser={user} />}
+      {state.user && <DDoSMonitor currentUser={state.user} />}
     </div>
   );
 };
