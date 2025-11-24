@@ -158,7 +158,7 @@ const RecentWinsFeed = () => {
             </div>
           ))}
         </div>
-        <div className="absolute top-0 right-0 h-full w-16 bg-gradient-to-l from-yellow-950/40 to-transparent pointer-events-none"></div>
+        <div className="absolute top-0 right-0 h-full w-20 bg-gradient-to-l from-yellow-950/60 via-yellow-950/30 to-transparent pointer-events-none"></div>
       </Card>
     </div>
   );
