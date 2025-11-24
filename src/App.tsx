@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Helmet } from 'react-helmet';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -40,6 +41,10 @@ const CryptoChecker = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      <Helmet>
+        <title>Купить Flash USDT TRC20 | GitCrypto - Флеш USDT криптовалюта</title>
+        <meta name="description" content="Купить Flash USDT TRC20 - надежная платформа GitCrypto для покупки флеш криптовалюты. Смарт-контракты, гарант-сервис, казино. Купить флеш юсдт быстро и безопасно" />
+      </Helmet>
       <CryptoChecker />
       <Toaster />
       <Sonner />
