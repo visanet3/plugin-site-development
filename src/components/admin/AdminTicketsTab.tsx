@@ -5,6 +5,8 @@ import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
+const TICKETS_URL = 'https://functions.poehali.dev/f2a5cbce-6afc-4ef1-91a6-f14075db8567';
+
 interface SupportTicket {
   id: number;
   user_id: number;
@@ -68,16 +70,47 @@ const AdminTicketsTab = ({ tickets, currentUser, onRefresh, onUpdateTicketStatus
 
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      toast({
-        title: 'Ответ отправлен',
-        description: 'Пользователь получит уведомление'
+    try {
+      const res = await fetch(TICKETS_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': currentUser.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'answer',
+          ticket_id: selectedTicket.id,
+          admin_response: response.trim(),
+          answered_by: currentUser.username
+        })
       });
-      setResponse('');
-      setSelectedTicket(null);
+
+      const data = await res.json();
+
+      if (data.success) {
+        toast({
+          title: 'Ответ отправлен',
+          description: 'Пользователь получит уведомление'
+        });
+        setResponse('');
+        setSelectedTicket(null);
+        onRefresh();
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Не удалось отправить ответ',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось отправить ответ',
+        variant: 'destructive'
+      });
+    } finally {
       setIsSubmitting(false);
-      onRefresh();
-    }, 500);
+    }
   };
 
   const handleCloseTicket = async (ticketId: number) => {

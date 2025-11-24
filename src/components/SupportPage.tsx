@@ -12,7 +12,7 @@ interface SupportPageProps {
   onShowAuthDialog: () => void;
 }
 
-const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
+const TICKETS_URL = 'https://functions.poehali.dev/f2a5cbce-6afc-4ef1-91a6-f14075db8567';
 
 const SupportPage = ({ user, onShowAuthDialog }: SupportPageProps) => {
   const { toast } = useToast();
@@ -20,8 +20,6 @@ const SupportPage = ({ user, onShowAuthDialog }: SupportPageProps) => {
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  console.log('SupportPage render:', { user: user?.username, category, subject: subject.length, message: message.length });
 
   const categories = [
     { value: 'account', label: 'Проблемы с аккаунтом', icon: 'User' },
@@ -35,21 +33,13 @@ const SupportPage = ({ user, onShowAuthDialog }: SupportPageProps) => {
     { value: 'other', label: 'Другое', icon: 'HelpCircle' }
   ];
 
-  const createTicket = () => {
-    console.log('=== НАЧАЛО СОЗДАНИЯ ТИКЕТА ===');
-    console.log('User:', user);
-    console.log('Category:', category);
-    console.log('Subject:', subject);
-    console.log('Message:', message);
-
+  const createTicket = async () => {
     if (!user) {
-      console.log('Ошибка: пользователь не авторизован');
       onShowAuthDialog();
       return;
     }
 
     if (!category) {
-      console.log('Ошибка: категория не выбрана');
       toast({
         title: 'Ошибка',
         description: 'Выберите категорию проблемы',
@@ -59,7 +49,6 @@ const SupportPage = ({ user, onShowAuthDialog }: SupportPageProps) => {
     }
 
     if (!subject.trim() || !message.trim()) {
-      console.log('Ошибка: поля не заполнены');
       toast({
         title: 'Ошибка',
         description: 'Заполните все поля',
@@ -68,43 +57,43 @@ const SupportPage = ({ user, onShowAuthDialog }: SupportPageProps) => {
       return;
     }
 
-    console.log('Валидация пройдена, начинаем сохранение');
     setIsSubmitting(true);
 
     try {
-      const savedTickets = localStorage.getItem('admin_mock_tickets');
-      const tickets = savedTickets ? JSON.parse(savedTickets) : [];
-      
-      const newTicket = {
-        id: Date.now(),
-        user_id: user.id,
-        username: user.username,
-        category: category,
-        subject: subject.trim(),
-        message: message.trim(),
-        status: 'open' as const,
-        created_at: new Date().toISOString()
-      };
-      
-      console.log('Создание нового тикета:', newTicket);
-      tickets.push(newTicket);
-      localStorage.setItem('admin_mock_tickets', JSON.stringify(tickets));
-      console.log('Тикет сохранен. Всего тикетов:', tickets.length);
-      console.log('Тикеты в localStorage после сохранения:', localStorage.getItem('admin_mock_tickets'));
-      
-      window.dispatchEvent(new CustomEvent('ticket-created', { 
-        detail: newTicket 
-      }));
-      console.log('Событие ticket-created отправлено');
-      
-      toast({
-        title: 'Тикет создан!',
-        description: 'Мы получили ваше обращение и ответим в ближайшее время'
+      const response = await fetch(TICKETS_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'create',
+          user_id: user.id,
+          username: user.username,
+          category: category,
+          subject: subject.trim(),
+          message: message.trim()
+        })
       });
-      
-      setCategory('');
-      setSubject('');
-      setMessage('');
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast({
+          title: 'Тикет создан!',
+          description: 'Мы получили ваше обращение и ответим в ближайшее время'
+        });
+        
+        setCategory('');
+        setSubject('');
+        setMessage('');
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Не удалось создать тикет',
+          variant: 'destructive'
+        });
+      }
     } catch (error) {
       console.error('Ошибка создания тикета:', error);
       toast({
@@ -235,12 +224,7 @@ const SupportPage = ({ user, onShowAuthDialog }: SupportPageProps) => {
               type="button"
               disabled={isSubmitting || !user}
               className="flex-1"
-              onClick={() => {
-                console.log('=== КЛИК НА КНОПКУ ОТПРАВКИ ===');
-                console.log('User существует:', !!user);
-                console.log('isSubmitting:', isSubmitting);
-                createTicket();
-              }}
+              onClick={createTicket}
             >
               {isSubmitting ? (
                 <>

@@ -18,6 +18,7 @@ const ESCROW_URL = 'https://functions.poehali.dev/82c75fbc-83e4-4448-9ff8-1c8ef9
 const WITHDRAWAL_URL = 'https://functions.poehali.dev/09f16983-ec42-41fe-a7bd-695752ee11c5';
 const CRYPTO_URL = 'https://functions.poehali.dev/8caa3b76-72e5-42b5-9415-91d1f9b05210';
 const FLASH_USDT_URL = 'https://functions.poehali.dev/9d93686d-9a6f-47bc-85a8-7b7c28e4edd7';
+const TICKETS_URL = 'https://functions.poehali.dev/f2a5cbce-6afc-4ef1-91a6-f14075db8567';
 
 const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
   const { toast } = useToast();
@@ -92,35 +93,11 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
   }, [activeTab]);
 
   useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      console.log('Событие storage:', e.key);
-      if (e.key === 'admin_mock_tickets') {
-        console.log('Обнаружено изменение тикетов, обновляем...');
-        fetchTickets();
-        fetchAllCounts();
-      }
-    };
-
-    const handleTicketCreated = (e: CustomEvent) => {
-      console.log('Событие ticket-created получено:', e.detail);
-      fetchTickets();
-      fetchAllCounts();
-      toast({
-        title: '🎫 Новый тикет!',
-        description: `От пользователя ${e.detail.username}: ${e.detail.subject}`
-      });
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('ticket-created', handleTicketCreated as EventListener);
-    
     const interval = setInterval(() => {
       fetchTickets();
-    }, 3000);
+    }, 5000);
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('ticket-created', handleTicketCreated as EventListener);
       clearInterval(interval);
     };
   }, []);
@@ -235,16 +212,13 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
 
   const fetchTickets = async () => {
     try {
-      const savedTickets = localStorage.getItem('admin_mock_tickets');
-      console.log('Загрузка тикетов из localStorage:', savedTickets);
-      if (savedTickets) {
-        const tickets = JSON.parse(savedTickets);
-        console.log('Найдено тикетов:', tickets.length, tickets);
-        setTickets(tickets.sort((a: any, b: any) => 
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        ));
+      const response = await fetch(`${TICKETS_URL}?action=list`, {
+        headers: { 'X-User-Id': currentUser.id.toString() }
+      });
+      const data = await response.json();
+      if (data.success) {
+        setTickets(data.tickets || []);
       } else {
-        console.log('Тикеты не найдены в localStorage');
         setTickets([]);
       }
     } catch (error) {
@@ -310,9 +284,13 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
         return (Date.now() - createdAt.getTime()) < 24 * 60 * 60 * 1000;
       }).length;
 
-      const savedTickets = localStorage.getItem('admin_mock_tickets');
-      const allTickets = savedTickets ? JSON.parse(savedTickets) : [];
-      const openTicketsCount = allTickets.filter((t: any) => t.status === 'open').length;
+      const ticketsRes = await fetch(`${TICKETS_URL}?action=list`, {
+        headers: { 'X-User-Id': currentUser.id.toString() }
+      });
+      const ticketsData = await ticketsRes.json();
+      const openTicketsCount = ticketsData.success 
+        ? (ticketsData.tickets || []).filter((t: any) => t.status === 'open').length 
+        : 0;
 
       const newCounts = {
         users: newUsers,
@@ -644,14 +622,28 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
     }
   };
 
-  const handleUpdateTicketStatus = (ticketId: number, status: 'open' | 'answered' | 'closed') => {
-    setTickets(prevTickets => {
-      const updatedTickets = prevTickets.map(ticket => 
-        ticket.id === ticketId ? { ...ticket, status } : ticket
-      );
-      localStorage.setItem('admin_mock_tickets', JSON.stringify(updatedTickets));
-      return updatedTickets;
-    });
+  const handleUpdateTicketStatus = async (ticketId: number, status: 'open' | 'answered' | 'closed') => {
+    try {
+      const response = await fetch(TICKETS_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': currentUser.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'update_status',
+          ticket_id: ticketId,
+          status: status
+        })
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        fetchTickets();
+      }
+    } catch (error) {
+      console.error('Ошибка обновления статуса тикета:', error);
+    }
   };
 
   const handleChangeForumRole = async (userId: number, forumRole: string) => {

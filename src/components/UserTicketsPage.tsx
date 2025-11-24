@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { User } from '@/types';
 
+const TICKETS_URL = 'https://functions.poehali.dev/f2a5cbce-6afc-4ef1-91a6-f14075db8567';
+
 interface SupportTicket {
   id: number;
   user_id: number;
@@ -50,14 +52,17 @@ const UserTicketsPage = ({ user }: UserTicketsPageProps) => {
     return () => clearInterval(interval);
   }, [user.id]);
 
-  const loadTickets = () => {
-    const savedTickets = localStorage.getItem('admin_mock_tickets');
-    if (savedTickets) {
-      const allTickets: SupportTicket[] = JSON.parse(savedTickets);
-      const userTickets = allTickets
-        .filter(t => t.user_id === user.id)
-        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-      setTickets(userTickets);
+  const loadTickets = async () => {
+    try {
+      const response = await fetch(`${TICKETS_URL}?action=user_tickets&user_id=${user.id}`, {
+        headers: { 'X-User-Id': user.id.toString() }
+      });
+      const data = await response.json();
+      if (data.success) {
+        setTickets(data.tickets || []);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки тикетов:', error);
     }
   };
 

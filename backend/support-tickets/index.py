@@ -1,0 +1,246 @@
+"""
+Business: API для управления тикетами технической поддержки
+Args: event - dict с httpMethod, body, queryStringParameters
+      context - объект с атрибутами request_id, function_name
+Returns: HTTP response dict с тикетами или результатом операции
+"""
+import json
+import os
+from typing import Dict, Any
+import psycopg2
+from psycopg2.extras import RealDictCursor
+
+def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
+    method: str = event.get('httpMethod', 'GET')
+    
+    if method == 'OPTIONS':
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, X-User-Id',
+                'Access-Control-Max-Age': '86400'
+            },
+            'body': '',
+            'isBase64Encoded': False
+        }
+    
+    headers = {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+    }
+    
+    dsn = os.environ.get('DATABASE_URL')
+    if not dsn:
+        return {
+            'statusCode': 500,
+            'headers': headers,
+            'body': json.dumps({'success': False, 'error': 'DATABASE_URL not configured'}),
+            'isBase64Encoded': False
+        }
+    
+    try:
+        conn = psycopg2.connect(dsn)
+        conn.autocommit = True
+        
+        if method == 'GET':
+            params = event.get('queryStringParameters') or {}
+            action = params.get('action', 'list')
+            
+            if action == 'list':
+                # Получить все тикеты (для админа)
+                with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                    cur.execute("""
+                        SELECT id, user_id, username, category, subject, message, 
+                               status, admin_response, answered_by, answered_at, created_at
+                        FROM support_tickets
+                        ORDER BY created_at DESC
+                    """)
+                    tickets = cur.fetchall()
+                    
+                    # Конвертируем datetime в ISO строки
+                    for ticket in tickets:
+                        if ticket.get('created_at'):
+                            ticket['created_at'] = ticket['created_at'].isoformat()
+                        if ticket.get('answered_at'):
+                            ticket['answered_at'] = ticket['answered_at'].isoformat()
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': headers,
+                        'body': json.dumps({'success': True, 'tickets': tickets}),
+                        'isBase64Encoded': False
+                    }
+            
+            elif action == 'user_tickets':
+                # Получить тикеты конкретного пользователя
+                user_id = params.get('user_id')
+                if not user_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': headers,
+                        'body': json.dumps({'success': False, 'error': 'user_id required'}),
+                        'isBase64Encoded': False
+                    }
+                
+                with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                    cur.execute("""
+                        SELECT id, user_id, username, category, subject, message, 
+                               status, admin_response, answered_by, answered_at, created_at
+                        FROM support_tickets
+                        WHERE user_id = %s
+                        ORDER BY created_at DESC
+                    """, (int(user_id),))
+                    tickets = cur.fetchall()
+                    
+                    for ticket in tickets:
+                        if ticket.get('created_at'):
+                            ticket['created_at'] = ticket['created_at'].isoformat()
+                        if ticket.get('answered_at'):
+                            ticket['answered_at'] = ticket['answered_at'].isoformat()
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': headers,
+                        'body': json.dumps({'success': True, 'tickets': tickets}),
+                        'isBase64Encoded': False
+                    }
+        
+        elif method == 'POST':
+            body_data = json.loads(event.get('body', '{}'))
+            action = body_data.get('action')
+            
+            if action == 'create':
+                # Создать новый тикет
+                user_id = body_data.get('user_id')
+                username = body_data.get('username')
+                category = body_data.get('category')
+                subject = body_data.get('subject')
+                message = body_data.get('message')
+                
+                if not all([user_id, username, category, subject, message]):
+                    return {
+                        'statusCode': 400,
+                        'headers': headers,
+                        'body': json.dumps({'success': False, 'error': 'Missing required fields'}),
+                        'isBase64Encoded': False
+                    }
+                
+                with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                    cur.execute("""
+                        INSERT INTO support_tickets 
+                        (user_id, username, category, subject, message, status, created_at, updated_at)
+                        VALUES (%s, %s, %s, %s, %s, 'open', NOW(), NOW())
+                        RETURNING id, user_id, username, category, subject, message, 
+                                  status, created_at
+                    """, (user_id, username, category, subject, message))
+                    ticket = cur.fetchone()
+                    
+                    if ticket.get('created_at'):
+                        ticket['created_at'] = ticket['created_at'].isoformat()
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': headers,
+                        'body': json.dumps({'success': True, 'ticket': ticket}),
+                        'isBase64Encoded': False
+                    }
+            
+            elif action == 'answer':
+                # Ответить на тикет
+                ticket_id = body_data.get('ticket_id')
+                admin_response = body_data.get('admin_response')
+                answered_by = body_data.get('answered_by')
+                
+                if not all([ticket_id, admin_response, answered_by]):
+                    return {
+                        'statusCode': 400,
+                        'headers': headers,
+                        'body': json.dumps({'success': False, 'error': 'Missing required fields'}),
+                        'isBase64Encoded': False
+                    }
+                
+                with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                    cur.execute("""
+                        UPDATE support_tickets
+                        SET admin_response = %s,
+                            answered_by = %s,
+                            answered_at = NOW(),
+                            status = 'answered',
+                            updated_at = NOW()
+                        WHERE id = %s
+                        RETURNING id
+                    """, (admin_response, answered_by, ticket_id))
+                    result = cur.fetchone()
+                    
+                    if result:
+                        return {
+                            'statusCode': 200,
+                            'headers': headers,
+                            'body': json.dumps({'success': True}),
+                            'isBase64Encoded': False
+                        }
+                    else:
+                        return {
+                            'statusCode': 404,
+                            'headers': headers,
+                            'body': json.dumps({'success': False, 'error': 'Ticket not found'}),
+                            'isBase64Encoded': False
+                        }
+            
+            elif action == 'update_status':
+                # Изменить статус тикета
+                ticket_id = body_data.get('ticket_id')
+                status = body_data.get('status')
+                
+                if not all([ticket_id, status]):
+                    return {
+                        'statusCode': 400,
+                        'headers': headers,
+                        'body': json.dumps({'success': False, 'error': 'Missing required fields'}),
+                        'isBase64Encoded': False
+                    }
+                
+                with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                    cur.execute("""
+                        UPDATE support_tickets
+                        SET status = %s,
+                            updated_at = NOW()
+                        WHERE id = %s
+                        RETURNING id
+                    """, (status, ticket_id))
+                    result = cur.fetchone()
+                    
+                    if result:
+                        return {
+                            'statusCode': 200,
+                            'headers': headers,
+                            'body': json.dumps({'success': True}),
+                            'isBase64Encoded': False
+                        }
+                    else:
+                        return {
+                            'statusCode': 404,
+                            'headers': headers,
+                            'body': json.dumps({'success': False, 'error': 'Ticket not found'}),
+                            'isBase64Encoded': False
+                        }
+        
+        return {
+            'statusCode': 400,
+            'headers': headers,
+            'body': json.dumps({'success': False, 'error': 'Invalid action'}),
+            'isBase64Encoded': False
+        }
+    
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': headers,
+            'body': json.dumps({'success': False, 'error': str(e)}),
+            'isBase64Encoded': False
+        }
+    finally:
+        if 'conn' in locals():
+            conn.close()
