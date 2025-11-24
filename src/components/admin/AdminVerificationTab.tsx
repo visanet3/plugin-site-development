@@ -27,10 +27,10 @@ interface VerificationRequest {
 }
 
 interface AdminVerificationTabProps {
-  user: User;
+  currentUser: User;
 }
 
-const AdminVerificationTab = ({ user }: AdminVerificationTabProps) => {
+const AdminVerificationTab = ({ currentUser }: AdminVerificationTabProps) => {
   const { toast } = useToast();
   const [requests, setRequests] = useState<VerificationRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,11 +49,11 @@ const AdminVerificationTab = ({ user }: AdminVerificationTabProps) => {
     try {
       console.log('[Verification] Загрузка заявок с фильтром:', filter);
       console.log('[Verification] URL:', `${VERIFICATION_URL}?action=admin_list&status=${filter}`);
-      console.log('[Verification] User ID:', user.id);
+      console.log('[Verification] User ID:', currentUser.id);
       
       const response = await fetch(`${VERIFICATION_URL}?action=admin_list&status=${filter}`, {
         headers: {
-          'X-User-Id': user.id.toString()
+          'X-User-Id': currentUser.id.toString()
         }
       });
       
@@ -101,7 +101,7 @@ const AdminVerificationTab = ({ user }: AdminVerificationTabProps) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-User-Id': user.id.toString()
+          'X-User-Id': currentUser.id.toString()
         },
         body: JSON.stringify({
           action: 'review',
