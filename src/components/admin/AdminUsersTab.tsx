@@ -27,11 +27,20 @@ const AdminUsersTab = ({
     return diffMinutes < 5;
   };
 
+  const sortedUsers = [...users].sort((a, b) => {
+    const aOnline = isUserOnline(a.last_seen_at);
+    const bOnline = isUserOnline(b.last_seen_at);
+    
+    if (aOnline && !bOnline) return -1;
+    if (!aOnline && bOnline) return 1;
+    return 0;
+  });
+
   return (
     <div className="space-y-4">
       <h2 className="text-lg sm:text-xl font-semibold mb-4">Управление пользователями</h2>
       <div className="space-y-3">
-        {users.map(user => (
+        {sortedUsers.map(user => (
           <div
             key={user.id}
             className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-card/50 backdrop-blur-sm rounded-lg border border-border/50 gap-3"
