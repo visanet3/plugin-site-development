@@ -1,4 +1,5 @@
 {
+  "btc-price": "https://functions.poehali.dev/bdf92326-10c7-4f4f-bc94-761a9ea4ed96",
   "deals": "https://functions.poehali.dev/8a665174-b0af-4138-82e0-a9422dbb8fc4",
   "support-tickets": "https://functions.poehali.dev/f2a5cbce-6afc-4ef1-91a6-f14075db8567",
   "user-role-updater": "https://functions.poehali.dev/c31a74a8-f1ec-40ca-8eda-a5dce42fc8dc",

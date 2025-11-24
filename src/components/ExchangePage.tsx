@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 
 const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
+const BTC_PRICE_URL = 'https://functions.poehali.dev/bdf92326-10c7-4f4f-bc94-761a9ea4ed96';
 
 interface ExchangePageProps {
   user: User;
@@ -38,10 +39,14 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
 
   const loadBtcPrice = async () => {
     try {
-      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+      const response = await fetch(BTC_PRICE_URL);
       const data = await response.json();
-      const realPrice = data.bitcoin.usd;
-      const newPrice = realPrice + 1000;
+      
+      if (!data.success || !data.btc_price) {
+        throw new Error('Invalid response from BTC price API');
+      }
+      
+      const newPrice = data.btc_price;
       
       if (btcPrice > 0) {
         setPrevBtcPrice(btcPrice);
@@ -59,11 +64,6 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
       setBtcPrice(newPrice);
     } catch (error) {
       console.error('Ошибка загрузки курса BTC:', error);
-      if (btcPrice === 0) {
-        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
-        const data = await response.json();
-        setBtcPrice(data.bitcoin.usd + 1000);
-      }
     } finally {
       setPriceLoading(false);
     }

@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "Get BTC price",
+      "method": "GET",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "btc_price": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
