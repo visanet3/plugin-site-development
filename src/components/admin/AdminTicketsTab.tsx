@@ -23,9 +23,10 @@ interface AdminTicketsTabProps {
   tickets: SupportTicket[];
   currentUser: any;
   onRefresh: () => void;
+  onUpdateTicketStatus: (ticketId: number, status: 'open' | 'answered' | 'closed') => void;
 }
 
-const AdminTicketsTab = ({ tickets, currentUser, onRefresh }: AdminTicketsTabProps) => {
+const AdminTicketsTab = ({ tickets, currentUser, onRefresh, onUpdateTicketStatus }: AdminTicketsTabProps) => {
   const { toast } = useToast();
   const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
   const [response, setResponse] = useState('');
@@ -81,23 +82,20 @@ const AdminTicketsTab = ({ tickets, currentUser, onRefresh }: AdminTicketsTabPro
   const handleCloseTicket = async (ticketId: number) => {
     if (!confirm('Закрыть этот тикет?')) return;
 
-    setTimeout(() => {
-      toast({
-        title: 'Тикет закрыт',
-        description: 'Тикет успешно закрыт'
-      });
-      onRefresh();
-    }, 300);
+    onUpdateTicketStatus(ticketId, 'closed');
+    toast({
+      title: 'Тикет закрыт',
+      description: 'Тикет успешно закрыт'
+    });
+    setSelectedTicket(null);
   };
 
   const handleReopenTicket = async (ticketId: number) => {
-    setTimeout(() => {
-      toast({
-        title: 'Тикет открыт',
-        description: 'Тикет снова открыт для работы'
-      });
-      onRefresh();
-    }, 300);
+    onUpdateTicketStatus(ticketId, 'open');
+    toast({
+      title: 'Тикет открыт',
+      description: 'Тикет снова открыт для работы'
+    });
   };
 
   return (

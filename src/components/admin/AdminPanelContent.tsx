@@ -38,6 +38,7 @@ interface AdminPanelContentProps {
   onRefreshFlashUsdt: () => void;
   onRefreshTickets: () => void;
   onRefreshTopics: () => void;
+  onUpdateTicketStatus: (ticketId: number, status: 'open' | 'answered' | 'closed') => void;
 }
 
 const AdminPanelContent = ({
@@ -65,7 +66,8 @@ const AdminPanelContent = ({
   onRefreshEscrow,
   onRefreshFlashUsdt,
   onRefreshTickets,
-  onRefreshTopics
+  onRefreshTopics,
+  onUpdateTicketStatus
 }: AdminPanelContentProps) => {
   return (
     <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-2xl p-3 sm:p-6 animate-fade-in">
@@ -140,6 +142,7 @@ const AdminPanelContent = ({
           tickets={tickets}
           currentUser={currentUser}
           onRefresh={onRefreshTickets}
+          onUpdateTicketStatus={onUpdateTicketStatus}
         />
       )}
 

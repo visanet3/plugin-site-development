@@ -197,42 +197,48 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
   };
 
   const fetchTickets = async () => {
-    const mockTickets = [
-      {
-        id: 1,
-        user_id: 2,
-        username: 'user123',
-        category: 'payment',
-        subject: 'Проблема с выводом средств',
-        message: 'Здравствуйте, не могу вывести средства на свой кошелек. Заявка висит в статусе "обработка" уже 2 дня.',
-        status: 'open',
-        created_at: new Date(Date.now() - 86400000).toISOString()
-      },
-      {
-        id: 2,
-        user_id: 3,
-        username: 'trader777',
-        category: 'casino',
-        subject: 'Не зачислен выигрыш',
-        message: 'Выиграл в казино 500 USDT, но деньги не пришли на баланс.',
-        status: 'open',
-        created_at: new Date(Date.now() - 172800000).toISOString()
-      },
-      {
-        id: 3,
-        user_id: 4,
-        username: 'crypto_fan',
-        category: 'flash',
-        subject: 'Вопрос по Flash USDT',
-        message: 'Как работает Flash USDT? Можно ли использовать на биржах?',
-        status: 'answered',
-        created_at: new Date(Date.now() - 259200000).toISOString(),
-        admin_response: 'Flash USDT - это временные токены для тестирования. Они не работают на биржах и исчезают через 24 часа.',
-        answered_at: new Date(Date.now() - 172800000).toISOString(),
-        answered_by: currentUser.username
-      }
-    ];
-    setTickets(mockTickets);
+    const savedTickets = localStorage.getItem('admin_mock_tickets');
+    if (savedTickets) {
+      setTickets(JSON.parse(savedTickets));
+    } else {
+      const mockTickets = [
+        {
+          id: 1,
+          user_id: 2,
+          username: 'user123',
+          category: 'payment',
+          subject: 'Проблема с выводом средств',
+          message: 'Здравствуйте, не могу вывести средства на свой кошелек. Заявка висит в статусе "обработка" уже 2 дня.',
+          status: 'open',
+          created_at: new Date(Date.now() - 86400000).toISOString()
+        },
+        {
+          id: 2,
+          user_id: 3,
+          username: 'trader777',
+          category: 'games',
+          subject: 'Не зачислен выигрыш',
+          message: 'Выиграл в казино 500 USDT, но деньги не пришли на баланс.',
+          status: 'open',
+          created_at: new Date(Date.now() - 172800000).toISOString()
+        },
+        {
+          id: 3,
+          user_id: 4,
+          username: 'crypto_fan',
+          category: 'flash',
+          subject: 'Вопрос по Flash USDT',
+          message: 'Как работает Flash USDT? Можно ли использовать на биржах?',
+          status: 'answered',
+          created_at: new Date(Date.now() - 259200000).toISOString(),
+          admin_response: 'Flash USDT - это временные токены для тестирования. Они не работают на биржах и исчезают через 24 часа.',
+          answered_at: new Date(Date.now() - 172800000).toISOString(),
+          answered_by: currentUser.username
+        }
+      ];
+      setTickets(mockTickets);
+      localStorage.setItem('admin_mock_tickets', JSON.stringify(mockTickets));
+    }
   };
 
   const fetchBtcWithdrawals = async () => {
@@ -622,6 +628,16 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
     }
   };
 
+  const handleUpdateTicketStatus = (ticketId: number, status: 'open' | 'answered' | 'closed') => {
+    setTickets(prevTickets => {
+      const updatedTickets = prevTickets.map(ticket => 
+        ticket.id === ticketId ? { ...ticket, status } : ticket
+      );
+      localStorage.setItem('admin_mock_tickets', JSON.stringify(updatedTickets));
+      return updatedTickets;
+    });
+  };
+
   const handleChangeForumRole = async (userId: number, forumRole: string) => {
     try {
       const response = await fetch(ADMIN_URL, {
@@ -780,6 +796,7 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
           onRefreshFlashUsdt={fetchFlashUsdtOrders}
           onRefreshTickets={fetchTickets}
           onRefreshTopics={fetchTopics}
+          onUpdateTicketStatus={handleUpdateTicketStatus}
         />
 
         <AdminBalanceDialog 
