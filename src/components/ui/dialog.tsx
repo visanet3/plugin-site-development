@@ -6,35 +6,42 @@ import { cn } from "@/lib/utils"
 
 const Dialog = (props: React.ComponentProps<typeof DialogPrimitive.Root>) => {
   const { open, ...restProps } = props;
+  const scrollPositionRef = React.useRef(0);
 
   React.useEffect(() => {
-    if (!open) return;
-
-    const scrollY = window.scrollY;
-    const body = document.body;
-    const html = document.documentElement;
-    
-    body.style.top = `-${scrollY}px`;
-    body.style.position = 'fixed';
-    body.style.width = '100%';
-    body.style.left = '0';
-    body.style.right = '0';
-    
-    html.style.overflow = 'hidden';
-    html.style.height = '100%';
-
-    return () => {
+    if (open) {
+      scrollPositionRef.current = window.scrollY;
+      const body = document.body;
+      const html = document.documentElement;
+      
+      body.style.position = 'fixed';
+      body.style.top = `-${scrollPositionRef.current}px`;
+      body.style.left = '0';
+      body.style.right = '0';
+      body.style.width = '100%';
+      body.style.overflow = 'hidden';
+      
+      html.style.overflow = 'hidden';
+      html.style.position = 'relative';
+      html.style.height = '100%';
+    } else {
+      const body = document.body;
+      const html = document.documentElement;
+      const scrollY = scrollPositionRef.current;
+      
       body.style.position = '';
       body.style.top = '';
-      body.style.width = '';
       body.style.left = '';
       body.style.right = '';
+      body.style.width = '';
+      body.style.overflow = '';
       
       html.style.overflow = '';
+      html.style.position = '';
       html.style.height = '';
       
       window.scrollTo(0, scrollY);
-    };
+    }
   }, [open]);
 
   return <DialogPrimitive.Root open={open} {...restProps} />;
