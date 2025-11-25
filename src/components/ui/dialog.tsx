@@ -17,12 +17,24 @@ const Dialog = (props: React.ComponentProps<typeof DialogPrimitive.Root>) => {
       document.body.style.overflow = 'hidden';
       document.body.style.touchAction = 'none';
       
+      const preventTouch = (e: TouchEvent) => {
+        const target = e.target as HTMLElement;
+        const isDialog = target.closest('[data-radix-dialog-content]');
+        if (!isDialog) {
+          e.preventDefault();
+        }
+      };
+      
+      document.body.addEventListener('touchmove', preventTouch, { passive: false });
+      
       return () => {
         document.body.style.position = '';
         document.body.style.top = '';
         document.body.style.width = '';
         document.body.style.overflow = '';
         document.body.style.touchAction = '';
+        
+        document.body.removeEventListener('touchmove', preventTouch);
         
         window.scrollTo(0, scrollY);
       };

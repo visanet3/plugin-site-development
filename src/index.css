@@ -294,12 +294,4 @@
     touch-action: none;
     pointer-events: auto;
   }
-
-  body:has([data-radix-dialog-overlay]) {
-    overflow: hidden !important;
-    touch-action: none !important;
-    position: fixed !important;
-    width: 100% !important;
-    height: 100% !important;
-  }
 }
