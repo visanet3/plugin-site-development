@@ -493,7 +493,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
               <div className="space-y-2 text-sm">
                 <p className="font-bold text-amber-400">Важные правила безопасности:</p>
                 <ul className="space-y-1 text-xs text-muted-foreground">
-                  <li>• Комиссия сервиса: 5% от суммы сделки (оплачивает покупатель)</li>
+                  <li>• Комиссия сервиса: 3% от суммы сделки (удерживается с продавца)</li>
                   <li>• Средства блокируются до завершения сделки - никто не может их забрать</li>
                   <li>• Используйте чат для общения с другой стороной</li>
                   <li>• Если возникли проблемы - обратитесь в поддержку через спор</li>
@@ -506,12 +506,6 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
       </Card>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3">
-        <div>
-          <h1 className="text-xl sm:text-3xl font-bold mb-1 sm:mb-2">🛡️ Активные объявления</h1>
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            Выберите объявление для начала сделки
-          </p>
-        </div>
         <Button
           onClick={() => {
             if (!isDesktop) {
