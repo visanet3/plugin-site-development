@@ -224,6 +224,40 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
         
+        elif method == 'DELETE':
+            body_data = json.loads(event.get('body', '{}'))
+            action = body_data.get('action')
+            
+            if action == 'delete_notification':
+                notification_id = body_data.get('notification_id')
+                
+                cur.execute("""
+                    DELETE FROM notifications
+                    WHERE id = %s AND user_id = %s
+                """, (notification_id, user_id))
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True}),
+                    'isBase64Encoded': False
+                }
+            
+            elif action == 'clear_all_notifications':
+                cur.execute("""
+                    DELETE FROM notifications
+                    WHERE user_id = %s
+                """, (user_id,))
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True}),
+                    'isBase64Encoded': False
+                }
+        
         return {
             'statusCode': 400,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
