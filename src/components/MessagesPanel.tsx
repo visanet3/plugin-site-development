@@ -45,15 +45,10 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
   const contentRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const [isSafari, setIsSafari] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isDesktop, setIsDesktop] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 1024);
 
   useEffect(() => {
-    const ua = navigator.userAgent.toLowerCase();
-    const isSafariBrowser = ua.includes('safari') && !ua.includes('chrome') && !ua.includes('chromium');
-    setIsSafari(isSafariBrowser);
-    
     const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
     window.addEventListener('resize', checkDesktop);
     return () => window.removeEventListener('resize', checkDesktop);
@@ -508,21 +503,6 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
                 </div>
 
                 {/* Сообщения */}
-                {isSafari && (
-                  <Card className="m-3 p-2 bg-gradient-to-r from-orange-500/10 to-red-500/10 border-orange-500/30 flex-shrink-0">
-                    <div className="flex items-start gap-2">
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-orange-500/30 to-red-500/20 flex items-center justify-center flex-shrink-0">
-                        <Icon name="AlertTriangle" size={12} className="text-orange-300" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-orange-300 mb-0.5">⚠️ Safari</p>
-                        <p className="text-[10px] text-muted-foreground/80 leading-tight">
-                          Чат может работать некорректно в Safari. Рекомендуем Chrome или Firefox.
-                        </p>
-                      </div>
-                    </div>
-                  </Card>
-                )}
                 <div 
                   ref={contentRef}
                   className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4 space-y-2 bg-muted/5"

@@ -38,16 +38,9 @@ export const DealDialogMobile = ({
   const contentRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const [isSafari, setIsSafari] = useState(false);
 
   const canInteract = user && (Number(user.id) === Number(deal.seller_id) || Number(user.id) === Number(deal.buyer_id));
   const isCompleted = deal.status === 'completed' || deal.status === 'cancelled';
-
-  useEffect(() => {
-    const ua = navigator.userAgent.toLowerCase();
-    const isSafariBrowser = ua.includes('safari') && !ua.includes('chrome') && !ua.includes('chromium');
-    setIsSafari(isSafariBrowser);
-  }, []);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -129,22 +122,6 @@ export const DealDialogMobile = ({
           }}
         >
           <div className="space-y-3 pb-4">
-            {isSafari && (
-              <Card className="p-3 bg-gradient-to-r from-orange-500/10 to-red-500/10 border-orange-500/30">
-                <div className="flex items-start gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500/30 to-red-500/20 flex items-center justify-center flex-shrink-0">
-                    <Icon name="AlertTriangle" size={16} className="text-orange-300" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-orange-300 mb-1">⚠️ Safari</p>
-                    <p className="text-xs text-muted-foreground/80">
-                      Окно сделки может работать некорректно в браузере Safari. Для лучшей работы рекомендуем использовать Chrome или Firefox.
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            )}
-
             {canInteract && (
               <Card className="p-3 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/30">
                 <div className="flex items-center gap-2.5">
