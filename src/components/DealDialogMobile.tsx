@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import Icon from '@/components/ui/icon';
 import { getAvatarGradient } from '@/utils/avatarColors';
+import { useEffect, useRef } from 'react';
 
 interface DealDialogMobileProps {
   deal: Deal;
@@ -35,8 +36,27 @@ export const DealDialogMobile = ({
   handleSellerSent,
   handleBuyerConfirm
 }: DealDialogMobileProps) => {
+  const scrollPosRef = useRef(0);
+  
+  useEffect(() => {
+    scrollPosRef.current = window.scrollY;
+    
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollPosRef.current}px`;
+    document.body.style.width = '100%';
+    document.body.style.overflow = 'hidden';
+    
+    return () => {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      window.scrollTo(0, scrollPosRef.current);
+    };
+  }, []);
+  
   return (
-    <div className="fixed inset-0 z-50 bg-background flex flex-col safe-area-inset">
+    <div className="fixed inset-0 z-50 bg-background flex flex-col" style={{ height: '100dvh', maxHeight: '100dvh' }}>
       <div className="flex items-center justify-between p-3 border-b border-border flex-shrink-0">
         <div className="flex-1 pr-10 min-w-0">
           <h2 className="text-sm font-semibold leading-tight truncate">{deal.title}</h2>
@@ -152,6 +172,11 @@ export const DealDialogMobile = ({
             className="flex-1 h-9 px-3 text-sm rounded-md border border-input bg-muted/50 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             inputMode="text"
             autoComplete="off"
+            onFocus={(e) => {
+              setTimeout(() => {
+                e.target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+              }, 300);
+            }}
           />
           <Button 
             onClick={sendMessage} 
