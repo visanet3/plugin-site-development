@@ -231,6 +231,9 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
   };
 
   const copyToClipboard = (text: string) => {
+    console.log('🔵 Копирование текста:', text);
+    console.log('🔵 Тип данных:', typeof text);
+    
     if (!text) {
       toast({
         title: 'Ошибка',
@@ -241,6 +244,8 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
     }
 
     const cleanText = String(text).trim();
+    console.log('🔵 Очищенный текст:', cleanText);
+    console.log('🔵 Длина:', cleanText.length);
     
     const textarea = document.createElement('textarea');
     textarea.value = cleanText;
