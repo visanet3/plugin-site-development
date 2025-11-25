@@ -37,13 +37,6 @@ const VerificationForm = ({ user, onVerified }: VerificationFormProps) => {
 
   useEffect(() => {
     fetchStatus();
-    
-    // Проверяем статус каждые 60 секунд
-    const interval = setInterval(() => {
-      fetchStatus();
-    }, 60000);
-    
-    return () => clearInterval(interval);
   }, []);
 
   const fetchStatus = async () => {

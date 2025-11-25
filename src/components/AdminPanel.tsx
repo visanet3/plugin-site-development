@@ -93,15 +93,7 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
     markSectionAsRead(activeTab);
   }, [activeTab]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchTickets();
-    }, 60000);
 
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -113,19 +105,6 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
     };
     
     loadInitialData();
-    
-    const interval = setInterval(() => {
-      fetchAdminNotifications();
-      fetchAllCounts();
-      if (activeTab === 'users') {
-        fetchUsers();
-      }
-      if (activeTab === 'tickets') {
-        fetchTickets();
-      }
-    }, 60000);
-    
-    return () => clearInterval(interval);
   }, [activeTab]);
 
   const fetchUsers = async () => {

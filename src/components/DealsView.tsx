@@ -85,10 +85,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
 
   useEffect(() => {
     if (selectedDeal) {
-      const interval = setInterval(() => {
-        fetchDealDetails(selectedDeal.id);
-      }, 30000);
-      return () => clearInterval(interval);
+      fetchDealDetails(selectedDeal.id);
     }
   }, [selectedDeal]);
 

@@ -222,11 +222,6 @@ export const useUserActivity = ({
       };
 
       runAllChecks();
-      const mainInterval = setInterval(runAllChecks, 60 * 1000);
-      
-      return () => {
-        clearInterval(mainInterval);
-      };
     }
   }, [user]);
 };

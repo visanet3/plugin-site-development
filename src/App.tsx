@@ -43,13 +43,6 @@ const CryptoChecker = () => {
 
     checkPendingPayments();
     updateUserRoles();
-    const interval = setInterval(checkPendingPayments, 120000);
-    const roleInterval = setInterval(updateUserRoles, 120000);
-
-    return () => {
-      clearInterval(interval);
-      clearInterval(roleInterval);
-    };
   }, []);
 
   return null;

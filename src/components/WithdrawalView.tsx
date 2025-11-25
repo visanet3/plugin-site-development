@@ -43,13 +43,6 @@ export const WithdrawalView = ({ user, onShowAuthDialog, onRefreshUserBalance }:
     if (user) {
       fetchWithdrawals();
       checkNotifications();
-      
-      const interval = setInterval(() => {
-        checkNotifications();
-        fetchWithdrawals();
-      }, 60000);
-
-      return () => clearInterval(interval);
     }
   }, [user]);
 

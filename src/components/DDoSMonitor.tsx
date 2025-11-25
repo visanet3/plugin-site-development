@@ -26,9 +26,6 @@ const DDoSMonitor = ({ currentUser }: DDoSMonitorProps) => {
     };
 
     updateStats();
-    const interval = setInterval(updateStats, 30000);
-
-    return () => clearInterval(interval);
   }, [currentUser.role]);
 
   // Показывать только админам

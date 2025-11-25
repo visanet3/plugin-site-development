@@ -85,12 +85,10 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId, onUserC
   useEffect(() => {
     if (open) {
       fetchMessages();
-      const interval = setInterval(fetchMessages, 60000);
       if (initialRecipientId) {
         setSelectedChat(initialRecipientId);
         setShowChatList(false);
       }
-      return () => clearInterval(interval);
     }
   }, [open, initialRecipientId]);
 
