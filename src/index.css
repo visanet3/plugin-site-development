@@ -285,20 +285,18 @@
   [data-radix-dialog-content] {
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
-    touch-action: auto;
+    touch-action: auto !important;
+    pointer-events: auto !important;
+    position: fixed !important;
   }
 
   [data-radix-dialog-overlay] {
     overscroll-behavior: none;
-    pointer-events: auto;
+    pointer-events: auto !important;
     touch-action: none;
   }
 
-  body:has([data-radix-dialog-overlay]) {
-    overflow: hidden !important;
-  }
-
-  html:has([data-radix-dialog-overlay]) {
-    overflow: hidden !important;
+  [data-radix-dialog-content] * {
+    pointer-events: auto !important;
   }
 }

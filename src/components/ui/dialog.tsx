@@ -6,42 +6,65 @@ import { cn } from "@/lib/utils"
 
 const Dialog = (props: React.ComponentProps<typeof DialogPrimitive.Root>) => {
   const { open, ...restProps } = props;
-  const scrollPositionRef = React.useRef(0);
 
   React.useEffect(() => {
-    if (open) {
-      scrollPositionRef.current = window.scrollY;
-      const body = document.body;
-      const html = document.documentElement;
+    if (!open) return;
+
+    const scrollY = window.scrollY;
+    let isLocked = false;
+
+    const lockScroll = () => {
+      if (isLocked) return;
+      isLocked = true;
       
-      body.style.position = 'fixed';
-      body.style.top = `-${scrollPositionRef.current}px`;
-      body.style.left = '0';
-      body.style.right = '0';
-      body.style.width = '100%';
-      body.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.left = '0';
+      document.body.style.right = '0';
       
-      html.style.overflow = 'hidden';
-      html.style.position = 'relative';
-      html.style.height = '100%';
-    } else {
-      const body = document.body;
-      const html = document.documentElement;
-      const scrollY = scrollPositionRef.current;
+      document.documentElement.style.overflow = 'hidden';
+    };
+
+    const unlockScroll = () => {
+      if (!isLocked) return;
+      isLocked = false;
       
-      body.style.position = '';
-      body.style.top = '';
-      body.style.left = '';
-      body.style.right = '';
-      body.style.width = '';
-      body.style.overflow = '';
+      document.body.style.removeProperty('overflow');
+      document.body.style.removeProperty('position');
+      document.body.style.removeProperty('top');
+      document.body.style.removeProperty('width');
+      document.body.style.removeProperty('left');
+      document.body.style.removeProperty('right');
       
-      html.style.overflow = '';
-      html.style.position = '';
-      html.style.height = '';
+      document.documentElement.style.removeProperty('overflow');
       
       window.scrollTo(0, scrollY);
+    };
+
+    lockScroll();
+
+    const handleResize = () => {
+      if (open && !isLocked) {
+        lockScroll();
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    
+    const visualViewport = window.visualViewport;
+    if (visualViewport) {
+      visualViewport.addEventListener('resize', handleResize);
     }
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (visualViewport) {
+        visualViewport.removeEventListener('resize', handleResize);
+      }
+      unlockScroll();
+    };
   }, [open]);
 
   return <DialogPrimitive.Root open={open} {...restProps} />;
@@ -94,24 +117,16 @@ const DialogContent = React.forwardRef<
         }
       }}
       className={cn(
-        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state-closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg overscroll-none",
+        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state-closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg overscroll-none pointer-events-auto",
         className
       )}
+      style={{ position: 'fixed' }}
       {...props}
     >
       {children}
       <DialogPrimitive.Close 
-        className="absolute right-3 top-3 sm:right-4 sm:top-4 rounded-sm opacity-70 ring-offset-background transition-all duration-200 hover:opacity-100 active:scale-95 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-[60] touch-manipulation pointer-events-auto"
-        onTouchStart={(e) => {
-          e.stopPropagation();
-        }}
-        onTouchEnd={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-        }}
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
+        className="absolute right-3 top-3 sm:right-4 sm:top-4 rounded-sm opacity-70 ring-offset-background transition-all duration-200 hover:opacity-100 active:scale-95 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-[9999] touch-manipulation pointer-events-auto cursor-pointer"
+        style={{ position: 'absolute' }}
       >
         <X className="h-5 w-5 sm:h-4 sm:w-4" />
         <span className="sr-only">Close</span>
