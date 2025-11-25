@@ -116,139 +116,141 @@ const UserProfileDialog = ({ open, onOpenChange, userId, currentUserId, onSendMe
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] sm:max-w-md p-0 gap-0 overflow-hidden">
+      <DialogContent className="max-w-[95vw] sm:max-w-2xl p-0 gap-0 overflow-hidden">
         {loading ? (
           <div className="flex justify-center items-center py-20">
             <Icon name="Loader2" size={32} className="animate-spin text-primary" />
           </div>
         ) : profile ? (
           <div className="flex flex-col">
-            {/* Шапка профиля с аватаром и imenем */}
+            {/* Hero section с градиентами */}
             <div className="relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-b from-accent/30 via-accent/15 via-accent/5 to-transparent" />
-              <div className="relative pt-8 pb-20 px-4">
-                <div className="flex flex-col items-center">
-                  <div className="relative">
-                    <Avatar className="w-24 h-24 sm:w-28 sm:h-28 border-4 border-background shadow-lg">
-                      <AvatarImage src={profile.avatar_url} />
-                      <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(profile.username)} text-white text-3xl sm:text-4xl font-bold`}>
-                        {profile.username.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="absolute top-0 right-[-65px] sm:top-0 sm:right-[-75px]">
-                      <UserRankBadge forumRole={profile.forum_role} size="lg" />
+              {/* Градиентный фон */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-purple-500/10 to-blue-500/10" />
+              <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-primary/20 to-transparent rounded-full blur-3xl" />
+              <div className="absolute bottom-0 left-0 w-72 h-72 bg-gradient-to-tr from-purple-500/20 to-transparent rounded-full blur-3xl" />
+              
+              <div className="relative p-6 sm:p-8 md:p-10">
+                <div className="flex flex-col items-center text-center space-y-6">
+                  {/* Большой аватар с пульсирующим свечением */}
+                  <div className="relative group">
+                    <div className="absolute -inset-2 bg-gradient-to-br from-primary via-purple-500 to-blue-500 rounded-full opacity-75 blur-xl group-hover:opacity-100 transition-opacity animate-pulse" />
+                    <div className="relative">
+                      <Avatar className="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 ring-4 ring-background shadow-2xl">
+                        <AvatarImage src={profile.avatar_url} />
+                        <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(profile.username)} text-white text-4xl sm:text-5xl md:text-6xl font-bold`}>
+                          {profile.username[0].toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      {profile.is_verified && (
+                        <div className="absolute -bottom-2 -right-2 w-12 h-12 sm:w-14 sm:h-14 bg-primary rounded-full flex items-center justify-center ring-4 ring-background shadow-xl">
+                          <Icon name="BadgeCheck" size={28} className="text-white" />
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
 
-            {/* Основная информация */}
-            <div className="px-4 -mt-12 pb-4 space-y-4">
-              <Card className="p-4 space-y-3">
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <h3 className="text-xl sm:text-2xl font-bold">{profile.username}</h3>
-                    {profile.is_verified && (
-                      <Icon name="BadgeCheck" size={24} className="text-primary" title="Верифицирован" />
-                    )}
-                  </div>
-                  
-                  {profile.last_seen_at && (() => {
-                    const status = getOnlineStatus(profile.last_seen_at);
-                    return (
-                      <div className="flex items-center justify-center gap-2 mb-2" key={currentTime.getTime()}>
-                        <div className={`w-2 h-2 rounded-full ${status.dot} ${status.dot === 'bg-green-500' ? 'animate-pulse' : ''}`} />
-                        <span className={`text-sm ${status.color}`}>{status.text}</span>
+                  <div className="space-y-4 max-w-2xl w-full">
+                    {/* Большое имя с градиентом */}
+                    <div>
+                      <h3 className="text-3xl sm:text-4xl md:text-5xl font-black bg-gradient-to-r from-foreground via-primary to-purple-500 bg-clip-text text-transparent mb-3 break-words">
+                        {profile.username}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground/60 font-medium">Профиль участника сообщества</p>
+                    </div>
+
+                    {/* Статус онлайн */}
+                    {profile.last_seen_at && (() => {
+                      const status = getOnlineStatus(profile.last_seen_at);
+                      return (
+                        <div className="flex items-center justify-center gap-2" key={currentTime.getTime()}>
+                          <div className={`w-3 h-3 rounded-full ${status.dot} ${status.dot === 'bg-green-500' ? 'animate-pulse' : ''}`} />
+                          <span className={`text-sm font-semibold ${status.color}`}>{status.text}</span>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Бейдж форума */}
+                    {profile.forum_role && (
+                      <div className="flex justify-center">
+                        <div className="scale-125">
+                          <UserRankBadge forumRole={profile.forum_role} size="lg" />
+                        </div>
                       </div>
-                    );
-                  })()}
-                </div>
+                    )}
 
-                {profile.bio && (
-                  <div className="pt-2 border-t border-border">
-                    <p className="text-sm text-muted-foreground text-center">{profile.bio}</p>
+                    {/* Био */}
+                    {profile.bio && (
+                      <Card className="p-4 sm:p-6 bg-background/60 backdrop-blur-sm border-border/50">
+                        <p className="text-sm sm:text-base text-foreground/80 leading-relaxed">{profile.bio}</p>
+                      </Card>
+                    )}
+
+                    {/* Статистика в плитках */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <Card className="p-4 sm:p-5 bg-background/60 backdrop-blur-sm border-border/50 hover:border-primary/30 transition-all">
+                        <div className="text-3xl sm:text-4xl font-black bg-gradient-to-br from-primary to-purple-500 bg-clip-text text-transparent mb-2">{profile.topics_count}</div>
+                        <div className="text-xs sm:text-sm text-muted-foreground font-medium">Тем создано</div>
+                      </Card>
+                      <Card className="p-4 sm:p-5 bg-background/60 backdrop-blur-sm border-border/50 hover:border-primary/30 transition-all">
+                        <div className="text-3xl sm:text-4xl font-black bg-gradient-to-br from-primary to-purple-500 bg-clip-text text-transparent mb-2">{profile.comments_count}</div>
+                        <div className="text-xs sm:text-sm text-muted-foreground font-medium">Сообщений</div>
+                      </Card>
+                    </div>
+
+                    {/* Дата регистрации */}
+                    <Card className="p-3 sm:p-4 bg-background/60 backdrop-blur-sm border-border/50">
+                      <div className="flex items-center justify-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                        <Icon name="Calendar" size={16} />
+                        <span>На сайте с <span className="font-semibold text-foreground">{formatDate(profile.created_at)}</span></span>
+                      </div>
+                    </Card>
+
+                    {/* Контакты */}
+                    {(profile.telegram || profile.discord) && (
+                      <Card className="p-4 sm:p-5 bg-background/60 backdrop-blur-sm border-border/50">
+                        <div className="flex flex-col gap-3">
+                          <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-muted-foreground mb-1">
+                            <Icon name="Link" size={16} />
+                            Контакты
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {profile.telegram && (
+                              <div 
+                                className="flex items-center gap-2.5 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg cursor-pointer hover:bg-blue-500/20 transition-all"
+                                onClick={() => window.open(`https://t.me/${profile.telegram.replace('@', '')}`, '_blank')}
+                              >
+                                <Icon name="Send" size={18} className="text-blue-400 flex-shrink-0" />
+                                <span className="text-sm font-medium text-blue-400 truncate">{profile.telegram}</span>
+                              </div>
+                            )}
+                            {profile.discord && (
+                              <div className="flex items-center gap-2.5 p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg">
+                                <Icon name="MessageSquare" size={18} className="text-purple-400 flex-shrink-0" />
+                                <span className="text-sm font-medium text-purple-400 truncate">{profile.discord}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </Card>
+                    )}
+
+                    {/* Кнопка написать сообщение */}
+                    {currentUserId && currentUserId !== profile.id && (
+                      <Button
+                        className="w-full gap-2 h-12 bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90 shadow-lg shadow-primary/25 transition-all font-bold text-base"
+                        onClick={() => {
+                          onOpenChange(false);
+                          onSendMessage?.(profile.id);
+                        }}
+                      >
+                        <Icon name="Mail" size={20} />
+                        Написать сообщение
+                      </Button>
+                    )}
                   </div>
-                )}
-              </Card>
-
-              {/* Статистика */}
-              <div className="grid grid-cols-2 gap-3">
-                <Card className="p-4 text-center">
-                  <div className="text-2xl sm:text-3xl font-bold text-primary mb-1">{profile.topics_count}</div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">Тем</div>
-                </Card>
-                <Card className="p-4 text-center">
-                  <div className="text-2xl sm:text-3xl font-bold text-primary mb-1">{profile.comments_count}</div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">Сообщений</div>
-                </Card>
+                </div>
               </div>
-
-              {/* Дата регистрации */}
-              <Card className="p-3">
-                <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                  <Icon name="Calendar" size={16} />
-                  <span>На сайте с {formatDate(profile.created_at)}</span>
-                </div>
-              </Card>
-
-              {/* Социальные сети */}
-              {(profile.vk_url || profile.telegram || profile.discord) && (
-                <Card className="p-4">
-                  <h4 className="text-sm font-semibold text-muted-foreground uppercase mb-3 text-center">Социальные сети</h4>
-                  <div className="flex flex-wrap justify-center gap-2">
-                    {profile.vk_url && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-2"
-                        onClick={() => window.open(profile.vk_url, '_blank')}
-                      >
-                        <Icon name="Link" size={16} />
-                        VK
-                      </Button>
-                    )}
-                    
-                    {profile.telegram && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-2"
-                        onClick={() => window.open(`https://t.me/${profile.telegram.replace('@', '')}`, '_blank')}
-                      >
-                        <Icon name="Send" size={16} />
-                        {profile.telegram}
-                      </Button>
-                    )}
-                    
-                    {profile.discord && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-2"
-                      >
-                        <Icon name="MessageCircle" size={16} />
-                        {profile.discord}
-                      </Button>
-                    )}
-                  </div>
-                </Card>
-              )}
-
-              {/* Кнопка написать сообщение */}
-              {currentUserId && currentUserId !== profile.id && (
-                <Button
-                  className="w-full gap-2 h-11"
-                  onClick={() => {
-                    onOpenChange(false);
-                    onSendMessage?.(profile.id);
-                  }}
-                >
-                  <Icon name="Mail" size={18} />
-                  Написать сообщение
-                </Button>
-              )}
-            </div>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-12 px-4">
