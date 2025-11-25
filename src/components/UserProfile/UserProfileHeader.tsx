@@ -266,17 +266,17 @@ export const UserProfileHeader = ({
                 <div className="flex gap-2 w-full sm:w-auto">
                   <Button 
                     onClick={onShowTopUpDialog}
-                    className="bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-500 hover:to-emerald-600 shadow-lg shadow-green-600/25 hover:shadow-xl hover:shadow-green-600/40 transition-all hover:scale-105 active:scale-95 flex-1 sm:flex-none font-bold"
+                    className="bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-500 hover:to-emerald-600 shadow-lg shadow-green-600/25 hover:shadow-xl hover:shadow-green-600/40 transition-all hover:scale-105 active:scale-95 flex-1 sm:flex-none font-bold select-text"
                   >
-                    <Icon name="Plus" size={18} className="mr-2" />
-                    Пополнить
+                    <Icon name="Plus" size={18} className="mr-2 pointer-events-none" />
+                    <span className="select-text">Пополнить</span>
                   </Button>
                   <Button 
                     onClick={onShowWithdrawalDialog}
-                    className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/40 transition-all hover:scale-105 active:scale-95 flex-1 sm:flex-none font-bold"
+                    className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/40 transition-all hover:scale-105 active:scale-95 flex-1 sm:flex-none font-bold select-text"
                   >
-                    <Icon name="ArrowDownToLine" size={18} className="mr-2" />
-                    Вывод
+                    <Icon name="ArrowDownToLine" size={18} className="mr-2 pointer-events-none" />
+                    <span className="select-text">Вывод</span>
                   </Button>
                 </div>
               </div>
