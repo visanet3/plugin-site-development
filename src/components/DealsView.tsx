@@ -13,6 +13,19 @@ import { getAvatarGradient } from '@/utils/avatarColors';
 import { useToast } from '@/hooks/use-toast';
 import { DealDialogMobile } from '@/components/DealDialogMobile';
 
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  
+  return isMobile;
+};
+
 const DEALS_URL = 'https://functions.poehali.dev/8a665174-b0af-4138-82e0-a9422dbb8fc4';
 
 interface DealsViewProps {
@@ -23,6 +36,7 @@ interface DealsViewProps {
 
 export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: DealsViewProps) => {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -636,7 +650,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
       {selectedDeal && (
         <>
           {/* Мобильная версия */}
-          <div className="md:hidden">
+          {isMobile ? (
             <DealDialogMobile
               deal={selectedDeal}
               user={user}
@@ -651,11 +665,10 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
               handleSellerSent={handleSellerSent}
               handleBuyerConfirm={handleBuyerConfirm}
             />
-          </div>
-
-          {/* Desktop версия */}
+          ) : (
+          /* Desktop версия */
           <Dialog open={true} onOpenChange={(open) => !open && setSelectedDeal(null)}>
-            <DialogContent className="hidden md:flex w-[90vw] max-w-3xl h-[80vh] overflow-hidden flex-col p-5 rounded-lg">
+            <DialogContent className="w-[90vw] max-w-3xl h-[80vh] overflow-hidden flex flex-col p-5 rounded-lg">
 
             <div className="flex-1 flex flex-col space-y-2 sm:space-y-2.5 min-h-0 overflow-hidden">
               {user && (Number(user.id) === Number(selectedDeal.seller_id) || Number(user.id) === Number(selectedDeal.buyer_id)) && (
@@ -930,6 +943,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
             </div>
           </DialogContent>
         </Dialog>
+          )}
         </>
       )}
 
