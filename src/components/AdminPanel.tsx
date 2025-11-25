@@ -19,6 +19,7 @@ const WITHDRAWAL_URL = 'https://functions.poehali.dev/09f16983-ec42-41fe-a7bd-69
 const CRYPTO_URL = 'https://functions.poehali.dev/8caa3b76-72e5-42b5-9415-91d1f9b05210';
 const FLASH_USDT_URL = 'https://functions.poehali.dev/9d93686d-9a6f-47bc-85a8-7b7c28e4edd7';
 const TICKETS_URL = 'https://functions.poehali.dev/f2a5cbce-6afc-4ef1-91a6-f14075db8567';
+const DEALS_URL = 'https://functions.poehali.dev/8a665174-b0af-4138-82e0-a9422dbb8fc4';
 
 const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
   const { toast } = useToast();
@@ -28,7 +29,8 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
   const [deposits, setDeposits] = useState<any[]>([]);
   const [btcWithdrawals, setBtcWithdrawals] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'users' | 'topics' | 'disputes' | 'deposits' | 'withdrawals' | 'btc-withdrawals' | 'flash-usdt' | 'tickets' | 'verification' | 'forum-categories'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'topics' | 'disputes' | 'deposits' | 'withdrawals' | 'btc-withdrawals' | 'flash-usdt' | 'tickets' | 'verification' | 'forum-categories' | 'deals'>('users');
+  const [deals, setDeals] = useState<any[]>([]);
   const [flashUsdtOrders, setFlashUsdtOrders] = useState<any[]>([]);
   const [tickets, setTickets] = useState<any[]>([]);
   const [editingTopic, setEditingTopic] = useState<ForumTopic | null>(null);
@@ -57,7 +59,8 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
       btcWithdrawals: 0,
       flashUsdt: 0,
       tickets: 0,
-      verification: 0
+      verification: 0,
+      deals: 0
     };
   });
   const [readSections, setReadSections] = useState<Set<string>>(() => {
@@ -83,6 +86,8 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
       fetchTickets();
     } else if (activeTab === 'btc-withdrawals') {
       fetchBtcWithdrawals();
+    } else if (activeTab === 'deals') {
+      fetchDeals();
     }
     
     markSectionAsRead(activeTab);
@@ -220,6 +225,20 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
     }
   };
 
+  const fetchDeals = async () => {
+    try {
+      const response = await fetch(`${DEALS_URL}?action=admin_all_deals`, {
+        headers: { 'X-User-Id': currentUser.id.toString() }
+      });
+      const data = await response.json();
+      if (data.success) {
+        setDeals(data.deals || []);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки сделок:', error);
+    }
+  };
+
   const fetchAllCounts = async () => {
     try {
       const [
@@ -268,6 +287,12 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
         ? (ticketsData.tickets || []).filter((t: any) => t.status === 'open').length 
         : 0;
 
+      const dealsRes = await fetch(`${DEALS_URL}?action=admin_all_deals`, { headers: { 'X-User-Id': currentUser.id.toString() } });
+      const dealsData = await dealsRes.json();
+      const activeDealsCount = dealsData.success 
+        ? (dealsData.deals || []).filter((d: any) => d.status === 'in_progress' || d.status === 'dispute').length
+        : 0;
+
       const newCounts = {
         users: newUsers,
         topics: newTopics,
@@ -277,13 +302,15 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
         btcWithdrawals: (btcWithdrawalsData.withdrawals || []).filter((w: any) => w.status === 'pending').length,
         flashUsdt: (flashUsdtData.orders || []).filter((o: any) => o.status === 'pending').length,
         tickets: openTicketsCount,
-        verification: notificationCounts.verification_request
+        verification: notificationCounts.verification_request,
+        deals: activeDealsCount
       };
 
       const sectionsToUnread = new Set<string>();
       const sectionNames: Record<string, string> = {
         users: 'Новый пользователь',
         topics: 'Новая тема форума',
+        deals: 'Новая сделка',
         disputes: 'Новый спор',
         deposits: 'Новое пополнение',
         withdrawals: 'Новая заявка на вывод USDT',
@@ -762,6 +789,7 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
           btcWithdrawals={btcWithdrawals}
           flashUsdtOrders={flashUsdtOrders}
           tickets={tickets}
+          deals={deals}
           currentUser={currentUser}
           onBlockUser={handleBlockUser}
           onUnblockUser={handleUnblockUser}
@@ -777,6 +805,7 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
           onRefreshTickets={fetchTickets}
           onRefreshTopics={fetchTopics}
           onUpdateTicketStatus={handleUpdateTicketStatus}
+          onRefreshDeals={fetchDeals}
         />
 
         <AdminBalanceDialog 

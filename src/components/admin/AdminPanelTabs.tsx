@@ -1,5 +1,5 @@
 interface AdminPanelTabsProps {
-  activeTab: 'users' | 'topics' | 'disputes' | 'deposits' | 'withdrawals' | 'btc-withdrawals' | 'flash-usdt' | 'tickets' | 'verification' | 'forum-categories';
+  activeTab: 'users' | 'topics' | 'disputes' | 'deposits' | 'withdrawals' | 'btc-withdrawals' | 'flash-usdt' | 'tickets' | 'verification' | 'forum-categories' | 'deals';
   onTabChange: (tab: AdminPanelTabsProps['activeTab']) => void;
   sectionCounts: {
     users: number;
@@ -11,6 +11,7 @@ interface AdminPanelTabsProps {
     flashUsdt: number;
     tickets: number;
     verification: number;
+    deals: number;
   };
   getVisibleCount: (section: string, count: number) => number;
 }
@@ -25,6 +26,7 @@ const AdminPanelTabs = ({
     { id: 'users' as const, label: 'Пользователи', count: sectionCounts.users },
     { id: 'topics' as const, label: 'Темы форума', count: sectionCounts.topics },
     { id: 'forum-categories' as const, label: 'Категории форума', count: 0 },
+    { id: 'deals' as const, label: 'Сделки', count: sectionCounts.deals },
     { id: 'disputes' as const, label: 'Споры', count: sectionCounts.disputes },
     { id: 'deposits' as const, label: 'Ввод', count: sectionCounts.deposits },
     { id: 'withdrawals' as const, label: 'Вывод', count: sectionCounts.withdrawals },

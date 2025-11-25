@@ -10,9 +10,11 @@ import AdminBtcWithdrawalsTab from '@/components/admin/AdminBtcWithdrawalsTab';
 import ForumCategoriesManager from '@/components/admin/ForumCategoriesManager';
 import AdminForumModeration from '@/components/admin/AdminForumModeration';
 import AdminFlashUsdtTab from '@/components/admin/AdminFlashUsdtTab';
+import AdminDealsSection from '@/components/admin/AdminDealsSection';
 
 interface AdminPanelContentProps {
-  activeTab: 'users' | 'topics' | 'disputes' | 'deposits' | 'withdrawals' | 'btc-withdrawals' | 'flash-usdt' | 'tickets' | 'verification' | 'forum-categories';
+  activeTab: 'users' | 'topics' | 'disputes' | 'deposits' | 'withdrawals' | 'btc-withdrawals' | 'flash-usdt' | 'tickets' | 'verification' | 'forum-categories' | 'deals';
+  deals: any[];
   users: User[];
   topics: ForumTopic[];
   disputes: EscrowDeal[];
@@ -36,6 +38,7 @@ interface AdminPanelContentProps {
   onRefreshTickets: () => void;
   onRefreshTopics: () => void;
   onUpdateTicketStatus: (ticketId: number, status: 'open' | 'answered' | 'closed') => void;
+  onRefreshDeals: () => void;
 }
 
 const AdminPanelContent = ({
@@ -48,6 +51,7 @@ const AdminPanelContent = ({
   btcWithdrawals,
   flashUsdtOrders,
   tickets,
+  deals,
   currentUser,
   onBlockUser,
   onUnblockUser,
@@ -62,7 +66,8 @@ const AdminPanelContent = ({
   onRefreshFlashUsdt,
   onRefreshTickets,
   onRefreshTopics,
-  onUpdateTicketStatus
+  onUpdateTicketStatus,
+  onRefreshDeals
 }: AdminPanelContentProps) => {
   return (
     <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-2xl p-3 sm:p-6 animate-fade-in">
@@ -136,6 +141,14 @@ const AdminPanelContent = ({
       {activeTab === 'verification' && (
         <AdminVerificationTab 
           currentUser={currentUser}
+        />
+      )}
+
+      {activeTab === 'deals' && (
+        <AdminDealsSection
+          deals={deals}
+          currentUserId={currentUser.id}
+          onRefresh={onRefreshDeals}
         />
       )}
 

@@ -31,7 +31,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-User-Id',
                 'Access-Control-Max-Age': '86400'
             },
@@ -132,6 +132,50 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'deals': [dict(d) for d in deals]}, default=serialize_datetime),
+                    'isBase64Encoded': False
+                }
+            
+            elif action == 'admin_all_deals':
+                # Админская функция - все сделки
+                if not user_id:
+                    return {
+                        'statusCode': 401,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Unauthorized'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cursor = conn.cursor(cursor_factory=RealDictCursor)
+                
+                # Проверка что пользователь админ
+                cursor.execute("SELECT role FROM users WHERE id = %s", (user_id,))
+                user_role = cursor.fetchone()
+                if not user_role or user_role['role'] != 'admin':
+                    cursor.close()
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Access denied'}),
+                        'isBase64Encoded': False
+                    }
+                
+                query = """
+                    SELECT d.*, 
+                        s.username as seller_username, s.avatar_url as seller_avatar_url,
+                        b.username as buyer_username, b.avatar_url as buyer_avatar_url
+                    FROM deals d
+                    JOIN users s ON d.seller_id = s.id
+                    LEFT JOIN users b ON d.buyer_id = b.id
+                    ORDER BY d.created_at DESC
+                """
+                cursor.execute(query)
+                deals = cursor.fetchall()
+                cursor.close()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True, 'deals': [dict(d) for d in deals]}, default=serialize_datetime),
                     'isBase64Encoded': False
                 }
             
@@ -463,6 +507,224 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     VALUES (%s, %s, %s, false)
                 """
                 cursor.execute(query, (deal_id, user_id, message))
+                conn.commit()
+                cursor.close()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True}),
+                    'isBase64Encoded': False
+                }
+            
+            elif action == 'admin_complete_deal':
+                # Админ принудительно завершает сделку
+                deal_id = body.get('deal_id')
+                
+                # Проверка роли
+                cursor.execute("SELECT role FROM users WHERE id = %s", (user_id,))
+                user_role = cursor.fetchone()
+                if not user_role or user_role['role'] != 'admin':
+                    cursor.close()
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Access denied'}),
+                        'isBase64Encoded': False
+                    }
+                
+                # Завершаем сделку
+                cursor.execute("""
+                    SELECT seller_id, price
+                    FROM deals
+                    WHERE id = %s
+                """, (deal_id,))
+                deal = cursor.fetchone()
+                
+                if not deal:
+                    cursor.close()
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Deal not found'}),
+                        'isBase64Encoded': False
+                    }
+                
+                commission = float(deal['price']) * 0.05
+                seller_amount = float(deal['price']) - commission
+                
+                # Переводим средства продавцу
+                cursor.execute('UPDATE users SET balance = balance + %s WHERE id = %s', (seller_amount, deal['seller_id']))
+                
+                # Обновляем сделку
+                cursor.execute("""
+                    UPDATE deals
+                    SET status = 'completed', step = 'completed', commission = %s, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = %s
+                """, (commission, deal_id))
+                
+                # Системное сообщение
+                cursor.execute("""
+                    INSERT INTO deal_messages (deal_id, user_id, message, is_system)
+                    VALUES (%s, %s, %s, true)
+                """, (deal_id, user_id, 'Сделка завершена администратором'))
+                
+                conn.commit()
+                cursor.close()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True}),
+                    'isBase64Encoded': False
+                }
+            
+            elif action == 'admin_cancel_deal':
+                # Админ отменяет сделку
+                deal_id = body.get('deal_id')
+                
+                # Проверка роли
+                cursor.execute("SELECT role FROM users WHERE id = %s", (user_id,))
+                user_role = cursor.fetchone()
+                if not user_role or user_role['role'] != 'admin':
+                    cursor.close()
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Access denied'}),
+                        'isBase64Encoded': False
+                    }
+                
+                # Возвращаем средства покупателю если были заблокированы
+                cursor.execute("""
+                    SELECT buyer_id, price, status
+                    FROM deals
+                    WHERE id = %s
+                """, (deal_id,))
+                deal = cursor.fetchone()
+                
+                if not deal:
+                    cursor.close()
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Deal not found'}),
+                        'isBase64Encoded': False
+                    }
+                
+                if deal['buyer_id'] and deal['status'] == 'in_progress':
+                    cursor.execute('UPDATE users SET balance = balance + %s WHERE id = %s', (deal['price'], deal['buyer_id']))
+                
+                # Обновляем сделку
+                cursor.execute("""
+                    UPDATE deals
+                    SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP
+                    WHERE id = %s
+                """, (deal_id,))
+                
+                # Системное сообщение
+                cursor.execute("""
+                    INSERT INTO deal_messages (deal_id, user_id, message, is_system)
+                    VALUES (%s, %s, %s, true)
+                """, (deal_id, user_id, 'Сделка отменена администратором. Средства возвращены покупателю'))
+                
+                conn.commit()
+                cursor.close()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True}),
+                    'isBase64Encoded': False
+                }
+            
+            cursor.close()
+        
+        elif method == 'PUT':
+            if not user_id:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Unauthorized'}),
+                    'isBase64Encoded': False
+                }
+            
+            body = json.loads(event.get('body', '{}'))
+            action = body.get('action')
+            cursor = conn.cursor(cursor_factory=RealDictCursor)
+            
+            if action == 'admin_update_deal':
+                # Проверка роли
+                cursor.execute("SELECT role FROM users WHERE id = %s", (user_id,))
+                user_role = cursor.fetchone()
+                if not user_role or user_role['role'] != 'admin':
+                    cursor.close()
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Access denied'}),
+                        'isBase64Encoded': False
+                    }
+                
+                deal_id = body.get('deal_id')
+                title = body.get('title')
+                description = body.get('description')
+                price = body.get('price')
+                status = body.get('status')
+                step = body.get('step')
+                
+                cursor.execute("""
+                    UPDATE deals
+                    SET title = %s, description = %s, price = %s, status = %s, step = %s, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = %s
+                """, (title, description, price, status, step, deal_id))
+                
+                conn.commit()
+                cursor.close()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True}),
+                    'isBase64Encoded': False
+                }
+            
+            cursor.close()
+        
+        elif method == 'DELETE':
+            if not user_id:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Unauthorized'}),
+                    'isBase64Encoded': False
+                }
+            
+            body = json.loads(event.get('body', '{}'))
+            action = body.get('action')
+            cursor = conn.cursor(cursor_factory=RealDictCursor)
+            
+            if action == 'admin_delete_deal':
+                # Проверка роли
+                cursor.execute("SELECT role FROM users WHERE id = %s", (user_id,))
+                user_role = cursor.fetchone()
+                if not user_role or user_role['role'] != 'admin':
+                    cursor.close()
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Access denied'}),
+                        'isBase64Encoded': False
+                    }
+                
+                deal_id = body.get('deal_id')
+                
+                # Удаляем сначала сообщения
+                cursor.execute("DELETE FROM deal_messages WHERE deal_id = %s", (deal_id,))
+                
+                # Удаляем сделку
+                cursor.execute("DELETE FROM deals WHERE id = %s", (deal_id,))
+                
                 conn.commit()
                 cursor.close()
                 
