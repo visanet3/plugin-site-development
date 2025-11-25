@@ -378,7 +378,7 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
           <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5 md:space-y-6">
             <div className="relative flex items-center justify-between pb-4 border-b border-border/50">
               <div>
-                <h2 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-foreground via-primary to-purple-500 bg-clip-text text-transparent">
+                <h2 className="text-2xl sm:text-3xl font-black text-foreground">
                   {isOwnProfile ? '👤 Личный кабинет' : `👤 ${user.username}`}
                 </h2>
                 {isOwnProfile && (
