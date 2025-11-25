@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import Icon from '@/components/ui/icon';
 import { getAvatarGradient } from '@/utils/avatarColors';
-import { useEffect, useRef, useState, useCallback, useLayoutEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface DealDialogMobileProps {
   deal: Deal;
@@ -37,136 +37,97 @@ export const DealDialogMobile = ({
 }: DealDialogMobileProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
-  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
-  const initialHeight = useRef(window.innerHeight);
-
-  // Safari iOS специфичный фикс для клавиатуры
-  useLayoutEffect(() => {
-    const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
-    const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
-    
-    initialHeight.current = window.innerHeight;
-
-    const updateViewportHeight = () => {
-      const height = window.visualViewport?.height || window.innerHeight;
-      const offset = window.visualViewport?.offsetTop || 0;
-      
-      // Определяем открыта ли клавиатура (если высота уменьшилась значительно)
-      const keyboardOpen = initialHeight.current - height > 150;
-      setIsKeyboardOpen(keyboardOpen);
-      setViewportHeight(height);
-
-      // Safari iOS: компенсируем offset при открытии клавиатуры
-      if (isIOS && isSafari && containerRef.current) {
-        containerRef.current.style.transform = `translateY(${offset}px)`;
-      }
-    };
-
-    // Safari iOS: предотвращаем скролл body при скролле внутри диалога
-    const preventBodyScroll = (e: TouchEvent) => {
-      if (scrollRef.current && !scrollRef.current.contains(e.target as Node)) {
-        e.preventDefault();
-      }
-    };
-
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', updateViewportHeight);
-      window.visualViewport.addEventListener('scroll', updateViewportHeight);
-    }
-    
-    window.addEventListener('resize', updateViewportHeight);
-    
-    if (isIOS && isSafari) {
-      document.addEventListener('touchmove', preventBodyScroll, { passive: false });
-    }
-
-    updateViewportHeight();
-
-    return () => {
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', updateViewportHeight);
-        window.visualViewport.removeEventListener('scroll', updateViewportHeight);
-      }
-      window.removeEventListener('resize', updateViewportHeight);
-      
-      if (isIOS && isSafari) {
-        document.removeEventListener('touchmove', preventBodyScroll);
-      }
-      
-      if (containerRef.current) {
-        containerRef.current.style.transform = '';
-      }
-    };
-  }, []);
-
-  // Блокируем скролл body (Safari-совместимая версия)
-  useEffect(() => {
-    const scrollY = window.scrollY;
-    const originalStyles = {
-      overflow: document.body.style.overflow,
-      position: document.body.style.position,
-      top: document.body.style.top,
-      width: document.body.style.width,
-      height: document.body.style.height
-    };
-    
-    document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.width = '100%';
-    document.body.style.height = '100%';
-
-    // Safari iOS: дополнительная блокировка
-    const meta = document.querySelector('meta[name="viewport"]');
-    const originalViewport = meta?.getAttribute('content') || '';
-    if (meta) {
-      meta.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no');
-    }
-
-    return () => {
-      Object.entries(originalStyles).forEach(([key, value]) => {
-        (document.body.style as any)[key] = value;
-      });
-      window.scrollTo(0, scrollY);
-      
-      if (meta) {
-        meta.setAttribute('content', originalViewport);
-      }
-    };
-  }, []);
-
-  // Автоскролл к последнему сообщению
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [dealMessages]);
-
-  const handleSendMessage = useCallback(() => {
-    if (newMessage.trim()) {
-      sendMessage();
-      setTimeout(() => inputRef.current?.focus(), 100);
-    }
-  }, [newMessage, sendMessage]);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [windowHeight, setWindowHeight] = useState('100vh');
+  const scrollPositionRef = useRef(0);
 
   const canInteract = user && (Number(user.id) === Number(deal.seller_id) || Number(user.id) === Number(deal.buyer_id));
   const isCompleted = deal.status === 'completed' || deal.status === 'cancelled';
 
+  useEffect(() => {
+    const originalBodyStyle = {
+      overflow: document.body.style.overflow,
+      position: document.body.style.position,
+      width: document.body.style.width,
+      height: document.body.style.height
+    };
+    
+    scrollPositionRef.current = window.scrollY;
+    
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    document.body.style.height = '100%';
+    document.body.style.top = `-${scrollPositionRef.current}px`;
+
+    const handleResize = () => {
+      const vh = window.innerHeight;
+      setWindowHeight(`${vh}px`);
+      document.documentElement.style.setProperty('--vh', `${vh * 0.01}px`);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+
+    return () => {
+      document.body.style.overflow = originalBodyStyle.overflow;
+      document.body.style.position = originalBodyStyle.position;
+      document.body.style.width = originalBodyStyle.width;
+      document.body.style.height = originalBodyStyle.height;
+      document.body.style.top = '';
+      window.scrollTo(0, scrollPositionRef.current);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (messagesEndRef.current && contentRef.current) {
+      const scrollContainer = contentRef.current;
+      scrollContainer.scrollTop = scrollContainer.scrollHeight;
+    }
+  }, [dealMessages]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewMessage(e.target.value);
+  };
+
+  const handleSend = () => {
+    if (newMessage.trim()) {
+      sendMessage();
+      if (inputRef.current) {
+        inputRef.current.blur();
+        setTimeout(() => inputRef.current?.focus(), 50);
+      }
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
   return (
     <div 
-      ref={containerRef}
-      className="fixed inset-0 z-[9999] bg-background flex flex-col"
+      className="fixed inset-0 z-[9999] bg-background"
       style={{
-        height: `${viewportHeight}px`,
-        maxHeight: `${viewportHeight}px`,
-        touchAction: 'none',
-        WebkitTransform: 'translate3d(0,0,0)',
-        transform: 'translate3d(0,0,0)'
+        height: windowHeight,
+        width: '100vw',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden'
       }}
     >
-      {/* Header - fixed */}
-      <div className="flex-shrink-0 bg-background border-b border-border/30 px-4 py-3">
+      <div 
+        className="bg-background border-b border-border/30"
+        style={{
+          flexShrink: 0,
+          padding: '12px 16px'
+        }}
+      >
         <div className="flex items-center gap-3">
           <button
             onClick={onClose}
@@ -182,19 +143,18 @@ export const DealDialogMobile = ({
         </div>
       </div>
 
-      {/* Scrollable content */}
       <div 
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto overflow-x-hidden"
+        ref={contentRef}
         style={{
+          flex: 1,
+          overflowY: 'auto',
+          overflowX: 'hidden',
           WebkitOverflowScrolling: 'touch',
-          overscrollBehavior: 'contain',
-          touchAction: 'pan-y',
-          isolation: 'isolate'
+          padding: '16px',
+          minHeight: 0
         }}
       >
-        <div className="p-4 space-y-3 pb-4">
-          {/* User role */}
+        <div className="space-y-3 pb-4">
           {canInteract && (
             <Card className="p-3 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/30">
               <div className="flex items-center gap-2.5">
@@ -217,7 +177,6 @@ export const DealDialogMobile = ({
             </Card>
           )}
 
-          {/* Info cards */}
           <div className="grid grid-cols-2 gap-3">
             <Card className="p-3 bg-gradient-to-br from-green-500/10 to-green-600/15 border-green-500/30">
               <div className="flex items-center gap-2">
@@ -246,7 +205,6 @@ export const DealDialogMobile = ({
             </Card>
           </div>
 
-          {/* Chat */}
           <Card className="p-3 bg-gradient-to-br from-muted/30 to-muted/10 min-h-[300px]">
             <div className="space-y-2">
               {dealMessages.map((msg) => (
@@ -299,7 +257,6 @@ export const DealDialogMobile = ({
             </div>
           </Card>
 
-          {/* Action buttons */}
           {deal.status === 'active' && !deal.buyer_id && user && Number(user.id) !== Number(deal.seller_id) && (
             <Button
               onClick={handleBuyerPay}
@@ -373,14 +330,12 @@ export const DealDialogMobile = ({
         </div>
       </div>
 
-      {/* Input bar - fixed at bottom */}
       {!isCompleted && canInteract && (
         <div 
-          className="flex-shrink-0 bg-background border-t border-border/30 p-4"
+          className="bg-background border-t border-border/30"
           style={{
-            position: 'relative',
-            zIndex: 1000,
-            touchAction: 'none'
+            flexShrink: 0,
+            padding: '16px'
           }}
         >
           <div className="flex items-center gap-2">
@@ -388,38 +343,36 @@ export const DealDialogMobile = ({
               ref={inputRef}
               type="text"
               value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSendMessage();
-                }
-              }}
-              onFocus={() => {
-                // Safari iOS: скроллим input в видимую область
-                setTimeout(() => {
-                  inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }, 300);
-              }}
+              onChange={handleInputChange}
+              onKeyPress={handleKeyPress}
               placeholder="Написать сообщение..."
-              className="flex-1 h-12 px-4 text-base rounded-xl border-2 border-input bg-background placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 transition-colors"
               autoComplete="off"
-              inputMode="text"
               enterKeyHint="send"
-              style={{ 
+              style={{
+                flex: 1,
+                height: '48px',
+                padding: '0 16px',
                 fontSize: '16px',
-                touchAction: 'manipulation',
-                WebkitUserSelect: 'text',
-                userSelect: 'text'
+                borderRadius: '12px',
+                border: '2px solid hsl(var(--input))',
+                backgroundColor: 'hsl(var(--background))',
+                color: 'hsl(var(--foreground))',
+                outline: 'none',
+                transition: 'border-color 0.2s'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = 'hsl(var(--primary) / 0.5)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'hsl(var(--input))';
               }}
             />
             <Button
-              onClick={handleSendMessage}
+              onClick={handleSend}
               disabled={!newMessage.trim()}
               size="icon"
               className="h-12 w-12 rounded-xl flex-shrink-0 bg-gradient-to-r from-green-700 to-green-800 hover:from-green-600 hover:to-green-700 disabled:opacity-50"
               type="button"
-              style={{ touchAction: 'manipulation' }}
             >
               <Icon name="Send" size={18} />
             </Button>
