@@ -160,28 +160,31 @@ const Header = ({
           {user ? (
             <>
               <div className="flex items-center gap-1.5 sm:gap-3">
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  <div className={`relative bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-xl px-3 sm:px-4 py-2 transition-all duration-300 ${isBalanceChanging ? 'scale-105 border-green-400/50 shadow-lg shadow-green-500/20' : 'scale-100'}`}>
+                <button 
+                  onClick={onShowProfile}
+                  className="relative group cursor-pointer"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 via-emerald-500/10 to-green-500/10 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className={`relative bg-muted/50 hover:bg-muted/70 border border-border hover:border-green-500/30 rounded-lg px-3 sm:px-4 py-2 transition-all duration-200 ${isBalanceChanging ? 'scale-105 border-green-500/50' : 'scale-100'}`}>
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg">
-                        <Icon name="DollarSign" size={18} className="text-white" />
+                      <div className="w-7 h-7 rounded-md bg-green-500/20 flex items-center justify-center">
+                        <Icon name="DollarSign" size={16} className="text-green-400" />
                       </div>
                       <div className="hidden sm:block">
-                        <p className="text-[10px] text-green-400/80 font-medium uppercase tracking-wider">Баланс</p>
-                        <p className={`text-lg font-bold text-white transition-all duration-300 ${isBalanceChanging ? 'text-green-400' : ''}`}>
+                        <p className="text-[9px] text-muted-foreground font-medium uppercase tracking-wide">Баланс</p>
+                        <p className={`text-base font-semibold text-foreground transition-all duration-300 ${isBalanceChanging ? 'text-green-400' : ''}`}>
                           {Number(animatedBalance).toFixed(2)}
-                          <span className="text-xs ml-1 text-green-400/80 font-normal">USDT</span>
+                          <span className="text-xs ml-1 text-muted-foreground font-normal">USDT</span>
                         </p>
                       </div>
                       <div className="sm:hidden">
-                        <p className={`text-sm font-bold text-white transition-all duration-300 ${isBalanceChanging ? 'text-green-400' : ''}`}>
+                        <p className={`text-sm font-semibold text-foreground transition-all duration-300 ${isBalanceChanging ? 'text-green-400' : ''}`}>
                           {Number(animatedBalance).toFixed(2)}
                         </p>
                       </div>
                     </div>
                   </div>
-                </div>
+                </button>
 
                 <Button 
                   variant="ghost" 
