@@ -307,8 +307,6 @@ export const DealDialogMobile = ({
         )}
       </div>
 
-      </div>
-
       {/* Input - outside scroll, always accessible */}
       {deal.status !== 'completed' &&
         deal.status !== 'cancelled' &&
