@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { getAvatarGradient } from '@/utils/avatarColors';
 import { useToast } from '@/hooks/use-toast';
+import { DealDialogMobile } from '@/components/DealDialogMobile';
 
 const DEALS_URL = 'https://functions.poehali.dev/8a665174-b0af-4138-82e0-a9422dbb8fc4';
 
@@ -633,12 +634,28 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
 
       {/* Диалог детальной сделки */}
       {selectedDeal && (
-        <Dialog open={!!selectedDeal} onOpenChange={(open) => !open && setSelectedDeal(null)}>
-          <DialogContent className="w-[90vw] max-w-3xl h-[90dvh] sm:h-[80vh] overflow-hidden flex flex-col p-3 sm:p-5 rounded-3xl sm:rounded-lg">
-            <DialogHeader className="flex-shrink-0 pb-2">
-              <DialogTitle className="pr-8 text-sm sm:text-lg leading-tight">{selectedDeal.title}</DialogTitle>
-              <DialogDescription className="text-xs sm:text-sm line-clamp-1 mt-0.5">{selectedDeal.description}</DialogDescription>
-            </DialogHeader>
+        <>
+          {/* Мобильная версия */}
+          <div className="md:hidden">
+            <DealDialogMobile
+              deal={selectedDeal}
+              user={user}
+              dealMessages={dealMessages}
+              newMessage={newMessage}
+              setNewMessage={setNewMessage}
+              sendMessage={sendMessage}
+              actionLoading={actionLoading}
+              onClose={() => setSelectedDeal(null)}
+              getStepText={getStepText}
+              handleBuyerPay={handleBuyerPay}
+              handleSellerSent={handleSellerSent}
+              handleBuyerConfirm={handleBuyerConfirm}
+            />
+          </div>
+
+          {/* Desktop версия */}
+          <Dialog open={true} onOpenChange={(open) => !open && setSelectedDeal(null)}>
+            <DialogContent className="hidden md:flex w-[90vw] max-w-3xl h-[80vh] overflow-hidden flex-col p-5 rounded-lg">
 
             <div className="flex-1 flex flex-col space-y-2 sm:space-y-2.5 min-h-0 overflow-hidden">
               {user && (Number(user.id) === Number(selectedDeal.seller_id) || Number(user.id) === Number(selectedDeal.buyer_id)) && (
@@ -913,6 +930,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
             </div>
           </DialogContent>
         </Dialog>
+        </>
       )}
 
       {/* Диалог подтверждения получения товара */}
