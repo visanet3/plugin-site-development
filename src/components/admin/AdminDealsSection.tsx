@@ -331,12 +331,12 @@ const AdminDealsSection = ({ deals, currentUserId, onRefresh }: AdminDealsSectio
                     <Icon name="Edit" size={14} className="mr-1.5" />
                     Редактировать
                   </Button>
-                  {deal.status === 'dispute' && (
+                  {(deal.status === 'in_progress' || deal.status === 'dispute') && (
                     <>
                       <Button 
                         onClick={() => handleForceComplete(deal.id)} 
                         size="sm" 
-                        variant="default"
+                        className="bg-green-600 hover:bg-green-700"
                         disabled={actionLoading}
                       >
                         <Icon name="CheckCircle" size={14} className="mr-1.5" />
@@ -345,7 +345,7 @@ const AdminDealsSection = ({ deals, currentUserId, onRefresh }: AdminDealsSectio
                       <Button 
                         onClick={() => handleCancelDeal(deal.id)} 
                         size="sm" 
-                        variant="secondary"
+                        className="bg-orange-600 hover:bg-orange-700"
                         disabled={actionLoading}
                       >
                         <Icon name="XCircle" size={14} className="mr-1.5" />
