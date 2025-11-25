@@ -1,11 +1,9 @@
 import { Deal, User } from '@/types';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import Icon from '@/components/ui/icon';
 import { getAvatarGradient } from '@/utils/avatarColors';
-import { useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
+import { useEffect, useRef } from 'react';
 
 interface DealDialogMobileProps {
   deal: Deal;
@@ -37,83 +35,37 @@ export const DealDialogMobile = ({
   handleBuyerConfirm
 }: DealDialogMobileProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const scrollPositionRef = useRef(0);
-  const [mounted, setMounted] = useState(false);
 
   const canInteract = user && (Number(user.id) === Number(deal.seller_id) || Number(user.id) === Number(deal.buyer_id));
   const isCompleted = deal.status === 'completed' || deal.status === 'cancelled';
 
   useEffect(() => {
-    setMounted(true);
-    scrollPositionRef.current = window.scrollY;
-    
+    const savedScroll = window.scrollY;
     document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
-    document.body.style.top = `-${scrollPositionRef.current}px`;
 
     return () => {
       document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-      document.body.style.top = '';
-      window.scrollTo(0, scrollPositionRef.current);
+      window.scrollTo(0, savedScroll);
     };
   }, []);
 
   useEffect(() => {
     if (messagesEndRef.current && contentRef.current) {
-      const scrollContainer = contentRef.current;
-      scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      contentRef.current.scrollTop = contentRef.current.scrollHeight;
     }
   }, [dealMessages]);
 
-  const handleSend = () => {
-    if (newMessage.trim()) {
-      sendMessage();
-    }
-  };
-
-  const content = (
-    <div 
-      className="fixed inset-0 bg-background flex flex-col"
-      style={{
-        zIndex: 99999,
-        height: '100vh',
-        width: '100vw',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        pointerEvents: 'auto'
-      }}
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div 
-        className="bg-background border-b border-border/30"
-        style={{
-          flexShrink: 0,
-          padding: '12px 16px'
-        }}
-      >
+  return (
+    <div className="fixed inset-0 z-[9999] bg-background flex flex-col" style={{ height: '100vh' }}>
+      <div className="flex-shrink-0 bg-background border-b border-border/30 px-4 py-3">
         <div className="flex items-center gap-3">
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onClose();
-            }}
-            className="w-9 h-9 rounded-full bg-muted/80 hover:bg-muted flex items-center justify-center active:scale-95 transition-transform"
-            type="button"
-            style={{
-              cursor: 'pointer',
-              touchAction: 'manipulation',
-              WebkitTapHighlightColor: 'transparent'
-            }}
+          <div
+            onClick={onClose}
+            className="w-9 h-9 rounded-full bg-muted/80 hover:bg-muted flex items-center justify-center active:scale-95 transition-transform cursor-pointer"
           >
             <Icon name="X" size={20} />
-          </button>
+          </div>
           <div className="flex-1 min-w-0">
             <h2 className="text-sm font-bold truncate">{deal.title}</h2>
             <p className="text-xs text-muted-foreground truncate">{deal.description}</p>
@@ -124,10 +76,7 @@ export const DealDialogMobile = ({
       <div 
         ref={contentRef}
         className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4"
-        style={{
-          WebkitOverflowScrolling: 'touch',
-          overscrollBehavior: 'contain'
-        }}
+        style={{ WebkitOverflowScrolling: 'touch' }}
       >
         <div className="space-y-3 pb-4">
           {canInteract && (
@@ -233,10 +182,9 @@ export const DealDialogMobile = ({
           </Card>
 
           {deal.status === 'active' && !deal.buyer_id && user && Number(user.id) !== Number(deal.seller_id) && (
-            <Button
+            <div
               onClick={handleBuyerPay}
-              disabled={actionLoading}
-              className="w-full bg-gradient-to-r from-green-700 to-green-900 hover:from-green-600 hover:to-green-800 h-14 text-base font-bold rounded-xl"
+              className={`w-full bg-gradient-to-r from-green-700 to-green-900 hover:from-green-600 hover:to-green-800 h-14 text-base font-bold rounded-xl flex items-center justify-center cursor-pointer ${actionLoading ? 'opacity-50' : ''}`}
             >
               <Icon
                 name={actionLoading ? 'Loader2' : 'ShoppingCart'}
@@ -244,18 +192,17 @@ export const DealDialogMobile = ({
                 className={`mr-2 ${actionLoading ? 'animate-spin' : ''}`}
               />
               {actionLoading ? 'Оплата...' : `Купить ${deal.price} USDT`}
-            </Button>
+            </div>
           )}
 
           {deal.step === 'buyer_paid' && user && Number(user.id) === Number(deal.seller_id) && (
-            <Button
+            <div
               onClick={handleSellerSent}
-              disabled={actionLoading}
-              className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 h-14 text-base font-bold rounded-xl"
+              className={`w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 h-14 text-base font-bold rounded-xl flex items-center justify-center cursor-pointer ${actionLoading ? 'opacity-50' : ''}`}
             >
               <Icon name="Package" size={18} className="mr-2" />
               {actionLoading ? 'Обработка...' : 'Товар передан'}
-            </Button>
+            </div>
           )}
 
           {deal.step === 'seller_sent' && user && Number(user.id) === Number(deal.buyer_id) && (
@@ -273,15 +220,13 @@ export const DealDialogMobile = ({
                   </div>
                 </div>
               </Card>
-              <Button
+              <div
                 onClick={handleBuyerConfirm}
-                disabled={actionLoading}
-                className="w-full bg-gradient-to-r from-green-600 to-green-800 hover:from-green-500 hover:to-green-700 h-14 text-base font-bold rounded-xl"
-                type="button"
+                className={`w-full bg-gradient-to-r from-green-600 to-green-800 hover:from-green-500 hover:to-green-700 h-14 text-base font-bold rounded-xl flex items-center justify-center cursor-pointer ${actionLoading ? 'opacity-50' : ''}`}
               >
                 <Icon name="Check" size={18} className="mr-2" />
                 {actionLoading ? 'Обработка...' : 'Подтвердить получение'}
-              </Button>
+              </div>
             </div>
           )}
 
@@ -309,50 +254,34 @@ export const DealDialogMobile = ({
         <div className="flex-shrink-0 bg-background border-t border-border/30 p-4">
           <div className="flex items-center gap-2">
             <input
-              ref={inputRef}
               type="text"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
-                  handleSend();
+                  if (newMessage.trim()) {
+                    sendMessage();
+                  }
                 }
               }}
               placeholder="Написать сообщение..."
-              autoComplete="off"
-              enterKeyHint="send"
-              className="flex-1 h-12 px-4 text-base rounded-xl border-2 border-input bg-background placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 transition-colors"
-              style={{
-                fontSize: '16px',
-                touchAction: 'manipulation',
-                WebkitTapHighlightColor: 'transparent'
-              }}
+              className="flex-1 h-12 px-4 rounded-xl border-2 border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+              style={{ fontSize: '16px' }}
             />
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleSend();
+            <div
+              onClick={() => {
+                if (newMessage.trim()) {
+                  sendMessage();
+                }
               }}
-              disabled={!newMessage.trim()}
-              className="h-12 w-12 rounded-xl flex-shrink-0 bg-gradient-to-r from-green-700 to-green-800 hover:from-green-600 hover:to-green-700 disabled:opacity-50 flex items-center justify-center"
-              type="button"
-              style={{
-                cursor: 'pointer',
-                touchAction: 'manipulation',
-                WebkitTapHighlightColor: 'transparent'
-              }}
+              className={`h-12 w-12 rounded-xl flex-shrink-0 bg-gradient-to-r from-green-700 to-green-800 flex items-center justify-center cursor-pointer ${!newMessage.trim() ? 'opacity-50' : ''}`}
             >
               <Icon name="Send" size={18} />
-            </button>
+            </div>
           </div>
         </div>
       )}
     </div>
   );
-
-  if (!mounted) return null;
-
-  return createPortal(content, document.body);
 };
