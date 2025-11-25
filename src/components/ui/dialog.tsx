@@ -4,38 +4,7 @@ import { X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
-const Dialog = (props: React.ComponentProps<typeof DialogPrimitive.Root>) => {
-  const { open, ...restProps } = props;
-
-  React.useEffect(() => {
-    if (open) {
-      const htmlElement = document.documentElement;
-      const bodyElement = document.body;
-      
-      htmlElement.style.overflow = 'hidden';
-      bodyElement.style.overflow = 'hidden';
-      
-      const preventTouch = (e: TouchEvent) => {
-        const target = e.target as HTMLElement;
-        const isDialogContent = target.closest('[data-radix-dialog-content]');
-        
-        if (!isDialogContent) {
-          e.preventDefault();
-        }
-      };
-      
-      document.addEventListener('touchmove', preventTouch, { passive: false });
-      
-      return () => {
-        htmlElement.style.overflow = '';
-        bodyElement.style.overflow = '';
-        document.removeEventListener('touchmove', preventTouch);
-      };
-    }
-  }, [open]);
-
-  return <DialogPrimitive.Root open={open} {...restProps} />;
-}
+const Dialog = DialogPrimitive.Root
 
 const DialogTrigger = DialogPrimitive.Trigger
 
