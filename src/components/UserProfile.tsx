@@ -230,7 +230,7 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
     setIsLoading(false);
   };
 
-  const copyToClipboard = async (text: string) => {
+  const copyToClipboard = (text: string) => {
     if (!text) {
       toast({
         title: 'Ошибка',
@@ -242,67 +242,37 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
 
     const cleanText = String(text).trim();
     
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = cleanText;
+    input.style.position = 'fixed';
+    input.style.top = '-1000px';
+    input.style.left = '-1000px';
+    input.readOnly = true;
+    document.body.appendChild(input);
+    
+    input.focus();
+    input.select();
+    
+    let copied = false;
     try {
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(cleanText);
-        toast({
-          title: '✅ Адрес скопирован',
-          description: cleanText,
-          duration: 3000
-        });
-        return;
-      }
+      copied = document.execCommand('copy');
+      console.log('✅ execCommand copy result:', copied);
     } catch (err) {
-      console.log('Clipboard API недоступен, используем fallback');
+      console.error('❌ execCommand error:', err);
     }
     
-    const textarea = document.createElement('textarea');
-    textarea.value = cleanText;
-    textarea.style.position = 'fixed';
-    textarea.style.top = '0';
-    textarea.style.left = '0';
-    textarea.style.width = '2em';
-    textarea.style.height = '2em';
-    textarea.style.padding = '0';
-    textarea.style.border = 'none';
-    textarea.style.outline = 'none';
-    textarea.style.boxShadow = 'none';
-    textarea.style.background = 'transparent';
-    textarea.style.fontSize = '16px';
-    textarea.style.zIndex = '9999';
-    document.body.appendChild(textarea);
+    const actualValue = input.value;
+    console.log('🔍 Значение в input:', actualValue);
+    console.log('🔍 Что должно скопироваться:', cleanText);
     
-    textarea.focus();
-    textarea.select();
+    document.body.removeChild(input);
     
-    try {
-      textarea.setSelectionRange(0, cleanText.length);
-    } catch (err) {
-      console.log('setSelectionRange не поддерживается');
-    }
-    
-    let success = false;
-    try {
-      success = document.execCommand('copy');
-    } catch (err) {
-      console.error('execCommand failed:', err);
-    }
-    
-    document.body.removeChild(textarea);
-    
-    if (success) {
-      toast({
-        title: '✅ Адрес скопирован',
-        description: cleanText,
-        duration: 3000
-      });
-    } else {
-      toast({
-        title: '📋 Адрес для копирования',
-        description: cleanText,
-        duration: 8000
-      });
-    }
+    toast({
+      title: copied ? '✅ Скопировано' : '📋 Скопируйте вручную',
+      description: cleanText,
+      duration: copied ? 3000 : 8000
+    });
   };
 
   const handleAvatarSelect = () => {
