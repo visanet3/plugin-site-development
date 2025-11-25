@@ -46,6 +46,7 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
   const inputRef = useRef<HTMLInputElement>(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [isSafari, setIsSafari] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
     const ua = navigator.userAgent.toLowerCase();
@@ -184,21 +185,25 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
   };
 
   const handleInputFocus = () => {
-    // Не делаем ничего - позволяем браузеру естественно показать поле ввода
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 300);
   };
 
   const handleSend = () => {
-    if (newMessageText.trim()) {
+    if (newMessageText.trim() && !isSending) {
       sendMessage();
-      if (inputRef.current) {
-        inputRef.current.blur();
-        setTimeout(() => inputRef.current?.focus(), 50);
-      }
     }
   };
 
   const sendMessage = async () => {
-    if (!selectedChat || !newMessageText.trim()) return;
+    if (!selectedChat || !newMessageText.trim() || isSending) return;
+
+    setIsSending(true);
+    const messageToSend = newMessageText.trim();
+    setNewMessageText('');
 
     try {
       const response = await fetch(NOTIFICATIONS_URL, {
@@ -211,17 +216,21 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
           action: 'send_message',
           to_user_id: selectedChat,
           subject: 'Сообщение',
-          content: newMessageText.trim()
+          content: messageToSend
         })
       });
 
       if (response.ok) {
-        setNewMessageText('');
         await fetchMessages();
         scrollToBottom();
+      } else {
+        setNewMessageText(messageToSend);
       }
     } catch (error) {
       console.error('Failed to send message:', error);
+      setNewMessageText(messageToSend);
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -582,12 +591,12 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
                     />
                     <Button 
                       onClick={handleSend} 
-                      disabled={!newMessageText.trim()}
+                      disabled={!newMessageText.trim() || isSending}
                       size="icon"
                       className="h-11 w-11 sm:h-12 sm:w-12 rounded-xl flex-shrink-0 bg-gradient-to-r from-green-700 to-green-800 hover:from-green-600 hover:to-green-700 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation disabled:opacity-50"
                       style={{ touchAction: 'manipulation' }}
                     >
-                      <Icon name="Send" size={18} />
+                      <Icon name={isSending ? "Loader2" : "Send"} size={18} className={isSending ? "animate-spin" : ""} />
                     </Button>
                   </div>
                 </div>

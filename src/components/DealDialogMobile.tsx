@@ -87,16 +87,16 @@ export const DealDialogMobile = ({
   }, [dealMessages]);
 
   const handleInputFocus = () => {
-    // Не делаем ничего - позволяем браузеру естественно показать поле ввода
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 300);
   };
 
   const handleSend = () => {
     if (newMessage.trim()) {
       sendMessage();
-      if (inputRef.current) {
-        inputRef.current.blur();
-        setTimeout(() => inputRef.current?.focus(), 50);
-      }
     }
   };
 
