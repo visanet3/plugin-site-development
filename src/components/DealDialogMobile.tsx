@@ -101,13 +101,7 @@ export const DealDialogMobile = ({
   };
 
   return (
-    <div 
-      className="fixed inset-0 z-[9999] bg-background"
-      style={{ 
-        height: '100vh',
-        paddingBottom: keyboardHeight > 0 ? `${keyboardHeight}px` : '0px'
-      }}
-    >
+    <div className="fixed inset-0 z-[9999] bg-background" style={{ height: '100vh' }}>
       <div className="h-full flex flex-col">
         <div className="flex-shrink-0 bg-background border-b border-border/30 px-4 py-3 safe-area-top">
           <div className="flex items-center gap-3">

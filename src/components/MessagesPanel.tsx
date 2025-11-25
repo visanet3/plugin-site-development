@@ -554,12 +554,7 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
                 </div>
 
                 {/* Поле ввода */}
-                <div 
-                  className="flex-shrink-0 p-3 sm:p-4 border-t border-border/30 bg-background safe-area-bottom"
-                  style={{ 
-                    paddingBottom: keyboardHeight > 0 ? `${Math.max(keyboardHeight - 20, 12)}px` : undefined
-                  }}
-                >
+                <div className="flex-shrink-0 p-3 sm:p-4 border-t border-border/30 bg-background safe-area-bottom">
                   <div className="flex items-center gap-2">
                     <Input
                       ref={inputRef}

@@ -96,13 +96,7 @@ export const ChatView = ({
   if (!selectedChat) return null;
 
   return (
-    <div 
-      className="flex flex-col h-full"
-      style={{ 
-        height: '100%',
-        paddingBottom: keyboardHeight > 0 ? `${keyboardHeight}px` : '0px'
-      }}
-    >
+    <div className="flex flex-col h-full">
       <div className="flex-shrink-0 flex items-center gap-3 p-3 sm:p-4 border-b border-border/30 bg-background">
         <Button 
           onClick={onBackToList} 
