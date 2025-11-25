@@ -64,9 +64,21 @@ export const CryptoPaymentDialog = ({
               </div>
 
               <div className="mt-3">
-                <Label className="text-xs text-muted-foreground">Адрес кошелька</Label>
+                <Label className="text-xs text-muted-foreground">Адрес кошелька (нажмите для выделения)</Label>
                 <div className="flex items-center gap-2 mt-1">
-                  <code className="flex-1 p-2 bg-background rounded text-sm break-all">
+                  <code 
+                    className="flex-1 p-2 bg-background rounded text-sm break-all cursor-text select-all hover:bg-muted/50 transition-colors"
+                    onClick={(e) => {
+                      const range = document.createRange();
+                      range.selectNodeContents(e.currentTarget);
+                      const selection = window.getSelection();
+                      if (selection) {
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                      }
+                      onCopyToClipboard(cryptoPayment.wallet_address);
+                    }}
+                  >
                     {cryptoPayment.wallet_address}
                   </code>
                   <Button
