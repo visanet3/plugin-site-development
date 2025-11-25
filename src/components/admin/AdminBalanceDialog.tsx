@@ -6,6 +6,7 @@ import Icon from '@/components/ui/icon';
 interface AdminBalanceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  balanceAction: 'add' | 'subtract';
   balanceUsername: string;
   setBalanceUsername: (username: string) => void;
   balanceAmount: string;
@@ -17,6 +18,7 @@ interface AdminBalanceDialogProps {
 const AdminBalanceDialog = ({
   open,
   onOpenChange,
+  balanceAction,
   balanceUsername,
   setBalanceUsername,
   balanceAmount,
@@ -30,7 +32,9 @@ const AdminBalanceDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Пополнение баланса пользователя</DialogTitle>
+          <DialogTitle>
+            {balanceAction === 'add' ? 'Пополнение баланса пользователя' : 'Списание баланса пользователя'}
+          </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
@@ -83,7 +87,10 @@ const AdminBalanceDialog = ({
             <Button 
               onClick={onAddBalance}
               disabled={balanceLoading || !balanceUsername || !balanceAmount}
-              className="bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800"
+              className={balanceAction === 'add' 
+                ? "bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800"
+                : "bg-gradient-to-r from-red-800 to-red-900 hover:from-red-700 hover:to-red-800"
+              }
             >
               {balanceLoading ? (
                 <>
@@ -92,8 +99,8 @@ const AdminBalanceDialog = ({
                 </>
               ) : (
                 <>
-                  <Icon name="Check" size={16} className="mr-2" />
-                  Пополнить
+                  <Icon name={balanceAction === 'add' ? 'Check' : 'Minus'} size={16} className="mr-2" />
+                  {balanceAction === 'add' ? 'Пополнить' : 'Списать'}
                 </>
               )}
             </Button>

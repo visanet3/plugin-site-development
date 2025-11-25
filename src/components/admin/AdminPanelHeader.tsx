@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 
 interface AdminPanelHeaderProps {
   onClose: () => void;
-  onShowBalanceDialog: () => void;
+  onShowBalanceDialog: (action: 'add' | 'subtract') => void;
   showNotifications: boolean;
   setShowNotifications: (show: boolean) => void;
   adminNotifications: any[];
@@ -45,12 +45,20 @@ const AdminPanelHeader = ({
       </div>
       <div className="flex items-center gap-2 sm:gap-3">
         <Button
-          onClick={onShowBalanceDialog}
+          onClick={() => onShowBalanceDialog('add')}
           className="bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800"
         >
           <Icon name="Plus" size={18} className="mr-2" />
-          <span className="hidden sm:inline">Пополнить баланс</span>
-          <span className="sm:hidden">Баланс</span>
+          <span className="hidden sm:inline">Пополнить</span>
+          <span className="sm:hidden">+</span>
+        </Button>
+        <Button
+          onClick={() => onShowBalanceDialog('subtract')}
+          className="bg-gradient-to-r from-red-800 to-red-900 hover:from-red-700 hover:to-red-800"
+        >
+          <Icon name="Minus" size={18} className="mr-2" />
+          <span className="hidden sm:inline">Списание</span>
+          <span className="sm:hidden">−</span>
         </Button>
         <div className="relative" ref={notificationsRef}>
           <Button 

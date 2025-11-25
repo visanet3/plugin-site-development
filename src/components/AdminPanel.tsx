@@ -37,6 +37,7 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
   const [showBalanceDialog, setShowBalanceDialog] = useState(false);
+  const [balanceAction, setBalanceAction] = useState<'add' | 'subtract'>('add');
   const [balanceUsername, setBalanceUsername] = useState('');
   const [balanceAmount, setBalanceAmount] = useState('');
   const [balanceLoading, setBalanceLoading] = useState(false);
@@ -687,7 +688,7 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
           'X-User-Id': currentUser.id.toString()
         },
         body: JSON.stringify({
-          action: 'add_balance',
+          action: balanceAction === 'add' ? 'add_balance' : 'subtract_balance',
           username: balanceUsername.trim(),
           amount: amount
         })
@@ -697,24 +698,27 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
       if (data.success) {
         toast({
           title: 'Успешно',
-          description: `Баланс пользователя ${balanceUsername} пополнен на ${amount} USDT`
+          description: balanceAction === 'add' 
+            ? `Баланс пользователя ${balanceUsername} пополнен на ${amount} USDT`
+            : `С баланса пользователя ${balanceUsername} списано ${amount} USDT`
         });
         setShowBalanceDialog(false);
         setBalanceUsername('');
         setBalanceAmount('');
+        setBalanceAction('add');
         fetchUsers();
       } else {
         toast({
           title: 'Ошибка',
-          description: data.error || 'Ошибка пополнения баланса',
+          description: data.error || `Ошибка ${balanceAction === 'add' ? 'пополнения' : 'списания'} баланса`,
           variant: 'destructive'
         });
       }
     } catch (error) {
-      console.error('Ошибка пополнения баланса:', error);
+      console.error(`Ошибка ${balanceAction === 'add' ? 'пополнения' : 'списания'} баланса:`, error);
       toast({
         title: 'Ошибка',
-        description: 'Ошибка пополнения баланса',
+        description: `Ошибка ${balanceAction === 'add' ? 'пополнения' : 'списания'} баланса`,
         variant: 'destructive'
       });
     } finally {
@@ -744,7 +748,10 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
       <div className="container max-w-7xl mx-auto p-3 sm:p-6 animate-slide-up">
         <AdminPanelHeader 
           onClose={onClose}
-          onShowBalanceDialog={() => setShowBalanceDialog(true)}
+          onShowBalanceDialog={(action) => {
+            setBalanceAction(action);
+            setShowBalanceDialog(true);
+          }}
           showNotifications={showNotifications}
           setShowNotifications={setShowNotifications}
           adminNotifications={adminNotifications}
@@ -790,6 +797,7 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
         <AdminBalanceDialog 
           open={showBalanceDialog}
           onOpenChange={setShowBalanceDialog}
+          balanceAction={balanceAction}
           balanceUsername={balanceUsername}
           setBalanceUsername={setBalanceUsername}
           balanceAmount={balanceAmount}
