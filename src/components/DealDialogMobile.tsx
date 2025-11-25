@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import Icon from '@/components/ui/icon';
 import { getAvatarGradient } from '@/utils/avatarColors';
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useLayoutEffect } from 'react';
 
 interface DealDialogMobileProps {
   deal: Deal;
@@ -38,21 +38,49 @@ export const DealDialogMobile = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  const initialHeight = useRef(window.innerHeight);
 
-  // Отслеживаем реальную высоту viewport (меняется при открытии клавиатуры)
-  useEffect(() => {
+  // Safari iOS специфичный фикс для клавиатуры
+  useLayoutEffect(() => {
+    const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+    const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+    
+    initialHeight.current = window.innerHeight;
+
     const updateViewportHeight = () => {
-      // visualViewport API - правильный способ отслеживать клавиатуру на iOS/Android
       const height = window.visualViewport?.height || window.innerHeight;
+      const offset = window.visualViewport?.offsetTop || 0;
+      
+      // Определяем открыта ли клавиатура (если высота уменьшилась значительно)
+      const keyboardOpen = initialHeight.current - height > 150;
+      setIsKeyboardOpen(keyboardOpen);
       setViewportHeight(height);
+
+      // Safari iOS: компенсируем offset при открытии клавиатуры
+      if (isIOS && isSafari && containerRef.current) {
+        containerRef.current.style.transform = `translateY(${offset}px)`;
+      }
+    };
+
+    // Safari iOS: предотвращаем скролл body при скролле внутри диалога
+    const preventBodyScroll = (e: TouchEvent) => {
+      if (scrollRef.current && !scrollRef.current.contains(e.target as Node)) {
+        e.preventDefault();
+      }
     };
 
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', updateViewportHeight);
       window.visualViewport.addEventListener('scroll', updateViewportHeight);
-    } else {
-      window.addEventListener('resize', updateViewportHeight);
+    }
+    
+    window.addEventListener('resize', updateViewportHeight);
+    
+    if (isIOS && isSafari) {
+      document.addEventListener('touchmove', preventBodyScroll, { passive: false });
     }
 
     updateViewportHeight();
@@ -61,28 +89,52 @@ export const DealDialogMobile = ({
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', updateViewportHeight);
         window.visualViewport.removeEventListener('scroll', updateViewportHeight);
-      } else {
-        window.removeEventListener('resize', updateViewportHeight);
+      }
+      window.removeEventListener('resize', updateViewportHeight);
+      
+      if (isIOS && isSafari) {
+        document.removeEventListener('touchmove', preventBodyScroll);
+      }
+      
+      if (containerRef.current) {
+        containerRef.current.style.transform = '';
       }
     };
   }, []);
 
-  // Блокируем скролл body
+  // Блокируем скролл body (Safari-совместимая версия)
   useEffect(() => {
     const scrollY = window.scrollY;
-    const originalOverflow = document.body.style.overflow;
+    const originalStyles = {
+      overflow: document.body.style.overflow,
+      position: document.body.style.position,
+      top: document.body.style.top,
+      width: document.body.style.width,
+      height: document.body.style.height
+    };
     
     document.body.style.overflow = 'hidden';
     document.body.style.position = 'fixed';
     document.body.style.top = `-${scrollY}px`;
     document.body.style.width = '100%';
+    document.body.style.height = '100%';
+
+    // Safari iOS: дополнительная блокировка
+    const meta = document.querySelector('meta[name="viewport"]');
+    const originalViewport = meta?.getAttribute('content') || '';
+    if (meta) {
+      meta.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no');
+    }
 
     return () => {
-      document.body.style.overflow = originalOverflow;
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
+      Object.entries(originalStyles).forEach(([key, value]) => {
+        (document.body.style as any)[key] = value;
+      });
       window.scrollTo(0, scrollY);
+      
+      if (meta) {
+        meta.setAttribute('content', originalViewport);
+      }
     };
   }, []);
 
@@ -107,7 +159,10 @@ export const DealDialogMobile = ({
       className="fixed inset-0 z-[9999] bg-background flex flex-col"
       style={{
         height: `${viewportHeight}px`,
-        maxHeight: `${viewportHeight}px`
+        maxHeight: `${viewportHeight}px`,
+        touchAction: 'none',
+        WebkitTransform: 'translate3d(0,0,0)',
+        transform: 'translate3d(0,0,0)'
       }}
     >
       {/* Header - fixed */}
@@ -129,10 +184,13 @@ export const DealDialogMobile = ({
 
       {/* Scrollable content */}
       <div 
+        ref={scrollRef}
         className="flex-1 overflow-y-auto overflow-x-hidden"
         style={{
           WebkitOverflowScrolling: 'touch',
-          overscrollBehavior: 'contain'
+          overscrollBehavior: 'contain',
+          touchAction: 'pan-y',
+          isolation: 'isolate'
         }}
       >
         <div className="p-4 space-y-3 pb-4">
@@ -317,7 +375,14 @@ export const DealDialogMobile = ({
 
       {/* Input bar - fixed at bottom */}
       {!isCompleted && canInteract && (
-        <div className="flex-shrink-0 bg-background border-t border-border/30 p-4">
+        <div 
+          className="flex-shrink-0 bg-background border-t border-border/30 p-4"
+          style={{
+            position: 'relative',
+            zIndex: 1000,
+            touchAction: 'none'
+          }}
+        >
           <div className="flex items-center gap-2">
             <input
               ref={inputRef}
@@ -330,10 +395,23 @@ export const DealDialogMobile = ({
                   handleSendMessage();
                 }
               }}
+              onFocus={() => {
+                // Safari iOS: скроллим input в видимую область
+                setTimeout(() => {
+                  inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 300);
+              }}
               placeholder="Написать сообщение..."
               className="flex-1 h-12 px-4 text-base rounded-xl border-2 border-input bg-background placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 transition-colors"
               autoComplete="off"
-              style={{ fontSize: '16px' }}
+              inputMode="text"
+              enterKeyHint="send"
+              style={{ 
+                fontSize: '16px',
+                touchAction: 'manipulation',
+                WebkitUserSelect: 'text',
+                userSelect: 'text'
+              }}
             />
             <Button
               onClick={handleSendMessage}
@@ -341,6 +419,7 @@ export const DealDialogMobile = ({
               size="icon"
               className="h-12 w-12 rounded-xl flex-shrink-0 bg-gradient-to-r from-green-700 to-green-800 hover:from-green-600 hover:to-green-700 disabled:opacity-50"
               type="button"
+              style={{ touchAction: 'manipulation' }}
             >
               <Icon name="Send" size={18} />
             </Button>
