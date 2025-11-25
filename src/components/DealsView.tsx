@@ -14,7 +14,12 @@ import { useToast } from '@/hooks/use-toast';
 import { DealDialogMobile } from '@/components/DealDialogMobile';
 
 const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768;
+    }
+    return false;
+  });
   
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
