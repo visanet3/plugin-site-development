@@ -133,6 +133,17 @@ export const useUserActivity = ({
               const updatedUser = { ...user, balance: data.user.balance };
               setUser(updatedUser);
               localStorage.setItem('user', JSON.stringify(updatedUser));
+              
+              const difference = data.user.balance - currentBalance;
+              if (showToast && Math.abs(difference) >= 0.01) {
+                const isIncrease = difference > 0;
+                showToast(
+                  isIncrease ? '💰 Баланс пополнен' : '💸 Баланс изменён',
+                  `${isIncrease ? '+' : ''}${difference.toFixed(2)} USDT. Новый баланс: ${data.user.balance.toFixed(2)} USDT`,
+                  isIncrease ? 'bg-green-500/10 border-green-500/30 text-foreground' : 'bg-orange-500/10 border-orange-500/30 text-foreground',
+                  5000
+                );
+              }
             }
           }
         } catch (error) {
@@ -222,6 +233,14 @@ export const useUserActivity = ({
       };
 
       runAllChecks();
+
+      const balanceCheckInterval = setInterval(() => {
+        checkBalanceUpdates();
+      }, 30000);
+
+      return () => {
+        clearInterval(balanceCheckInterval);
+      };
     }
   }, [user]);
 };
