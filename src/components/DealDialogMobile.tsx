@@ -82,6 +82,22 @@ export const DealDialogMobile = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [dealMessages]);
 
+  // Блокируем потерю фокуса input при скролле
+  useEffect(() => {
+    const handleTouchMove = (e: TouchEvent) => {
+      // Разрешаем скролл, но не даём убрать фокус с input
+      if (inputRef.current && document.activeElement === inputRef.current) {
+        e.stopPropagation();
+      }
+    };
+
+    const container = portalRoot.current;
+    if (container) {
+      container.addEventListener('touchmove', handleTouchMove, { passive: true });
+      return () => container.removeEventListener('touchmove', handleTouchMove);
+    }
+  }, []);
+
   // Весь контент диалога
   const dialogContent = (
     <div 
@@ -309,12 +325,34 @@ export const DealDialogMobile = ({
                     sendMessage();
                   }
                 }}
+                onTouchStart={(e) => {
+                  e.stopPropagation();
+                  inputRef.current?.focus();
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  inputRef.current?.focus();
+                }}
                 onFocus={() => console.log('Input focused')}
-                onBlur={() => console.log('Input blurred')}
+                onBlur={(e) => {
+                  console.log('Input blurred');
+                  // Не даём потерять фокус при скролле
+                  setTimeout(() => {
+                    if (inputRef.current && document.activeElement !== inputRef.current) {
+                      inputRef.current.focus();
+                    }
+                  }, 100);
+                }}
                 placeholder="Написать сообщение..."
                 className="flex-1 h-12 px-4 text-base rounded-xl border-2 border-input bg-background placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 transition-colors"
                 autoComplete="off"
-                style={{ fontSize: '16px', touchAction: 'manipulation', WebkitUserSelect: 'text', userSelect: 'text' }}
+                style={{ 
+                  fontSize: '16px', 
+                  touchAction: 'manipulation', 
+                  WebkitUserSelect: 'text', 
+                  userSelect: 'text',
+                  pointerEvents: 'auto'
+                }}
               />
               <Button
                 onClick={() => {
