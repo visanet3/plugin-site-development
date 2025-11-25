@@ -70,16 +70,16 @@ export const DealDialog = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+    <Dialog open={open} onOpenChange={onOpenChange} modal={true}>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-3 flex-wrap">
             <span className="flex-1">{deal.title}</span>
             {getStatusBadge()}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-6 overflow-y-auto flex-1 pr-2 -mr-2">
           <div className="flex items-start justify-between gap-4 p-4 bg-card/50 rounded-lg border border-primary/10">
             <div className="flex items-start gap-3 flex-1 min-w-0">
               <Avatar className="w-12 h-12">
@@ -199,6 +199,7 @@ export const DealDialog = ({
                   onChange={(e) => onMessageChange(e.target.value)}
                   placeholder="Введите сообщение..."
                   onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && onSendMessage()}
+                  autoFocus={false}
                 />
                 <Button onClick={onSendMessage} size="icon">
                   <Icon name="Send" size={18} />
