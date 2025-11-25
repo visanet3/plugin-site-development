@@ -42,6 +42,7 @@ export const DealDialog = ({
   actionLoading
 }: DealDialogProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (open && inputRef.current) {
@@ -52,6 +53,20 @@ export const DealDialog = ({
       }, 100);
     }
   }, [open]);
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+
+  const handleInputFocus = () => {
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 300);
+  };
 
   if (!deal) return null;
 
@@ -155,7 +170,7 @@ export const DealDialog = ({
                 <Icon name="MessageSquare" size={18} />
                 Чат сделки
               </h3>
-              <div className="border border-primary/20 rounded-lg p-4 max-h-60 overflow-y-auto space-y-2">
+              <div className="border border-primary/20 rounded-lg p-4 max-h-60 overflow-y-auto space-y-2" style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
                 {messages.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">
                     Сообщений пока нет
@@ -203,16 +218,24 @@ export const DealDialog = ({
                     );
                   })
                 )}
+                <div ref={messagesEndRef} />
               </div>
               
               <div className="flex gap-2">
                 <Input
                   ref={inputRef}
+                  type="text"
+                  inputMode="text"
                   value={newMessage}
                   onChange={(e) => onMessageChange(e.target.value)}
+                  onFocus={handleInputFocus}
                   placeholder="Введите сообщение..."
                   onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && onSendMessage()}
                   autoFocus={false}
+                  style={{ fontSize: '16px' }}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="sentences"
                 />
                 <Button onClick={onSendMessage} size="icon">
                   <Icon name="Send" size={18} />
