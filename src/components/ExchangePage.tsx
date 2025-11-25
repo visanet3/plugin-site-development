@@ -104,6 +104,13 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
     }
   };
 
+  const handleMaxUsdt = () => {
+    const maxAmount = Number(user.balance || 0);
+    if (maxAmount > 0) {
+      handleUsdtToBtcChange(maxAmount.toFixed(2));
+    }
+  };
+
   const handleBtcToUsdtChange = (value: string) => {
     const numValue = parseFloat(value) || 0;
     setBtcAmount(value);
@@ -114,6 +121,12 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
       setUsdtAmount(afterCommission > 0 ? afterCommission.toFixed(2) : '0.00');
     } else {
       setUsdtAmount('');
+    }
+  };
+
+  const handleMaxBtc = () => {
+    if (btcBalance > 0) {
+      handleBtcToUsdtChange(btcBalance.toFixed(8));
     }
   };
 
@@ -494,7 +507,21 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Отдаете</label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-sm font-medium">Отдаете</label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">Баланс: {Number(user.balance || 0).toFixed(2)} USDT</span>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleMaxUsdt}
+                        className="h-6 px-2 text-xs"
+                      >
+                        Все
+                      </Button>
+                    </div>
+                  </div>
                   <div className="relative">
                     <Input
                       type="number"
@@ -593,7 +620,21 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Отдаете</label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-sm font-medium">Отдаете</label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">Баланс: {btcBalance.toFixed(8)} BTC</span>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleMaxBtc}
+                        className="h-6 px-2 text-xs"
+                      >
+                        Все
+                      </Button>
+                    </div>
+                  </div>
                   <div className="relative">
                     <Input
                       type="number"
