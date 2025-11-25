@@ -147,6 +147,12 @@ const UserProfileDialog = ({ open, onOpenChange, userId, currentUserId, onSendMe
                           <Icon name="BadgeCheck" size={28} className="text-white" />
                         </div>
                       )}
+                      {/* Роль пользователя справа сверху */}
+                      {profile.forum_role && (
+                        <div className="absolute -top-2 -right-6 sm:-right-8 scale-110 sm:scale-125">
+                          <UserRankBadge forumRole={profile.forum_role} size="lg" />
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -170,12 +176,7 @@ const UserProfileDialog = ({ open, onOpenChange, userId, currentUserId, onSendMe
                       );
                     })()}
 
-                    {/* Бейдж форума */}
-                    {profile.forum_role && (
-                      <div className="flex justify-center">
-                        <UserRankBadge forumRole={profile.forum_role} size="lg" />
-                      </div>
-                    )}
+
 
                     {/* Био */}
                     {profile.bio && (
