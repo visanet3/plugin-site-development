@@ -5,6 +5,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import Icon from '@/components/ui/icon';
 import { getAvatarGradient } from '@/utils/avatarColors';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 interface DealDialogMobileProps {
   deal: Deal;
@@ -38,47 +39,27 @@ export const DealDialogMobile = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const [windowHeight, setWindowHeight] = useState('100vh');
   const scrollPositionRef = useRef(0);
+  const [mounted, setMounted] = useState(false);
 
   const canInteract = user && (Number(user.id) === Number(deal.seller_id) || Number(user.id) === Number(deal.buyer_id));
   const isCompleted = deal.status === 'completed' || deal.status === 'cancelled';
 
   useEffect(() => {
-    const originalBodyStyle = {
-      overflow: document.body.style.overflow,
-      position: document.body.style.position,
-      width: document.body.style.width,
-      height: document.body.style.height
-    };
-    
+    setMounted(true);
     scrollPositionRef.current = window.scrollY;
     
     document.body.style.overflow = 'hidden';
     document.body.style.position = 'fixed';
     document.body.style.width = '100%';
-    document.body.style.height = '100%';
     document.body.style.top = `-${scrollPositionRef.current}px`;
 
-    const handleResize = () => {
-      const vh = window.innerHeight;
-      setWindowHeight(`${vh}px`);
-      document.documentElement.style.setProperty('--vh', `${vh * 0.01}px`);
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('orientationchange', handleResize);
-
     return () => {
-      document.body.style.overflow = originalBodyStyle.overflow;
-      document.body.style.position = originalBodyStyle.position;
-      document.body.style.width = originalBodyStyle.width;
-      document.body.style.height = originalBodyStyle.height;
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
       document.body.style.top = '';
       window.scrollTo(0, scrollPositionRef.current);
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('orientationchange', handleResize);
     };
   }, []);
 
@@ -89,37 +70,25 @@ export const DealDialogMobile = ({
     }
   }, [dealMessages]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewMessage(e.target.value);
-  };
-
   const handleSend = () => {
     if (newMessage.trim()) {
       sendMessage();
-      if (inputRef.current) {
-        inputRef.current.blur();
-        setTimeout(() => inputRef.current?.focus(), 50);
-      }
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
-  return (
+  const content = (
     <div 
-      className="fixed inset-0 z-[9999] bg-background"
+      className="fixed inset-0 bg-background flex flex-col"
       style={{
-        height: windowHeight,
+        zIndex: 99999,
+        height: '100vh',
         width: '100vw',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden'
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        pointerEvents: 'auto'
       }}
+      onClick={(e) => e.stopPropagation()}
     >
       <div 
         className="bg-background border-b border-border/30"
@@ -130,9 +99,18 @@ export const DealDialogMobile = ({
       >
         <div className="flex items-center gap-3">
           <button
-            onClick={onClose}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onClose();
+            }}
             className="w-9 h-9 rounded-full bg-muted/80 hover:bg-muted flex items-center justify-center active:scale-95 transition-transform"
             type="button"
+            style={{
+              cursor: 'pointer',
+              touchAction: 'manipulation',
+              WebkitTapHighlightColor: 'transparent'
+            }}
           >
             <Icon name="X" size={20} />
           </button>
@@ -145,13 +123,10 @@ export const DealDialogMobile = ({
 
       <div 
         ref={contentRef}
+        className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4"
         style={{
-          flex: 1,
-          overflowY: 'auto',
-          overflowX: 'hidden',
           WebkitOverflowScrolling: 'touch',
-          padding: '16px',
-          minHeight: 0
+          overscrollBehavior: 'contain'
         }}
       >
         <div className="space-y-3 pb-4">
@@ -331,54 +306,53 @@ export const DealDialogMobile = ({
       </div>
 
       {!isCompleted && canInteract && (
-        <div 
-          className="bg-background border-t border-border/30"
-          style={{
-            flexShrink: 0,
-            padding: '16px'
-          }}
-        >
+        <div className="flex-shrink-0 bg-background border-t border-border/30 p-4">
           <div className="flex items-center gap-2">
             <input
               ref={inputRef}
               type="text"
               value={newMessage}
-              onChange={handleInputChange}
-              onKeyPress={handleKeyPress}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
               placeholder="Написать сообщение..."
               autoComplete="off"
               enterKeyHint="send"
+              className="flex-1 h-12 px-4 text-base rounded-xl border-2 border-input bg-background placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 transition-colors"
               style={{
-                flex: 1,
-                height: '48px',
-                padding: '0 16px',
                 fontSize: '16px',
-                borderRadius: '12px',
-                border: '2px solid hsl(var(--input))',
-                backgroundColor: 'hsl(var(--background))',
-                color: 'hsl(var(--foreground))',
-                outline: 'none',
-                transition: 'border-color 0.2s'
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = 'hsl(var(--primary) / 0.5)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = 'hsl(var(--input))';
+                touchAction: 'manipulation',
+                WebkitTapHighlightColor: 'transparent'
               }}
             />
-            <Button
-              onClick={handleSend}
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSend();
+              }}
               disabled={!newMessage.trim()}
-              size="icon"
-              className="h-12 w-12 rounded-xl flex-shrink-0 bg-gradient-to-r from-green-700 to-green-800 hover:from-green-600 hover:to-green-700 disabled:opacity-50"
+              className="h-12 w-12 rounded-xl flex-shrink-0 bg-gradient-to-r from-green-700 to-green-800 hover:from-green-600 hover:to-green-700 disabled:opacity-50 flex items-center justify-center"
               type="button"
+              style={{
+                cursor: 'pointer',
+                touchAction: 'manipulation',
+                WebkitTapHighlightColor: 'transparent'
+              }}
             >
               <Icon name="Send" size={18} />
-            </Button>
+            </button>
           </div>
         </div>
       )}
     </div>
   );
+
+  if (!mounted) return null;
+
+  return createPortal(content, document.body);
 };
