@@ -18,6 +18,7 @@ interface MessagesPanelProps {
   onOpenChange: (open: boolean) => void;
   userId: number;
   initialRecipientId?: number | null;
+  onUserClick?: (userId: number) => void;
 }
 
 interface Chat {
@@ -31,7 +32,7 @@ interface Chat {
   lastSeenAt?: string;
 }
 
-const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: MessagesPanelProps) => {
+const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId, onUserClick }: MessagesPanelProps) => {
   const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
   const [chats, setChats] = useState<Chat[]>([]);
@@ -84,10 +85,12 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
   useEffect(() => {
     if (open) {
       fetchMessages();
+      const interval = setInterval(fetchMessages, 30000);
       if (initialRecipientId) {
         setSelectedChat(initialRecipientId);
         setShowChatList(false);
       }
+      return () => clearInterval(interval);
     }
   }, [open, initialRecipientId]);
 
@@ -149,11 +152,12 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
     const chatsMap = new Map<number, Chat>();
 
     allMessages.forEach(msg => {
-      const otherUserId = msg.from_user_id === userId ? msg.to_user_id : msg.from_user_id;
-      const otherUsername = msg.from_user_id === userId ? msg.to_username : msg.from_username;
-      const otherAvatar = msg.from_user_id === userId ? undefined : msg.from_avatar;
-      const otherRole = msg.from_user_id === userId ? (msg as any).to_role : (msg as any).from_role;
-      const otherLastSeen = msg.from_user_id === userId ? (msg as any).to_last_seen : (msg as any).from_last_seen;
+      const isFromMe = msg.from_user_id === userId;
+      const otherUserId = isFromMe ? msg.to_user_id : msg.from_user_id;
+      const otherUsername = isFromMe ? msg.to_username : msg.from_username;
+      const otherAvatar = isFromMe ? (msg as any).to_avatar : msg.from_avatar;
+      const otherRole = isFromMe ? (msg as any).to_role : (msg as any).from_role;
+      const otherLastSeen = isFromMe ? (msg as any).to_last_seen : (msg as any).from_last_seen;
 
       if (!chatsMap.has(otherUserId)) {
         chatsMap.set(otherUserId, {
@@ -368,8 +372,11 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
     setSelectedChat(null);
   };
 
-  const handleOpenProfile = (userId: number) => {
-    window.location.href = `/profile/${userId}`;
+  const handleOpenProfile = (profileUserId: number) => {
+    if (onUserClick) {
+      onUserClick(profileUserId);
+      onOpenChange(false);
+    }
   };
 
   const isUserOnline = (lastSeenAt: string | undefined): boolean => {

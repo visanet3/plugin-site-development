@@ -258,6 +258,7 @@ const Index = () => {
                 }}
                 userId={state.user.id}
                 initialRecipientId={state.messageRecipientId}
+                onUserClick={handlers.handleUserClick}
               />
             </Suspense>
           )}

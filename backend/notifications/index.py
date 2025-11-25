@@ -90,7 +90,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     SELECT 
                         m.id, m.subject, m.content, m.is_read, m.created_at,
                         m.from_user_id, u1.username as from_username, u1.avatar_url as from_avatar, u1.role as from_role, u1.last_seen_at as from_last_seen,
-                        m.to_user_id, u2.username as to_username, u2.role as to_role, u2.last_seen_at as to_last_seen
+                        m.to_user_id, u2.username as to_username, u2.avatar_url as to_avatar, u2.role as to_role, u2.last_seen_at as to_last_seen
                     FROM messages m
                     JOIN users u1 ON m.from_user_id = u1.id
                     JOIN users u2 ON m.to_user_id = u2.id
