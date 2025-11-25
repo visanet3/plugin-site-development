@@ -73,20 +73,20 @@ export const UserProfileHeader = ({
         className="hidden"
       />
 
-      <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-purple-500/5 to-blue-500/5 rounded-3xl" />
-        <Card className="relative border-border/40 backdrop-blur-sm bg-background/95 shadow-xl">
-          <div className="p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
-              <div className="relative group cursor-pointer" onClick={isOwnProfile ? onAvatarSelect : undefined}>
-                <div className="absolute -inset-1 bg-gradient-to-br from-primary via-purple-500 to-blue-500 rounded-full opacity-75 blur-md group-hover:opacity-100 transition-opacity" />
-                <Avatar className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 ring-4 ring-background">
-                  <AvatarImage src={avatarPreview || user.avatar_url} />
-                  <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(user.username)} text-white text-2xl sm:text-3xl md:text-4xl font-bold`}>
-                    {user.username[0].toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                {isOwnProfile && (
+      {isOwnProfile ? (
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-purple-500/5 to-blue-500/5 rounded-3xl" />
+          <Card className="relative border-border/40 backdrop-blur-sm bg-background/95 shadow-xl">
+            <div className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+                <div className="relative group cursor-pointer" onClick={onAvatarSelect}>
+                  <div className="absolute -inset-1 bg-gradient-to-br from-primary via-purple-500 to-blue-500 rounded-full opacity-75 blur-md group-hover:opacity-100 transition-opacity" />
+                  <Avatar className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 ring-4 ring-background">
+                    <AvatarImage src={avatarPreview || user.avatar_url} />
+                    <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(user.username)} text-white text-2xl sm:text-3xl md:text-4xl font-bold`}>
+                      {user.username[0].toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center backdrop-blur-sm">
                     {avatarUploading ? (
                       <Icon name="Loader2" size={32} className="animate-spin text-white" />
@@ -94,57 +94,153 @@ export const UserProfileHeader = ({
                       <Icon name="Camera" size={32} className="text-white" />
                     )}
                   </div>
-                )}
-              </div>
-
-              <div className="flex-1 text-center sm:text-left space-y-3 min-w-0 w-full">
-                <div>
-                  <div className="flex items-center justify-center sm:justify-start gap-2 mb-1.5">
-                    <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent truncate">
-                      {user.username}
-                    </h3>
-                    {user.is_verified && (
-                      <Icon name="BadgeCheck" size={24} className="text-primary flex-shrink-0 sm:w-7 sm:h-7 drop-shadow-lg" title="Верифицирован" />
-                    )}
-                  </div>
-                  <p className="text-sm text-muted-foreground truncate">{user.email}</p>
                 </div>
 
-                <div className="flex flex-wrap justify-center sm:justify-start gap-2">
+                <div className="flex-1 text-center sm:text-left space-y-3 min-w-0 w-full">
+                  <div>
+                    <div className="flex items-center justify-center sm:justify-start gap-2 mb-1.5">
+                      <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent truncate">
+                        {user.username}
+                      </h3>
+                      {user.is_verified && (
+                        <Icon name="BadgeCheck" size={24} className="text-primary flex-shrink-0 sm:w-7 sm:h-7 drop-shadow-lg" title="Верифицирован" />
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground truncate">{user.email}</p>
+                  </div>
+
+                  <div className="flex flex-wrap justify-center sm:justify-start gap-2">
+                    {user.role === 'admin' && (
+                      <span className="px-3 py-1.5 bg-gradient-to-r from-red-500/20 to-red-600/20 border border-red-500/40 text-red-400 rounded-lg text-xs font-bold inline-flex items-center gap-1.5 shadow-lg shadow-red-500/10">
+                        <Icon name="Shield" size={14} />
+                        АДМИНИСТРАТОР
+                      </span>
+                    )}
+                    
+                    {user.forum_role && (
+                      <ForumRoleBadge role={user.forum_role} />
+                    )}
+                    
+                    {hasActiveVip && (
+                      <span className="px-3 py-1.5 bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-orange-500/20 border border-amber-500/40 text-amber-400 rounded-lg text-xs font-bold inline-flex items-center gap-1.5 shadow-lg shadow-amber-500/10">
+                        <Icon name="Crown" size={14} />
+                        VIP ({vipDaysLeft}д)
+                      </span>
+                    )}
+                    
+                    {user.is_verified && (
+                      <span className="px-3 py-1.5 bg-gradient-to-r from-primary/20 to-primary/10 border border-primary/40 text-primary rounded-lg text-xs font-bold inline-flex items-center gap-1.5 shadow-lg shadow-primary/10">
+                        <Icon name="ShieldCheck" size={14} />
+                        ВЕРИФИЦИРОВАН
+                      </span>
+                    )}
+                  </div>
+
+                  {user.bio && (
+                    <p className="text-sm text-foreground/70 leading-relaxed line-clamp-2 sm:line-clamp-3">{user.bio}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      ) : (
+        <div className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-purple-500/10 to-blue-500/10" />
+          <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-primary/20 to-transparent rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-72 h-72 bg-gradient-to-tr from-purple-500/20 to-transparent rounded-full blur-3xl" />
+          
+          <div className="relative p-6 sm:p-8 md:p-10">
+            <div className="flex flex-col items-center text-center space-y-6">
+              <div className="relative group">
+                <div className="absolute -inset-2 bg-gradient-to-br from-primary via-purple-500 to-blue-500 rounded-full opacity-75 blur-xl group-hover:opacity-100 transition-opacity animate-pulse" />
+                <div className="relative">
+                  <Avatar className="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 ring-4 ring-background shadow-2xl">
+                    <AvatarImage src={user.avatar_url} />
+                    <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(user.username)} text-white text-4xl sm:text-5xl md:text-6xl font-bold`}>
+                      {user.username[0].toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  {user.is_verified && (
+                    <div className="absolute -bottom-2 -right-2 w-12 h-12 sm:w-14 sm:h-14 bg-primary rounded-full flex items-center justify-center ring-4 ring-background shadow-xl">
+                      <Icon name="BadgeCheck" size={28} className="text-white" />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-4 max-w-2xl">
+                <div>
+                  <h3 className="text-3xl sm:text-4xl md:text-5xl font-black bg-gradient-to-r from-foreground via-primary to-purple-500 bg-clip-text text-transparent mb-2">
+                    {user.username}
+                  </h3>
+                  <p className="text-sm sm:text-base text-muted-foreground">{user.email}</p>
+                </div>
+
+                <div className="flex flex-wrap justify-center gap-2.5">
                   {user.role === 'admin' && (
-                    <span className="px-3 py-1.5 bg-gradient-to-r from-red-500/20 to-red-600/20 border border-red-500/40 text-red-400 rounded-lg text-xs font-bold inline-flex items-center gap-1.5 shadow-lg shadow-red-500/10">
-                      <Icon name="Shield" size={14} />
+                    <span className="px-4 py-2 bg-gradient-to-r from-red-500/30 to-red-600/30 border-2 border-red-500/50 text-red-400 rounded-xl text-sm font-black inline-flex items-center gap-2 shadow-xl shadow-red-500/20">
+                      <Icon name="Shield" size={18} />
                       АДМИНИСТРАТОР
                     </span>
                   )}
                   
                   {user.forum_role && (
-                    <ForumRoleBadge role={user.forum_role} />
+                    <div className="scale-110">
+                      <ForumRoleBadge role={user.forum_role} />
+                    </div>
                   )}
                   
                   {hasActiveVip && (
-                    <span className="px-3 py-1.5 bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-orange-500/20 border border-amber-500/40 text-amber-400 rounded-lg text-xs font-bold inline-flex items-center gap-1.5 shadow-lg shadow-amber-500/10">
-                      <Icon name="Crown" size={14} />
-                      VIP {isOwnProfile && `(${vipDaysLeft}д)`}
+                    <span className="px-4 py-2 bg-gradient-to-r from-amber-500/30 via-yellow-500/30 to-orange-500/30 border-2 border-amber-500/50 text-amber-400 rounded-xl text-sm font-black inline-flex items-center gap-2 shadow-xl shadow-amber-500/20 animate-pulse">
+                      <Icon name="Crown" size={18} />
+                      VIP
                     </span>
                   )}
                   
                   {user.is_verified && (
-                    <span className="px-3 py-1.5 bg-gradient-to-r from-primary/20 to-primary/10 border border-primary/40 text-primary rounded-lg text-xs font-bold inline-flex items-center gap-1.5 shadow-lg shadow-primary/10">
-                      <Icon name="ShieldCheck" size={14} />
+                    <span className="px-4 py-2 bg-gradient-to-r from-primary/30 to-primary/20 border-2 border-primary/50 text-primary rounded-xl text-sm font-black inline-flex items-center gap-2 shadow-xl shadow-primary/20">
+                      <Icon name="ShieldCheck" size={18} />
                       ВЕРИФИЦИРОВАН
                     </span>
                   )}
                 </div>
 
                 {user.bio && (
-                  <p className="text-sm text-foreground/70 leading-relaxed line-clamp-2 sm:line-clamp-3">{user.bio}</p>
+                  <Card className="p-4 sm:p-6 bg-background/60 backdrop-blur-sm border-border/50">
+                    <p className="text-sm sm:text-base text-foreground/80 leading-relaxed">{user.bio}</p>
+                  </Card>
+                )}
+
+                {(user.telegram || user.discord) && (
+                  <Card className="p-4 sm:p-5 bg-background/60 backdrop-blur-sm border-border/50">
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-muted-foreground mb-1">
+                        <Icon name="Link" size={16} />
+                        Контакты
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {user.telegram && (
+                          <div className="flex items-center gap-2.5 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                            <Icon name="Send" size={18} className="text-blue-400 flex-shrink-0" />
+                            <span className="text-sm font-medium text-blue-400 truncate">{user.telegram}</span>
+                          </div>
+                        )}
+                        {user.discord && (
+                          <div className="flex items-center gap-2.5 p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg">
+                            <Icon name="MessageSquare" size={18} className="text-purple-400 flex-shrink-0" />
+                            <span className="text-sm font-medium text-purple-400 truncate">{user.discord}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
                 )}
               </div>
             </div>
           </div>
-        </Card>
-      </div>
+        </div>
+      )}
 
       {isOwnProfile && (
         <div className="relative group">

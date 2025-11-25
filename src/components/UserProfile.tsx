@@ -376,19 +376,30 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
       <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 animate-fade-in">
         <Card className="w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto bg-background/95 backdrop-blur-md border-border/50 shadow-2xl animate-scale-in rounded-2xl sm:rounded-3xl">
           <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5 md:space-y-6">
-            <div className="relative flex items-center justify-between pb-4 border-b border-border/50">
-              <div>
-                <h2 className="text-2xl sm:text-3xl font-black text-foreground">
-                  {isOwnProfile ? '👤 Личный кабинет' : `👤 ${user.username}`}
-                </h2>
-                {isOwnProfile && (
+            {isOwnProfile ? (
+              <div className="relative flex items-center justify-between pb-4 border-b border-border/50">
+                <div>
+                  <h2 className="text-2xl sm:text-3xl font-black text-foreground">
+                    👤 Личный кабинет
+                  </h2>
                   <p className="text-xs sm:text-sm text-muted-foreground mt-1">Управляйте своим профилем и балансом</p>
-                )}
+                </div>
+                <Button variant="ghost" size="icon" onClick={onClose} className="h-10 w-10 rounded-xl hover:bg-muted/80 transition-all hover:scale-110 active:scale-90">
+                  <Icon name="X" size={24} />
+                </Button>
               </div>
-              <Button variant="ghost" size="icon" onClick={onClose} className="h-10 w-10 rounded-xl hover:bg-muted/80 transition-all hover:scale-110 active:scale-90">
-                <Icon name="X" size={24} />
-              </Button>
-            </div>
+            ) : (
+              <div className="relative">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={onClose} 
+                  className="absolute top-0 right-0 z-10 h-10 w-10 rounded-xl hover:bg-muted/80 transition-all hover:scale-110 active:scale-90"
+                >
+                  <Icon name="X" size={24} />
+                </Button>
+              </div>
+            )}
 
             <UserProfileHeader
               user={user}
