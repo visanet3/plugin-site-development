@@ -88,10 +88,16 @@ export const DealDialogMobile = ({
 
   const handleInputFocus = () => {
     setTimeout(() => {
-      if (inputRef.current) {
-        inputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (inputRef.current && contentRef.current) {
+        const inputRect = inputRef.current.getBoundingClientRect();
+        const containerRect = contentRef.current.getBoundingClientRect();
+        
+        if (inputRect.bottom > window.visualViewport!.height) {
+          const scrollAmount = inputRect.bottom - window.visualViewport!.height + 20;
+          contentRef.current.scrollTop += scrollAmount;
+        }
       }
-    }, 300);
+    }, 350);
   };
 
   const handleSend = () => {
