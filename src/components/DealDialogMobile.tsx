@@ -249,16 +249,24 @@ export const DealDialogMobile = ({
                 ref={inputRef}
                 type="text"
                 value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
+                onChange={(e) => {
+                  console.log('Input onChange:', e.target.value);
+                  setNewMessage(e.target.value);
+                }}
+                onInput={(e) => {
+                  console.log('Input onInput:', (e.target as HTMLInputElement).value);
+                }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && newMessage.trim()) {
                     sendMessage();
                   }
                 }}
+                onFocus={() => console.log('Input focused')}
+                onBlur={() => console.log('Input blurred')}
                 placeholder="Написать сообщение..."
                 className="flex-1 h-12 px-4 text-base rounded-xl border-2 border-input bg-background placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 transition-colors"
                 autoComplete="off"
-                style={{ fontSize: '16px' }}
+                style={{ fontSize: '16px', touchAction: 'manipulation', WebkitUserSelect: 'text', userSelect: 'text' }}
               />
               <Button
                 onClick={() => {
