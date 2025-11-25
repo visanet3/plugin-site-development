@@ -231,10 +231,6 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
   };
 
   const copyToClipboard = async (text: string) => {
-    console.log('🔵 Копирование текста:', text);
-    console.log('🔵 Тип данных:', typeof text);
-    console.log('🔵 Длина текста:', text?.length);
-    
     if (!text) {
       toast({
         title: 'Ошибка',
@@ -245,19 +241,17 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
     }
 
     const cleanText = String(text).trim();
-    console.log('🔵 Очищенный текст:', cleanText);
 
     if (navigator.clipboard && window.isSecureContext) {
       try {
         await navigator.clipboard.writeText(cleanText);
-        console.log('✅ Скопировано через Clipboard API');
         toast({
           title: 'Успешно',
           description: 'Адрес скопирован в буфер обмена'
         });
         return;
       } catch (error) {
-        console.error('❌ Clipboard API error:', error);
+        console.error('Clipboard API error:', error);
       }
     }
 
@@ -283,7 +277,6 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
       const successful = document.execCommand('copy');
       
       if (successful) {
-        console.log('✅ Скопировано через execCommand');
         toast({
           title: 'Успешно',
           description: 'Адрес скопирован в буфер обмена'
@@ -292,7 +285,7 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
         throw new Error('execCommand failed');
       }
     } catch (err) {
-      console.error('❌ Fallback copy error:', err);
+      console.error('Fallback copy error:', err);
       toast({
         title: 'Не удалось скопировать',
         description: 'Скопируйте адрес вручную',
