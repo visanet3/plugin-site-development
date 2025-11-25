@@ -24,6 +24,7 @@ interface Chat {
   userId: number;
   username: string;
   avatar?: string;
+  role?: string;
   lastMessage: string;
   lastMessageTime: string;
   unreadCount: number;
@@ -47,6 +48,7 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [isSending, setIsSending] = useState(false);
   const [isDesktop, setIsDesktop] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 1024);
+  const [selectedChatUserRole, setSelectedChatUserRole] = useState<string>('');
 
   useEffect(() => {
     const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
@@ -97,6 +99,14 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
       setCurrentChatMessages(chatMessages);
       scrollToBottom();
       
+      const selectedChatUser = chatMessages.find(m => m.from_user_id === selectedChat || m.to_user_id === selectedChat);
+      if (selectedChatUser) {
+        const role = selectedChatUser.from_user_id === selectedChat 
+          ? (selectedChatUser as any).from_role 
+          : (selectedChatUser as any).to_role;
+        setSelectedChatUserRole(role || '');
+      }
+      
       chatMessages.forEach(msg => {
         if (!msg.is_read && msg.to_user_id === userId) {
           markMessageRead(msg.id);
@@ -136,12 +146,14 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
       const otherUserId = msg.from_user_id === userId ? msg.to_user_id : msg.from_user_id;
       const otherUsername = msg.from_user_id === userId ? msg.to_username : msg.from_username;
       const otherAvatar = msg.from_user_id === userId ? undefined : msg.from_avatar;
+      const otherRole = msg.from_user_id === userId ? (msg as any).to_role : (msg as any).from_role;
 
       if (!chatsMap.has(otherUserId)) {
         chatsMap.set(otherUserId, {
           userId: otherUserId,
           username: otherUsername,
           avatar: otherAvatar,
+          role: otherRole,
           lastMessage: msg.content,
           lastMessageTime: msg.created_at,
           unreadCount: 0
@@ -302,6 +314,25 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
     }
   };
 
+  const getRoleBadge = (role: string | undefined) => {
+    if (!role || role === 'user') return null;
+    
+    const roleConfig: Record<string, { label: string; className: string }> = {
+      admin: { label: 'Админ', className: 'bg-red-500/20 text-red-400 border-red-500/30' },
+      moderator: { label: 'Модератор', className: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
+      vip: { label: 'VIP', className: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' }
+    };
+
+    const config = roleConfig[role];
+    if (!config) return null;
+
+    return (
+      <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold border ${config.className}`}>
+        {config.label}
+      </span>
+    );
+  };
+
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -327,6 +358,10 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
   const handleBackToChats = () => {
     setShowChatList(true);
     setSelectedChat(null);
+  };
+
+  const handleOpenProfile = (userId: number) => {
+    window.location.href = `/profile/${userId}`;
   };
 
   const selectedChatInfo = chats.find(c => c.userId === selectedChat);
@@ -443,7 +478,10 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
                     </Avatar>
                     <div className="flex-1 min-w-0 text-left">
                       <div className="flex items-center justify-between mb-1">
-                        <p className="font-semibold truncate">{chat.username}</p>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <p className="font-semibold truncate">{chat.username}</p>
+                          {getRoleBadge(chat.role)}
+                        </div>
                         <span className="text-xs text-muted-foreground ml-2 flex-shrink-0">
                           {formatTime(chat.lastMessageTime)}
                         </span>
@@ -490,14 +528,23 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
                   >
                     <Icon name="ArrowLeft" size={20} />
                   </Button>
-                  <Avatar className="w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 ring-2 ring-border/30">
+                  <Avatar 
+                    className="w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 ring-2 ring-border/30 cursor-pointer hover:ring-primary/50 transition-all"
+                    onClick={() => selectedChat && handleOpenProfile(selectedChat)}
+                  >
                     <AvatarImage src={selectedChatInfo?.avatar} />
                     <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(selectedChatInfo?.username || '')} text-white font-semibold`}>
                       {selectedChatInfo?.username[0]?.toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 min-w-0 overflow-hidden py-1">
-                    <p className="font-semibold truncate text-sm sm:text-base">{selectedChatInfo?.username}</p>
+                  <div 
+                    className="flex-1 min-w-0 overflow-hidden py-1 cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => selectedChat && handleOpenProfile(selectedChat)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold truncate text-sm sm:text-base">{selectedChatInfo?.username}</p>
+                      {getRoleBadge(selectedChatUserRole)}
+                    </div>
                     <p className="text-xs text-muted-foreground/70 truncate">ID: {selectedChat}</p>
                   </div>
                 </div>

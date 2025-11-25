@@ -82,8 +82,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cur.execute("""
                     SELECT 
                         m.id, m.subject, m.content, m.is_read, m.created_at,
-                        m.from_user_id, u1.username as from_username, u1.avatar_url as from_avatar,
-                        m.to_user_id, u2.username as to_username
+                        m.from_user_id, u1.username as from_username, u1.avatar_url as from_avatar, u1.role as from_role,
+                        m.to_user_id, u2.username as to_username, u2.role as to_role
                     FROM messages m
                     JOIN users u1 ON m.from_user_id = u1.id
                     JOIN users u2 ON m.to_user_id = u2.id
