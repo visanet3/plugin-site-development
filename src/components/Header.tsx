@@ -159,7 +159,30 @@ const Header = ({
         <div className="flex items-center gap-3">
           {user ? (
             <>
-              <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-3">
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className={`relative bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-xl px-3 sm:px-4 py-2 transition-all duration-300 ${isBalanceChanging ? 'scale-105 border-green-400/50 shadow-lg shadow-green-500/20' : 'scale-100'}`}>
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg">
+                        <Icon name="DollarSign" size={18} className="text-white" />
+                      </div>
+                      <div className="hidden sm:block">
+                        <p className="text-[10px] text-green-400/80 font-medium uppercase tracking-wider">Баланс</p>
+                        <p className={`text-lg font-bold text-white transition-all duration-300 ${isBalanceChanging ? 'text-green-400' : ''}`}>
+                          {Number(animatedBalance).toFixed(2)}
+                          <span className="text-xs ml-1 text-green-400/80 font-normal">USDT</span>
+                        </p>
+                      </div>
+                      <div className="sm:hidden">
+                        <p className={`text-sm font-bold text-white transition-all duration-300 ${isBalanceChanging ? 'text-green-400' : ''}`}>
+                          {Number(animatedBalance).toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <Button 
                   variant="ghost" 
                   className="text-left flex items-center gap-1.5 sm:gap-3 text-white hover:bg-orange-500/10 transition-colors px-2 sm:px-4"
@@ -167,9 +190,6 @@ const Header = ({
                 >
                   <div className="text-right hidden sm:block">
                     <p className="text-sm font-medium text-white">{user.username}</p>
-                    <p className={`text-xs text-green-400 transition-all duration-300 ${isBalanceChanging ? 'scale-110 font-bold' : 'scale-100'}`}>
-                      {Number(animatedBalance).toFixed(2)} USDT
-                    </p>
                   </div>
                   <div className="sm:hidden flex items-center gap-1">
                     <span className={`text-xs text-green-400 font-bold transition-all duration-300 ${isBalanceChanging ? 'scale-110' : 'scale-100'}`}>
