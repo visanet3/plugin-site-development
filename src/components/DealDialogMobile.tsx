@@ -36,7 +36,7 @@ export const DealDialogMobile = ({
   handleBuyerConfirm
 }: DealDialogMobileProps) => {
   return (
-    <div className="fixed inset-0 z-[9999] bg-background flex flex-col safe-area-inset">
+    <div className="fixed inset-0 z-50 bg-background flex flex-col safe-area-inset">
       <div className="flex items-center justify-between p-3 border-b border-border flex-shrink-0">
         <div className="flex-1 pr-10 min-w-0">
           <h2 className="text-sm font-semibold leading-tight truncate">{deal.title}</h2>
