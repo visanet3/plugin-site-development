@@ -419,11 +419,97 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
           </div>
         </Card>
       )}
+      <Card className="p-4 sm:p-6 bg-gradient-to-br from-green-600/10 via-emerald-600/5 to-green-700/10 border-green-600/30">
+        <div className="space-y-4">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-green-600 to-emerald-700 flex items-center justify-center flex-shrink-0">
+              <Icon name="Shield" size={24} className="text-white sm:w-7 sm:h-7" />
+            </div>
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold mb-2">Как работает Гарант-сервис?</h2>
+              <p className="text-sm text-muted-foreground">
+                Надежная защита ваших средств при сделках с другими пользователями
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 sm:gap-4">
+            <Card className="p-4 bg-background/60 border-green-600/20">
+              <div className="flex flex-col items-center text-center space-y-2">
+                <div className="w-10 h-10 rounded-full bg-green-600/20 flex items-center justify-center">
+                  <span className="text-lg font-bold text-green-400">1</span>
+                </div>
+                <Icon name="FileText" size={32} className="text-green-400" />
+                <h3 className="font-bold text-sm">Создание сделки</h3>
+                <p className="text-xs text-muted-foreground">
+                  Продавец создает объявление с описанием товара и ценой
+                </p>
+              </div>
+            </Card>
+
+            <Card className="p-4 bg-background/60 border-blue-600/20">
+              <div className="flex flex-col items-center text-center space-y-2">
+                <div className="w-10 h-10 rounded-full bg-blue-600/20 flex items-center justify-center">
+                  <span className="text-lg font-bold text-blue-400">2</span>
+                </div>
+                <Icon name="Lock" size={32} className="text-blue-400" />
+                <h3 className="font-bold text-sm">Блокировка средств</h3>
+                <p className="text-xs text-muted-foreground">
+                  Покупатель оплачивает. Средства блокируются на платформе
+                </p>
+              </div>
+            </Card>
+
+            <Card className="p-4 bg-background/60 border-purple-600/20">
+              <div className="flex flex-col items-center text-center space-y-2">
+                <div className="w-10 h-10 rounded-full bg-purple-600/20 flex items-center justify-center">
+                  <span className="text-lg font-bold text-purple-400">3</span>
+                </div>
+                <Icon name="Package" size={32} className="text-purple-400" />
+                <h3 className="font-bold text-sm">Передача товара</h3>
+                <p className="text-xs text-muted-foreground">
+                  Продавец передает товар и нажимает "Товар передан"
+                </p>
+              </div>
+            </Card>
+
+            <Card className="p-4 bg-background/60 border-emerald-600/20">
+              <div className="flex flex-col items-center text-center space-y-2">
+                <div className="w-10 h-10 rounded-full bg-emerald-600/20 flex items-center justify-center">
+                  <span className="text-lg font-bold text-emerald-400">4</span>
+                </div>
+                <Icon name="CheckCircle" size={32} className="text-emerald-400" />
+                <h3 className="font-bold text-sm">Завершение</h3>
+                <p className="text-xs text-muted-foreground">
+                  Покупатель подтверждает получение. Средства переводятся продавцу
+                </p>
+              </div>
+            </Card>
+          </div>
+
+          <Card className="p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30">
+            <div className="flex items-start gap-3">
+              <Icon name="Info" size={20} className="text-amber-400 flex-shrink-0 mt-0.5" />
+              <div className="space-y-2 text-sm">
+                <p className="font-bold text-amber-400">Важные правила безопасности:</p>
+                <ul className="space-y-1 text-xs text-muted-foreground">
+                  <li>• Комиссия сервиса: 5% от суммы сделки (оплачивает покупатель)</li>
+                  <li>• Средства блокируются до завершения сделки - никто не может их забрать</li>
+                  <li>• Используйте чат для общения с другой стороной</li>
+                  <li>• Если возникли проблемы - обратитесь в поддержку через спор</li>
+                  <li>• Продавец получает деньги только после подтверждения покупателя</li>
+                </ul>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </Card>
+
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3">
         <div>
-          <h1 className="text-xl sm:text-3xl font-bold mb-1 sm:mb-2">🛡️ Гарант-сервис</h1>
+          <h1 className="text-xl sm:text-3xl font-bold mb-1 sm:mb-2">🛡️ Активные объявления</h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Безопасные сделки с защитой средств
+            Выберите объявление для начала сделки
           </p>
         </div>
         <Button
