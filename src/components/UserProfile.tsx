@@ -18,9 +18,10 @@ interface UserProfileProps {
   onClose: () => void;
   onTopUpBalance?: (amount: number) => Promise<void>;
   onUpdateProfile?: (profileData: Partial<User>) => void;
+  onRefreshBalance?: () => Promise<void>;
 }
 
-const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProfile }: UserProfileProps) => {
+const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProfile, onRefreshBalance }: UserProfileProps) => {
   const { toast } = useToast();
   const [showTopUpDialog, setShowTopUpDialog] = useState(false);
   const [showWithdrawalDialog, setShowWithdrawalDialog] = useState(false);
@@ -174,15 +175,15 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
           const newBalance = data.new_balance;
           const addedAmount = newBalance - oldBalance;
           
-          if (onTopUpBalance) {
-            const updatedUser = { ...user, balance: data.new_balance };
-            Object.assign(user, updatedUser);
-          }
           setCheckingStatus('Платёж подтверждён! Баланс пополнен.');
+          
+          if (onRefreshBalance) {
+            await onRefreshBalance();
+          }
           
           toast({
             title: '💰 Баланс пополнен!',
-            description: `Зачислено +${addedAmount.toFixed(2)} ₽. Новый баланс: ${newBalance.toFixed(2)} ₽`
+            description: `Зачислено +${addedAmount.toFixed(2)} USDT. Новый баланс: ${newBalance.toFixed(2)} USDT`
           });
           
           setTimeout(() => {

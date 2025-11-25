@@ -214,6 +214,7 @@ const Index = () => {
                 onClose={() => state.setShowUserProfile(false)}
                 onTopUpBalance={handlers.handleTopUpBalance}
                 onUpdateProfile={handlers.handleUpdateProfile}
+                onRefreshBalance={handlers.refreshUserBalance}
               />
             ) : (
               <UserProfileDialog
