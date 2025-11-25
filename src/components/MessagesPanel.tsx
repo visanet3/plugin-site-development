@@ -47,11 +47,16 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [isSafari, setIsSafari] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 1024);
 
   useEffect(() => {
     const ua = navigator.userAgent.toLowerCase();
     const isSafariBrowser = ua.includes('safari') && !ua.includes('chrome') && !ua.includes('chromium');
     setIsSafari(isSafariBrowser);
+    
+    const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
+    window.addEventListener('resize', checkDesktop);
+    return () => window.removeEventListener('resize', checkDesktop);
   }, []);
 
   useEffect(() => {
@@ -344,6 +349,23 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
             <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
               <h2 className="text-xl font-semibold">Чаты</h2>
             </div>
+            
+            {/* Баннер для мобильных */}
+            {!isDesktop && (
+              <div className="px-4 py-3 border-b border-border bg-blue-500/10">
+                <div className="flex items-start gap-2">
+                  <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                    <Icon name="Monitor" size={16} className="text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-blue-400 mb-1">💻 Доступно только на ПК</p>
+                    <p className="text-xs text-muted-foreground/80">
+                      Отправка сообщений доступна только с компьютера
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Новый чат форма */}
             {showNewChat && (
@@ -578,8 +600,9 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
                           handleSend();
                         }
                       }}
-                      placeholder="Введите сообщение..."
-                      className="flex-1 h-11 sm:h-12 px-4 rounded-xl border-2 border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 transition-all"
+                      placeholder={isDesktop ? "Введите сообщение..." : "Доступно только на ПК"}
+                      disabled={!isDesktop}
+                      className="flex-1 h-11 sm:h-12 px-4 rounded-xl border-2 border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       style={{ 
                         fontSize: '16px',
                         WebkitUserSelect: 'text',
@@ -591,7 +614,7 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
                     />
                     <Button 
                       onClick={handleSend} 
-                      disabled={!newMessageText.trim() || isSending}
+                      disabled={!newMessageText.trim() || isSending || !isDesktop}
                       size="icon"
                       className="h-11 w-11 sm:h-12 sm:w-12 rounded-xl flex-shrink-0 bg-gradient-to-r from-green-700 to-green-800 hover:from-green-600 hover:to-green-700 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation disabled:opacity-50"
                       style={{ touchAction: 'manipulation' }}

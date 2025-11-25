@@ -81,57 +81,39 @@ const Sidebar = ({
             { icon: 'Home', label: 'Главная', id: 'all', view: 'plugins' },
             { icon: 'Zap', label: 'Flash USDT', id: 'categories', view: 'plugins' },
             { icon: 'Gamepad2', label: 'Игры', id: 'new', view: 'plugins' },
-            { icon: 'ShieldCheck', label: 'Гарант-сервис', id: 'deals', view: 'plugins', desktopOnly: true },
+            { icon: 'ShieldCheck', label: 'Гарант-сервис', id: 'deals', view: 'plugins' },
             { icon: 'ArrowLeftRight', label: 'Обменник', id: 'exchange', view: 'plugins' },
             { icon: 'FileCode', label: 'Смарт-контракты', id: 'smart-contracts', view: 'plugins' },
             { icon: 'MessageSquare', label: 'Форум', id: 'forum', view: 'forum' },
-          ].map(item => {
-            const isDesktopOnly = (item as any).desktopOnly;
-            const isDisabled = isDesktopOnly && !isDesktop;
-            
-            return (
-              <button
-                key={item.id}
-                onClick={() => {
-                  if (isDisabled) return;
-                  onCategoryChange(item.id, item.view as 'plugins' | 'forum');
-                  if (window.innerWidth < 768 && onToggleSidebar) {
-                    onToggleSidebar();
-                  }
-                }}
-                className={`w-full flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-2.5 rounded-lg transition-all duration-200 tap-highlight relative ${
-                  isDisabled
-                    ? 'opacity-50 cursor-not-allowed'
-                    : (activeView === item.view && (item.view === 'forum' || activeCategory === item.id))
-                    ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                    : 'hover:bg-sidebar-accent/50 active:bg-sidebar-accent/70'
-                }`}
-              >
-                <Icon name={item.icon as any} size={18} />
-                <span className="text-sm font-medium">{item.label}</span>
-                {isDisabled && (
-                  <Icon name="Monitor" size={14} className="ml-auto text-muted-foreground" />
-                )}
-              </button>
-            );
-          })}
+          ].map(item => (
+            <button
+              key={item.id}
+              onClick={() => {
+                onCategoryChange(item.id, item.view as 'plugins' | 'forum');
+                if (window.innerWidth < 768 && onToggleSidebar) {
+                  onToggleSidebar();
+                }
+              }}
+              className={`w-full flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-2.5 rounded-lg transition-all duration-200 tap-highlight ${
+                (activeView === item.view && (item.view === 'forum' || activeCategory === item.id)) ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'hover:bg-sidebar-accent/50 active:bg-sidebar-accent/70'
+              }`}
+            >
+              <Icon name={item.icon as any} size={18} />
+              <span className="text-sm font-medium">{item.label}</span>
+            </button>
+          ))}
           
           {user && (
             <>
               <div className="border-t border-sidebar-border/50 mt-2 pt-2">
                 <button
                   onClick={() => {
-                    if (!isDesktop) return;
                     onShowMessagesPanel?.();
                     if (window.innerWidth < 768 && onToggleSidebar) {
                       onToggleSidebar();
                     }
                   }}
-                  className={`w-full flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-2.5 rounded-lg transition-all duration-200 tap-highlight relative ${
-                    !isDesktop
-                      ? 'opacity-50 cursor-not-allowed'
-                      : 'hover:bg-sidebar-accent/50 active:bg-sidebar-accent/70'
-                  }`}
+                  className="w-full flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-2.5 rounded-lg transition-all duration-200 tap-highlight hover:bg-sidebar-accent/50 active:bg-sidebar-accent/70 relative"
                 >
                   <Icon name="Mail" size={18} />
                   <span className="text-sm font-medium">Сообщения</span>
@@ -139,9 +121,6 @@ const Sidebar = ({
                     <span className="absolute right-3 px-1.5 py-0.5 text-xs bg-red-500 text-white rounded-full">
                       {messagesUnread}
                     </span>
-                  )}
-                  {!isDesktop && (
-                    <Icon name="Monitor" size={14} className="ml-auto text-muted-foreground" />
                   )}
                 </button>
                 <button

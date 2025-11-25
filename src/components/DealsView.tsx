@@ -431,16 +431,15 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
             if (!isDesktop) {
               toast({
                 title: '💻 Доступно только на ПК',
-                description: 'Создание сделок доступно только с компьютера',
+                description: 'Создание и просмотр сделок доступны только с компьютера',
                 variant: 'destructive'
               });
               return;
             }
             user ? setShowCreateDialog(true) : onShowAuthDialog();
           }}
-          className={`bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800 w-full sm:w-auto h-9 sm:h-10 text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-green-800/50 active:scale-95 touch-manipulation ${
-            !isDesktop ? 'opacity-60 cursor-not-allowed' : ''
-          }`}
+          disabled={!isDesktop}
+          className="bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800 w-full sm:w-auto h-9 sm:h-10 text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-green-800/50 active:scale-95 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Icon name="Plus" size={16} className="mr-2" />
           Разместить объявление
@@ -576,13 +575,13 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
               className={`p-4 transition-all duration-300 touch-manipulation ${
                 isDesktop
                   ? 'cursor-pointer hover:border-green-700/70 hover:shadow-xl hover:shadow-green-800/20 hover:scale-[1.02] active:scale-[0.98]'
-                  : 'opacity-60 cursor-not-allowed'
+                  : 'cursor-not-allowed border-muted-foreground/20'
               }`}
               onClick={() => {
                 if (!isDesktop) {
                   toast({
                     title: '💻 Доступно только на ПК',
-                    description: 'Просмотр сделок доступен только с компьютера',
+                    description: 'Просмотр и участие в сделках доступны только с компьютера',
                     variant: 'destructive'
                   });
                   return;
