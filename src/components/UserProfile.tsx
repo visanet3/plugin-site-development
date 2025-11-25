@@ -231,6 +231,10 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
   };
 
   const copyToClipboard = async (text: string) => {
+    console.log('🔵 Копирование текста:', text);
+    console.log('🔵 Тип данных:', typeof text);
+    console.log('🔵 Длина текста:', text?.length);
+    
     if (!text) {
       toast({
         title: 'Ошибка',
@@ -240,21 +244,25 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
       return;
     }
 
+    const cleanText = String(text).trim();
+    console.log('🔵 Очищенный текст:', cleanText);
+
     if (navigator.clipboard && window.isSecureContext) {
       try {
-        await navigator.clipboard.writeText(text);
+        await navigator.clipboard.writeText(cleanText);
+        console.log('✅ Скопировано через Clipboard API');
         toast({
           title: 'Успешно',
           description: 'Адрес скопирован в буфер обмена'
         });
         return;
       } catch (error) {
-        console.error('Clipboard API error:', error);
+        console.error('❌ Clipboard API error:', error);
       }
     }
 
     const textArea = document.createElement('textarea');
-    textArea.value = text;
+    textArea.value = cleanText;
     textArea.style.position = 'fixed';
     textArea.style.left = '-999999px';
     textArea.style.top = '-999999px';
@@ -270,11 +278,12 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
       const selection = window.getSelection();
       selection?.removeAllRanges();
       selection?.addRange(range);
-      textArea.setSelectionRange(0, text.length);
+      textArea.setSelectionRange(0, cleanText.length);
       
       const successful = document.execCommand('copy');
       
       if (successful) {
+        console.log('✅ Скопировано через execCommand');
         toast({
           title: 'Успешно',
           description: 'Адрес скопирован в буфер обмена'
@@ -283,7 +292,7 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
         throw new Error('execCommand failed');
       }
     } catch (err) {
-      console.error('Fallback copy error:', err);
+      console.error('❌ Fallback copy error:', err);
       toast({
         title: 'Не удалось скопировать',
         description: 'Скопируйте адрес вручную',
