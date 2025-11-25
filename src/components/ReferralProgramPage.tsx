@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import Icon from '@/components/ui/icon';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { User } from '@/types';
+import { ReferralStatsCard } from './referral/ReferralStatsCard';
+import { ReferralCodeSection } from './referral/ReferralCodeSection';
+import { ReferralsList } from './referral/ReferralsList';
 
 const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
 
@@ -282,300 +280,34 @@ const ReferralProgramPage = ({ user }: ReferralProgramPageProps) => {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'active':
-        return <Badge className="bg-green-500/20 text-green-400 hover:bg-green-500/30">Активный</Badge>;
-      case 'pending':
-        return <Badge className="bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30">Ожидание</Badge>;
-      case 'completed':
-        return <Badge className="bg-blue-500/20 text-blue-400 hover:bg-blue-500/30">Завершен</Badge>;
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Icon name="Loader2" size={48} className="animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-          <Icon name="Users" size={24} className="text-primary" />
-        </div>
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Реферальная система</h1>
-          <p className="text-sm text-muted-foreground">Зарабатывайте с каждым приглашенным пользователем</p>
-        </div>
+    <div className="space-y-6 animate-fade-in">
+      <div>
+        <h1 className="text-3xl font-bold mb-2">Реферальная программа</h1>
+        <p className="text-muted-foreground">
+          Приглашайте друзей и получайте 5% от их пополнений
+        </p>
       </div>
 
-      {canClaimBonus && (
-        <Card className="p-6 bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-500/30">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center shrink-0">
-              <Icon name="Gift" size={24} className="text-green-400" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold mb-1">🎁 Доступен приветственный бонус!</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                Вы зарегистрировались по реферальной ссылке. Получите 25 USDT в качестве приветственного бонуса!
-              </p>
-              <Button 
-                onClick={handleClaimBonus} 
-                disabled={claimingBonus}
-                className="bg-green-500 hover:bg-green-600"
-              >
-                {claimingBonus ? (
-                  <>
-                    <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
-                    Получение...
-                  </>
-                ) : (
-                  <>
-                    <Icon name="Gift" size={16} className="mr-2" />
-                    Получить 25 USDT
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        </Card>
-      )}
+      <ReferralStatsCard
+        stats={stats}
+        canClaimBonus={canClaimBonus}
+        onClaimBonus={handleClaimBonus}
+        onClaimReward={handleClaimReward}
+        claimingBonus={claimingBonus}
+        claiming={claiming}
+      />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-              <Icon name="Users" size={20} className="text-blue-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{stats.total_referrals}</p>
-              <p className="text-xs text-muted-foreground">Всего рефералов</p>
-            </div>
-          </div>
-        </Card>
+      <ReferralCodeSection
+        referralCode={referralCode}
+        onCopyCode={copyReferralCode}
+        onCopyLink={copyReferralLink}
+      />
 
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-              <Icon name="CheckCircle2" size={20} className="text-green-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{stats.active}</p>
-              <p className="text-xs text-muted-foreground">Активных</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center">
-              <Icon name="Clock" size={20} className="text-yellow-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{stats.pending}</p>
-              <p className="text-xs text-muted-foreground">Ожидают</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-              <Icon name="DollarSign" size={20} className="text-purple-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{Number(stats.total_earned).toFixed(2)}</p>
-              <p className="text-xs text-muted-foreground">Заработано USDT</p>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      <Card className="p-6">
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Icon name="Hash" size={20} className="text-primary" />
-            <h3 className="text-lg font-semibold">Ваш реферальный код</h3>
-          </div>
-          
-          <div className="flex gap-2">
-            <Input 
-              value={referralCode}
-              readOnly
-              className="font-mono text-2xl font-bold text-center tracking-wider"
-            />
-            <Button onClick={copyReferralCode} className="shrink-0">
-              <Icon name="Copy" size={16} className="mr-2" />
-              Копировать
-            </Button>
-          </div>
-
-          <div className="flex gap-2">
-            <Input 
-              value={`https://gitcrypto.pro/?ref=${referralCode}`}
-              readOnly
-              className="text-sm"
-            />
-            <Button onClick={copyReferralLink} variant="outline" className="shrink-0">
-              <Icon name="Link" size={16} className="mr-2" />
-              Копировать ссылку
-            </Button>
-          </div>
-
-          <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-            <p className="text-sm font-medium flex items-center gap-2">
-              <Icon name="Gift" size={16} className="text-primary" />
-              Как это работает:
-            </p>
-            <ul className="text-sm text-muted-foreground space-y-1 ml-6">
-              <li>• Пользователь вводит ваш реферальный код при регистрации или переходит по вашей ссылке</li>
-              <li>• Когда он пополняет баланс, вы получаете <span className="text-primary font-semibold">10% бонус</span> от суммы пополнения</li>
-              <li>• Бонус начисляется автоматически и сразу доступен на балансе</li>
-              <li>• Реферал становится "активным" после первого пополнения на 100+ USDT</li>
-              <li>• За каждые 10 завершенных рефералов — дополнительная награда 250 USDT</li>
-            </ul>
-          </div>
-        </div>
-      </Card>
-
-      {stats.completed >= 10 && (
-        <Card className="p-6 bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/30">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center shrink-0">
-              <Icon name="Trophy" size={24} className="text-purple-400" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold mb-1">🏆 Реферальная награда</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                У вас {stats.completed} завершенных рефералов! 
-                {stats.can_claim ? ' Доступна награда 250 USDT!' : ' Вы уже получили награды за ' + Math.floor(stats.total_claimed / 250) * 10 + ' рефералов.'}
-              </p>
-              {stats.can_claim && (
-                <Button 
-                  onClick={handleClaimReward} 
-                  disabled={claiming}
-                  className="bg-purple-500 hover:bg-purple-600"
-                >
-                  {claiming ? (
-                    <>
-                      <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
-                      Получение...
-                    </>
-                  ) : (
-                    <>
-                      <Icon name="Trophy" size={16} className="mr-2" />
-                      Получить 250 USDT
-                    </>
-                  )}
-                </Button>
-              )}
-            </div>
-          </div>
-        </Card>
-      )}
-
-      <Card className="p-6">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Icon name="Users" size={20} className="text-primary" />
-              <h3 className="text-lg font-semibold">Мои рефералы</h3>
-            </div>
-            <Badge variant="secondary">{referrals.length}</Badge>
-          </div>
-
-          {referrals.length === 0 ? (
-            <div className="text-center py-12">
-              <Icon name="UserPlus" size={48} className="mx-auto mb-4 text-muted-foreground" />
-              <p className="text-muted-foreground mb-2">У вас пока нет рефералов</p>
-              <p className="text-sm text-muted-foreground">Поделитесь своим реферальным кодом или ссылкой, чтобы начать зарабатывать</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {referrals.map((referral) => (
-                <Card key={referral.id} className="p-4 hover:bg-accent/50 transition-colors">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0">
-                        <Icon name="User" size={18} className="text-primary" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-medium truncate">{referral.referred_username}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(referral.created_at).toLocaleDateString('ru-RU', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-4 shrink-0">
-                      <div className="text-right hidden sm:block">
-                        <p className={`text-sm font-semibold ${referral.status === 'active' || referral.status === 'completed' ? 'text-green-400' : 'text-muted-foreground'}`}>
-                          {referral.status === 'active' || referral.status === 'completed' 
-                            ? `+${(referral.bonus_earned || 0).toFixed(2)} USDT`
-                            : '0.00 USDT'}
-                        </p>
-                        <p className="text-xs text-muted-foreground">Заработано</p>
-                      </div>
-                      {getStatusBadge(referral.status)}
-                    </div>
-                  </div>
-
-                  <div className="mt-3 pt-3 border-t border-border/50 sm:hidden">
-                    <p className="text-sm">
-                      <span className="text-muted-foreground">Заработано: </span>
-                      <span className={`font-semibold ${referral.status === 'active' || referral.status === 'completed' ? 'text-green-400' : 'text-muted-foreground'}`}>
-                        {referral.status === 'active' || referral.status === 'completed' 
-                          ? `+${(referral.bonus_earned || 0).toFixed(2)} USDT`
-                          : '0.00 USDT'}
-                      </span>
-                    </p>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
-      </Card>
-
-      <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
-            <Icon name="TrendingUp" size={24} className="text-primary" />
-          </div>
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold">Увеличивайте свой доход</h3>
-            <p className="text-sm text-muted-foreground">
-              Чем больше ваши рефералы пополняют баланс, тем больше вы зарабатываете. 
-              10% от каждого пополнения автоматически начисляется на ваш баланс.
-            </p>
-            <div className="flex flex-wrap gap-2 mt-3">
-              <Badge variant="outline" className="bg-background/50">
-                <Icon name="Zap" size={12} className="mr-1" />
-                Мгновенные выплаты
-              </Badge>
-              <Badge variant="outline" className="bg-background/50">
-                <Icon name="Infinity" size={12} className="mr-1" />
-                Без ограничений
-              </Badge>
-              <Badge variant="outline" className="bg-background/50">
-                <Icon name="Shield" size={12} className="mr-1" />
-                Честно и прозрачно
-              </Badge>
-            </div>
-          </div>
-        </div>
-      </Card>
+      <ReferralsList
+        referrals={referrals}
+        loading={loading}
+      />
     </div>
   );
 };
