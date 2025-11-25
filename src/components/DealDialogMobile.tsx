@@ -87,17 +87,7 @@ export const DealDialogMobile = ({
   }, [dealMessages]);
 
   const handleInputFocus = () => {
-    setTimeout(() => {
-      if (inputRef.current && contentRef.current) {
-        const inputRect = inputRef.current.getBoundingClientRect();
-        const containerRect = contentRef.current.getBoundingClientRect();
-        
-        if (inputRect.bottom > window.visualViewport!.height) {
-          const scrollAmount = inputRect.bottom - window.visualViewport!.height + 20;
-          contentRef.current.scrollTop += scrollAmount;
-        }
-      }
-    }, 350);
+    // Не делаем ничего - позволяем браузеру естественно показать поле ввода
   };
 
   const handleSend = () => {
@@ -140,7 +130,8 @@ export const DealDialogMobile = ({
           className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4"
           style={{ 
             WebkitOverflowScrolling: 'touch',
-            overscrollBehavior: 'contain'
+            overscrollBehavior: 'contain',
+            scrollPaddingBottom: '80px'
           }}
         >
           <div className="space-y-3 pb-4">
