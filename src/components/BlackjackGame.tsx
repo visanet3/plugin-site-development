@@ -222,6 +222,7 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
 
     let gameResult = '';
     let won = false;
+    let isDraw = false;
     let winMultiplier = 0;
 
     if (playerValue > 21) {
@@ -240,7 +241,7 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
       won = false;
     } else {
       gameResult = 'Ничья';
-      won = false;
+      isDraw = true;
       winMultiplier = 1;
     }
 
@@ -248,7 +249,7 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
 
     if (user) {
       try {
-        if (won || winMultiplier === 1) {
+        if (won || isDraw) {
           const winAmount = betAmount * winMultiplier;
           const completeResponse = await fetch(AUTH_URL, {
             method: 'POST',
@@ -271,6 +272,12 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
               toast({
                 title: '🎉 Победа!',
                 description: `+${winAmount.toFixed(2)} USDT`,
+                variant: 'default'
+              });
+            } else if (isDraw) {
+              toast({
+                title: '🤝 Ничья',
+                description: `Ставка возвращена: ${betAmount.toFixed(2)} USDT`,
                 variant: 'default'
               });
             }
