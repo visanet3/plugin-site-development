@@ -31,6 +31,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
   const [newMessage, setNewMessage] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [inputKey, setInputKey] = useState(0);
   
   const [statusFilter, setStatusFilter] = useState<'active' | 'my_deals' | 'completed'>('active');
   
@@ -50,6 +51,19 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
         fetchDealDetails(selectedDeal.id);
       }, 3000);
       return () => clearInterval(interval);
+    }
+  }, [selectedDeal]);
+
+  useEffect(() => {
+    if (selectedDeal) {
+      const handleResize = () => {
+        setInputKey(prev => prev + 1);
+      };
+      
+      window.visualViewport?.addEventListener('resize', handleResize);
+      return () => {
+        window.visualViewport?.removeEventListener('resize', handleResize);
+      };
     }
   }, [selectedDeal]);
 
@@ -814,6 +828,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
               {selectedDeal.status !== 'completed' && selectedDeal.status !== 'cancelled' && user && (Number(user.id) === Number(selectedDeal.seller_id) || Number(user.id) === Number(selectedDeal.buyer_id)) && (
                 <div className="flex items-center gap-1.5 flex-shrink-0" style={{ contain: 'layout' }}>
                   <Input
+                    key={inputKey}
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Сообщение..."
