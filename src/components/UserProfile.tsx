@@ -242,47 +242,45 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
 
     const cleanText = String(text).trim();
     
-    const textArea = document.createElement('textarea');
-    textArea.value = cleanText;
-    textArea.style.position = 'absolute';
-    textArea.style.left = '-9999px';
-    textArea.style.top = '0';
-    textArea.setAttribute('readonly', '');
-    document.body.appendChild(textArea);
+    const input = document.createElement('input');
+    input.value = cleanText;
+    input.style.position = 'fixed';
+    input.style.top = '0';
+    input.style.left = '0';
+    input.style.width = '2em';
+    input.style.height = '2em';
+    input.style.padding = '0';
+    input.style.border = 'none';
+    input.style.outline = 'none';
+    input.style.boxShadow = 'none';
+    input.style.background = 'transparent';
+    input.style.fontSize = '16px';
+    document.body.appendChild(input);
     
-    if (navigator.userAgent.match(/ipad|ipod|iphone/i)) {
-      const range = document.createRange();
-      range.selectNodeContents(textArea);
-      const selection = window.getSelection();
-      selection?.removeAllRanges();
-      selection?.addRange(range);
-      textArea.setSelectionRange(0, 999999);
-    } else {
-      textArea.select();
+    input.focus();
+    input.select();
+    input.setSelectionRange(0, cleanText.length);
+    
+    let success = false;
+    try {
+      success = document.execCommand('copy');
+    } catch (err) {
+      console.error('Copy failed:', err);
     }
     
-    try {
-      const successful = document.execCommand('copy');
-      document.body.removeChild(textArea);
-      
-      if (successful) {
-        toast({
-          title: '✅ Скопировано',
-          description: cleanText
-        });
-      } else {
-        toast({
-          title: 'Не удалось скопировать',
-          description: 'Скопируйте адрес вручную',
-          variant: 'destructive'
-        });
-      }
-    } catch (err) {
-      document.body.removeChild(textArea);
+    document.body.removeChild(input);
+    
+    if (success) {
       toast({
-        title: 'Ошибка копирования',
-        description: 'Скопируйте адрес вручную: ' + cleanText,
-        variant: 'destructive'
+        title: '✅ Адрес скопирован',
+        description: cleanText,
+        duration: 3000
+      });
+    } else {
+      toast({
+        title: '📋 Скопируйте вручную',
+        description: cleanText,
+        duration: 5000
       });
     }
   };
