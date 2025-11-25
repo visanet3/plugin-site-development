@@ -36,27 +36,23 @@ export const DealDialogMobile = ({
   handleSellerSent,
   handleBuyerConfirm
 }: DealDialogMobileProps) => {
-  const scrollPosRef = useRef(0);
-  
   useEffect(() => {
-    scrollPosRef.current = window.scrollY;
+    const originalOverflow = document.body.style.overflow;
+    const originalPosition = document.body.style.position;
     
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollPosRef.current}px`;
-    document.body.style.width = '100%';
     document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
     
     return () => {
-      document.body.style.position = '';
-      document.body.style.top = '';
+      document.body.style.overflow = originalOverflow;
+      document.body.style.position = originalPosition;
       document.body.style.width = '';
-      document.body.style.overflow = '';
-      window.scrollTo(0, scrollPosRef.current);
     };
   }, []);
   
   return (
-    <div className="fixed inset-0 z-50 bg-background flex flex-col" style={{ height: '100dvh', maxHeight: '100dvh' }}>
+    <div className="fixed inset-0 z-50 bg-background flex flex-col" style={{ height: '100vh', width: '100vw', position: 'fixed', top: 0, left: 0 }}>
       <div className="flex items-center justify-between p-3 border-b border-border flex-shrink-0">
         <div className="flex-1 pr-10 min-w-0">
           <h2 className="text-sm font-semibold leading-tight truncate">{deal.title}</h2>
@@ -168,15 +164,17 @@ export const DealDialogMobile = ({
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Сообщение..."
-            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-            className="flex-1 h-9 px-3 text-sm rounded-md border border-input bg-muted/50 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            inputMode="text"
-            autoComplete="off"
-            onFocus={(e) => {
-              setTimeout(() => {
-                e.target.scrollIntoView({ block: 'center', behavior: 'smooth' });
-              }, 300);
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                sendMessage();
+              }
             }}
+            className="flex-1 h-9 px-3 text-sm rounded-md border border-input bg-muted/50 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck="false"
           />
           <Button 
             onClick={sendMessage} 
