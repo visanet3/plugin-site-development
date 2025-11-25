@@ -28,6 +28,7 @@ interface Chat {
   lastMessage: string;
   lastMessageTime: string;
   unreadCount: number;
+  lastSeenAt?: string;
 }
 
 const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: MessagesPanelProps) => {
@@ -49,6 +50,7 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
   const [isSending, setIsSending] = useState(false);
   const [isDesktop, setIsDesktop] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 1024);
   const [selectedChatUserRole, setSelectedChatUserRole] = useState<string>('');
+  const [selectedChatUserLastSeen, setSelectedChatUserLastSeen] = useState<string>('');
 
   useEffect(() => {
     const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
@@ -104,7 +106,11 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
         const role = selectedChatUser.from_user_id === selectedChat 
           ? (selectedChatUser as any).from_role 
           : (selectedChatUser as any).to_role;
+        const lastSeen = selectedChatUser.from_user_id === selectedChat 
+          ? (selectedChatUser as any).from_last_seen 
+          : (selectedChatUser as any).to_last_seen;
         setSelectedChatUserRole(role || '');
+        setSelectedChatUserLastSeen(lastSeen || '');
       }
       
       chatMessages.forEach(msg => {
@@ -147,6 +153,7 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
       const otherUsername = msg.from_user_id === userId ? msg.to_username : msg.from_username;
       const otherAvatar = msg.from_user_id === userId ? undefined : msg.from_avatar;
       const otherRole = msg.from_user_id === userId ? (msg as any).to_role : (msg as any).from_role;
+      const otherLastSeen = msg.from_user_id === userId ? (msg as any).to_last_seen : (msg as any).from_last_seen;
 
       if (!chatsMap.has(otherUserId)) {
         chatsMap.set(otherUserId, {
@@ -156,7 +163,8 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
           role: otherRole,
           lastMessage: msg.content,
           lastMessageTime: msg.created_at,
-          unreadCount: 0
+          unreadCount: 0,
+          lastSeenAt: otherLastSeen
         });
       }
 
@@ -364,6 +372,34 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
     window.location.href = `/profile/${userId}`;
   };
 
+  const isUserOnline = (lastSeenAt: string | undefined): boolean => {
+    if (!lastSeenAt) return false;
+    const lastSeen = new Date(lastSeenAt);
+    const now = new Date();
+    const diffMinutes = (now.getTime() - lastSeen.getTime()) / (1000 * 60);
+    return diffMinutes < 5;
+  };
+
+  const getLastSeenText = (lastSeenAt: string | undefined): string => {
+    if (!lastSeenAt) return 'давно не был(а)';
+    const lastSeen = new Date(lastSeenAt);
+    const now = new Date();
+    const diffMinutes = Math.floor((now.getTime() - lastSeen.getTime()) / (1000 * 60));
+    
+    if (diffMinutes < 1) return 'только что';
+    if (diffMinutes < 5) return 'онлайн';
+    if (diffMinutes < 60) return `${diffMinutes} мин. назад`;
+    
+    const diffHours = Math.floor(diffMinutes / 60);
+    if (diffHours < 24) return `${diffHours} ч. назад`;
+    
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays === 1) return 'вчера';
+    if (diffDays < 7) return `${diffDays} дн. назад`;
+    
+    return lastSeen.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+  };
+
   const selectedChatInfo = chats.find(c => c.userId === selectedChat);
 
   return (
@@ -470,12 +506,17 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
                     }`}
                     style={{ touchAction: 'manipulation' }}
                   >
-                    <Avatar className="w-12 h-12 flex-shrink-0">
-                      <AvatarImage src={chat.avatar} />
-                      <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(chat.username)} text-white font-semibold`}>
-                        {chat.username[0]?.toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
+                    <div className="relative">
+                      <Avatar className="w-12 h-12 flex-shrink-0">
+                        <AvatarImage src={chat.avatar} />
+                        <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(chat.username)} text-white font-semibold`}>
+                          {chat.username[0]?.toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      {isUserOnline(chat.lastSeenAt) && (
+                        <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-background rounded-full" />
+                      )}
+                    </div>
                     <div className="flex-1 min-w-0 text-left">
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-1.5 min-w-0">
@@ -528,15 +569,20 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
                   >
                     <Icon name="ArrowLeft" size={20} />
                   </Button>
-                  <Avatar 
-                    className="w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 ring-2 ring-border/30 cursor-pointer hover:ring-primary/50 transition-all"
-                    onClick={() => selectedChat && handleOpenProfile(selectedChat)}
-                  >
-                    <AvatarImage src={selectedChatInfo?.avatar} />
-                    <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(selectedChatInfo?.username || '')} text-white font-semibold`}>
-                      {selectedChatInfo?.username[0]?.toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="relative">
+                    <Avatar 
+                      className="w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 ring-2 ring-border/30 cursor-pointer hover:ring-primary/50 transition-all"
+                      onClick={() => selectedChat && handleOpenProfile(selectedChat)}
+                    >
+                      <AvatarImage src={selectedChatInfo?.avatar} />
+                      <AvatarFallback className={`bg-gradient-to-br ${getAvatarGradient(selectedChatInfo?.username || '')} text-white font-semibold`}>
+                        {selectedChatInfo?.username[0]?.toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    {isUserOnline(selectedChatUserLastSeen) && (
+                      <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-background rounded-full" />
+                    )}
+                  </div>
                   <div 
                     className="flex-1 min-w-0 overflow-hidden py-1 cursor-pointer hover:opacity-80 transition-opacity"
                     onClick={() => selectedChat && handleOpenProfile(selectedChat)}
@@ -545,7 +591,9 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId }: Messa
                       <p className="font-semibold truncate text-sm sm:text-base">{selectedChatInfo?.username}</p>
                       {getRoleBadge(selectedChatUserRole)}
                     </div>
-                    <p className="text-xs text-muted-foreground/70 truncate">ID: {selectedChat}</p>
+                    <p className="text-xs text-muted-foreground/70 truncate">
+                      {getLastSeenText(selectedChatUserLastSeen)}
+                    </p>
                   </div>
                 </div>
 
