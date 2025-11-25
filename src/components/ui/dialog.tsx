@@ -9,40 +9,27 @@ const Dialog = (props: React.ComponentProps<typeof DialogPrimitive.Root>) => {
 
   React.useEffect(() => {
     if (open) {
-      const scrollY = window.scrollY;
       const htmlElement = document.documentElement;
       const bodyElement = document.body;
       
-      // Блокируем скролл на html и body
       htmlElement.style.overflow = 'hidden';
-      htmlElement.style.height = '100%';
       bodyElement.style.overflow = 'hidden';
-      bodyElement.style.height = '100%';
-      bodyElement.style.touchAction = 'none';
       
-      // Блокируем все touchmove события вне диалога
       const preventTouch = (e: TouchEvent) => {
         const target = e.target as HTMLElement;
         const isDialogContent = target.closest('[data-radix-dialog-content]');
-        const isDialogOverlay = target.closest('[data-radix-dialog-overlay]');
         
-        // Разрешаем скролл только внутри контента диалога
-        if (!isDialogContent || isDialogOverlay) {
+        if (!isDialogContent) {
           e.preventDefault();
-          e.stopPropagation();
         }
       };
       
-      document.addEventListener('touchmove', preventTouch, { passive: false, capture: true });
+      document.addEventListener('touchmove', preventTouch, { passive: false });
       
       return () => {
         htmlElement.style.overflow = '';
-        htmlElement.style.height = '';
         bodyElement.style.overflow = '';
-        bodyElement.style.height = '';
-        bodyElement.style.touchAction = '';
-        
-        document.removeEventListener('touchmove', preventTouch, true);
+        document.removeEventListener('touchmove', preventTouch);
       };
     }
   }, [open]);
