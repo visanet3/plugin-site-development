@@ -169,12 +169,12 @@ export const UserProfileHeader = ({
                 </div>
               </div>
 
-              <div className="space-y-4 max-w-2xl">
+              <div className="space-y-4 max-w-2xl w-full">
                 <div>
-                  <h3 className="text-3xl sm:text-4xl md:text-5xl font-black bg-gradient-to-r from-foreground via-primary to-purple-500 bg-clip-text text-transparent mb-2">
+                  <h3 className="text-3xl sm:text-4xl md:text-5xl font-black bg-gradient-to-r from-foreground via-primary to-purple-500 bg-clip-text text-transparent mb-3 break-words">
                     {user.username}
                   </h3>
-                  <p className="text-sm sm:text-base text-muted-foreground">{user.email}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground/60 font-medium">Профиль участника сообщества</p>
                 </div>
 
                 <div className="flex flex-wrap justify-center gap-2.5">
