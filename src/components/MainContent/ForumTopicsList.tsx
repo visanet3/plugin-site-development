@@ -135,12 +135,20 @@ export const ForumTopicsList = ({
   const sortForumTopics = (topics: ForumTopic[]) => {
     const sorted = [...topics];
     if (forumSortBy === 'newest') {
-      return sorted.sort((a, b) => {
+      const result = sorted.sort((a, b) => {
         if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1;
         const aTime = a.last_comment_at || a.created_at;
         const bTime = b.last_comment_at || b.created_at;
         return new Date(bTime).getTime() - new Date(aTime).getTime();
       });
+      console.log('Sorted topics (newest):', result.slice(0, 3).map(t => ({
+        id: t.id,
+        title: t.title.substring(0, 30),
+        created_at: t.created_at,
+        last_comment_at: t.last_comment_at,
+        used_time: t.last_comment_at || t.created_at
+      })));
+      return result;
     }
     if (forumSortBy === 'hot') {
       return sorted.sort((a, b) => {
@@ -502,7 +510,17 @@ export const ForumTopicsList = ({
                       )}
                     </button>
                     <span className="text-zinc-700">•</span>
-                    <span title={getFullDateTime(topic.created_at)}>{getTimeAgo(topic.created_at)}</span>
+                    {topic.last_comment_at ? (
+                      <>
+                        <span className="flex items-center gap-1 text-emerald-500/80">
+                          <Icon name="MessageCircle" size={10} />
+                          обновлена
+                        </span>
+                        <span title={getFullDateTime(topic.last_comment_at)}>{getTimeAgo(topic.last_comment_at)}</span>
+                      </>
+                    ) : (
+                      <span title={getFullDateTime(topic.created_at)}>{getTimeAgo(topic.created_at)}</span>
+                    )}
                   </div>
                 </div>
               </div>

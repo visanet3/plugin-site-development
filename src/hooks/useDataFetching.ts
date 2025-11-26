@@ -42,6 +42,12 @@ export const useDataFetching = ({
       if (pluginId) params.append('plugin_id', pluginId.toString());
       const response = await fetch(`${FORUM_URL}?${params}`);
       const data = await response.json();
+      console.log('Forum topics loaded:', data.topics?.slice(0, 3).map((t: any) => ({ 
+        id: t.id, 
+        title: t.title, 
+        created_at: t.created_at, 
+        last_comment_at: t.last_comment_at 
+      })));
       setForumTopics(data.topics || []);
     } catch (error) {
       console.error('Ошибка загрузки тем:', error);
