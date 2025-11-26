@@ -275,9 +275,9 @@ const Index = () => {
 
       {!state.user && (
         <>
-          <div className={`fixed inset-0 backdrop-blur-[2px] bg-background/9 z-40 pointer-events-none ${!state.isInitialLoad ? 'animate-fade-in' : ''}`} />
+          <div className="fixed inset-0 backdrop-blur-[2px] bg-background/9 z-40 pointer-events-none" />
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className={`bg-background/95 backdrop-blur-xl border-2 border-primary/50 rounded-2xl shadow-2xl max-w-md w-full ${!state.isInitialLoad ? 'animate-auth-appear' : ''}`}>
+            <div className="bg-background/95 backdrop-blur-xl border-2 border-primary/50 rounded-2xl shadow-2xl max-w-md w-full">
               <Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
                 <Dialogs
                   authDialogOpen={true}
