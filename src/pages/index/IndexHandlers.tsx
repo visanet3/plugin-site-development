@@ -175,7 +175,7 @@ export const useIndexHandlers = ({
         description: 'Платформу могут использовать только авторизованные пользователи. Пожалуйста, войдите или зарегистрируйтесь для продолжения работы.',
         variant: 'destructive',
         duration: 6000,
-        className: 'bg-red-500/10 border-red-500/30 z-[60]'
+        className: 'bg-red-500/10 border-red-500/30'
       });
     }
   };
