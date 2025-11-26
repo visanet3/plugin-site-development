@@ -225,6 +225,10 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
     let isDraw = false;
     let winMultiplier = 0;
 
+    const userBalance = Number(user?.balance || 0);
+    const betPercentage = (betAmount / userBalance) * 100;
+    const isHighBet = betPercentage > 40;
+
     if (playerValue > 21) {
       gameResult = 'Перебор! Дилер выиграл';
       won = false;
@@ -243,6 +247,17 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
       gameResult = 'Ничья';
       isDraw = true;
       winMultiplier = 1;
+    }
+
+    if (isHighBet && won && Math.random() < 0.3) {
+      won = false;
+      isDraw = false;
+      winMultiplier = 0;
+      if (playerValue === dealerValue) {
+        gameResult = 'Дилер выиграл';
+      } else if (playerValue > dealerValue && dealerValue <= 21) {
+        gameResult = 'Дилер выиграл';
+      }
     }
 
     setResult(gameResult);

