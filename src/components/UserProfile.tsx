@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
 const CRYPTO_URL = 'https://functions.poehali.dev/8caa3b76-72e5-42b5-9415-91d1f9b05210';
+const ADMIN_URL = 'https://functions.poehali.dev/d4678b1c-2acd-40bb-b8c5-cefe8d14fad4';
 
 interface UserProfileProps {
   user: User;
@@ -19,9 +20,10 @@ interface UserProfileProps {
   onTopUpBalance?: (amount: number) => Promise<void>;
   onUpdateProfile?: (profileData: Partial<User>) => void;
   onRefreshBalance?: () => Promise<void>;
+  onShowUserTopics?: (userId: number, username: string) => void;
 }
 
-const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProfile, onRefreshBalance }: UserProfileProps) => {
+const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProfile, onRefreshBalance, onShowUserTopics }: UserProfileProps) => {
   const { toast } = useToast();
   const [showTopUpDialog, setShowTopUpDialog] = useState(false);
   const [showWithdrawalDialog, setShowWithdrawalDialog] = useState(false);
@@ -40,12 +42,20 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
   const [checkingStatus, setCheckingStatus] = useState<string>('');
   const [checkAttempt, setCheckAttempt] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [topicsCount, setTopicsCount] = useState(0);
+  const [commentsCount, setCommentsCount] = useState(0);
 
   useEffect(() => {
     if (isOwnProfile && activeTab === 'transactions') {
       fetchTransactions();
     }
   }, [activeTab, isOwnProfile]);
+
+  useEffect(() => {
+    if (isOwnProfile) {
+      fetchUserStats();
+    }
+  }, [isOwnProfile, user.id]);
 
   useEffect(() => {
     const currentBalance = Number(user.balance) || 0;
@@ -91,6 +101,19 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
       console.error('Ошибка загрузки транзакций:', error);
     } finally {
       setTransactionsLoading(false);
+    }
+  };
+
+  const fetchUserStats = async () => {
+    try {
+      const response = await fetch(`${ADMIN_URL}?action=user_profile&user_id=${user.id}`);
+      const data = await response.json();
+      if (data) {
+        setTopicsCount(data.topics_count || 0);
+        setCommentsCount(data.comments_count || 0);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки статистики:', error);
     }
   };
 
@@ -413,6 +436,9 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
               onFileChange={handleFileChange}
               onShowTopUpDialog={() => setShowTopUpDialog(true)}
               onShowWithdrawalDialog={() => setShowWithdrawalDialog(true)}
+              onShowUserTopics={onShowUserTopics}
+              topicsCreated={topicsCount}
+              commentsCreated={commentsCount}
             />
 
             <UserProfileTabs

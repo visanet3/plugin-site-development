@@ -216,6 +216,14 @@ const Index = () => {
                 onTopUpBalance={handlers.handleTopUpBalance}
                 onUpdateProfile={handlers.handleUpdateProfile}
                 onRefreshBalance={handlers.refreshUserBalance}
+                onShowUserTopics={(userId, username) => {
+                  state.setActiveView('forum');
+                  state.setActiveCategory('user-topics');
+                  localStorage.setItem('userTopicsFilter', JSON.stringify({ userId, username }));
+                  state.setShowUserProfile(false);
+                  state.setSelectedTopic(null);
+                  localStorage.removeItem('selectedTopicId');
+                }}
               />
             ) : (
               <UserProfileDialog
@@ -229,6 +237,8 @@ const Index = () => {
                   state.setActiveCategory('user-topics');
                   localStorage.setItem('userTopicsFilter', JSON.stringify({ userId, username }));
                   state.setShowUserProfile(false);
+                  state.setSelectedTopic(null);
+                  localStorage.removeItem('selectedTopicId');
                 }}
               />
             )}

@@ -18,6 +18,9 @@ interface UserProfileHeaderProps {
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onShowTopUpDialog: () => void;
   onShowWithdrawalDialog: () => void;
+  onShowUserTopics?: () => void;
+  topicsCreated?: number;
+  commentsCreated?: number;
 }
 
 export const UserProfileHeader = ({
@@ -31,7 +34,10 @@ export const UserProfileHeader = ({
   onAvatarSelect,
   onFileChange,
   onShowTopUpDialog,
-  onShowWithdrawalDialog
+  onShowWithdrawalDialog,
+  onShowUserTopics,
+  topicsCreated,
+  commentsCreated
 }: UserProfileHeaderProps) => {
   const getVipDaysLeft = () => {
     if (!user.vip_until) return 0;
@@ -346,6 +352,22 @@ export const UserProfileHeader = ({
                 </div>
               </div>
             </div>
+          </Card>
+        </div>
+      )}
+
+      {isOwnProfile && onShowUserTopics && topicsCreated !== undefined && commentsCreated !== undefined && (
+        <div className="grid grid-cols-2 gap-3">
+          <Card 
+            className="p-4 sm:p-5 bg-background/60 backdrop-blur-sm border-border/50 hover:border-primary/50 transition-all cursor-pointer hover:scale-105 active:scale-95"
+            onClick={topicsCreated > 0 ? onShowUserTopics : undefined}
+          >
+            <div className="text-3xl sm:text-4xl font-black text-primary mb-2">{topicsCreated}</div>
+            <div className="text-xs sm:text-sm text-muted-foreground font-medium">Тем создано</div>
+          </Card>
+          <Card className="p-4 sm:p-5 bg-background/60 backdrop-blur-sm border-border/50">
+            <div className="text-3xl sm:text-4xl font-black text-primary mb-2">{commentsCreated}</div>
+            <div className="text-xs sm:text-sm text-muted-foreground font-medium">Комментариев</div>
           </Card>
         </div>
       )}
