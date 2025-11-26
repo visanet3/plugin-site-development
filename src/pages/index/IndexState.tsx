@@ -18,9 +18,11 @@ export const useIndexState = () => {
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(() => {
+    const isMobile = window.innerWidth < 1024;
+    if (isMobile) return false;
     const saved = localStorage.getItem('sidebarOpen');
     if (saved !== null) return saved === 'true';
-    return window.innerWidth >= 1024;
+    return true;
   });
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
