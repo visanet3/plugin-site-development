@@ -319,7 +319,7 @@ const Dialogs = ({
             <form onSubmit={(e) => {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
-              const email = formData.get('email') as string;
+              const email = (formData.get('email') as string || '').trim();
               
               if (authMode === 'register' && email) {
                 const username = (formData.get('username') as string || '').trim();
@@ -335,6 +335,13 @@ const Dialogs = ({
                   return;
                 }
                 
+                setPendingRegistration({
+                  username,
+                  email,
+                  password,
+                  referral_code: referral_code || undefined
+                });
+                
                 const EMAIL_VERIFY_URL = 'https://functions.poehali.dev/d1025e8d-68f1-4eec-b8e9-30ec5c80d63f';
                 fetch(EMAIL_VERIFY_URL, {
                   method: 'POST',
@@ -342,12 +349,6 @@ const Dialogs = ({
                   body: JSON.stringify({ action: 'send_code', email })
                 }).then(res => res.json()).then(data => {
                   if (data.success) {
-                    setPendingRegistration({
-                      username,
-                      email,
-                      password,
-                      referral_code: referral_code || undefined
-                    });
                     setShowEmailVerification(true);
                   } else {
                     toast({
@@ -355,6 +356,7 @@ const Dialogs = ({
                       description: data.error || 'Не удалось отправить код',
                       variant: 'destructive'
                     });
+                    setPendingRegistration(null);
                   }
                 }).catch(() => {
                   toast({
@@ -362,6 +364,7 @@ const Dialogs = ({
                     description: 'Ошибка подключения к серверу',
                     variant: 'destructive'
                   });
+                  setPendingRegistration(null);
                 });
               } else {
                 onAuthSubmit(e);
