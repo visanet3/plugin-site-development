@@ -161,10 +161,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         # Регистрация
         if action == 'register':
-            username = body_data.get('username', '').strip()
-            email = body_data.get('email', '').strip()
+            username_raw = body_data.get('username')
+            email_raw = body_data.get('email')
             password = body_data.get('password', '')
-            referral_code = body_data.get('referral_code', '').strip().upper()
+            referral_code_raw = body_data.get('referral_code')
+            
+            username = str(username_raw).strip() if username_raw else ''
+            email = str(email_raw).strip() if email_raw else ''
+            referral_code = str(referral_code_raw).strip().upper() if referral_code_raw else ''
             
             if not username or not email or not password:
                 return {
