@@ -289,91 +289,98 @@ const MinesGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: MinesGamePr
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 animate-fade-in max-w-2xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold mb-2">💎 Mines</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl md:text-3xl font-bold mb-2">💎 Mines</h1>
+        <p className="text-sm text-muted-foreground">
           Найдите алмазы и избегайте мин. Чем больше найдете, тем выше множитель!
         </p>
       </div>
 
-      <Card className="p-8 bg-gradient-to-b from-gray-950/40 via-gray-900/30 to-gray-950/40 border-gray-800/30 relative overflow-hidden">
+      <Card className="p-4 md:p-6 bg-gradient-to-b from-gray-950/40 via-gray-900/30 to-gray-950/40 border-gray-800/30 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-800/5 via-transparent to-transparent"></div>
         
-        <div className="relative space-y-6">
+        <div className="relative space-y-4">
           {gameState === 'betting' && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-800/20 border border-gray-700/30 rounded-lg">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Ставка (USDT)</label>
-                  <Input
-                    type="number"
-                    value={bet}
-                    onChange={(e) => setBet(e.target.value)}
-                    min="0.1"
-                    step="0.1"
-                    placeholder="Введите ставку"
-                    disabled={!user}
-                  />
+            <div className="space-y-3">
+              <div className="p-3 md:p-4 bg-gray-800/20 border border-gray-700/30 rounded-lg space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Баланс:</span>
+                  <span className="font-bold">{user ? `${Number(user.balance || 0).toFixed(2)} USDT` : '0.00 USDT'}</span>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Количество мин (1-20)</label>
-                  <Input
-                    type="number"
-                    value={minesCount}
-                    onChange={(e) => setMinesCount(e.target.value)}
-                    min="1"
-                    max="20"
-                    step="1"
-                    placeholder="Например: 3"
-                    disabled={!user}
-                  />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium mb-1.5">Ставка</label>
+                    <div className="relative">
+                      <Input
+                        type="number"
+                        value={bet}
+                        onChange={(e) => setBet(e.target.value)}
+                        min="0.1"
+                        step="0.1"
+                        placeholder="10"
+                        disabled={!user}
+                        className="pr-12 h-10"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">USDT</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1.5">Мины (1-20)</label>
+                    <Input
+                      type="number"
+                      value={minesCount}
+                      onChange={(e) => setMinesCount(e.target.value)}
+                      min="1"
+                      max="20"
+                      step="1"
+                      placeholder="3"
+                      disabled={!user}
+                      className="h-10"
+                    />
+                  </div>
                 </div>
-              </div>
-              
-              <div className="text-right text-sm text-muted-foreground">
-                Ваш баланс: {user ? `${Number(user.balance || 0).toFixed(2)} USDT` : '0.00 USDT'}
               </div>
 
               <Button
                 onClick={startGame}
-                className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900"
+                className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 h-11"
                 disabled={!user || isProcessing}
               >
                 <Icon name="Play" size={18} className="mr-2" />
-                {user ? 'Начать игру' : 'Войдите для игры'}
+                {user ? 'Начать' : 'Войдите для игры'}
               </Button>
             </div>
           )}
 
           {(gameState === 'playing' || gameState === 'finished') && (
             <>
-              <div className="flex justify-between items-center p-4 bg-purple-800/20 border border-purple-700/30 rounded-lg">
-                <div>
-                  <div className="text-sm text-muted-foreground">Найдено алмазов</div>
-                  <div className="text-2xl font-bold text-cyan-400">{gemsFound}</div>
+              <div className="grid grid-cols-3 gap-2 p-3 bg-purple-800/20 border border-purple-700/30 rounded-lg">
+                <div className="text-center">
+                  <div className="text-xs text-muted-foreground mb-1">Алмазы</div>
+                  <div className="text-xl md:text-2xl font-bold text-cyan-400">{gemsFound}</div>
                 </div>
-                <div className="text-right">
-                  <div className="text-sm text-muted-foreground">Множитель</div>
-                  <div className="text-2xl font-bold text-green-400">{currentMultiplier.toFixed(2)}x</div>
+                <div className="text-center">
+                  <div className="text-xs text-muted-foreground mb-1">Множитель</div>
+                  <div className="text-xl md:text-2xl font-bold text-green-400">{currentMultiplier.toFixed(2)}x</div>
                 </div>
-                <div className="text-right">
-                  <div className="text-sm text-muted-foreground">Возможный выигрыш</div>
-                  <div className="text-2xl font-bold text-yellow-400">
-                    {(parseFloat(bet) * currentMultiplier).toFixed(2)} USDT
+                <div className="text-center">
+                  <div className="text-xs text-muted-foreground mb-1">Выигрыш</div>
+                  <div className="text-xl md:text-2xl font-bold text-yellow-400">
+                    {(parseFloat(bet) * currentMultiplier).toFixed(2)}
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-5 gap-2">
+              <div className="grid grid-cols-5 gap-1.5 md:gap-2">
                 {grid.map((cell, index) => (
                   <button
                     key={index}
                     onClick={() => revealCell(index)}
                     disabled={gameState !== 'playing' || cell !== 'hidden' || isProcessing}
-                    className={`aspect-square rounded-lg flex items-center justify-center text-3xl font-bold transition-all duration-300 ${
+                    className={`aspect-square rounded-lg flex items-center justify-center text-2xl md:text-3xl font-bold transition-all duration-300 ${
                       cell === 'hidden'
-                        ? 'bg-gray-700 hover:bg-gray-600 hover:scale-105 cursor-pointer shadow-lg'
+                        ? 'bg-gray-700 hover:bg-gray-600 hover:scale-105 cursor-pointer shadow-lg active:scale-95'
                         : cell === 'gem'
                         ? 'bg-gradient-to-br from-cyan-500 to-blue-600 scale-105 shadow-xl'
                         : 'bg-gradient-to-br from-red-600 to-red-800 scale-105 shadow-xl'
@@ -386,18 +393,18 @@ const MinesGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: MinesGamePr
               </div>
 
               {result && (
-                <Card className={`p-4 text-center ${
+                <Card className={`p-3 text-center ${
                   result.includes('Выигрыш') ? 'bg-green-800/20 border-green-800/30' : 
                   'bg-red-800/20 border-red-800/30'
                 }`}>
-                  <p className="text-lg font-semibold">{result}</p>
+                  <p className="text-sm md:text-base font-semibold">{result}</p>
                 </Card>
               )}
 
               {gameState === 'playing' && gemsFound > 0 && (
                 <Button
                   onClick={cashout}
-                  className="w-full bg-gradient-to-r from-green-600 to-green-800 hover:from-green-700 hover:to-green-900"
+                  className="w-full bg-gradient-to-r from-green-600 to-green-800 hover:from-green-700 hover:to-green-900 h-11 font-bold"
                   disabled={isProcessing}
                 >
                   <Icon name="DollarSign" size={18} className="mr-2" />
@@ -408,7 +415,7 @@ const MinesGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: MinesGamePr
               {gameState === 'finished' && (
                 <Button
                   onClick={resetGame}
-                  className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900"
+                  className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 h-11"
                 >
                   <Icon name="RotateCcw" size={18} className="mr-2" />
                   Новая игра
@@ -419,18 +426,16 @@ const MinesGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: MinesGamePr
         </div>
       </Card>
 
-      <Card className="p-6 bg-card/50">
-        <h3 className="font-semibold mb-4 flex items-center gap-2">
-          <Icon name="Info" size={20} className="text-purple-400" />
+      <Card className="p-4 bg-card/50">
+        <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm">
+          <Icon name="Info" size={18} className="text-purple-400" />
           Правила игры
         </h3>
-        <div className="space-y-3 text-sm text-muted-foreground">
-          <p>• <strong>Цель:</strong> открывать ячейки с алмазами, избегая мин</p>
-          <p>• <strong>Множитель:</strong> растет с каждым найденным алмазом</p>
-          <p>• <strong>Мины:</strong> выберите от 1 до 20 мин (больше мин = выше множитель)</p>
-          <p>• <strong>Вывод:</strong> можете забрать выигрыш в любой момент</p>
-          <p>• <strong>Проигрыш:</strong> если попадете на мину, теряете всю ставку</p>
-          <p>• <strong>Минимальная ставка:</strong> 0.1 USDT</p>
+        <div className="space-y-2 text-xs md:text-sm text-muted-foreground">
+          <p>• <strong>Цель:</strong> открывать ячейки с алмазами</p>
+          <p>• <strong>Множитель:</strong> растет с каждым алмазом</p>
+          <p>• <strong>Мины:</strong> 1-20 (больше мин = выше множитель)</p>
+          <p>• <strong>Минимум:</strong> 0.1 USDT</p>
         </div>
       </Card>
     </div>

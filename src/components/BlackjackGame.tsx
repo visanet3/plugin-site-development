@@ -273,7 +273,7 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
       try {
         if (won || isDraw) {
           const winAmount = betAmount * winMultiplier;
-          const completeResponse = await fetch(AUTH_URL, {
+          await fetch(AUTH_URL, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -281,33 +281,20 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
             },
             body: JSON.stringify({
               action: 'complete_game',
-              won: won,
-              is_draw: isDraw,
+              won: true,
               amount: winAmount,
               bet_amount: betAmount,
               game_type: 'Blackjack'
             })
           });
 
-          const completeData = await completeResponse.json();
-          if (completeData.success) {
-            onRefreshUserBalance?.();
-            if (won) {
-              toast({
-                title: '🎉 Победа!',
-                description: `+${winAmount.toFixed(2)} USDT`,
-                variant: 'default'
-              });
-            } else if (isDraw) {
-              toast({
-                title: '🤝 Ничья',
-                description: `Ставка возвращена: ${betAmount.toFixed(2)} USDT`,
-                variant: 'default'
-              });
-            }
-          }
+          toast({
+            title: won ? '🎉 Победа!' : 'Ничья',
+            description: `${won ? '+' : ''}${winAmount.toFixed(2)} USDT`,
+            variant: 'default'
+          });
         } else {
-          const lossResponse = await fetch(AUTH_URL, {
+          await fetch(AUTH_URL, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -316,14 +303,12 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
             body: JSON.stringify({
               action: 'complete_game',
               won: false,
-              is_draw: false,
               amount: 0,
               bet_amount: betAmount,
               game_type: 'Blackjack'
             })
           });
-          
-          onRefreshUserBalance?.();
+
           toast({
             title: '😔 Проигрыш',
             description: `-${betAmount.toFixed(2)} USDT`,
@@ -332,20 +317,16 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
         }
 
         await clearGameSession();
+        onRefreshUserBalance?.();
       } catch (error) {
         console.error('Ошибка при завершении игры:', error);
-        toast({
-          title: 'Ошибка',
-          description: 'Ошибка соединения с сервером',
-          variant: 'destructive'
-        });
       }
     }
 
     setIsProcessing(false);
   };
 
-  const saveGameSession = async (state: any) => {
+  const saveGameSession = async (data: any) => {
     if (!user) return;
     try {
       await fetch(AUTH_URL, {
@@ -357,50 +338,11 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
         body: JSON.stringify({
           action: 'save_game_session',
           game_type: 'blackjack',
-          bet_amount: state.betAmount,
-          game_state: state
+          game_data: data
         })
       });
     } catch (error) {
       console.error('Ошибка сохранения сессии:', error);
-    }
-  };
-
-  const loadGameSession = async () => {
-    if (!user || sessionLoaded) return;
-    try {
-      const response = await fetch(AUTH_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': user.id.toString()
-        },
-        body: JSON.stringify({
-          action: 'get_game_session',
-          game_type: 'blackjack'
-        })
-      });
-
-      const data = await response.json();
-      if (data.success && data.session) {
-        const state = data.session.game_state;
-        setDeck(state.deck);
-        setPlayerHand(state.playerHand);
-        setDealerHand(state.dealerHand);
-        setBet(state.betAmount.toString());
-        setGameState('playing');
-        setResult('');
-        
-        toast({
-          title: 'Игра восстановлена',
-          description: 'Ваша незавершенная игра загружена',
-          variant: 'default'
-        });
-      }
-      setSessionLoaded(true);
-    } catch (error) {
-      console.error('Ошибка загрузки сессии:', error);
-      setSessionLoaded(true);
     }
   };
 
@@ -423,215 +365,253 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
     }
   };
 
-  const resetGame = async (e?: React.MouseEvent) => {
-    e?.preventDefault();
+  const resetGame = async () => {
     await clearGameSession();
     setPlayerHand([]);
     setDealerHand([]);
     setDeck([]);
-    setGameState('betting');
     setResult('');
+    setGameState('betting');
     setSessionLoaded(false);
   };
 
   useEffect(() => {
-    if (user && !sessionLoaded) {
-      loadGameSession();
-    }
+    const loadSession = async () => {
+      if (!user || sessionLoaded) return;
+
+      try {
+        const response = await fetch(AUTH_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Id': user.id.toString()
+          },
+          body: JSON.stringify({
+            action: 'get_game_session',
+            game_type: 'blackjack'
+          })
+        });
+
+        const data = await response.json();
+        if (data.success && data.session) {
+          setDeck(data.session.deck || []);
+          setPlayerHand(data.session.playerHand || []);
+          setDealerHand(data.session.dealerHand || []);
+          setBet(data.session.betAmount?.toString() || '1');
+          setGameState('playing');
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки сессии:', error);
+      }
+
+      setSessionLoaded(true);
+    };
+
+    loadSession();
   }, [user, sessionLoaded]);
 
-  const playerValue = calculateHandValue(playerHand);
-  const dealerValue = calculateHandValue(dealerHand);
+  const CardDisplay = ({ card, hidden = false }: { card: PlayingCard; hidden?: boolean }) => {
+    const isRed = card.suit === '♥' || card.suit === '♦';
+    
+    return (
+      <div className={`
+        w-14 h-20 sm:w-16 sm:h-24 md:w-20 md:h-28 
+        bg-white rounded-lg shadow-lg 
+        flex flex-col items-center justify-between 
+        p-1 sm:p-1.5 md:p-2
+        ${hidden ? 'bg-gradient-to-br from-primary to-primary/80' : ''}
+      `}>
+        {hidden ? (
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="w-8 h-10 sm:w-10 sm:h-12 border-2 border-white/30 rounded"></div>
+          </div>
+        ) : (
+          <>
+            <div className={`text-base sm:text-lg md:text-xl font-bold ${isRed ? 'text-red-500' : 'text-gray-900'}`}>
+              {card.rank}
+            </div>
+            <div className={`text-xl sm:text-2xl md:text-3xl ${isRed ? 'text-red-500' : 'text-gray-900'}`}>
+              {card.suit}
+            </div>
+            <div className={`text-base sm:text-lg md:text-xl font-bold ${isRed ? 'text-red-500' : 'text-gray-900'}`}>
+              {card.rank}
+            </div>
+          </>
+        )}
+      </div>
+    );
+  };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Блэкджек</h1>
-        <p className="text-muted-foreground">
-          Классическая карточная игра. Наберите 21 очко или больше чем у дилера
+    <div className="max-w-2xl mx-auto space-y-4">
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl md:text-3xl font-bold">Блэкджек</h2>
+        <p className="text-sm text-muted-foreground">
+          Наберите 21 или больше дилера
         </p>
       </div>
 
-      <Card className="p-4 sm:p-6 md:p-8 bg-gradient-to-b from-green-950/40 via-green-900/30 to-green-950/40 border-green-800/30 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-green-800/5 via-transparent to-transparent"></div>
-        
-        <div className="relative space-y-4 sm:space-y-6 md:space-y-8">
-          <div className="space-y-4 sm:space-y-6 pb-4 sm:pb-6 border-b border-green-800/20 min-h-[200px]">
-            <div className="flex items-center justify-center gap-4">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-green-800/30 to-green-900/20 border-2 border-green-800/40 flex items-center justify-center">
-                <Icon name="User" size={20} className="text-green-400 sm:w-6 sm:h-6 md:w-7 md:h-7" />
+      <Card className="p-4 md:p-6">
+        <div className="space-y-4">
+          {/* Dealer's Hand */}
+          {gameState !== 'betting' && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium">Дилер</h3>
+                {gameState !== 'playing' && (
+                  <span className="text-sm text-muted-foreground">
+                    Счет: {calculateHandValue(dealerHand)}
+                  </span>
+                )}
               </div>
-              <div className="text-center">
-                <h3 className="text-base sm:text-lg md:text-xl font-bold text-green-400">Дилер</h3>
-                <p className="text-sm text-muted-foreground">
-                  {gameState === 'betting' || gameState === 'playing' ? 'Очки: ?' : `Очки: ${dealerValue}`}
-                </p>
-              </div>
-            </div>
-            {dealerHand.length > 0 && gameState !== 'betting' && (
-              <div className="flex gap-2 sm:gap-2.5 justify-center perspective-1000">
-                {dealerHand.map((card, i) => (
-                  <div
-                    key={i}
-                    className={`w-12 h-18 sm:w-16 sm:h-24 bg-white rounded-md sm:rounded-lg flex flex-col items-center justify-center text-lg sm:text-2xl font-bold shadow-2xl transform transition-all duration-300 hover:scale-105 ${
-                      gameState === 'playing' && i === 1 ? 'bg-gradient-to-br from-blue-600 to-blue-800 text-white' : card.suit === '♥' || card.suit === '♦' ? 'text-red-600' : 'text-black'
-                    }`}
-                    style={{ 
-                      transform: `rotateX(-5deg) rotateY(${i * 2 - dealerHand.length}deg)`,
-                      transformStyle: 'preserve-3d'
-                    }}
-                  >
-                    {gameState === 'playing' && i === 1 ? (
-                      <Icon name="HelpCircle" size={24} className="sm:w-9 sm:h-9" />
-                    ) : (
-                      <>
-                        <span>{card.rank}</span>
-                        <span className="text-base sm:text-xl">{card.suit}</span>
-                      </>
-                    )}
-                  </div>
+              <div className="flex gap-2 flex-wrap justify-center min-h-[5rem] sm:min-h-[6rem] md:min-h-[7rem]">
+                {dealerHand.map((card, index) => (
+                  <CardDisplay 
+                    key={index} 
+                    card={card} 
+                    hidden={gameState === 'playing' && index === 1}
+                  />
                 ))}
               </div>
-            )}
-          </div>
-
-          <div className="py-4 sm:py-6 md:py-8 relative">
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-green-800/10 to-transparent rounded-2xl"></div>
-            <div className="relative h-20 sm:h-24 md:h-32 bg-green-800/20 rounded-xl sm:rounded-2xl border-2 sm:border-4 border-green-800/30 flex items-center justify-center shadow-inner">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-green-700/5 to-transparent"></div>
-              <Icon name="Spade" size={40} className="text-green-800/30 relative z-10 sm:w-14 sm:h-14 md:w-16 md:h-16" />
-              <div className="absolute top-4 left-4 text-xs font-bold text-green-800/40">BLACKJACK</div>
-              <div className="absolute bottom-4 right-4 text-xs font-bold text-green-800/40">21</div>
             </div>
-          </div>
-
-          <div className="space-y-4 sm:space-y-6 pt-4 sm:pt-6 border-t border-green-800/20 min-h-[200px]">
-            {playerHand.length > 0 && (
-              <div className="flex gap-2 sm:gap-2.5 justify-center perspective-1000">
-                {playerHand.map((card, i) => (
-                  <div
-                    key={i}
-                    className={`w-12 h-18 sm:w-16 sm:h-24 bg-white rounded-md sm:rounded-lg flex flex-col items-center justify-center text-lg sm:text-2xl font-bold shadow-2xl transform transition-all duration-300 hover:scale-110 hover:-translate-y-2 ${
-                      card.suit === '♥' || card.suit === '♦' ? 'text-red-600' : 'text-black'
-                    }`}
-                    style={{ 
-                      transform: `rotateX(5deg) rotateY(${i * 2 - playerHand.length}deg)`,
-                      transformStyle: 'preserve-3d'
-                    }}
-                  >
-                    <span>{card.rank}</span>
-                    <span className="text-base sm:text-xl">{card.suit}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-            <div className="flex items-center justify-center gap-4">
-              <div className="text-center">
-                <h3 className="text-xl font-bold text-cyan-400">Вы</h3>
-                <p className="text-sm text-muted-foreground">Очки: {playerValue}</p>
-              </div>
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500/30 to-cyan-600/20 border-2 border-cyan-500/40 flex items-center justify-center">
-                <Icon name="UserCircle2" size={28} className="text-cyan-400" />
-              </div>
-            </div>
-          </div>
-
-          {result && (
-            <Card className={`p-4 text-center ${
-              result.includes('выиграли') ? 'bg-green-800/20 border-green-800/30' : 
-              result.includes('Ничья') ? 'bg-gray-800/20 border-gray-800/30' : 
-              'bg-red-800/20 border-red-800/30'
-            }`}>
-              <p className="text-lg font-semibold">{result}</p>
-            </Card>
           )}
 
+          {/* Player's Hand */}
+          {gameState !== 'betting' && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium">Ваши карты</h3>
+                <span className="text-sm text-muted-foreground">
+                  Счет: {calculateHandValue(playerHand)}
+                </span>
+              </div>
+              <div className="flex gap-2 flex-wrap justify-center min-h-[5rem] sm:min-h-[6rem] md:min-h-[7rem]">
+                {playerHand.map((card, index) => (
+                  <CardDisplay key={index} card={card} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Betting Section */}
           {gameState === 'betting' && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between gap-4 p-4 bg-green-800/20 border border-green-700/30 rounded-lg">
-                <div className="flex-1">
-                  <label className="block text-sm font-medium mb-2">Ставка (USDT)</label>
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">Ставка</label>
+                  {user && (
+                    <span className="text-xs text-muted-foreground">
+                      Баланс: {user.balance.toFixed(2)} USDT
+                    </span>
+                  )}
+                </div>
+                <div className="relative">
                   <Input
                     type="number"
                     value={bet}
                     onChange={(e) => setBet(e.target.value)}
-                    min="0.1"
-                    step="0.1"
-                    placeholder="Введите ставку"
-                    disabled={!user}
-                    className="w-40"
+                    className="h-10 pr-14"
+                    min="1"
+                    step="1"
                   />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+                    USDT
+                  </span>
                 </div>
-                <div className="text-right">
-                  <div className="text-sm text-muted-foreground mb-1">Ваш баланс</div>
-                  <div className="text-2xl font-bold text-primary">
-                    {user ? `${Number(user.balance || 0).toFixed(2)} USDT` : '0.00 USDT'}
-                  </div>
+                <div className="grid grid-cols-4 gap-2">
+                  {[10, 50, 100, 500].map((amount) => (
+                    <Button
+                      key={amount}
+                      variant="outline"
+                      size="sm"
+                      className="h-8 text-xs"
+                      onClick={() => setBet(amount.toString())}
+                    >
+                      {amount}
+                    </Button>
+                  ))}
                 </div>
               </div>
+
               <Button
-                type="button"
                 onClick={startNewGame}
-                className="w-full bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800"
-                disabled={!user || isProcessing}
+                className="w-full h-12 md:h-14 text-base font-semibold"
+                disabled={isProcessing}
               >
-                <Icon name="Play" size={18} className="mr-2" />
-                {user ? 'Начать игру' : 'Войдите для игры'}
+                {isProcessing ? (
+                  <Icon name="loader-2" className="w-5 h-5 animate-spin" />
+                ) : (
+                  'Начать игру'
+                )}
               </Button>
             </div>
           )}
 
+          {/* Game Actions */}
           {gameState === 'playing' && (
-            <div className="flex gap-3">
+            <div className="grid grid-cols-2 gap-2">
               <Button
-                type="button"
                 onClick={hit}
-                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                className="h-11 text-sm font-semibold"
                 disabled={isProcessing}
               >
-                <Icon name="Plus" size={18} className="mr-2" />
                 Взять карту
               </Button>
               <Button
-                type="button"
-                onClick={(e) => { e.preventDefault(); stand(); }}
-                className="flex-1 bg-orange-600 hover:bg-orange-700"
+                onClick={() => stand()}
+                variant="outline"
+                className="h-11 text-sm font-semibold"
                 disabled={isProcessing}
               >
-                <Icon name="Hand" size={18} className="mr-2" />
                 Хватит
               </Button>
             </div>
           )}
 
-          {gameState === 'finished' && (
-            <Button
-              type="button"
-              onClick={resetGame}
-              className="w-full bg-gradient-to-r from-green-800 to-green-900 hover:from-green-700 hover:to-green-800"
-              disabled={isProcessing}
-            >
-              <Icon name="RotateCcw" size={18} className="mr-2" />
-              Новая игра
-            </Button>
+          {/* Result */}
+          {gameState === 'finished' && result && (
+            <div className="space-y-3">
+              <div className={`text-center text-base font-medium p-3 rounded-lg ${
+                result.includes('выиграли') || result.includes('перебрал')
+                  ? 'bg-green-500/10 text-green-500' 
+                  : result.includes('Ничья')
+                  ? 'bg-yellow-500/10 text-yellow-500'
+                  : 'bg-red-500/10 text-red-500'
+              }`}>
+                {result}
+              </div>
+              <Button
+                onClick={resetGame}
+                className="w-full h-12 md:h-14 text-base font-semibold"
+              >
+                Новая игра
+              </Button>
+            </div>
           )}
         </div>
       </Card>
 
-      <Card className="p-6 bg-card/50">
-        <h3 className="font-semibold mb-4 flex items-center gap-2">
-          <Icon name="Info" size={20} className="text-blue-400" />
-          Правила игры
-        </h3>
-        <div className="space-y-3 text-sm text-muted-foreground">
-          <p>• <strong>Цель:</strong> набрать 21 очко или больше чем у дилера, но не более 21</p>
-          <p>• <strong>Карты:</strong> 2-10 = номинал, J/Q/K = 10, туз = 1 или 11</p>
-          <p>• <strong>Ход игры:</strong> дилер раздает по 2 карты, одна карта дилера скрыта</p>
-          <p>• <strong>Взять карту:</strong> получить дополнительную карту</p>
-          <p>• <strong>Хватит:</strong> остановиться и передать ход дилеру</p>
-          <p>• <strong>Дилер:</strong> обязан брать карты до 17 очков</p>
-          <p>• <strong>Выигрыш:</strong> при победе вы получаете x2 от ставки</p>
-        </div>
+      {/* Rules Card */}
+      <Card className="p-4">
+        <h3 className="text-base font-semibold mb-2">Правила игры</h3>
+        <ul className="space-y-1.5 text-xs sm:text-sm text-muted-foreground">
+          <li className="flex items-start gap-2">
+            <Icon name="check" className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" />
+            <span>Цель - набрать 21 или больше дилера, но не перебрать</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <Icon name="check" className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" />
+            <span>Туз = 1 или 11, картинки = 10</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <Icon name="check" className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" />
+            <span>Дилер берет карты до 17</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <Icon name="check" className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" />
+            <span>Выигрыш x2, ничья возврат ставки</span>
+          </li>
+        </ul>
       </Card>
     </div>
   );

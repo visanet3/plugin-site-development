@@ -242,86 +242,96 @@ const CrashGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: CrashGamePr
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 animate-fade-in max-w-2xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold mb-2">🚀 Crash</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl md:text-3xl font-bold mb-2">🚀 Crash</h1>
+        <p className="text-sm text-muted-foreground">
           Ракета взлетает и множитель растет. Выведите до краха!
         </p>
       </div>
 
-      <Card className="p-8 bg-gradient-to-b from-blue-950/40 via-blue-900/30 to-blue-950/40 border-blue-800/30 relative overflow-hidden">
+      <Card className="p-4 md:p-6 bg-gradient-to-b from-blue-950/40 via-blue-900/30 to-blue-950/40 border-blue-800/30 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-800/5 via-transparent to-transparent"></div>
         
-        <div className="relative space-y-8">
-          <div className="flex justify-center items-center py-12 relative">
-            <div className={`text-8xl font-bold transition-all duration-300 ${
+        <div className="relative space-y-4">
+          <div className="flex justify-center items-center py-8 md:py-10 relative">
+            <div className={`text-5xl md:text-7xl font-bold transition-all duration-300 ${
               gameState === 'flying' ? 'text-green-400 animate-pulse scale-110' : 
               gameState === 'crashed' ? 'text-red-400' : 'text-blue-400'
             }`}>
               {multiplier.toFixed(2)}x
             </div>
             {gameState === 'flying' && (
-              <div className="absolute text-6xl animate-bounce">
+              <div className="absolute text-4xl md:text-5xl animate-bounce">
                 🚀
               </div>
             )}
             {gameState === 'crashed' && !hasCashedOut && (
-              <div className="absolute text-6xl animate-ping">
+              <div className="absolute text-4xl md:text-5xl animate-ping">
                 💥
               </div>
             )}
           </div>
 
           {result && (
-            <Card className={`p-4 text-center ${
+            <Card className={`p-3 text-center ${
               result.includes('Выигрыш') || result.includes('Вывод') ? 'bg-green-800/20 border-green-800/30' : 
               'bg-red-800/20 border-red-800/30'
             }`}>
-              <p className="text-lg font-semibold">{result}</p>
+              <p className="text-sm md:text-base font-semibold">{result}</p>
             </Card>
           )}
 
           {gameState === 'betting' && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-blue-800/20 border border-blue-700/30 rounded-lg">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Ставка (USDT)</label>
-                  <Input
-                    type="number"
-                    value={bet}
-                    onChange={(e) => setBet(e.target.value)}
-                    min="0.1"
-                    step="0.1"
-                    placeholder="Введите ставку"
-                    disabled={!user}
-                  />
+            <div className="space-y-3">
+              <div className="p-3 md:p-4 bg-blue-800/20 border border-blue-700/30 rounded-lg space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Баланс:</span>
+                  <span className="font-bold">{user ? `${Number(user.balance || 0).toFixed(2)} USDT` : '0.00 USDT'}</span>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Авто-вывод при (x)</label>
-                  <Input
-                    type="number"
-                    value={autoCashout}
-                    onChange={(e) => setAutoCashout(e.target.value)}
-                    min="1.01"
-                    step="0.1"
-                    placeholder="Например: 2.00"
-                    disabled={!user}
-                  />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium mb-1.5">Ставка</label>
+                    <div className="relative">
+                      <Input
+                        type="number"
+                        value={bet}
+                        onChange={(e) => setBet(e.target.value)}
+                        min="0.1"
+                        step="0.1"
+                        placeholder="10"
+                        disabled={!user}
+                        className="pr-12 h-10"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">USDT</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1.5">Авто-вывод</label>
+                    <div className="relative">
+                      <Input
+                        type="number"
+                        value={autoCashout}
+                        onChange={(e) => setAutoCashout(e.target.value)}
+                        min="1.01"
+                        step="0.1"
+                        placeholder="2.00"
+                        disabled={!user}
+                        className="pr-8 h-10"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">x</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="text-right text-sm text-muted-foreground">
-                Ваш баланс: {user ? `${Number(user.balance || 0).toFixed(2)} USDT` : '0.00 USDT'}
               </div>
 
               <Button
                 onClick={startGame}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 h-11"
                 disabled={!user || isProcessing}
               >
                 <Icon name="Rocket" size={18} className="mr-2" />
-                {user ? 'Запустить ракету' : 'Войдите для игры'}
+                {user ? 'Запустить' : 'Войдите для игры'}
               </Button>
             </div>
           )}
@@ -332,10 +342,10 @@ const CrashGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: CrashGamePr
                 setHasCashedOut(true);
                 cashout(multiplier, parseFloat(bet), false);
               }}
-              className="w-full bg-gradient-to-r from-green-600 to-green-800 hover:from-green-700 hover:to-green-900 text-xl py-6"
+              className="w-full bg-gradient-to-r from-green-600 to-green-800 hover:from-green-700 hover:to-green-900 text-base md:text-lg h-12 md:h-14 font-bold"
               disabled={isProcessing || hasCashedOut}
             >
-              <Icon name="DollarSign" size={24} className="mr-2" />
+              <Icon name="DollarSign" size={20} className="mr-2" />
               Забрать {(parseFloat(bet) * multiplier).toFixed(2)} USDT
             </Button>
           )}
@@ -343,7 +353,7 @@ const CrashGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: CrashGamePr
           {gameState === 'crashed' && (
             <Button
               onClick={resetGame}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 h-11"
             >
               <Icon name="RotateCcw" size={18} className="mr-2" />
               Новая игра
@@ -352,18 +362,16 @@ const CrashGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: CrashGamePr
         </div>
       </Card>
 
-      <Card className="p-6 bg-card/50">
-        <h3 className="font-semibold mb-4 flex items-center gap-2">
-          <Icon name="Info" size={20} className="text-blue-400" />
+      <Card className="p-4 bg-card/50">
+        <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm">
+          <Icon name="Info" size={18} className="text-blue-400" />
           Правила игры
         </h3>
-        <div className="space-y-3 text-sm text-muted-foreground">
-          <p>• <strong>Цель:</strong> вывести средства до того, как ракета упадет</p>
-          <p>• <strong>Множитель:</strong> начинается с 1.00x и растет каждые 0.1 секунды</p>
-          <p>• <strong>Крах:</strong> может произойти в любой момент</p>
-          <p>• <strong>Авто-вывод:</strong> автоматически выводит при достижении заданного множителя</p>
-          <p>• <strong>Выигрыш:</strong> ставка × множитель на момент вывода</p>
-          <p>• <strong>Минимальная ставка:</strong> 0.1 USDT</p>
+        <div className="space-y-2 text-xs md:text-sm text-muted-foreground">
+          <p>• <strong>Цель:</strong> вывести до краха ракеты</p>
+          <p>• <strong>Множитель:</strong> растет каждые 0.1 сек</p>
+          <p>• <strong>Авто-вывод:</strong> выводит при заданном множителе</p>
+          <p>• <strong>Минимум:</strong> 0.1 USDT</p>
         </div>
       </Card>
     </div>

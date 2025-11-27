@@ -229,24 +229,24 @@ const SlotsGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: SlotsGamePr
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 animate-fade-in max-w-2xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold mb-2">🎰 Слоты</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl md:text-3xl font-bold mb-2">🎰 Слоты</h1>
+        <p className="text-sm text-muted-foreground">
           Классический игровой автомат. Соберите 3 одинаковых символа!
         </p>
       </div>
 
-      <Card className="p-8 bg-gradient-to-b from-yellow-950/40 via-yellow-900/30 to-yellow-950/40 border-yellow-800/30 relative overflow-hidden">
+      <Card className="p-4 md:p-6 bg-gradient-to-b from-yellow-950/40 via-yellow-900/30 to-yellow-950/40 border-yellow-800/30 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-yellow-800/5 via-transparent to-transparent"></div>
         
-        <div className="relative space-y-8">
-          <div className="bg-gradient-to-b from-yellow-900/40 to-yellow-950/40 rounded-2xl p-8 border-4 border-yellow-700/50 shadow-2xl">
-            <div className="flex justify-center gap-4 mb-6">
+        <div className="relative space-y-4">
+          <div className="bg-gradient-to-b from-yellow-900/40 to-yellow-950/40 rounded-2xl p-4 md:p-6 border-2 md:border-4 border-yellow-700/50 shadow-2xl">
+            <div className="flex justify-center gap-2 md:gap-4 mb-4">
               {reels.map((symbol, index) => (
                 <div
                   key={index}
-                  className={`w-24 h-24 bg-white rounded-xl flex items-center justify-center text-6xl shadow-2xl ${
+                  className={`w-20 h-20 md:w-24 md:h-24 bg-white rounded-xl flex items-center justify-center text-4xl md:text-6xl shadow-2xl ${
                     isSpinning ? 'animate-spin' : 'animate-bounce'
                   }`}
                 >
@@ -256,46 +256,47 @@ const SlotsGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: SlotsGamePr
             </div>
 
             {result && (
-              <Card className={`p-4 text-center ${
+              <Card className={`p-3 text-center ${
                 result.includes('Выигрыш') ? 'bg-green-800/20 border-green-800/30' : 
                 'bg-red-800/20 border-red-800/30'
               }`}>
-                <p className="text-lg font-semibold">{result}</p>
+                <p className="text-sm md:text-base font-semibold">{result}</p>
               </Card>
             )}
           </div>
 
           {gameState === 'betting' && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between gap-4 p-4 bg-yellow-800/20 border border-yellow-700/30 rounded-lg">
-                <div className="flex-1">
-                  <label className="block text-sm font-medium mb-2">Ставка (USDT)</label>
-                  <Input
-                    type="number"
-                    value={bet}
-                    onChange={(e) => setBet(e.target.value)}
-                    min="0.1"
-                    step="0.1"
-                    placeholder="Введите ставку"
-                    disabled={!user}
-                    className="w-40"
-                  />
+            <div className="space-y-3">
+              <div className="p-3 md:p-4 bg-yellow-800/20 border border-yellow-700/30 rounded-lg space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Баланс:</span>
+                  <span className="font-bold">{user ? `${Number(user.balance || 0).toFixed(2)} USDT` : '0.00 USDT'}</span>
                 </div>
-                <div className="text-right">
-                  <div className="text-sm text-muted-foreground mb-1">Ваш баланс</div>
-                  <div className="text-2xl font-bold text-primary">
-                    {user ? `${Number(user.balance || 0).toFixed(2)} USDT` : '0.00 USDT'}
+                <div>
+                  <label className="block text-xs font-medium mb-1.5">Ставка</label>
+                  <div className="relative">
+                    <Input
+                      type="number"
+                      value={bet}
+                      onChange={(e) => setBet(e.target.value)}
+                      min="0.1"
+                      step="0.1"
+                      placeholder="10"
+                      disabled={!user}
+                      className="pr-12 h-10"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">USDT</span>
                   </div>
                 </div>
               </div>
 
               <Button
                 onClick={spin}
-                className="w-full bg-gradient-to-r from-yellow-600 to-yellow-800 hover:from-yellow-700 hover:to-yellow-900 text-xl py-6"
+                className="w-full bg-gradient-to-r from-yellow-600 to-yellow-800 hover:from-yellow-700 hover:to-yellow-900 text-base md:text-lg h-12 md:h-14 font-bold"
                 disabled={!user || isProcessing}
               >
-                <Icon name="Play" size={24} className="mr-2" />
-                {user ? 'Крутить барабаны' : 'Войдите для игры'}
+                <Icon name="Play" size={20} className="mr-2" />
+                {user ? 'Крутить' : 'Войдите для игры'}
               </Button>
             </div>
           )}
@@ -303,7 +304,7 @@ const SlotsGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: SlotsGamePr
           {gameState === 'finished' && (
             <Button
               onClick={resetGame}
-              className="w-full bg-gradient-to-r from-yellow-600 to-yellow-800 hover:from-yellow-700 hover:to-yellow-900"
+              className="w-full bg-gradient-to-r from-yellow-600 to-yellow-800 hover:from-yellow-700 hover:to-yellow-900 h-11"
               disabled={isProcessing}
             >
               <Icon name="RotateCcw" size={18} className="mr-2" />
@@ -313,47 +314,44 @@ const SlotsGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: SlotsGamePr
         </div>
       </Card>
 
-      <Card className="p-6 bg-card/50">
-        <h3 className="font-semibold mb-4 flex items-center gap-2">
-          <Icon name="Info" size={20} className="text-yellow-400" />
+      <Card className="p-4 bg-card/50">
+        <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm">
+          <Icon name="Info" size={18} className="text-yellow-400" />
           Таблица выплат
         </h3>
-        <div className="space-y-3 text-sm">
-          <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2 text-xs md:text-sm">
+          <div className="grid grid-cols-2 gap-2 md:gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-2xl">7️⃣ 7️⃣ 7️⃣</span>
+              <span className="text-lg md:text-xl">7️⃣7️⃣7️⃣</span>
               <span className="text-yellow-400 font-bold">50x</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-2xl">💎 💎 💎</span>
+              <span className="text-lg md:text-xl">💎💎💎</span>
               <span className="text-cyan-400 font-bold">20x</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-2xl">🔔 🔔 🔔</span>
+              <span className="text-lg md:text-xl">🔔🔔🔔</span>
               <span className="text-blue-400 font-bold">10x</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-2xl">🍇 🍇 🍇</span>
+              <span className="text-lg md:text-xl">🍇🍇🍇</span>
               <span className="text-purple-400 font-bold">5x</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-2xl">🍊 🍊 🍊</span>
+              <span className="text-lg md:text-xl">🍊🍊🍊</span>
               <span className="text-orange-400 font-bold">4x</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-2xl">🍋 🍋 🍋</span>
+              <span className="text-lg md:text-xl">🍋🍋🍋</span>
               <span className="text-yellow-400 font-bold">3x</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-2xl">🍒 🍒 🍒</span>
+              <span className="text-lg md:text-xl">🍒🍒🍒</span>
               <span className="text-red-400 font-bold">2x</span>
             </div>
           </div>
-          <p className="text-muted-foreground mt-4">
-            • <strong>Правило:</strong> нужно собрать 3 одинаковых символа для выигрыша
-          </p>
-          <p className="text-muted-foreground">
-            • <strong>Минимальная ставка:</strong> 0.1 USDT
+          <p className="text-muted-foreground pt-2">
+            • 3 одинаковых символа для выигрыша • Минимум: 0.1 USDT
           </p>
         </div>
       </Card>

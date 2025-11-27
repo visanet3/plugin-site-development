@@ -287,7 +287,7 @@ const DiceGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: DiceGameProp
           return (
             <div
               key={i}
-              className={`rounded-full ${hasDot ? 'bg-gray-900' : 'bg-transparent'}`}
+              className={`rounded-full ${hasDot ? 'bg-primary' : ''}`}
             />
           );
         })}
@@ -296,166 +296,211 @@ const DiceGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: DiceGameProp
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Dice</h1>
-        <p className="text-muted-foreground">
-          Бросайте кубик и угадывайте результат. Выигрыш до 6x
+    <div className="max-w-2xl mx-auto space-y-4">
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl md:text-3xl font-bold">Кости</h2>
+        <p className="text-sm text-muted-foreground">
+          Выберите число или тип ставки и бросьте кость
         </p>
       </div>
 
-      <Card className="p-8 bg-gradient-to-b from-orange-950/40 via-orange-900/30 to-orange-950/40 border-orange-800/30 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-orange-800/5 via-transparent to-transparent"></div>
-        
-        <div className="relative space-y-8">
-          <div className="flex justify-center py-8">
-            <div
-              className="transform transition-transform duration-1000"
-              style={{
-                transform: gameState === 'rolling' ? `rotate(${rotation}deg)` : 'rotate(0deg)',
-                transition: gameState === 'rolling' ? 'transform 1.5s cubic-bezier(0.17, 0.67, 0.12, 0.99)' : 'transform 0.3s ease-out'
-              }}
-            >
-              {diceResult && gameState !== 'betting' ? getDiceFace(diceResult) : getDiceFace(1)}
-            </div>
+      <Card className="p-4 md:p-6">
+        <div className="space-y-4">
+          {/* Dice Display */}
+          <div className="flex justify-center items-center py-6 sm:py-8">
+            {diceResult ? (
+              <div
+                className="transition-transform duration-1500 ease-out"
+                style={{
+                  transform: `rotate(${rotation}deg)`
+                }}
+              >
+                {getDiceFace(diceResult)}
+              </div>
+            ) : (
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/10 rounded-xl flex items-center justify-center border-2 border-dashed border-primary/30">
+                <span className="text-3xl sm:text-4xl">?</span>
+              </div>
+            )}
           </div>
 
-          {result && (
-            <Card className={`p-4 text-center ${
-              result.includes('выиграли') ? 'bg-green-800/20 border-green-800/30' : 
-              'bg-red-800/20 border-red-800/30'
-            }`}>
-              <p className="text-lg font-semibold">{result}</p>
-            </Card>
-          )}
-
-          {gameState === 'betting' && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between gap-4 mb-4 p-4 bg-orange-800/20 border border-orange-700/30 rounded-lg">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Ставка (USDT)</label>
-                  <Input
-                    type="number"
-                    value={bet}
-                    onChange={(e) => setBet(e.target.value)}
-                    min="0.1"
-                    step="0.1"
-                    placeholder="Введите ставку"
-                    disabled={!user}
-                    className="w-40"
-                  />
-                </div>
-                <div className="text-right">
-                  <div className="text-sm text-muted-foreground mb-1">Ваш баланс</div>
-                  <div className="text-2xl font-bold text-primary">
-                    {user ? `${Number(user.balance || 0).toFixed(2)} USDT` : '0.00 USDT'}
-                  </div>
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium mb-3">Ставка на конкретное число (6x)</label>
-                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                  {[1, 2, 3, 4, 5, 6].map((num) => (
+          {/* Betting Section */}
+          {gameState !== 'finished' && (
+            <>
+              {/* Bet Type Selection */}
+              <div className="space-y-3">
+                <label className="text-sm font-medium">Тип ставки</label>
+                
+                {/* Number Bets */}
+                <div className="grid grid-cols-6 gap-2">
+                  {([1, 2, 3, 4, 5, 6] as const).map((num) => (
                     <Button
                       key={num}
-                      type="button"
-                      onClick={() => setBetType(num as BetType)}
                       variant={betType === num ? 'default' : 'outline'}
-                      className={`h-12 sm:h-14 text-lg sm:text-xl font-bold ${
-                        betType === num ? 'bg-orange-600 hover:bg-orange-700' : ''
-                      }`}
+                      className="h-11 text-sm sm:text-base"
+                      onClick={() => setBetType(num)}
+                      disabled={gameState !== 'betting'}
                     >
                       {num}
                     </Button>
                   ))}
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-3">Ставка на диапазон (2x)</label>
-                <div className="grid grid-cols-2 gap-3">
-                  <Button
-                    type="button"
-                    onClick={() => setBetType('even')}
-                    variant={betType === 'even' ? 'default' : 'outline'}
-                    className={betType === 'even' ? 'bg-blue-600 hover:bg-blue-700' : ''}
-                  >
-                    Четное (2x)
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={() => setBetType('odd')}
-                    variant={betType === 'odd' ? 'default' : 'outline'}
-                    className={betType === 'odd' ? 'bg-purple-600 hover:bg-purple-700' : ''}
-                  >
-                    Нечетное (2x)
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={() => setBetType('low')}
-                    variant={betType === 'low' ? 'default' : 'outline'}
-                    className={betType === 'low' ? 'bg-green-600 hover:bg-green-700' : ''}
-                  >
-                    1-3 (2x)
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={() => setBetType('high')}
-                    variant={betType === 'high' ? 'default' : 'outline'}
-                    className={betType === 'high' ? 'bg-red-600 hover:bg-red-700' : ''}
-                  >
-                    4-6 (2x)
-                  </Button>
+                {/* Group Bets */}
+                <div className="grid grid-cols-2 gap-2">
+                  {([
+                    { type: 'even' as const, label: 'Четное', multiplier: '2x' },
+                    { type: 'odd' as const, label: 'Нечетное', multiplier: '2x' }
+                  ]).map((option) => (
+                    <Button
+                      key={option.type}
+                      variant={betType === option.type ? 'default' : 'outline'}
+                      className="h-11 flex flex-col items-center justify-center gap-0.5"
+                      onClick={() => setBetType(option.type)}
+                      disabled={gameState !== 'betting'}
+                    >
+                      <span className="text-xs sm:text-sm">{option.label}</span>
+                      <span className="text-xs text-muted-foreground">{option.multiplier}</span>
+                    </Button>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  {([
+                    { type: 'low' as const, label: 'Малое', desc: '1-3', multiplier: '2x' },
+                    { type: 'high' as const, label: 'Большое', desc: '4-6', multiplier: '2x' }
+                  ]).map((option) => (
+                    <Button
+                      key={option.type}
+                      variant={betType === option.type ? 'default' : 'outline'}
+                      className="h-11 flex flex-col items-center justify-center gap-0.5"
+                      onClick={() => setBetType(option.type)}
+                      disabled={gameState !== 'betting'}
+                    >
+                      <span className="text-xs sm:text-sm">{option.label} {option.desc}</span>
+                      <span className="text-xs text-muted-foreground">{option.multiplier}</span>
+                    </Button>
+                  ))}
                 </div>
               </div>
 
+              {/* Bet Amount */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">Ставка</label>
+                  {user && (
+                    <span className="text-xs text-muted-foreground">
+                      Баланс: {user.balance.toFixed(2)} USDT
+                    </span>
+                  )}
+                </div>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    value={bet}
+                    onChange={(e) => setBet(e.target.value)}
+                    className="h-10 pr-14"
+                    disabled={gameState !== 'betting'}
+                    min="1"
+                    step="1"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+                    USDT
+                  </span>
+                </div>
+                <div className="grid grid-cols-4 gap-2">
+                  {[10, 50, 100, 500].map((amount) => (
+                    <Button
+                      key={amount}
+                      variant="outline"
+                      size="sm"
+                      className="h-8 text-xs"
+                      onClick={() => setBet(amount.toString())}
+                      disabled={gameState !== 'betting'}
+                    >
+                      {amount}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Selected Bet Display */}
               {betType && (
-                <Card className="p-3 bg-orange-800/20 border-orange-800/30">
-                  <p className="text-sm text-center">
-                    Ваша ставка: <strong>{getBetLabel(betType)}</strong> — {bet} USDT
-                  </p>
-                </Card>
+                <div className="bg-primary/10 border border-primary/20 rounded-lg p-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Выбрано:</span>
+                    <span className="font-medium">{getBetLabel(betType)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm mt-1">
+                    <span className="text-muted-foreground">Множитель:</span>
+                    <span className="font-medium text-primary">
+                      {typeof betType === 'number' ? '6x' : '2x'}
+                    </span>
+                  </div>
+                </div>
               )}
 
+              {/* Roll Button */}
               <Button
-                type="button"
                 onClick={rollDice}
-                className="w-full bg-gradient-to-r from-orange-600 to-orange-800 hover:from-orange-700 hover:to-orange-900"
-                disabled={!user || !betType || isProcessing}
+                className="w-full h-12 md:h-14 text-base font-semibold"
+                disabled={!betType || gameState !== 'betting' || isProcessing}
               >
-                <Icon name="Dices" size={18} className="mr-2" />
-                {user ? 'Бросить кубик' : 'Войдите для игры'}
+                {isProcessing ? (
+                  <Icon name="loader-2" className="w-5 h-5 animate-spin" />
+                ) : (
+                  'Бросить кость'
+                )}
               </Button>
-            </div>
+            </>
           )}
 
-          {gameState === 'finished' && (
-            <Button
-              type="button"
-              onClick={resetGame}
-              className="w-full bg-gradient-to-r from-orange-600 to-orange-800 hover:from-orange-700 hover:to-orange-900"
-              disabled={isProcessing}
-            >
-              <Icon name="RotateCcw" size={18} className="mr-2" />
-              Новая игра
-            </Button>
+          {/* Result Display */}
+          {gameState === 'finished' && result && (
+            <div className="space-y-4">
+              <div className={`text-center text-base sm:text-lg font-medium p-4 rounded-lg ${
+                result.includes('выиграли') 
+                  ? 'bg-green-500/10 text-green-500' 
+                  : 'bg-red-500/10 text-red-500'
+              }`}>
+                {result}
+              </div>
+              <Button
+                onClick={resetGame}
+                className="w-full h-12 md:h-14 text-base font-semibold"
+              >
+                Играть снова
+              </Button>
+            </div>
           )}
         </div>
       </Card>
 
-      <Card className="p-6 bg-card/50">
-        <h3 className="font-semibold mb-4 flex items-center gap-2">
-          <Icon name="Info" size={20} className="text-orange-400" />
-          Правила игры
-        </h3>
-        <div className="space-y-3 text-sm text-muted-foreground">
-          <p>• <strong>Цель:</strong> угадать результат броска кубика (1-6)</p>
-          <p>• <strong>Конкретное число:</strong> выигрыш 6x от ставки</p>
-          <p>• <strong>Четное/Нечетное:</strong> выигрыш 2x от ставки</p>
-          <p>• <strong>Малое (1-3) / Большое (4-6):</strong> выигрыш 2x от ставки</p>
-          <p>• <strong>Минимальная ставка:</strong> 0.1 USDT</p>
-        </div>
+      {/* Rules Card */}
+      <Card className="p-4">
+        <h3 className="text-base font-semibold mb-2">Правила игры</h3>
+        <ul className="space-y-1.5 text-xs sm:text-sm text-muted-foreground">
+          <li className="flex items-start gap-2">
+            <Icon name="check" className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" />
+            <span>Выберите число (1-6) - выигрыш x6</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <Icon name="check" className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" />
+            <span>Четное/Нечетное - выигрыш x2</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <Icon name="check" className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" />
+            <span>Малое (1-3) / Большое (4-6) - выигрыш x2</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <Icon name="check" className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" />
+            <span>Выберите тип ставки и сумму</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <Icon name="check" className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" />
+            <span>Нажмите "Бросить кость" для начала игры</span>
+          </li>
+        </ul>
       </Card>
     </div>
   );

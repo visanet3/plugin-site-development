@@ -214,10 +214,10 @@ const LotteryGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: LotteryGa
 
   if (isLoading) {
     return (
-      <div className="space-y-6 animate-fade-in">
+      <div className="max-w-2xl mx-auto space-y-4 animate-fade-in">
         <div>
-          <h1 className="text-3xl font-bold mb-2">🎫 Лотерея</h1>
-          <p className="text-muted-foreground">Загрузка...</p>
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">Лотерея</h1>
+          <p className="text-sm text-muted-foreground">Загрузка...</p>
         </div>
       </div>
     );
@@ -229,11 +229,11 @@ const LotteryGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: LotteryGa
   const isCompleted = currentRound?.status === 'completed';
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+    <div className="max-w-2xl mx-auto space-y-4 animate-fade-in">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold mb-2">🎫 Лотерея</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold mb-1">Лотерея</h1>
+          <p className="text-sm text-muted-foreground">
             10 билетов по 50 USDT. Победитель получает 400 USDT
           </p>
         </div>
@@ -241,10 +241,11 @@ const LotteryGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: LotteryGa
           type="button"
           onClick={handleToggleHistory}
           variant="outline"
-          className="gap-2"
+          className="gap-2 h-10 text-sm"
         >
-          <Icon name="History" size={18} />
-          {showHistory ? 'Скрыть историю' : 'История победителей'}
+          <Icon name="History" size={16} />
+          <span className="hidden sm:inline">{showHistory ? 'Скрыть историю' : 'История победителей'}</span>
+          <span className="sm:hidden">История</span>
         </Button>
       </div>
 
@@ -262,7 +263,7 @@ const LotteryGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: LotteryGa
         <LotteryWinnerCard currentRound={currentRound} prizeAmount={PRIZE_AMOUNT} />
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <LotteryTicketPurchase
           user={user}
           myTickets={myTickets}
@@ -289,19 +290,13 @@ const LotteryGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: LotteryGa
 
       <LotteryParticipants
         tickets={tickets}
+        myTickets={myTickets}
         maxTickets={MAX_TICKETS}
-        ticketPrice={TICKET_PRICE}
-        showHistory={showHistory}
-        history={history}
-        prizeAmount={PRIZE_AMOUNT}
-        onToggleHistory={handleToggleHistory}
       />
 
-      <LotteryRules
-        ticketPrice={TICKET_PRICE}
-        prizeAmount={PRIZE_AMOUNT}
-        drawDelayMinutes={DRAW_DELAY_MINUTES}
-      />
+      {showHistory && (
+        <LotteryRules history={history} />
+      )}
     </div>
   );
 };
