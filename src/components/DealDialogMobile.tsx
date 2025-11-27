@@ -98,13 +98,14 @@ export const DealDialogMobile = ({
       <div className="h-full flex flex-col">
         <div className="flex-shrink-0 bg-background border-b border-border/30 px-4 py-3 safe-area-top">
           <div className="flex items-center gap-3">
-            <div
+            <button
               onClick={onClose}
-              className="w-9 h-9 rounded-full bg-muted/80 flex items-center justify-center cursor-pointer"
+              className="w-9 h-9 rounded-full bg-muted/80 flex items-center justify-center cursor-pointer hover:bg-muted transition-colors"
               style={{ touchAction: 'manipulation' }}
+              type="button"
             >
               <Icon name="X" size={20} />
-            </div>
+            </button>
             <div className="flex-1 min-w-0">
               <h2 className="text-sm font-bold truncate">{deal.title}</h2>
               <p className="text-xs text-muted-foreground truncate">{deal.description}</p>
