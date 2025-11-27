@@ -4,6 +4,7 @@ import AdminPanelHeader from '@/components/admin/AdminPanelHeader';
 import AdminPanelTabs from '@/components/admin/AdminPanelTabs';
 import AdminPanelContent from '@/components/admin/AdminPanelContent';
 import AdminBalanceDialog from '@/components/admin/AdminBalanceDialog';
+import AdminBtcBalanceDialog from '@/components/admin/AdminBtcBalanceDialog';
 import AdminTopicEditDialog from '@/components/admin/AdminTopicEditDialog';
 import { useToast } from '@/hooks/use-toast';
 
@@ -41,6 +42,11 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
   const [balanceUsername, setBalanceUsername] = useState('');
   const [balanceAmount, setBalanceAmount] = useState('');
   const [balanceLoading, setBalanceLoading] = useState(false);
+  const [showBtcBalanceDialog, setShowBtcBalanceDialog] = useState(false);
+  const [btcBalanceUserId, setBtcBalanceUserId] = useState<number>(0);
+  const [btcBalanceUsername, setBtcBalanceUsername] = useState('');
+  const [btcBalanceAmount, setBtcBalanceAmount] = useState(0);
+  const [btcBalanceLoading, setBtcBalanceLoading] = useState(false);
   const [adminNotifications, setAdminNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notificationCounts, setNotificationCounts] = useState<Record<string, number>>({
@@ -660,6 +666,61 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
     }
   };
 
+  const handleManageBtc = (userId: number, username: string, currentBalance: number) => {
+    setBtcBalanceUserId(userId);
+    setBtcBalanceUsername(username);
+    setBtcBalanceAmount(currentBalance);
+    setShowBtcBalanceDialog(true);
+  };
+
+  const handleBtcBalanceSubmit = async (action: 'add' | 'subtract', amount: number) => {
+    setBtcBalanceLoading(true);
+    try {
+      const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
+      
+      const response = await fetch(AUTH_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': currentUser.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'admin_manage_btc',
+          user_id: btcBalanceUserId,
+          btc_action: action,
+          btc_amount: amount
+        })
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        toast({
+          title: 'Успешно',
+          description: action === 'add' 
+            ? `Начислено ${amount} BTC пользователю ${btcBalanceUsername}`
+            : `Списано ${amount} BTC у пользователя ${btcBalanceUsername}`
+        });
+        setShowBtcBalanceDialog(false);
+        fetchUsers();
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: data.message || 'Ошибка выполнения операции',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Ошибка управления BTC:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Ошибка выполнения операции',
+        variant: 'destructive'
+      });
+    } finally {
+      setBtcBalanceLoading(false);
+    }
+  };
+
   const handleAddBalance = async () => {
     const amount = parseFloat(balanceAmount);
     if (!balanceUsername.trim()) {
@@ -781,6 +842,7 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
           onUnblockUser={handleUnblockUser}
           onDeleteUser={handleDeleteUser}
           onChangeForumRole={handleChangeForumRole}
+          onManageBtc={handleManageBtc}
           onEditTopic={handleEditTopic}
           onDeleteTopic={handleDeleteTopic}
           onUpdateViews={handleUpdateViews}
@@ -804,6 +866,15 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
           setBalanceAmount={setBalanceAmount}
           balanceLoading={balanceLoading}
           onAddBalance={handleAddBalance}
+        />
+
+        <AdminBtcBalanceDialog
+          open={showBtcBalanceDialog}
+          onClose={() => setShowBtcBalanceDialog(false)}
+          username={btcBalanceUsername}
+          currentBalance={btcBalanceAmount}
+          onSubmit={handleBtcBalanceSubmit}
+          loading={btcBalanceLoading}
         />
 
         <AdminTopicEditDialog 

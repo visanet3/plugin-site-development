@@ -1871,6 +1871,109 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
+        elif action == 'admin_manage_btc':
+            headers = event.get('headers', {})
+            admin_id = headers.get('X-User-Id') or headers.get('x-user-id')
+            
+            if not admin_id:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'message': 'Требуется авторизация'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute(f"SELECT role FROM {SCHEMA}.users WHERE id = %s", (int(admin_id),))
+            admin = cur.fetchone()
+            
+            if not admin or admin['role'] != 'admin':
+                return {
+                    'statusCode': 403,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'message': 'Доступ запрещен'}),
+                    'isBase64Encoded': False
+                }
+            
+            target_user_id = body_data.get('user_id')
+            btc_action = body_data.get('btc_action')
+            btc_amount = body_data.get('btc_amount')
+            
+            if not target_user_id or not btc_action or btc_amount is None:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'message': 'Отсутствуют обязательные параметры'}),
+                    'isBase64Encoded': False
+                }
+            
+            btc_amount = float(btc_amount)
+            if btc_amount <= 0:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'message': 'Сумма должна быть больше нуля'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute(
+                f"SELECT id, username, btc_balance FROM {SCHEMA}.users WHERE id = %s",
+                (int(target_user_id),)
+            )
+            target_user = cur.fetchone()
+            
+            if not target_user:
+                return {
+                    'statusCode': 404,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'message': 'Пользователь не найден'}),
+                    'isBase64Encoded': False
+                }
+            
+            current_btc_balance = float(target_user['btc_balance'] or 0)
+            
+            if btc_action == 'add':
+                new_balance = current_btc_balance + btc_amount
+                description = f'Начисление {btc_amount:.8f} BTC администратором'
+            elif btc_action == 'subtract':
+                if current_btc_balance < btc_amount:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'success': False, 'message': 'Недостаточно BTC на балансе'}),
+                        'isBase64Encoded': False
+                    }
+                new_balance = current_btc_balance - btc_amount
+                description = f'Списание {btc_amount:.8f} BTC администратором'
+            else:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'message': 'Неверное действие'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute(
+                f"UPDATE {SCHEMA}.users SET btc_balance = %s WHERE id = %s",
+                (new_balance, int(target_user_id))
+            )
+            
+            cur.execute(
+                f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES (%s, %s, 'admin_btc_adjustment', %s)",
+                (int(target_user_id), 0.01, description)
+            )
+            
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True,
+                    'new_balance': round(new_balance, 8)
+                }),
+                'isBase64Encoded': False
+            }
+        
         else:
             return {
                 'statusCode': 400,

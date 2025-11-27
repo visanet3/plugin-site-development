@@ -9,6 +9,7 @@ interface AdminUsersTabProps {
   onUnblockUser: (userId: number) => void;
   onChangeForumRole: (userId: number, forumRole: string) => void;
   onDeleteUser: (userId: number, username: string) => void;
+  onManageBtc: (userId: number, username: string, currentBalance: number) => void;
 }
 
 const AdminUsersTab = ({ 
@@ -17,7 +18,8 @@ const AdminUsersTab = ({
   onBlockUser, 
   onUnblockUser, 
   onChangeForumRole,
-  onDeleteUser
+  onDeleteUser,
+  onManageBtc
 }: AdminUsersTabProps) => {
   const isUserOnline = (lastSeenAt: string | null) => {
     if (!lastSeenAt) return false;
@@ -106,6 +108,16 @@ const AdminUsersTab = ({
               )}
               {user.id !== currentUser.id && (
                 <div className="flex gap-2 w-full sm:w-auto">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => onManageBtc(user.id, user.username, Number(user.btc_balance || 0))}
+                    className="text-xs flex-1 sm:flex-none text-orange-500 hover:text-orange-600"
+                    title="Управление BTC"
+                  >
+                    <Icon name="Bitcoin" size={14} className="sm:mr-1" />
+                    <span className="hidden sm:inline">BTC</span>
+                  </Button>
                   <Button
                     size="sm"
                     variant="ghost"

@@ -28,6 +28,7 @@ interface AdminPanelContentProps {
   onUnblockUser: (userId: number) => void;
   onDeleteUser: (userId: number, username: string) => void;
   onChangeForumRole: (userId: number, forumRole: string) => void;
+  onManageBtc: (userId: number, username: string, currentBalance: number) => void;
   onEditTopic: (topic: ForumTopic) => void;
   onDeleteTopic: (topicId: number) => void;
   onUpdateViews: (topicId: number, views: number) => void;
@@ -57,6 +58,7 @@ const AdminPanelContent = ({
   onUnblockUser,
   onDeleteUser,
   onChangeForumRole,
+  onManageBtc,
   onEditTopic,
   onDeleteTopic,
   onUpdateViews,
@@ -79,6 +81,7 @@ const AdminPanelContent = ({
           onUnblockUser={onUnblockUser}
           onDeleteUser={onDeleteUser}
           onChangeForumRole={onChangeForumRole}
+          onManageBtc={onManageBtc}
         />
       )}
 
