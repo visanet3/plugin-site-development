@@ -35,7 +35,11 @@ const AdminUsersTab = ({
     
     if (aOnline && !bOnline) return -1;
     if (!aOnline && bOnline) return 1;
-    return 0;
+    
+    const aTime = a.last_seen_at ? new Date(a.last_seen_at).getTime() : 0;
+    const bTime = b.last_seen_at ? new Date(b.last_seen_at).getTime() : 0;
+    
+    return bTime - aTime;
   });
 
   return (
