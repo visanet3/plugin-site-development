@@ -27,18 +27,18 @@ def generate_code() -> str:
 
 def send_verification_email(email: str, code: str) -> bool:
     try:
-        smtp_host = os.environ.get('SMTP_HOST', 'smtp.yandex.ru')
-        smtp_port = int(os.environ.get('SMTP_PORT', '587'))
-        smtp_user = os.environ.get('SMTP_USER')
-        smtp_password = os.environ.get('SMTP_PASSWORD')
+        # Use Gmail with hardcoded credentials (same as password-reset function)
+        smtp_host = 'smtp.gmail.com'
+        smtp_port = 587
+        smtp_user = 'visanet33@gmail.com'
+        smtp_password = 'txvnmgppnhlmkbkd'
+        from_email = smtp_user
         
-        if not smtp_user or not smtp_password:
-            print('SMTP credentials not configured')
-            return False
+        print(f'SMTP config: host={smtp_host}, port={smtp_port}, user={smtp_user}')
         
         msg = MIMEMultipart('alternative')
         msg['Subject'] = 'Код верификации GitCrypto'
-        msg['From'] = smtp_user
+        msg['From'] = from_email
         msg['To'] = email
         
         html = f'''
