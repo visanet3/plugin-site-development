@@ -744,7 +744,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
             />
           ) : (
           /* Desktop версия */
-          <Dialog open={true} onOpenChange={(open) => !open && setSelectedDeal(null)}>
+          <Dialog open={!!selectedDeal} onOpenChange={(open) => !open && setSelectedDeal(null)}>
             <DialogContent className="w-[90vw] max-w-3xl h-[80vh] overflow-hidden flex flex-col p-5 rounded-lg">
               <DialogHeader>
                 <DialogTitle className="text-xl font-bold">{selectedDeal.title}</DialogTitle>
