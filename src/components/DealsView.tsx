@@ -66,6 +66,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
   const [creating, setCreating] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
+  const [showDealDialog, setShowDealDialog] = useState(false);
   const [dealMessages, setDealMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
@@ -595,6 +596,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                   return;
                 }
                 setSelectedDeal(deal);
+                setShowDealDialog(true);
                 fetchDealDetails(deal.id);
               }}
             >
@@ -724,7 +726,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
       </Dialog>
 
       {/* Диалог детальной сделки */}
-      {selectedDeal && (
+      {selectedDeal && showDealDialog && (
         <>
           {/* Мобильная версия */}
           {isMobile ? (
@@ -736,7 +738,10 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
               setNewMessage={setNewMessage}
               sendMessage={sendMessage}
               actionLoading={actionLoading}
-              onClose={() => setSelectedDeal(null)}
+              onClose={() => {
+                setShowDealDialog(false);
+                setSelectedDeal(null);
+              }}
               getStepText={getStepText}
               handleBuyerPay={handleBuyerPay}
               handleSellerSent={handleSellerSent}
@@ -744,7 +749,12 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
             />
           ) : (
           /* Desktop версия */
-          <Dialog open={!!selectedDeal} onOpenChange={(open) => !open && setSelectedDeal(null)}>
+          <Dialog open={showDealDialog} onOpenChange={(open) => {
+            setShowDealDialog(open);
+            if (!open) {
+              setSelectedDeal(null);
+            }
+          }}>
             <DialogContent className="w-[90vw] max-w-3xl h-[80vh] overflow-hidden flex flex-col p-5 rounded-lg">
               <DialogHeader>
                 <DialogTitle className="text-xl font-bold">{selectedDeal.title}</DialogTitle>
