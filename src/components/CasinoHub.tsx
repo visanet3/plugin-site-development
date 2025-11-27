@@ -7,8 +7,7 @@ import BlackjackGame from './BlackjackGame';
 import BaccaratGame from './BaccaratGame';
 import DiceGame from './DiceGame';
 import LotteryGame from './LotteryGame';
-import RouletteGame from './RouletteGame';
-import PokerGame from './PokerGame';
+
 import CrashGame from './CrashGame';
 import MinesGame from './MinesGame';
 import SlotsGame from './SlotsGame';
@@ -20,7 +19,7 @@ interface CasinoHubProps {
   onRefreshUserBalance?: () => void;
 }
 
-type GameType = 'menu' | 'blackjack' | 'baccarat' | 'dice' | 'lottery' | 'roulette' | 'poker' | 'crash' | 'mines' | 'slots' | 'plinko';
+type GameType = 'menu' | 'blackjack' | 'baccarat' | 'dice' | 'lottery' | 'crash' | 'mines' | 'slots' | 'plinko';
 
 const CasinoHub = ({ user, onShowAuthDialog, onRefreshUserBalance }: CasinoHubProps) => {
   const [selectedGame, setSelectedGame] = useState<GameType>('menu');
@@ -59,22 +58,6 @@ const CasinoHub = ({ user, onShowAuthDialog, onRefreshUserBalance }: CasinoHubPr
       icon: 'Ticket',
       description: '10 билетов по 50 USDT. Приз 400 USDT',
       color: 'from-indigo-600 to-indigo-800',
-      available: true
-    },
-    {
-      id: 'roulette' as GameType,
-      name: 'Рулетка',
-      icon: 'CircleDot',
-      description: 'Европейская рулетка с числами 0-36',
-      color: 'from-red-600 to-red-800',
-      available: true
-    },
-    {
-      id: 'poker' as GameType,
-      name: 'Покер',
-      icon: 'Club',
-      description: '5-карточный покер против дилера',
-      color: 'from-blue-600 to-blue-800',
       available: true
     },
     {
@@ -189,48 +172,6 @@ const CasinoHub = ({ user, onShowAuthDialog, onRefreshUserBalance }: CasinoHubPr
           Назад к играм
         </Button>
         <LotteryGame 
-          user={user} 
-          onShowAuthDialog={onShowAuthDialog}
-          onRefreshUserBalance={onRefreshUserBalance}
-        />
-      </div>
-    );
-  }
-
-  if (selectedGame === 'roulette') {
-    return (
-      <div className="space-y-4">
-        <Button 
-          type="button"
-          onClick={() => setSelectedGame('menu')}
-          variant="outline"
-          className="gap-2"
-        >
-          <Icon name="ArrowLeft" size={18} />
-          Назад к играм
-        </Button>
-        <RouletteGame 
-          user={user} 
-          onShowAuthDialog={onShowAuthDialog}
-          onRefreshUserBalance={onRefreshUserBalance}
-        />
-      </div>
-    );
-  }
-
-  if (selectedGame === 'poker') {
-    return (
-      <div className="space-y-4">
-        <Button 
-          type="button"
-          onClick={() => setSelectedGame('menu')}
-          variant="outline"
-          className="gap-2"
-        >
-          <Icon name="ArrowLeft" size={18} />
-          Назад к играм
-        </Button>
-        <PokerGame 
           user={user} 
           onShowAuthDialog={onShowAuthDialog}
           onRefreshUserBalance={onRefreshUserBalance}
