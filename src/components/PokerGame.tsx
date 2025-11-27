@@ -244,19 +244,12 @@ const PokerGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: PokerGamePr
     let isDraw = false;
     let winAmount = 0;
 
-    const shouldWin = Math.random() < 0.27;
-    
-    if (shouldWin) {
+    if (playerRank.rank > dealerRank.rank) {
       won = true;
       winAmount = totalBet * 2;
-    } else {
-      if (playerRank.rank > dealerRank.rank) {
-        won = true;
-        winAmount = totalBet * 2;
-      } else if (playerRank.rank === dealerRank.rank) {
-        isDraw = true;
-        winAmount = totalBet;
-      }
+    } else if (playerRank.rank === dealerRank.rank) {
+      isDraw = true;
+      winAmount = totalBet;
     }
 
     try {

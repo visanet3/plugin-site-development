@@ -44,31 +44,11 @@ const MinesGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: MinesGamePr
 
   const generateMinePositions = (count: number): number[] => {
     const positions: number[] = [];
-    const shouldWin = Math.random() < 0.27;
     
-    if (shouldWin) {
-      while (positions.length < count) {
-        const pos = Math.floor(Math.random() * GRID_SIZE);
-        if (!positions.includes(pos)) {
-          positions.push(pos);
-        }
-      }
-    } else {
-      const firstQuarter = Math.floor(GRID_SIZE / 4);
-      const minesInFirstQuarter = Math.floor(count * 0.6);
-      
-      while (positions.length < minesInFirstQuarter) {
-        const pos = Math.floor(Math.random() * firstQuarter);
-        if (!positions.includes(pos)) {
-          positions.push(pos);
-        }
-      }
-      
-      while (positions.length < count) {
-        const pos = Math.floor(Math.random() * GRID_SIZE);
-        if (!positions.includes(pos)) {
-          positions.push(pos);
-        }
+    while (positions.length < count) {
+      const pos = Math.floor(Math.random() * GRID_SIZE);
+      if (!positions.includes(pos)) {
+        positions.push(pos);
       }
     }
     

@@ -145,35 +145,7 @@ const RouletteGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: Roulette
         return;
       }
 
-      let number: number;
-      const shouldWin = Math.random() < 0.27;
-      
-      if (shouldWin && bets.length > 0) {
-        const randomBet = bets[Math.floor(Math.random() * bets.length)];
-        if (typeof randomBet.type === 'number') {
-          number = randomBet.type;
-        } else if (randomBet.type === 'red') {
-          const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
-          number = redNumbers[Math.floor(Math.random() * redNumbers.length)];
-        } else if (randomBet.type === 'black') {
-          const blackNumbers = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35];
-          number = blackNumbers[Math.floor(Math.random() * blackNumbers.length)];
-        } else if (randomBet.type === 'even') {
-          const evenNumbers = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36];
-          number = evenNumbers[Math.floor(Math.random() * evenNumbers.length)];
-        } else if (randomBet.type === 'odd') {
-          const oddNumbers = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35];
-          number = oddNumbers[Math.floor(Math.random() * oddNumbers.length)];
-        } else if (randomBet.type === 'low') {
-          number = Math.floor(Math.random() * 18) + 1;
-        } else if (randomBet.type === 'high') {
-          number = Math.floor(Math.random() * 18) + 19;
-        } else {
-          number = Math.floor(Math.random() * 37);
-        }
-      } else {
-        number = Math.floor(Math.random() * 37);
-      }
+      const number = Math.floor(Math.random() * 37);
       
       const spins = 5 + Math.random() * 3;
       const targetRotation = rotation + (360 * spins) + (number * (360 / 37));

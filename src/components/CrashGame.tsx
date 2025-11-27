@@ -35,18 +35,11 @@ const CrashGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: CrashGamePr
   }, []);
 
   const generateCrashPoint = (): number => {
-    const shouldWin = Math.random() < 0.27;
-    
-    if (shouldWin) {
-      const autoCashoutValue = parseFloat(autoCashout) || 2.0;
-      const minMultiplier = Math.max(autoCashoutValue, 1.5);
-      return minMultiplier + Math.random() * 3;
-    } else {
-      const random = Math.random();
-      if (random < 0.4) return 1.0 + Math.random() * 0.5;
-      if (random < 0.7) return 1.5 + Math.random() * 1.0;
-      return 2.5 + Math.random() * 2.0;
-    }
+    const random = Math.random();
+    if (random < 0.5) return 1.0 + Math.random() * 0.5;
+    if (random < 0.8) return 1.5 + Math.random() * 1.5;
+    if (random < 0.95) return 3.0 + Math.random() * 2.0;
+    return 5.0 + Math.random() * 5.0;
   };
 
   const startGame = async () => {

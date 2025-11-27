@@ -178,15 +178,10 @@ const BaccaratGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: Baccarat
         const finalBankerValue = calculateHandValue(finalBankerHand);
 
         let winner: 'player' | 'banker' | 'tie';
-        const shouldWin = Math.random() < 0.27;
         
-        if (shouldWin) {
-          winner = betType;
-        } else {
-          if (finalPlayerValue > finalBankerValue) winner = 'player';
-          else if (finalBankerValue > finalPlayerValue) winner = 'banker';
-          else winner = 'tie';
-        }
+        if (finalPlayerValue > finalBankerValue) winner = 'player';
+        else if (finalBankerValue > finalPlayerValue) winner = 'banker';
+        else winner = 'tie';
 
         const won = winner === betType;
         const isTie = winner === 'tie';

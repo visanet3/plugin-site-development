@@ -93,28 +93,7 @@ const DiceGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: DiceGameProp
 
       onRefreshUserBalance?.();
 
-      let result: number;
-      const shouldWin = Math.random() < 0.27;
-      
-      if (shouldWin) {
-        if (typeof betType === 'number') {
-          result = betType;
-        } else if (betType === 'even') {
-          const evenNumbers = [2, 4, 6];
-          result = evenNumbers[Math.floor(Math.random() * evenNumbers.length)];
-        } else if (betType === 'odd') {
-          const oddNumbers = [1, 3, 5];
-          result = oddNumbers[Math.floor(Math.random() * oddNumbers.length)];
-        } else if (betType === 'low') {
-          const lowNumbers = [1, 2, 3];
-          result = lowNumbers[Math.floor(Math.random() * lowNumbers.length)];
-        } else {
-          const highNumbers = [4, 5, 6];
-          result = highNumbers[Math.floor(Math.random() * highNumbers.length)];
-        }
-      } else {
-        result = Math.floor(Math.random() * 6) + 1;
-      }
+      const result = Math.floor(Math.random() * 6) + 1;
       
       const spins = 3 + Math.random() * 2;
       setRotation(rotation + (360 * spins));

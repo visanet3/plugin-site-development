@@ -127,8 +127,7 @@ const SlotsGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: SlotsGamePr
       setTimeout(() => {
         clearInterval(spinInterval);
         
-        const shouldWin = Math.random() < 0.27;
-        const finalReels = shouldWin ? generateWinningCombination() : generateLosingCombination();
+        const finalReels = [getRandomSymbol(), getRandomSymbol(), getRandomSymbol()];
         
         setReels(finalReels);
         setIsSpinning(false);
