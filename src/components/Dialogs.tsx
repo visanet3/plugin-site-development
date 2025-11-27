@@ -261,16 +261,29 @@ const Dialogs = ({
             <EmailVerificationStep
               email={pendingRegistration.email}
               onVerified={async () => {
+                toast({
+                  title: '✅ Email подтверждён',
+                  description: 'Завершаем регистрацию...'
+                });
+                
                 const response = await fetch(AUTH_URL, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
                     action: 'register',
-                    ...pendingRegistration
+                    username: pendingRegistration.username,
+                    email: pendingRegistration.email,
+                    password: pendingRegistration.password,
+                    referral_code: pendingRegistration.referral_code
                   }),
                 });
                 const data = await response.json();
                 if (data.success) {
+                  toast({
+                    title: '🎉 Регистрация завершена',
+                    description: 'Добро пожаловать!'
+                  });
+                  
                   const loginForm = document.createElement('form');
                   const usernameInput = document.createElement('input');
                   usernameInput.name = 'username';
@@ -309,6 +322,19 @@ const Dialogs = ({
               const email = formData.get('email') as string;
               
               if (authMode === 'register' && email) {
+                const username = (formData.get('username') as string || '').trim();
+                const password = (formData.get('password') as string || '').trim();
+                const referral_code = (formData.get('referral_code') as string || '').trim();
+                
+                if (!username || !email || !password) {
+                  toast({
+                    title: 'Ошибка',
+                    description: 'Заполните все обязательные поля',
+                    variant: 'destructive'
+                  });
+                  return;
+                }
+                
                 const EMAIL_VERIFY_URL = 'https://functions.poehali.dev/d1025e8d-68f1-4eec-b8e9-30ec5c80d63f';
                 fetch(EMAIL_VERIFY_URL, {
                   method: 'POST',
@@ -317,10 +343,10 @@ const Dialogs = ({
                 }).then(res => res.json()).then(data => {
                   if (data.success) {
                     setPendingRegistration({
-                      username: formData.get('username') as string,
-                      email: email,
-                      password: formData.get('password') as string,
-                      referral_code: formData.get('referral_code') as string || undefined
+                      username,
+                      email,
+                      password,
+                      referral_code: referral_code || undefined
                     });
                     setShowEmailVerification(true);
                   } else {
