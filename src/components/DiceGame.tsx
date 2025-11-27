@@ -155,6 +155,7 @@ const DiceGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: DiceGameProp
             action: 'complete_game',
             won: true,
             amount: winAmount,
+            bet_amount: betAmount,
             game_type: 'Dice'
           })
         });
@@ -165,6 +166,20 @@ const DiceGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: DiceGameProp
           variant: 'default'
         });
       } else {
+        await fetch(AUTH_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Id': user!.id.toString()
+          },
+          body: JSON.stringify({
+            action: 'complete_game',
+            won: false,
+            amount: 0,
+            bet_amount: betAmount,
+            game_type: 'Dice'
+          })
+        });
         setResult(`🎲 Выпало ${dice}. Вы проиграли ${betAmount.toFixed(2)} USDT`);
         toast({
           title: '😔 Проигрыш',

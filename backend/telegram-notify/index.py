@@ -130,6 +130,24 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             referral_code = details.get('referral_code', 'N/A')
             message = f"👋 <b>Новый пользователь (по реферальной ссылке)</b>\n\n👤 Имя: {username} (ID: {user_id})\n📧 Email: {email}\n🔗 Пригласил: {referrer_username}\n🎟 Код: {referral_code}"
         
+        elif event_type == 'game_win':
+            game = details.get('game', 'N/A')
+            bet_amount = details.get('bet_amount', 0)
+            win_amount = details.get('win_amount', 0)
+            profit = win_amount - bet_amount
+            message = f"🎰 <b>Выигрыш в казино</b>\n\n👤 Пользователь: {username} (ID: {user_id})\n🎮 Игра: {game}\n💰 Ставка: {bet_amount} USDT\n🏆 Выигрыш: {win_amount} USDT\n📈 Прибыль: +{profit} USDT"
+        
+        elif event_type == 'game_loss':
+            game = details.get('game', 'N/A')
+            bet_amount = details.get('bet_amount', 0)
+            message = f"🎰 <b>Проигрыш в казино</b>\n\n👤 Пользователь: {username} (ID: {user_id})\n🎮 Игра: {game}\n💰 Ставка: {bet_amount} USDT\n📉 Проигрыш: -{bet_amount} USDT"
+        
+        elif event_type == 'game_draw':
+            game = details.get('game', 'N/A')
+            bet_amount = details.get('bet_amount', 0)
+            returned_amount = details.get('returned_amount', 0)
+            message = f"🎰 <b>Ничья в казино</b>\n\n👤 Пользователь: {username} (ID: {user_id})\n🎮 Игра: {game}\n💰 Ставка: {bet_amount} USDT\n↩️ Возврат: {returned_amount} USDT"
+        
         else:
             message = f"ℹ️ <b>{event_type}</b>\n\n👤 Пользователь: {username} (ID: {user_id})\n📋 Детали: {json.dumps(details, ensure_ascii=False)}"
         

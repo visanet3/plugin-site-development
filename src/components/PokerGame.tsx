@@ -264,6 +264,7 @@ const PokerGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: PokerGamePr
           won: won,
           is_draw: isDraw,
           amount: winAmount,
+          bet_amount: totalBet,
           game_type: 'Poker'
         })
       });

@@ -218,7 +218,8 @@ const RouletteGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: Roulette
           action: 'complete_game',
           won: totalWin > 0,
           amount: totalWin,
-          game_type: 'roulette'
+          bet_amount: totalBet,
+          game_type: 'Roulette'
         })
       });
 

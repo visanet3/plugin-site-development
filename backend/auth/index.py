@@ -657,6 +657,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             amount = body_data.get('amount', 0)
             game_type = body_data.get('game_type', 'unknown')
             is_draw = body_data.get('is_draw', False)
+            bet_amount = body_data.get('bet_amount', 0)
+            
+            cur.execute(
+                f"SELECT username FROM {SCHEMA}.users WHERE id = %s",
+                (int(user_id),)
+            )
+            user_data = cur.fetchone()
+            username = user_data['username'] if user_data else 'Unknown'
             
             if amount > 0 and (won or is_draw):
                 cur.execute(
@@ -670,11 +678,31 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES (%s, %s, %s, %s)",
                         (int(user_id), float(amount), 'draw', f'Ничья в игре {game_type} - возврат ставки')
                     )
+                    
+                    try:
+                        notify_payload = {
+                            'event_type': 'game_draw',
+                            'user_info': {'username': username, 'user_id': user_id},
+                            'details': {'game': game_type, 'bet_amount': bet_amount, 'returned_amount': amount}
+                        }
+                        requests.post('https://functions.poehali.dev/bc97a1cc-38a8-4c91-9dd0-45a6231ecc98', json=notify_payload, timeout=5)
+                    except:
+                        pass
                 else:
                     cur.execute(
                         f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES (%s, %s, %s, %s)",
                         (int(user_id), float(amount), 'win', f'Выигрыш в игре {game_type}')
                     )
+                    
+                    try:
+                        notify_payload = {
+                            'event_type': 'game_win',
+                            'user_info': {'username': username, 'user_id': user_id},
+                            'details': {'game': game_type, 'bet_amount': bet_amount, 'win_amount': amount}
+                        }
+                        requests.post('https://functions.poehali.dev/bc97a1cc-38a8-4c91-9dd0-45a6231ecc98', json=notify_payload, timeout=5)
+                    except:
+                        pass
                 
                 if won:
                     cur.execute(
@@ -702,6 +730,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             else:
                 cur.execute(f"SELECT balance FROM {SCHEMA}.users WHERE id = %s", (int(user_id),))
                 user = cur.fetchone()
+                
+                try:
+                    notify_payload = {
+                        'event_type': 'game_loss',
+                        'user_info': {'username': username, 'user_id': user_id},
+                        'details': {'game': game_type, 'bet_amount': bet_amount}
+                    }
+                    requests.post('https://functions.poehali.dev/bc97a1cc-38a8-4c91-9dd0-45a6231ecc98', json=notify_payload, timeout=5)
+                except:
+                    pass
                 
                 return {
                     'statusCode': 200,

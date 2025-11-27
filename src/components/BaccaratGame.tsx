@@ -227,11 +227,28 @@ const BaccaratGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: Baccarat
             won: won && !isTie,
             is_draw: isTie,
             amount: winAmount,
+            bet_amount: betAmount,
             game_type: 'Baccarat'
           })
         });
 
         const data = await response.json();
+      } else {
+        await fetch(AUTH_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Id': user!.id.toString()
+          },
+          body: JSON.stringify({
+            action: 'complete_game',
+            won: false,
+            is_draw: false,
+            amount: 0,
+            bet_amount: betAmount,
+            game_type: 'Baccarat'
+          })
+        });
       }
       
       let resultText = '';

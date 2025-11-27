@@ -262,6 +262,7 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
               won: won,
               is_draw: isDraw,
               amount: winAmount,
+              bet_amount: betAmount,
               game_type: 'Blackjack'
             })
           });
@@ -284,6 +285,22 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
             }
           }
         } else {
+          const lossResponse = await fetch(AUTH_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-User-Id': user.id.toString()
+            },
+            body: JSON.stringify({
+              action: 'complete_game',
+              won: false,
+              is_draw: false,
+              amount: 0,
+              bet_amount: betAmount,
+              game_type: 'Blackjack'
+            })
+          });
+          
           onRefreshUserBalance?.();
           toast({
             title: '😔 Проигрыш',
