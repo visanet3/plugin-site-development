@@ -438,7 +438,7 @@ const BaccaratGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: Baccarat
                   <label className="text-sm font-medium">Ставка</label>
                   {user && (
                     <span className="text-xs text-muted-foreground">
-                      Баланс: {user.balance.toFixed(2)} USDT
+                      Баланс: {Number(user.balance || 0).toFixed(2)} USDT
                     </span>
                   )}
                 </div>
