@@ -170,11 +170,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             email = str(email_raw).strip() if email_raw else ''
             referral_code = str(referral_code_raw).strip().upper() if referral_code_raw else ''
             
+            print(f"DEBUG register: username='{username}' email='{email}' password='{password}' username_raw={username_raw} email_raw={email_raw}")
+            
             if not username or not email or not password:
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Заполните все поля'}),
+                    'body': json.dumps({'error': f'Заполните все поля (username={bool(username)}, email={bool(email)}, password={bool(password)})'}),
                     'isBase64Encoded': False
                 }
             

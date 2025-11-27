@@ -266,16 +266,20 @@ const Dialogs = ({
                   description: 'Завершаем регистрацию...'
                 });
                 
+                const registrationData = {
+                  action: 'register',
+                  username: pendingRegistration.username,
+                  email: pendingRegistration.email,
+                  password: pendingRegistration.password,
+                  referral_code: pendingRegistration.referral_code
+                };
+                
+                console.log('Отправка регистрации:', registrationData);
+                
                 const response = await fetch(AUTH_URL, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    action: 'register',
-                    username: pendingRegistration.username,
-                    email: pendingRegistration.email,
-                    password: pendingRegistration.password,
-                    referral_code: pendingRegistration.referral_code
-                  }),
+                  body: JSON.stringify(registrationData),
                 });
                 const data = await response.json();
                 if (data.success) {
