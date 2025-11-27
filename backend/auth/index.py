@@ -656,29 +656,37 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             won = body_data.get('won', False)
             amount = body_data.get('amount', 0)
             game_type = body_data.get('game_type', 'unknown')
+            is_draw = body_data.get('is_draw', False)
             
-            if won and amount > 0:
+            if amount > 0 and (won or is_draw):
                 cur.execute(
                     f"UPDATE {SCHEMA}.users SET balance = balance + %s WHERE id = %s RETURNING balance",
                     (float(amount), int(user_id))
                 )
                 result = cur.fetchone()
                 
-                cur.execute(
-                    f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES (%s, %s, %s, %s)",
-                    (int(user_id), float(amount), 'win', f'Выигрыш в игре {game_type}')
-                )
+                if is_draw:
+                    cur.execute(
+                        f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES (%s, %s, %s, %s)",
+                        (int(user_id), float(amount), 'draw', f'Ничья в игре {game_type} - возврат ставки')
+                    )
+                else:
+                    cur.execute(
+                        f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES (%s, %s, %s, %s)",
+                        (int(user_id), float(amount), 'win', f'Выигрыш в игре {game_type}')
+                    )
                 
-                cur.execute(
-                    f"SELECT username, avatar_url FROM {SCHEMA}.users WHERE id = %s",
-                    (int(user_id),)
-                )
-                user_info = cur.fetchone()
-                
-                cur.execute(
-                    f"INSERT INTO {SCHEMA}.casino_wins (user_id, username, avatar_url, amount, game) VALUES (%s, %s, %s, %s, %s)",
-                    (int(user_id), user_info['username'], user_info.get('avatar_url'), float(amount), game_type)
-                )
+                if won:
+                    cur.execute(
+                        f"SELECT username, avatar_url FROM {SCHEMA}.users WHERE id = %s",
+                        (int(user_id),)
+                    )
+                    user_info = cur.fetchone()
+                    
+                    cur.execute(
+                        f"INSERT INTO {SCHEMA}.casino_wins (user_id, username, avatar_url, amount, game) VALUES (%s, %s, %s, %s, %s)",
+                        (int(user_id), user_info['username'], user_info.get('avatar_url'), float(amount), game_type)
+                    )
                 
                 conn.commit()
                 

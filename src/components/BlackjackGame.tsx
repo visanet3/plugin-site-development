@@ -260,6 +260,7 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
             body: JSON.stringify({
               action: 'complete_game',
               won: won,
+              is_draw: isDraw,
               amount: winAmount,
               game_type: 'Blackjack'
             })
