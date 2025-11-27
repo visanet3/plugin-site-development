@@ -376,8 +376,6 @@ const Dialogs = ({
               }}
               onBack={() => {
                 setShowEmailVerification(false);
-                setPendingRegistration(null);
-                sessionStorage.removeItem('pendingRegistration');
               }}
             />
           ) : (
