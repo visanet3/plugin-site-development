@@ -372,13 +372,19 @@ const Dialogs = ({
             <form onSubmit={(e) => {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
+              
+              console.log('=== FORM SUBMIT ===');
+              console.log('authMode:', authMode);
+              console.log('FormData entries:', Array.from(formData.entries()));
+              
               const email = (formData.get('email') as string || '').trim();
+              const username = (formData.get('username') as string || '').trim();
+              const password = (formData.get('password') as string || '').trim();
+              const referral_code = (formData.get('referral_code') as string || '').trim();
+              
+              console.log('Extracted values:', { username, email, password, referral_code });
               
               if (authMode === 'register' && email) {
-                const username = (formData.get('username') as string || '').trim();
-                const password = (formData.get('password') as string || '').trim();
-                const referral_code = (formData.get('referral_code') as string || '').trim();
-                
                 if (!username || !email || !password) {
                   toast({
                     title: 'Ошибка',
