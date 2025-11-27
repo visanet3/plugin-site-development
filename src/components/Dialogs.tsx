@@ -281,8 +281,26 @@ const Dialogs = ({
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify(registrationData),
                 });
-                const data = await response.json();
-                console.log('Ответ сервера:', data);
+                
+                const responseText = await response.text();
+                console.log('RAW Response:', responseText);
+                
+                let data;
+                try {
+                  data = JSON.parse(responseText);
+                } catch (e) {
+                  console.error('Parse error:', e);
+                  toast({
+                    title: 'Ошибка парсинга',
+                    description: `Response: ${responseText.substring(0, 200)}`,
+                    variant: 'destructive'
+                  });
+                  setShowEmailVerification(false);
+                  setPendingRegistration(null);
+                  return;
+                }
+                
+                console.log('Parsed Response:', data);
                 
                 if (data.success) {
                   toast({
