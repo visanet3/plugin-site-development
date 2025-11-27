@@ -261,6 +261,19 @@ const Dialogs = ({
             <EmailVerificationStep
               email={pendingRegistration.email}
               onVerified={async () => {
+                console.log('onVerified вызван, pendingRegistration:', pendingRegistration);
+                
+                if (!pendingRegistration || !pendingRegistration.email) {
+                  toast({
+                    title: 'Ошибка',
+                    description: 'Данные регистрации потеряны. Попробуйте снова.',
+                    variant: 'destructive'
+                  });
+                  setShowEmailVerification(false);
+                  setPendingRegistration(null);
+                  return;
+                }
+                
                 toast({
                   title: '✅ Email подтверждён',
                   description: 'Завершаем регистрацию...'
@@ -362,12 +375,15 @@ const Dialogs = ({
                   return;
                 }
                 
-                setPendingRegistration({
+                const pendingData = {
                   username,
                   email,
                   password,
                   referral_code: referral_code || undefined
-                });
+                };
+                
+                console.log('Сохраняю pendingRegistration:', pendingData);
+                setPendingRegistration(pendingData);
                 
                 const EMAIL_VERIFY_URL = 'https://functions.poehali.dev/d1025e8d-68f1-4eec-b8e9-30ec5c80d63f';
                 fetch(EMAIL_VERIFY_URL, {
@@ -376,6 +392,7 @@ const Dialogs = ({
                   body: JSON.stringify({ action: 'send_code', email })
                 }).then(res => res.json()).then(data => {
                   if (data.success) {
+                    console.log('Код отправлен, pendingRegistration сейчас:', pendingData);
                     setShowEmailVerification(true);
                   } else {
                     toast({
