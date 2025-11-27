@@ -146,7 +146,7 @@ const RouletteGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: Roulette
       }
 
       let number: number;
-      const shouldWin = Math.random() < 0.7;
+      const shouldWin = Math.random() < 0.3;
       
       if (shouldWin && bets.length > 0) {
         const randomBet = bets[Math.floor(Math.random() * bets.length)];
