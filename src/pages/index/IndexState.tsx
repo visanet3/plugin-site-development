@@ -85,7 +85,14 @@ export const useIndexState = () => {
     setMessagesUnread,
     setAdminNotificationsUnread,
     showAdminToast,
-    showToast
+    showToast,
+    onUserBlocked: () => {
+      setAuthDialogOpen(true);
+      setShowAdminPanel(false);
+      setShowUserProfile(false);
+      setShowMessagesPanel(false);
+      setShowNotificationsPanel(false);
+    }
   });
 
   const { handleCreateTopic, handleCreateComment, handleTopicSelect } = useForumHandlers({

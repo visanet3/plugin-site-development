@@ -59,6 +59,18 @@ const Index = () => {
           });
           const data = await response.json();
           if (data.success && data.user) {
+            if (data.user.is_blocked) {
+              localStorage.removeItem('user');
+              state.setUser(null);
+              state.setAuthDialogOpen(true);
+              state.toast({
+                title: '🚫 Аккаунт заблокирован',
+                description: 'Ваш аккаунт был заблокирован администратором',
+                variant: 'destructive',
+                duration: 10000
+              });
+              return;
+            }
             state.setUser(data.user);
             localStorage.setItem('user', JSON.stringify(data.user));
           }

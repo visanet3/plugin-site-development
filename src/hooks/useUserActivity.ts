@@ -9,12 +9,13 @@ const VERIFICATION_URL = 'https://functions.poehali.dev/e0d94580-497a-452f-9044-
 
 interface UseUserActivityProps {
   user: User | null;
-  setUser: (user: User) => void;
+  setUser: (user: User | null) => void;
   setNotificationsUnread: (count: number) => void;
   setMessagesUnread: (count: number) => void;
   setAdminNotificationsUnread?: (count: number) => void;
   showAdminToast?: (title: string, description: string) => void;
   showToast?: (title: string, description: string, className?: string, duration?: number) => void;
+  onUserBlocked?: () => void;
 }
 
 export const useUserActivity = ({
@@ -24,7 +25,8 @@ export const useUserActivity = ({
   setMessagesUnread,
   setAdminNotificationsUnread,
   showAdminToast,
-  showToast
+  showToast,
+  onUserBlocked
 }: UseUserActivityProps) => {
   useEffect(() => {
     if (user) {
@@ -114,17 +116,18 @@ export const useUserActivity = ({
             // Check if user is blocked
             if (data.user.is_blocked) {
               localStorage.removeItem('user');
+              setUser(null);
               if (showToast) {
                 showToast(
                   '🚫 Аккаунт заблокирован',
-                  'Вы заблокированы навсегда. Доступ к сайту закрыт.',
+                  'Ваш аккаунт был заблокирован администратором',
                   'bg-red-500/10 border-red-500/30 text-foreground',
-                  0
+                  10000
                 );
               }
-              setTimeout(() => {
-                window.location.reload();
-              }, 2000);
+              if (onUserBlocked) {
+                onUserBlocked();
+              }
               return;
             }
             
