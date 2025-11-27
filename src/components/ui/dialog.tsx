@@ -11,18 +11,30 @@ const Dialog = (props: React.ComponentProps<typeof DialogPrimitive.Root>) => {
     if (!open) return;
 
     const scrollY = window.scrollY;
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.width = '100%';
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
+    const body = document.body;
+    const html = document.documentElement;
+    
+    // Блокируем скролл body
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.left = '0';
+    body.style.right = '0';
+    body.style.width = '100%';
+    body.style.overflow = 'hidden';
+    html.style.overflow = 'hidden';
+    
+    // Добавляем класс для дополнительной блокировки
+    body.classList.add('dialog-open');
 
     return () => {
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
+      body.style.position = '';
+      body.style.top = '';
+      body.style.left = '';
+      body.style.right = '';
+      body.style.width = '';
+      body.style.overflow = '';
+      html.style.overflow = '';
+      body.classList.remove('dialog-open');
       window.scrollTo(0, scrollY);
     };
   }, [open]);
