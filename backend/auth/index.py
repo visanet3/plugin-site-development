@@ -14,8 +14,22 @@ import urllib.request
 from typing import Dict, Any, Optional
 import psycopg2
 from psycopg2.extras import RealDictCursor
+import requests
 
 SCHEMA = 't_p32599880_plugin_site_developm'
+
+def send_telegram_notification(event_type: str, user_info: Dict, details: Dict):
+    '''Send notification to admin via Telegram'''
+    try:
+        telegram_url = 'https://functions.poehali.dev/02d813a8-279b-4a13-bfe4-ffb7d0cf5a3f'
+        payload = {
+            'event_type': event_type,
+            'user_info': user_info,
+            'details': details
+        }
+        requests.post(telegram_url, json=payload, timeout=5)
+    except:
+        pass
 
 def get_db_connection():
     """Получить подключение к БД"""
@@ -1444,11 +1458,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cur.execute(
-                f"SELECT balance FROM {SCHEMA}.users WHERE id = %s",
+                f"SELECT balance, username FROM {SCHEMA}.users WHERE id = %s",
                 (int(user_id),)
             )
             user_data = cur.fetchone()
             current_balance = float(user_data['balance']) if user_data else 0
+            username = user_data['username'] if user_data else 'Unknown'
             
             if current_balance < usdt_amount:
                 return {
@@ -1474,6 +1489,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             )
             
             conn.commit()
+            
+            # Send Telegram notification to admin
+            send_telegram_notification(
+                'usdt_to_btc_exchange',
+                {'username': username, 'user_id': user_id},
+                {'usdt_amount': usdt_amount, 'btc_received': round(btc_received, 8), 'btc_price': btc_price}
+            )
             
             return {
                 'statusCode': 200,
@@ -1544,6 +1566,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             user_data = cur.fetchone()
             current_btc_balance = float(user_data['btc_balance']) if user_data and user_data['btc_balance'] else 0
             
+            username = user_data['username'] if user_data else 'Unknown'
+            
             if current_btc_balance < btc_amount:
                 return {
                     'statusCode': 400,
@@ -1568,6 +1592,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             )
             
             conn.commit()
+            
+            # Send Telegram notification to admin
+            send_telegram_notification(
+                'btc_to_usdt_exchange',
+                {'username': username, 'user_id': user_id},
+                {'btc_amount': round(btc_amount, 8), 'usdt_received': round(usdt_received, 2), 'btc_price': btc_price}
+            )
             
             return {
                 'statusCode': 200,
@@ -1614,11 +1645,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cur.execute(
-                f"SELECT btc_balance FROM {SCHEMA}.users WHERE id = %s",
+                f"SELECT btc_balance, username FROM {SCHEMA}.users WHERE id = %s",
                 (int(user_id),)
             )
             user_data = cur.fetchone()
             current_btc_balance = float(user_data['btc_balance']) if user_data and user_data['btc_balance'] else 0
+            username = user_data['username'] if user_data else 'Unknown'
             
             # Проверяем, достаточно ли средств с учётом комиссии
             total_required = btc_amount + btc_commission
@@ -1675,17 +1707,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cur.execute(
-                f"SELECT username FROM {SCHEMA}.users WHERE id = %s",
-                (int(user_id),)
-            )
-            username = cur.fetchone()['username']
-            
-            cur.execute(
                 f"INSERT INTO {SCHEMA}.admin_notifications (type, title, message, related_id, related_type) VALUES (%s, %s, %s, %s, %s)",
                 ('btc_withdrawal', 'Новая заявка на вывод BTC', f'Пользователь {username} запросил вывод {btc_amount:.8f} BTC', withdrawal_id, 'withdrawal')
             )
             
             conn.commit()
+            
+            # Send Telegram notification to admin
+            send_telegram_notification(
+                'btc_withdrawal',
+                {'username': username, 'user_id': user_id},
+                {'btc_amount': round(btc_amount, 8), 'btc_address': btc_address}
+            )
             
             return {
                 'statusCode': 200,

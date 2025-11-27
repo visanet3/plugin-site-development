@@ -103,6 +103,23 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             category = details.get('category', 'N/A')
             message = f"📝 <b>Новая тема на форуме</b>\n\n👤 Автор: {username} (ID: {user_id})\n📂 Категория: {category}\n📋 Название: {topic_title}"
         
+        elif event_type == 'usdt_to_btc_exchange':
+            usdt_amount = details.get('usdt_amount', 0)
+            btc_received = details.get('btc_received', 0)
+            btc_price = details.get('btc_price', 0)
+            message = f"🔄 <b>Обмен USDT → BTC</b>\n\n👤 Пользователь: {username} (ID: {user_id})\n💵 Обменял: {usdt_amount} USDT\n₿ Получил: {btc_received} BTC\n📊 Курс: ${btc_price:,.2f}"
+        
+        elif event_type == 'btc_to_usdt_exchange':
+            btc_amount = details.get('btc_amount', 0)
+            usdt_received = details.get('usdt_received', 0)
+            btc_price = details.get('btc_price', 0)
+            message = f"🔄 <b>Обмен BTC → USDT</b>\n\n👤 Пользователь: {username} (ID: {user_id})\n₿ Обменял: {btc_amount} BTC\n💵 Получил: {usdt_received} USDT\n📊 Курс: ${btc_price:,.2f}"
+        
+        elif event_type == 'btc_withdrawal':
+            btc_amount = details.get('btc_amount', 0)
+            btc_address = details.get('btc_address', 'N/A')
+            message = f"💸 <b>Вывод BTC</b>\n\n👤 Пользователь: {username} (ID: {user_id})\n₿ Сумма: {btc_amount} BTC\n💼 Адрес: <code>{btc_address}</code>"
+        
         else:
             message = f"ℹ️ <b>{event_type}</b>\n\n👤 Пользователь: {username} (ID: {user_id})\n📋 Детали: {json.dumps(details, ensure_ascii=False)}"
         
