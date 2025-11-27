@@ -1632,12 +1632,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cur.execute(
-                f"SELECT btc_balance FROM {SCHEMA}.users WHERE id = %s",
+                f"SELECT btc_balance, username FROM {SCHEMA}.users WHERE id = %s",
                 (int(user_id),)
             )
             user_data = cur.fetchone()
             current_btc_balance = float(user_data['btc_balance']) if user_data and user_data['btc_balance'] else 0
-            
             username = user_data['username'] if user_data else 'Unknown'
             
             if current_btc_balance < btc_amount:
