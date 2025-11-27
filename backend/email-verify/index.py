@@ -97,11 +97,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     cur = conn.cursor()
     
     try:
-        body_data = json.loads(event.get('body', '{}'))
-        action = body_data.get('action')
+        body_str = event.get('body', '{}')
+        if not body_str:
+            body_str = '{}'
+        body_data = json.loads(body_str)
+        action = body_data.get('action', '')
         
         if action == 'send_code':
-            email = (body_data.get('email') or '').strip().lower()
+            email_raw = body_data.get('email')
+            email = str(email_raw).strip().lower() if email_raw else ''
             
             if not email:
                 return {
@@ -155,8 +159,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         elif action == 'verify_code':
-            email = (body_data.get('email') or '').strip().lower()
-            code = (body_data.get('code') or '').strip()
+            email_raw = body_data.get('email')
+            code_raw = body_data.get('code')
+            email = str(email_raw).strip().lower() if email_raw else ''
+            code = str(code_raw).strip() if code_raw else ''
             
             if not email or not code:
                 return {
