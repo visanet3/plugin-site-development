@@ -70,6 +70,12 @@ const AdminUsersTab = ({
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground break-all">{user.email}</p>
+                {user.last_ip && (
+                  <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                    <Icon name="Globe" size={12} />
+                    {user.last_ip}
+                  </p>
+                )}
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-xs font-medium text-green-500">
                     💵 {Number(user.balance || 0).toFixed(2)} USDT

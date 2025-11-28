@@ -285,7 +285,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             password_hash = hash_password(password)
             
             cur.execute(
-                f"SELECT id, username, email, avatar_url, role, forum_role, is_blocked, balance, created_at, referred_by_code, referral_bonus_claimed, vip_until FROM {SCHEMA}.users WHERE username = %s AND password_hash = %s",
+                f"SELECT id, username, email, avatar_url, role, forum_role, is_blocked, balance, created_at, referred_by_code, referral_bonus_claimed, vip_until, last_ip FROM {SCHEMA}.users WHERE username = %s AND password_hash = %s",
                 (username, password_hash)
             )
             user = cur.fetchone()
@@ -306,7 +306,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute(f"UPDATE {SCHEMA}.users SET last_seen_at = CURRENT_TIMESTAMP WHERE id = %s", (user['id'],))
+            # Получаем IP-адрес из заголовков запроса
+            headers = event.get('headers', {})
+            client_ip = headers.get('x-real-ip') or headers.get('x-forwarded-for', '').split(',')[0].strip() or headers.get('requestContext', {}).get('identity', {}).get('sourceIp', 'unknown')
+            
+            cur.execute(f"UPDATE {SCHEMA}.users SET last_seen_at = CURRENT_TIMESTAMP, last_ip = %s WHERE id = %s", (client_ip, user['id']))
             conn.commit()
             
             token = generate_token()
@@ -334,7 +338,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute(f"UPDATE {SCHEMA}.users SET last_seen_at = CURRENT_TIMESTAMP WHERE id = %s", (user_id,))
+            # Получаем IP-адрес из заголовков запроса
+            request_context = event.get('requestContext', {})
+            identity = request_context.get('identity', {})
+            client_ip = headers.get('x-real-ip') or headers.get('x-forwarded-for', '').split(',')[0].strip() or identity.get('sourceIp', 'unknown')
+            
+            cur.execute(f"UPDATE {SCHEMA}.users SET last_seen_at = CURRENT_TIMESTAMP, last_ip = %s WHERE id = %s", (client_ip, user_id))
             conn.commit()
             
             return {
@@ -356,7 +365,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute(f"SELECT id, username, email, avatar_url, role, forum_role, balance, created_at, referred_by_code, referral_bonus_claimed, vip_until FROM {SCHEMA}.users WHERE id = %s", (user_id,))
+            cur.execute(f"SELECT id, username, email, avatar_url, role, forum_role, balance, created_at, referred_by_code, referral_bonus_claimed, vip_until, last_ip FROM {SCHEMA}.users WHERE id = %s", (user_id,))
             user = cur.fetchone()
             
             if not user:

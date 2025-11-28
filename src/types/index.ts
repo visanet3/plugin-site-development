@@ -38,6 +38,7 @@ export interface User {
   vip_until?: string;
   is_verified?: boolean;
   last_seen_at?: string | null;
+  last_ip?: string | null;
 }
 
 export interface ForumCategory {
