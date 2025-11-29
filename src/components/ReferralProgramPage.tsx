@@ -81,7 +81,8 @@ const ReferralProgramPage = ({ user }: ReferralProgramPageProps) => {
       const data = await response.json();
 
       if (data.success) {
-        setReferralCode(data.referral_code || '');
+        const code = data.referral_code || user.referral_code || '';
+        setReferralCode(code);
         setReferrals(data.referrals || []);
         
         const activeCount = data.referrals.filter((r: Referral) => r.status === 'active').length;
@@ -95,6 +96,13 @@ const ReferralProgramPage = ({ user }: ReferralProgramPageProps) => {
       }
     } catch (error) {
       console.error('Ошибка загрузки реферальной информации:', error);
+      const savedUser = localStorage.getItem('user');
+      if (savedUser) {
+        const userData = JSON.parse(savedUser);
+        if (userData.referral_code) {
+          setReferralCode(userData.referral_code);
+        }
+      }
     } finally {
       setLoading(false);
     }
