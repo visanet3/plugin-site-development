@@ -81,11 +81,25 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({'error': f'File type {file_ext} not allowed'})
             }
         
+        aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
+        aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+        
+        if not aws_access_key_id or not aws_secret_access_key:
+            return {
+                'statusCode': 500,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'isBase64Encoded': False,
+                'body': json.dumps({'error': 'S3 credentials not configured'})
+            }
+        
         s3_client = boto3.client(
             's3',
             endpoint_url='https://storage.yandexcloud.net',
-            aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
-            aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'),
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
             region_name='ru-central1'
         )
         
