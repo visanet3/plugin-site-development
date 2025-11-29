@@ -509,6 +509,12 @@ export const ForumTopicsList = ({
                         <Icon name="BadgeCheck" size={11} className="text-emerald-500" />
                       )}
                     </button>
+                    {topic.author_forum_role && (
+                      <>
+                        <span className="text-zinc-700">•</span>
+                        <ForumRoleBadge role={topic.author_forum_role} />
+                      </>
+                    )}
                     <span className="text-zinc-700">•</span>
                     {topic.last_comment_at ? (
                       <>
