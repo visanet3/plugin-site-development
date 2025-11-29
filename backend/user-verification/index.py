@@ -12,6 +12,12 @@ from psycopg2.extras import RealDictCursor
 
 SCHEMA = 't_p32599880_plugin_site_developm'
 
+def escape_sql_string(s: str) -> str:
+    """Экранирует строку для безопасной вставки в SQL"""
+    if s is None:
+        return 'NULL'
+    return "'" + s.replace("'", "''").replace("\\", "\\\\") + "'"
+
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
     
@@ -49,13 +55,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             action = params.get('action', 'status')
             
             if action == 'status':
-                # Проверяем статус верификации текущего пользователя
-                cur.execute(f"SELECT is_verified FROM {SCHEMA}.users WHERE id = %s", (user_id,))
+                cur.execute(f"SELECT is_verified FROM {SCHEMA}.users WHERE id = {user_id}")
                 user = cur.fetchone()
                 
                 cur.execute(
-                    f"SELECT id, status, admin_comment, created_at, reviewed_at FROM {SCHEMA}.verification_requests WHERE user_id = %s ORDER BY created_at DESC LIMIT 1",
-                    (user_id,)
+                    f"SELECT id, status, admin_comment, created_at, reviewed_at FROM {SCHEMA}.verification_requests WHERE user_id = {user_id} ORDER BY created_at DESC LIMIT 1"
                 )
                 request = cur.fetchone()
                 
@@ -70,8 +74,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             elif action == 'admin_list':
-                # Проверяем права админа
-                cur.execute(f"SELECT role FROM {SCHEMA}.users WHERE id = %s", (user_id,))
+                cur.execute(f"SELECT role FROM {SCHEMA}.users WHERE id = {user_id}")
                 user = cur.fetchone()
                 
                 if not user or user['role'] != 'admin':
@@ -83,15 +86,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
                 
                 status_filter = params.get('status', 'pending')
+                status_escaped = escape_sql_string(status_filter)
                 
                 query = f"""
                     SELECT vr.*, u.username, u.email, u.avatar_url
                     FROM {SCHEMA}.verification_requests vr
                     JOIN {SCHEMA}.users u ON vr.user_id = u.id
-                    WHERE vr.status = %s
+                    WHERE vr.status = {status_escaped}
                     ORDER BY vr.created_at DESC
                 """
-                cur.execute(query, (status_filter,))
+                cur.execute(query)
                 requests = cur.fetchall()
                 
                 return {
@@ -119,10 +123,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'isBase64Encoded': False
                     }
                 
-                # Проверяем, есть ли уже активная заявка
                 cur.execute(
-                    f"SELECT id FROM {SCHEMA}.verification_requests WHERE user_id = %s AND status = 'pending'",
-                    (user_id,)
+                    f"SELECT id FROM {SCHEMA}.verification_requests WHERE user_id = {user_id} AND status = 'pending'"
                 )
                 existing = cur.fetchone()
                 
@@ -134,27 +136,29 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'isBase64Encoded': False
                     }
                 
-                # Создаем заявку
+                full_name_esc = escape_sql_string(full_name)
+                birth_date_esc = escape_sql_string(birth_date)
+                passport_esc = escape_sql_string(passport_photo)
+                selfie_esc = escape_sql_string(selfie_photo) if selfie_photo else 'NULL'
+                
                 cur.execute(
                     f"""INSERT INTO {SCHEMA}.verification_requests 
                     (user_id, full_name, birth_date, passport_photo, selfie_photo, status)
-                    VALUES (%s, %s, %s, %s, %s, 'pending')
-                    RETURNING id""",
-                    (user_id, full_name, birth_date, passport_photo, selfie_photo)
+                    VALUES ({user_id}, {full_name_esc}, {birth_date_esc}, {passport_esc}, {selfie_esc}, 'pending')
+                    RETURNING id"""
                 )
                 request_id = cur.fetchone()['id']
                 
-                # Получаем имя пользователя
-                cur.execute(f"SELECT username FROM {SCHEMA}.users WHERE id = %s", (user_id,))
+                cur.execute(f"SELECT username FROM {SCHEMA}.users WHERE id = {user_id}")
                 user_info = cur.fetchone()
                 username = user_info['username'] if user_info else f"ID {user_id}"
+                username_esc = escape_sql_string(username)
                 
-                # Создаем уведомление для админа
+                message = escape_sql_string(f"Пользователь {username} подал заявку на верификацию")
                 cur.execute(
                     f"""INSERT INTO {SCHEMA}.admin_notifications 
                     (type, title, message, related_id, related_type) 
-                    VALUES (%s, %s, %s, %s, %s)""",
-                    ('verification_request', '✅ Новая заявка на верификацию', f"Пользователь {username} подал заявку на верификацию", request_id, 'verification')
+                    VALUES ('verification_request', '✅ Новая заявка на верификацию', {message}, {request_id}, 'verification')"""
                 )
                 
                 conn.commit()
@@ -167,8 +171,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             elif action == 'review':
-                # Проверяем права админа
-                cur.execute(f"SELECT role FROM {SCHEMA}.users WHERE id = %s", (user_id,))
+                cur.execute(f"SELECT role FROM {SCHEMA}.users WHERE id = {user_id}")
                 user = cur.fetchone()
                 
                 if not user or user['role'] != 'admin':
@@ -180,7 +183,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
                 
                 request_id = body.get('request_id')
-                status = body.get('status')  # 'approved' или 'rejected'
+                status = body.get('status')
                 admin_comment = body.get('admin_comment', '')
                 
                 if status not in ['approved', 'rejected']:
@@ -191,11 +194,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'isBase64Encoded': False
                     }
                 
-                # Получаем данные заявки
-                cur.execute(f"SELECT user_id FROM {SCHEMA}.verification_requests WHERE id = %s", (request_id,))
-                request = cur.fetchone()
+                cur.execute(f"SELECT user_id FROM {SCHEMA}.verification_requests WHERE id = {request_id}")
+                request_data = cur.fetchone()
                 
-                if not request:
+                if not request_data:
                     return {
                         'statusCode': 404,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -203,38 +205,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'isBase64Encoded': False
                     }
                 
-                # Обновляем статус заявки
+                target_user_id = request_data['user_id']
+                status_esc = escape_sql_string(status)
+                comment_esc = escape_sql_string(admin_comment)
+                
                 cur.execute(
                     f"""UPDATE {SCHEMA}.verification_requests 
-                    SET status = %s, admin_comment = %s, reviewed_by = %s, reviewed_at = CURRENT_TIMESTAMP
-                    WHERE id = %s""",
-                    (status, admin_comment, user_id, request_id)
+                    SET status = {status_esc}, admin_comment = {comment_esc}, reviewed_at = NOW()
+                    WHERE id = {request_id}"""
                 )
                 
-                # Если одобрено - устанавливаем is_verified = true и создаем уведомление
                 if status == 'approved':
-                    cur.execute(
-                        f"UPDATE {SCHEMA}.users SET is_verified = TRUE WHERE id = %s",
-                        (request['user_id'],)
-                    )
-                    
-                    # Создаем уведомление пользователю
-                    cur.execute(
-                        f"""INSERT INTO {SCHEMA}.notifications 
-                        (user_id, type, title, message, is_read) 
-                        VALUES (%s, 'verification_approved', '✅ Верификация одобрена', 
-                        'Поздравляем! Ваша заявка на верификацию одобрена. Теперь рядом с вашим ником отображается значок верификации.', FALSE)""",
-                        (request['user_id'],)
-                    )
-                elif status == 'rejected':
-                    # Создаем уведомление об отклонении
-                    reject_message = f"Ваша заявка на верификацию отклонена. {admin_comment}" if admin_comment else "Ваша заявка на верификацию отклонена."
-                    cur.execute(
-                        f"""INSERT INTO {SCHEMA}.notifications 
-                        (user_id, type, title, message, is_read) 
-                        VALUES (%s, 'verification_rejected', '❌ Верификация отклонена', %s, FALSE)""",
-                        (request['user_id'], reject_message)
-                    )
+                    cur.execute(f"UPDATE {SCHEMA}.users SET is_verified = TRUE WHERE id = {target_user_id}")
                 
                 conn.commit()
                 
@@ -245,16 +227,43 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
         
+        elif method == 'PUT':
+            body = json.loads(event.get('body', '{}'))
+            action = body.get('action')
+            
+            if action == 'mark_read':
+                cur.execute(f"SELECT role FROM {SCHEMA}.users WHERE id = {user_id}")
+                user = cur.fetchone()
+                
+                if not user or user['role'] != 'admin':
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Доступ запрещен'}),
+                        'isBase64Encoded': False
+                    }
+                
+                notification_id = body.get('notification_id')
+                if notification_id:
+                    cur.execute(f"UPDATE {SCHEMA}.admin_notifications SET is_read = TRUE WHERE id = {notification_id}")
+                    conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True}),
+                    'isBase64Encoded': False
+                }
+        
         return {
-            'statusCode': 400,
+            'statusCode': 405,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Invalid request'}),
+            'body': json.dumps({'error': 'Метод не поддерживается'}),
             'isBase64Encoded': False
         }
     
     except Exception as e:
         conn.rollback()
-        print(f'Verification error: {str(e)}')
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},

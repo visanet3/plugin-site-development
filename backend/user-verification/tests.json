@@ -9,7 +9,7 @@
       },
       "expectedStatus": 200,
       "expectedBody": {
-        "is_verified": "boolean"
+        "is_verified": false
       },
       "bodyMatcher": "partial"
     }
