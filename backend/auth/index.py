@@ -410,6 +410,62 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
         
+        elif action == 'get_referral_info':
+            headers = event.get('headers', {})
+            user_id = headers.get('X-User-Id') or headers.get('x-user-id')
+            
+            if not user_id:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Требуется авторизация'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute(
+                f"SELECT code FROM {SCHEMA}.referral_codes WHERE user_id = {int(user_id)} AND is_active = TRUE LIMIT 1"
+            )
+            code_result = cur.fetchone()
+            
+            cur.execute(
+                f"""
+                SELECT r.id, r.status, r.total_deposited, r.created_at, r.completed_at,
+                       u.username as referred_username,
+                       COALESCE(r.total_deposited * 0.05, 0) as bonus_earned
+                FROM {SCHEMA}.referrals r
+                JOIN {SCHEMA}.users u ON r.referred_user_id = u.id
+                WHERE r.referrer_user_id = {int(user_id)}
+                ORDER BY r.created_at DESC
+                """
+            )
+            referrals = cur.fetchall()
+            
+            total_referrals = len(referrals)
+            completed = sum(1 for r in referrals if r['status'] == 'completed')
+            pending = sum(1 for r in referrals if r['status'] == 'pending')
+            active = sum(1 for r in referrals if r['status'] == 'active')
+            total_earned = sum(r['bonus_earned'] for r in referrals)
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True,
+                    'referral_code': code_result['code'] if code_result else '',
+                    'referrals': [dict(r) for r in referrals],
+                    'stats': {
+                        'total_referrals': total_referrals,
+                        'completed': completed,
+                        'pending': pending,
+                        'active': active,
+                        'total_earned': float(total_earned),
+                        'total_claimed': 0,
+                        'can_claim': False
+                    }
+                }, default=str),
+                'isBase64Encoded': False
+            }
+        
         elif action == 'update_profile':
             headers = event.get('headers', {})
             user_id = headers.get('X-User-Id') or headers.get('x-user-id')
