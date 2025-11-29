@@ -93,6 +93,10 @@ export interface ForumComment {
   author_is_verified?: boolean;
   parent_id?: number | null;
   replies?: ForumComment[];
+  attachment_url?: string | null;
+  attachment_filename?: string | null;
+  attachment_size?: number | null;
+  attachment_type?: string | null;
 }
 
 export interface SearchResult {

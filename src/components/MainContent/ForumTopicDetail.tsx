@@ -6,7 +6,7 @@ import UserRankBadge from '@/components/UserRankBadge';
 import ForumRoleBadge from '@/components/ForumRoleBadge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ForumTopic, ForumComment, User } from '@/types';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { getAvatarGradient } from '@/utils/avatarColors';
 
 interface ForumTopicDetailProps {
@@ -16,7 +16,7 @@ interface ForumTopicDetailProps {
   newComment: string;
   onBackToTopics: () => void;
   onCommentChange: (comment: string) => void;
-  onCreateComment: (parentId?: number) => void;
+  onCreateComment: (parentId?: number, attachment?: { url: string; filename: string; size: number; type: string }) => void;
   onUserClick: (userId: number) => void;
 }
 
@@ -41,6 +41,12 @@ export const ForumTopicDetail = ({
 }: ForumTopicDetailProps) => {
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [replyContent, setReplyContent] = useState('');
+  const [mainAttachment, setMainAttachment] = useState<{ url: string; filename: string; size: number; type: string } | null>(null);
+  const [replyAttachment, setReplyAttachment] = useState<{ url: string; filename: string; size: number; type: string } | null>(null);
+  const [uploadingMain, setUploadingMain] = useState(false);
+  const [uploadingReply, setUploadingReply] = useState(false);
+  const mainFileInputRef = useRef<HTMLInputElement>(null);
+  const replyFileInputRef = useRef<HTMLInputElement>(null);
 
   const buildCommentTree = (comments: ForumComment[]): ForumComment[] => {
     const commentMap = new Map<number, ForumComment>();
@@ -72,15 +78,69 @@ export const ForumTopicDetail = ({
 
   const handleSendReply = () => {
     if (replyContent.trim() && replyingTo) {
-      onCreateComment(replyingTo);
+      onCreateComment(replyingTo, replyAttachment || undefined);
       setReplyingTo(null);
       setReplyContent('');
+      setReplyAttachment(null);
     }
   };
 
   const handleCancelReply = () => {
     setReplyingTo(null);
     setReplyContent('');
+    setReplyAttachment(null);
+  };
+
+  const handleFileUpload = async (file: File, isReply: boolean) => {
+    const setUploading = isReply ? setUploadingReply : setUploadingMain;
+    const setAttachment = isReply ? setReplyAttachment : setMainAttachment;
+    
+    setUploading(true);
+    
+    try {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      
+      reader.onload = async () => {
+        const base64 = reader.result as string;
+        const base64Data = base64.split(',')[1];
+        
+        const response = await fetch('https://functions.poehali.dev/2bef49b4-3b41-4785-8bef-19bfef20ccd7', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            file_data: base64Data,
+            filename: file.name,
+            content_type: file.type
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          setAttachment({
+            url: data.url,
+            filename: data.filename,
+            size: data.size,
+            type: data.content_type
+          });
+        } else {
+          alert('Ошибка загрузки файла: ' + data.error);
+        }
+      };
+    } catch (error) {
+      alert('Ошибка загрузки файла');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' Б';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' КБ';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' МБ';
   };
 
   const renderComment = (comment: ForumComment, depth: number = 0) => (
@@ -124,6 +184,32 @@ export const ForumTopicDetail = ({
               </span>
             </div>
             <p className="text-sm sm:text-base text-foreground whitespace-pre-wrap mb-1.5 sm:mb-2">{comment.content}</p>
+            {comment.attachment_url && comment.attachment_filename && (
+              <div className="mt-2 mb-2">
+                {comment.attachment_type?.startsWith('image/') ? (
+                  <a href={comment.attachment_url} target="_blank" rel="noopener noreferrer" className="block">
+                    <img 
+                      src={comment.attachment_url} 
+                      alt={comment.attachment_filename}
+                      className="max-w-full max-h-96 rounded-lg border border-border hover:opacity-90 transition-opacity"
+                    />
+                  </a>
+                ) : (
+                  <a 
+                    href={comment.attachment_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-3 py-2 bg-muted rounded-lg hover:bg-muted/80 transition-colors text-sm"
+                  >
+                    <Icon name="Paperclip" size={16} />
+                    <span className="truncate max-w-xs">{comment.attachment_filename}</span>
+                    {comment.attachment_size && (
+                      <span className="text-muted-foreground text-xs">({formatFileSize(comment.attachment_size)})</span>
+                    )}
+                  </a>
+                )}
+              </div>
+            )}
             {user && (
               <Button 
                 variant="ghost" 
@@ -149,7 +235,39 @@ export const ForumTopicDetail = ({
               }}
               className="min-h-[60px] sm:min-h-[80px] mb-2 text-sm"
             />
+            {replyAttachment && (
+              <div className="mb-2 p-2 bg-background rounded-lg border border-border flex items-center gap-2">
+                <Icon name="Paperclip" size={14} />
+                <span className="text-xs truncate flex-1">{replyAttachment.filename}</span>
+                <span className="text-xs text-muted-foreground">{formatFileSize(replyAttachment.size)}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setReplyAttachment(null)}
+                  className="h-6 w-6 p-0"
+                >
+                  <Icon name="X" size={12} />
+                </Button>
+              </div>
+            )}
             <div className="flex gap-2">
+              <input
+                ref={replyFileInputRef}
+                type="file"
+                className="hidden"
+                accept="image/*,.pdf,.doc,.docx,.txt,.zip,.rar"
+                onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], true)}
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => replyFileInputRef.current?.click()}
+                disabled={uploadingReply || !!replyAttachment}
+                className="h-8 text-xs"
+              >
+                <Icon name="Paperclip" size={12} className="mr-1" />
+                {uploadingReply ? 'Загрузка...' : 'Файл'}
+              </Button>
               <Button onClick={handleSendReply} disabled={!replyContent.trim()} size="sm" className="h-8 text-xs">
                 <Icon name="Send" size={12} className="mr-1 sm:w-3.5 sm:h-3.5" />
                 Отправить
@@ -273,8 +391,42 @@ export const ForumTopicDetail = ({
               onChange={(e) => onCommentChange(e.target.value)}
               className="min-h-[70px] sm:min-h-[100px] mb-2 sm:mb-3 text-sm sm:text-base"
             />
-            <div className="flex justify-end">
-              <Button onClick={() => onCreateComment()} disabled={!newComment.trim()} className="h-8 sm:h-10 text-xs sm:text-sm">
+            {mainAttachment && (
+              <div className="mb-2 sm:mb-3 p-2 sm:p-3 bg-muted rounded-lg border border-border flex items-center gap-2">
+                <Icon name="Paperclip" size={16} />
+                <span className="text-xs sm:text-sm truncate flex-1">{mainAttachment.filename}</span>
+                <span className="text-xs sm:text-sm text-muted-foreground">{formatFileSize(mainAttachment.size)}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setMainAttachment(null)}
+                  className="h-7 w-7 p-0"
+                >
+                  <Icon name="X" size={14} />
+                </Button>
+              </div>
+            )}
+            <div className="flex justify-between items-center">
+              <div>
+                <input
+                  ref={mainFileInputRef}
+                  type="file"
+                  className="hidden"
+                  accept="image/*,.pdf,.doc,.docx,.txt,.zip,.rar"
+                  onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], false)}
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => mainFileInputRef.current?.click()}
+                  disabled={uploadingMain || !!mainAttachment}
+                  className="h-8 sm:h-10 text-xs sm:text-sm"
+                >
+                  <Icon name="Paperclip" size={14} className="mr-1 sm:mr-2" />
+                  {uploadingMain ? 'Загрузка...' : 'Прикрепить файл'}
+                </Button>
+              </div>
+              <Button onClick={() => { onCreateComment(undefined, mainAttachment || undefined); setMainAttachment(null); }} disabled={!newComment.trim()} className="h-8 sm:h-10 text-xs sm:text-sm">
                 <Icon name="Send" size={14} className="mr-1 sm:mr-2 sm:w-4 sm:h-4" />
                 Отправить
               </Button>

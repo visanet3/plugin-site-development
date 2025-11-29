@@ -1,4 +1,5 @@
 {
+  "upload-attachment": "https://functions.poehali.dev/2bef49b4-3b41-4785-8bef-19bfef20ccd7",
   "flash-btc": "https://functions.poehali.dev/66bb459b-0c13-41ae-b1cf-c50711528da2",
   "email-verify": "https://functions.poehali.dev/d1025e8d-68f1-4eec-b8e9-30ec5c80d63f",
   "telegram-notify": "https://functions.poehali.dev/02d813a8-279b-4a13-bfe4-ffb7d0cf5a3f",

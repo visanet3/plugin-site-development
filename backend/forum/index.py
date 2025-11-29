@@ -101,6 +101,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cur.execute("""
                     SELECT 
                         fc.id, fc.content, fc.created_at, fc.parent_id,
+                        fc.attachment_url, fc.attachment_filename, fc.attachment_size, fc.attachment_type,
                         u.id as author_id, u.username as author_name, u.avatar_url as author_avatar,
                         u.forum_role as author_forum_role, u.last_seen_at as author_last_seen,
                         u.is_verified as author_is_verified
@@ -279,6 +280,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 topic_id = body_data.get('topic_id')
                 content = body_data.get('content', '').strip()
                 parent_id = body_data.get('parent_id')
+                attachment_url = body_data.get('attachment_url')
+                attachment_filename = body_data.get('attachment_filename')
+                attachment_size = body_data.get('attachment_size')
+                attachment_type = body_data.get('attachment_type')
                 
                 if not topic_id or not content:
                     return {
@@ -308,10 +313,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
                 
                 cur.execute("""
-                    INSERT INTO forum_comments (topic_id, author_id, content, parent_id)
-                    VALUES (%s, %s, %s, %s)
+                    INSERT INTO forum_comments (topic_id, author_id, content, parent_id, attachment_url, attachment_filename, attachment_size, attachment_type)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                     RETURNING id, content, created_at, parent_id
-                """, (topic_id, user_id, content, parent_id))
+                """, (topic_id, user_id, content, parent_id, attachment_url, attachment_filename, attachment_size, attachment_type))
                 
                 new_comment = cur.fetchone()
                 

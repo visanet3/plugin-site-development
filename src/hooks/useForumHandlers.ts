@@ -70,7 +70,7 @@ export const useForumHandlers = ({
     }
   };
 
-  const handleCreateComment = async (parentId?: number) => {
+  const handleCreateComment = async (parentId?: number, attachment?: { url: string; filename: string; size: number; type: string }) => {
     if (!user) {
       alert('Войдите для комментирования');
       return;
@@ -87,7 +87,11 @@ export const useForumHandlers = ({
           action: 'create_comment',
           topic_id: selectedTopic.id,
           content: newComment,
-          parent_id: parentId || null
+          parent_id: parentId || null,
+          attachment_url: attachment?.url || null,
+          attachment_filename: attachment?.filename || null,
+          attachment_size: attachment?.size || null,
+          attachment_type: attachment?.type || null
         })
       });
       const data = await response.json();
