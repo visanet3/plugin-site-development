@@ -88,7 +88,10 @@ const ReferralProgramPage = ({ user }: ReferralProgramPageProps) => {
         setReferrals(data.referrals || []);
         
         const activeCount = data.referrals.filter((r: Referral) => r.status === 'active').length;
-        const totalBonus = data.referrals.reduce((sum: number, r: Referral) => sum + (r.bonus_earned || 0), 0);
+        const totalBonus = data.referrals.reduce((sum: number, r: Referral) => {
+          const bonus = parseFloat(String(r.bonus_earned || 0));
+          return sum + (isNaN(bonus) ? 0 : bonus);
+        }, 0);
         
         setStats({
           ...data.stats,
