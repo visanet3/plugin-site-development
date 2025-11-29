@@ -637,6 +637,71 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
+            elif action == 'update_btc_balance':
+                target_user_id = body_data.get('user_id')
+                amount = body_data.get('amount')
+                
+                if not target_user_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'user_id обязателен'}),
+                        'isBase64Encoded': False
+                    }
+                
+                try:
+                    amount = float(amount)
+                except (ValueError, TypeError):
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Некорректная сумма'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cur.execute(f"SELECT id, username, btc_balance FROM {SCHEMA}.users WHERE id = %s", (target_user_id,))
+                target_user = cur.fetchone()
+                
+                if not target_user:
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Пользователь не найден'}),
+                        'isBase64Encoded': False
+                    }
+                
+                current_btc_balance = float(target_user['btc_balance'] or 0)
+                new_btc_balance = max(0, current_btc_balance + amount)
+                
+                cur.execute(
+                    f"UPDATE {SCHEMA}.users SET btc_balance = %s WHERE id = %s",
+                    (new_btc_balance, target_user_id)
+                )
+                
+                action_type = 'add_btc' if amount > 0 else 'subtract_btc'
+                description = f"{'Пополнение' if amount > 0 else 'Списание'} BTC администратором (ID: {user_id})"
+                
+                cur.execute(
+                    f"""INSERT INTO {SCHEMA}.transactions 
+                       (user_id, amount, description, type) 
+                       VALUES (%s, %s, %s, %s)""",
+                    (target_user_id, amount, description, action_type)
+                )
+                
+                log_admin_action(user_id, action_type, 'user', target_user_id, f'{"Added" if amount > 0 else "Subtracted"} {abs(amount)} BTC', cur)
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'success': True,
+                        'new_balance': new_btc_balance,
+                        'username': target_user['username']
+                    }),
+                    'isBase64Encoded': False
+                }
+            
             elif action == 'delete_topic':
                 topic_id = body_data.get('topic_id')
                 

@@ -677,19 +677,18 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
   const handleBtcBalanceSubmit = async (action: 'add' | 'subtract', amount: number) => {
     setBtcBalanceLoading(true);
     try {
-      const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
+      const finalAmount = action === 'subtract' ? -amount : amount;
       
-      const response = await fetch(AUTH_URL, {
+      const response = await fetch(ADMIN_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-User-Id': currentUser.id.toString()
         },
         body: JSON.stringify({
-          action: 'admin_manage_btc',
+          action: 'update_btc_balance',
           user_id: btcBalanceUserId,
-          btc_action: action,
-          btc_amount: amount
+          amount: finalAmount
         })
       });
       
@@ -706,7 +705,7 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
       } else {
         toast({
           title: 'Ошибка',
-          description: data.message || 'Ошибка выполнения операции',
+          description: data.error || 'Ошибка выполнения операции',
           variant: 'destructive'
         });
       }
