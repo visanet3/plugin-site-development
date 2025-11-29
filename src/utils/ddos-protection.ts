@@ -27,9 +27,6 @@ class DDoSProtection {
   constructor() {
     // Очистка старых записей каждые 5 минут
     setInterval(() => this.cleanup(), 300000);
-    
-    // Проверка на открытые DevTools (защита от автоматизации)
-    this.detectDevTools();
   }
 
   /**
@@ -183,24 +180,7 @@ class DDoSProtection {
     }
   }
 
-  /**
-   * Обнаружение DevTools (защита от ботов)
-   */
-  private detectDevTools(): void {
-    const threshold = 160;
-    
-    const checkDevTools = () => {
-      const widthThreshold = window.outerWidth - window.innerWidth > threshold;
-      const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-      
-      if (widthThreshold || heightThreshold) {
-        console.warn('[DDoS Protection] DevTools обнаружены - возможна автоматизация');
-      }
-    };
 
-    // Проверка каждые 1 секунду
-    setInterval(checkDevTools, 1000);
-  }
 
   /**
    * Получение статистики

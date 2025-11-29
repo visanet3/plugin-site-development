@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import DealCard from './deals/DealCard';
+import DealEditDialog from './deals/DealEditDialog';
+import DealDetailsDialog from './deals/DealDetailsDialog';
+import { getStatusBadge, getStepBadge } from './deals/dealsUtils';
 
 const DEALS_URL = 'https://functions.poehali.dev/8a665174-b0af-4138-82e0-a9422dbb8fc4';
 
@@ -31,29 +29,6 @@ const AdminDealsSection = ({ deals, currentUserId, onRefresh }: AdminDealsSectio
   });
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [actionLoading, setActionLoading] = useState(false);
-
-  const getStatusBadge = (status: string) => {
-    const statusMap: Record<string, { label: string; className: string }> = {
-      active: { label: 'Активна', className: 'bg-green-500/20 text-green-400 border-green-500/30' },
-      paid: { label: 'Оплачена', className: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
-      sent: { label: 'Отправлена', className: 'bg-orange-500/20 text-orange-400 border-orange-500/30' },
-      completed: { label: 'Завершена', className: 'bg-purple-500/20 text-purple-400 border-purple-500/30' },
-      cancelled: { label: 'Отменена', className: 'bg-red-500/20 text-red-400 border-red-500/30' },
-      dispute: { label: 'Спор', className: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' }
-    };
-    const { label, className } = statusMap[status] || { label: status, className: '' };
-    return <Badge className={className}>{label}</Badge>;
-  };
-
-  const getStepBadge = (step: string) => {
-    const stepMap: Record<string, string> = {
-      created: 'Создана',
-      buyer_paid: 'Покупатель оплатил',
-      seller_sent: 'Продавец отправил',
-      completed: 'Завершена'
-    };
-    return <Badge variant="outline" className="text-xs">{stepMap[step] || step}</Badge>;
-  };
 
   const filteredDeals = deals.filter(deal => {
     if (filterStatus === 'all') return true;
@@ -277,260 +252,37 @@ const AdminDealsSection = ({ deals, currentUserId, onRefresh }: AdminDealsSectio
           </Card>
         ) : (
           filteredDeals.map((deal) => (
-            <Card key={deal.id} className="p-4 hover:shadow-md transition-shadow">
-              <div className="space-y-3">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <h3 className="font-semibold text-lg">{deal.title}</h3>
-                      {getStatusBadge(deal.status)}
-                      {getStepBadge(deal.step)}
-                    </div>
-                    <p className="text-sm text-muted-foreground line-clamp-2">{deal.description}</p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-2xl font-bold text-primary">{deal.price.toFixed(2)} USDT</p>
-                    <p className="text-xs text-muted-foreground">ID: {deal.id}</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <p className="text-muted-foreground mb-1">👤 Продавец</p>
-                    <p className="font-medium">{deal.seller_name || deal.seller_username}</p>
-                    <p className="text-xs text-muted-foreground">ID: {deal.seller_id}</p>
-                  </div>
-                  {deal.buyer_id && (
-                    <div>
-                      <p className="text-muted-foreground mb-1">🛒 Покупатель</p>
-                      <p className="font-medium">{deal.buyer_name || deal.buyer_username}</p>
-                      <p className="text-xs text-muted-foreground">ID: {deal.buyer_id}</p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Icon name="Clock" size={14} />
-                  <span>Создана: {new Date(deal.created_at).toLocaleString('ru-RU')}</span>
-                </div>
-
-                <div className="flex items-center gap-2 flex-wrap pt-2 border-t">
-                  <Button 
-                    onClick={() => setSelectedDeal(deal)} 
-                    size="sm" 
-                    variant="outline"
-                  >
-                    <Icon name="Eye" size={14} className="mr-1.5" />
-                    Подробнее
-                  </Button>
-                  <Button 
-                    onClick={() => handleEdit(deal)} 
-                    size="sm" 
-                    variant="outline"
-                  >
-                    <Icon name="Edit" size={14} className="mr-1.5" />
-                    Редактировать
-                  </Button>
-                  {(deal.status === 'in_progress' || deal.status === 'dispute') && (
-                    <>
-                      <Button 
-                        onClick={() => handleForceComplete(deal.id)} 
-                        size="sm" 
-                        className="bg-green-600 hover:bg-green-700"
-                        disabled={actionLoading}
-                      >
-                        <Icon name="CheckCircle" size={14} className="mr-1.5" />
-                        Завершить
-                      </Button>
-                      <Button 
-                        onClick={() => handleCancelDeal(deal.id)} 
-                        size="sm" 
-                        className="bg-orange-600 hover:bg-orange-700"
-                        disabled={actionLoading}
-                      >
-                        <Icon name="XCircle" size={14} className="mr-1.5" />
-                        Отменить
-                      </Button>
-                    </>
-                  )}
-                  <Button 
-                    onClick={() => handleDelete(deal.id)} 
-                    size="sm" 
-                    variant="destructive"
-                    disabled={actionLoading}
-                    className="ml-auto"
-                  >
-                    <Icon name="Trash2" size={14} className="mr-1.5" />
-                    Удалить
-                  </Button>
-                </div>
-              </div>
-            </Card>
+            <DealCard
+              key={deal.id}
+              deal={deal}
+              actionLoading={actionLoading}
+              onViewDetails={setSelectedDeal}
+              onEdit={handleEdit}
+              onForceComplete={handleForceComplete}
+              onCancel={handleCancelDeal}
+              onDelete={handleDelete}
+              getStatusBadge={getStatusBadge}
+              getStepBadge={getStepBadge}
+            />
           ))
         )}
       </div>
 
-      {/* Edit Dialog */}
-      <Dialog open={!!editingDeal} onOpenChange={() => setEditingDeal(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Редактирование сделки #{editingDeal?.id}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>Название</Label>
-              <Input
-                value={editForm.title}
-                onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                placeholder="Название сделки"
-              />
-            </div>
-            <div>
-              <Label>Описание</Label>
-              <Textarea
-                value={editForm.description}
-                onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                placeholder="Описание сделки"
-                rows={4}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Цена (USDT)</Label>
-                <Input
-                  type="number"
-                  value={editForm.price}
-                  onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
-                  step="0.01"
-                  min="0"
-                />
-              </div>
-              <div>
-                <Label>Статус</Label>
-                <Select value={editForm.status} onValueChange={(value) => setEditForm({ ...editForm, status: value })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">Активна</SelectItem>
-                    <SelectItem value="paid">Оплачена</SelectItem>
-                    <SelectItem value="sent">Отправлена</SelectItem>
-                    <SelectItem value="completed">Завершена</SelectItem>
-                    <SelectItem value="cancelled">Отменена</SelectItem>
-                    <SelectItem value="dispute">Спор</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div>
-              <Label>Шаг</Label>
-              <Select value={editForm.step} onValueChange={(value) => setEditForm({ ...editForm, step: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="created">Создана</SelectItem>
-                  <SelectItem value="buyer_paid">Покупатель оплатил</SelectItem>
-                  <SelectItem value="seller_sent">Продавец отправил</SelectItem>
-                  <SelectItem value="completed">Завершена</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex justify-end gap-2 pt-4">
-              <Button onClick={() => setEditingDeal(null)} variant="outline" disabled={actionLoading}>
-                Отмена
-              </Button>
-              <Button onClick={handleSaveEdit} disabled={actionLoading}>
-                {actionLoading ? (
-                  <>
-                    <Icon name="Loader2" size={14} className="mr-2 animate-spin" />
-                    Сохранение...
-                  </>
-                ) : (
-                  <>
-                    <Icon name="Save" size={14} className="mr-2" />
-                    Сохранить
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <DealEditDialog
+        editingDeal={editingDeal}
+        editForm={editForm}
+        actionLoading={actionLoading}
+        onClose={() => setEditingDeal(null)}
+        onFormChange={setEditForm}
+        onSave={handleSaveEdit}
+      />
 
-      {/* Details Dialog */}
-      <Dialog open={!!selectedDeal} onOpenChange={() => setSelectedDeal(null)}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Детали сделки #{selectedDeal?.id}</DialogTitle>
-          </DialogHeader>
-          {selectedDeal && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Статус</p>
-                  <div className="mt-1">{getStatusBadge(selectedDeal.status)}</div>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Шаг</p>
-                  <div className="mt-1">{getStepBadge(selectedDeal.step)}</div>
-                </div>
-              </div>
-              
-              <Card className="p-4 bg-muted/50">
-                <p className="text-sm text-muted-foreground mb-2">Название</p>
-                <h3 className="font-semibold text-lg">{selectedDeal.title}</h3>
-              </Card>
-
-              <Card className="p-4 bg-muted/50">
-                <p className="text-sm text-muted-foreground mb-2">Описание</p>
-                <p className="whitespace-pre-wrap">{selectedDeal.description}</p>
-              </Card>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Card className="p-4 bg-green-500/5 border-green-500/20">
-                  <p className="text-sm text-muted-foreground mb-2">💰 Цена</p>
-                  <p className="text-2xl font-bold text-green-400">{selectedDeal.price.toFixed(2)} USDT</p>
-                </Card>
-                
-                <Card className="p-4 bg-orange-500/5 border-orange-500/20">
-                  <p className="text-sm text-muted-foreground mb-2">💸 Комиссия</p>
-                  <p className="text-2xl font-bold text-orange-400">{selectedDeal.commission.toFixed(2)} USDT</p>
-                </Card>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Card className="p-4">
-                  <p className="text-sm text-muted-foreground mb-2">👤 Продавец</p>
-                  <p className="font-semibold">{selectedDeal.seller_name || selectedDeal.seller_username}</p>
-                  <p className="text-xs text-muted-foreground">ID: {selectedDeal.seller_id}</p>
-                </Card>
-
-                {selectedDeal.buyer_id && (
-                  <Card className="p-4">
-                    <p className="text-sm text-muted-foreground mb-2">🛒 Покупатель</p>
-                    <p className="font-semibold">{selectedDeal.buyer_name || selectedDeal.buyer_username}</p>
-                    <p className="text-xs text-muted-foreground">ID: {selectedDeal.buyer_id}</p>
-                  </Card>
-                )}
-              </div>
-
-              <Card className="p-4 bg-muted/30">
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Создана:</span>
-                    <span>{new Date(selectedDeal.created_at).toLocaleString('ru-RU')}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Обновлена:</span>
-                    <span>{new Date(selectedDeal.updated_at).toLocaleString('ru-RU')}</span>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <DealDetailsDialog
+        selectedDeal={selectedDeal}
+        onClose={() => setSelectedDeal(null)}
+        getStatusBadge={getStatusBadge}
+        getStepBadge={getStepBadge}
+      />
     </div>
   );
 };
