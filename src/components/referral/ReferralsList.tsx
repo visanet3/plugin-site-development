@@ -110,10 +110,10 @@ export const ReferralsList = ({ referrals, stats, claiming, onClaimReward }: Ref
                 </div>
                 <div className="text-right">
                   <div className="text-lg font-bold text-green-400">
-                    +{referral.bonus_earned.toFixed(2)} USDT
+                    +{Number(referral.bonus_earned || 0).toFixed(2)} USDT
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    Пополнено: {referral.total_deposited.toFixed(2)} USDT
+                    Пополнено: {Number(referral.total_deposited || 0).toFixed(2)} USDT
                   </div>
                 </div>
               </div>
