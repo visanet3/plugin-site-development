@@ -440,10 +440,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 f"""
                 SELECT r.id, r.status, r.total_deposited, r.created_at, r.completed_at,
                        u.username as referred_username,
-                       COALESCE(r.total_deposited * 0.05, 0) as bonus_earned
+                       COALESCE(r.bonus_earned, 0) as bonus_earned
                 FROM {SCHEMA}.referrals r
                 JOIN {SCHEMA}.users u ON r.referred_user_id = u.id
-                WHERE r.referrer_user_id = {int(user_id)}
+                WHERE r.referrer_id = {int(user_id)}
                 ORDER BY r.created_at DESC
                 """
             )
