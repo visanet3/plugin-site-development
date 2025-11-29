@@ -24,6 +24,9 @@ const SupportPage = ({ user, onShowAuthDialog }: SupportPageProps) => {
   const categories = [
     { value: 'account', label: 'Проблемы с аккаунтом', icon: 'User' },
     { value: 'payment', label: 'Вопросы по платежам', icon: 'CreditCard' },
+    { value: 'exchange', label: 'Обменник', icon: 'ArrowLeftRight' },
+    { value: 'smart_contracts', label: 'Смарт-контракты', icon: 'FileCode' },
+    { value: 'flash_btc', label: 'Flash BTC', icon: 'Bitcoin' },
     { value: 'games', label: 'Игры', icon: 'Gamepad2' },
     { value: 'garant', label: 'Гарант сделка', icon: 'Shield' },
     { value: 'flash', label: 'Flash USDT', icon: 'Zap' },
