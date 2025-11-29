@@ -1,16 +1,14 @@
 import json
-import base64
 import os
-import uuid
-import boto3
+import psycopg2
 from typing import Dict, Any
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Upload file attachments for forum comments
+    Business: Upload file attachments for forum comments (stored in database)
     Args: event with httpMethod, body containing base64 file data, filename, and content type
           context with request_id
-    Returns: HTTP response with file URL or error
+    Returns: HTTP response with file ID or error
     '''
     method: str = event.get('httpMethod', 'POST')
     
@@ -19,11 +17,64 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-User-Id',
                 'Access-Control-Max-Age': '86400'
             },
             'body': ''
+        }
+    
+    if method == 'GET':
+        query_params = event.get('queryStringParameters') or {}
+        file_id = query_params.get('id')
+        
+        if not file_id:
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'isBase64Encoded': False,
+                'body': json.dumps({'error': 'Missing file id'})
+            }
+        
+        dsn = os.environ.get('DATABASE_URL')
+        conn = psycopg2.connect(dsn)
+        cur = conn.cursor()
+        
+        cur.execute("""
+            SELECT file_data, filename, content_type
+            FROM forum_attachments
+            WHERE id = %s
+        """, (file_id,))
+        
+        result = cur.fetchone()
+        cur.close()
+        conn.close()
+        
+        if not result:
+            return {
+                'statusCode': 404,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'isBase64Encoded': False,
+                'body': json.dumps({'error': 'File not found'})
+            }
+        
+        file_data, filename, content_type = result
+        
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Content-Type': content_type,
+                'Content-Disposition': f'inline; filename="{filename}"',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'isBase64Encoded': True,
+            'body': file_data
         }
     
     if method != 'POST':
@@ -54,10 +105,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({'error': 'Missing file_data or filename'})
             }
         
+        import base64
         file_bytes = base64.b64decode(file_data)
         file_size = len(file_bytes)
         
-        if file_size > 10 * 1024 * 1024:
+        if file_size > 5 * 1024 * 1024:
             return {
                 'statusCode': 400,
                 'headers': {
@@ -65,7 +117,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'Access-Control-Allow-Origin': '*'
                 },
                 'isBase64Encoded': False,
-                'body': json.dumps({'error': 'File size exceeds 10MB limit'})
+                'body': json.dumps({'error': 'File size exceeds 5MB limit'})
             }
         
         allowed_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.pdf', '.doc', '.docx', '.txt', '.zip', '.rar']
@@ -81,39 +133,22 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({'error': f'File type {file_ext} not allowed'})
             }
         
-        aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
-        aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+        dsn = os.environ.get('DATABASE_URL')
+        conn = psycopg2.connect(dsn)
+        cur = conn.cursor()
         
-        if not aws_access_key_id or not aws_secret_access_key:
-            return {
-                'statusCode': 500,
-                'headers': {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
-                },
-                'isBase64Encoded': False,
-                'body': json.dumps({'error': 'S3 credentials not configured'})
-            }
+        cur.execute("""
+            INSERT INTO forum_attachments (file_data, filename, content_type, file_size)
+            VALUES (%s, %s, %s, %s)
+            RETURNING id
+        """, (file_data, filename, content_type, file_size))
         
-        s3_client = boto3.client(
-            's3',
-            endpoint_url='https://storage.yandexcloud.net',
-            aws_access_key_id=aws_access_key_id,
-            aws_secret_access_key=aws_secret_access_key,
-            region_name='ru-central1'
-        )
+        file_id = cur.fetchone()[0]
+        conn.commit()
+        cur.close()
+        conn.close()
         
-        bucket_name = os.environ.get('S3_BUCKET_NAME')
-        unique_filename = f"forum-attachments/{uuid.uuid4()}{file_ext}"
-        
-        s3_client.put_object(
-            Bucket=bucket_name,
-            Key=unique_filename,
-            Body=file_bytes,
-            ContentType=content_type
-        )
-        
-        file_url = f"https://storage.yandexcloud.net/{bucket_name}/{unique_filename}"
+        file_url = f"https://functions.poehali.dev/2bef49b4-3b41-4785-8bef-19bfef20ccd7?id={file_id}"
         
         return {
             'statusCode': 200,
