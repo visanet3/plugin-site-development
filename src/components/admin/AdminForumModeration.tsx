@@ -240,8 +240,20 @@ export const AdminForumModeration = ({ topics, onRefresh, currentUserId }: Admin
     try {
       const response = await fetch(`${FORUM_URL}?topic_id=${topicId}`);
       const data = await response.json();
-      if (data.success) {
-        setTopicDetails(data.topic);
+      if (data.topic) {
+        const topic = data.topic;
+        const comments = data.comments || [];
+        
+        const topLevelComments = comments.filter((c: any) => !c.parent_id);
+        const commentsWithReplies = topLevelComments.map((comment: any) => ({
+          ...comment,
+          replies: comments.filter((c: any) => c.parent_id === comment.id)
+        }));
+        
+        setTopicDetails({
+          ...topic,
+          comments: commentsWithReplies
+        });
       }
     } catch (error) {
       console.error('Ошибка загрузки деталей темы:', error);
