@@ -104,7 +104,7 @@ const LotteryParticipants = ({
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-semibold text-indigo-400">{count}x</p>
-                    <p className="text-xs text-muted-foreground">{count * ticketPrice} USDT</p>
+                    <p className="text-xs text-muted-foreground">{(count * ticketPrice).toFixed(0)} USDT</p>
                   </div>
                 </div>
               );
