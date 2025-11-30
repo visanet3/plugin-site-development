@@ -18,7 +18,9 @@ interface VerificationRequest {
   avatar_url?: string;
   full_name: string;
   birth_date: string;
-  passport_photo: string;
+  has_passport: boolean;
+  has_selfie: boolean;
+  passport_photo?: string;
   selfie_photo?: string;
   status: string;
   admin_comment?: string;
@@ -86,10 +88,31 @@ const AdminVerificationTab = ({ currentUser }: AdminVerificationTabProps) => {
     }
   };
 
-  const handleReview = (request: VerificationRequest) => {
+  const handleReview = async (request: VerificationRequest) => {
     setSelectedRequest(request);
     setAdminComment('');
     setReviewDialogOpen(true);
+    
+    if (!request.passport_photo) {
+      try {
+        const response = await fetch(`${VERIFICATION_URL}?action=get_photos&request_id=${request.id}`, {
+          headers: {
+            'X-User-Id': currentUser.id.toString()
+          }
+        });
+        
+        if (response.ok) {
+          const photos = await response.json();
+          setSelectedRequest({
+            ...request,
+            passport_photo: photos.passport_photo,
+            selfie_photo: photos.selfie_photo
+          });
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки фотографий:', error);
+      }
+    }
   };
 
   const handleSubmitReview = async (status: 'approved' | 'rejected') => {

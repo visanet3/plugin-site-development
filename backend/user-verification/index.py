@@ -89,7 +89,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 status_escaped = escape_sql_string(status_filter)
                 
                 query = f"""
-                    SELECT vr.*, u.username, u.email, u.avatar_url
+                    SELECT vr.id, vr.user_id, vr.full_name, vr.birth_date, vr.status, 
+                           vr.admin_comment, vr.created_at, vr.reviewed_at,
+                           u.username, u.email, u.avatar_url,
+                           CASE WHEN vr.passport_photo IS NOT NULL THEN true ELSE false END as has_passport,
+                           CASE WHEN vr.selfie_photo IS NOT NULL THEN true ELSE false END as has_selfie
                     FROM {SCHEMA}.verification_requests vr
                     JOIN {SCHEMA}.users u ON vr.user_id = u.id
                     WHERE vr.status = {status_escaped}
@@ -102,6 +106,50 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'requests': [dict(r) for r in requests]}, default=str),
+                    'isBase64Encoded': False
+                }
+            
+            elif action == 'get_photos':
+                cur.execute(f"SELECT role FROM {SCHEMA}.users WHERE id = {user_id}")
+                user = cur.fetchone()
+                
+                if not user or user['role'] != 'admin':
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Доступ запрещен'}),
+                        'isBase64Encoded': False
+                    }
+                
+                request_id = params.get('request_id')
+                if not request_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'request_id обязателен'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cur.execute(
+                    f"SELECT passport_photo, selfie_photo FROM {SCHEMA}.verification_requests WHERE id = {request_id}"
+                )
+                request = cur.fetchone()
+                
+                if not request:
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Заявка не найдена'}),
+                        'isBase64Encoded': False
+                    }
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'passport_photo': request['passport_photo'],
+                        'selfie_photo': request['selfie_photo']
+                    }),
                     'isBase64Encoded': False
                 }
         
