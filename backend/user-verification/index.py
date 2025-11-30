@@ -122,10 +122,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if action == 'submit':
                 full_name = body.get('full_name', '').strip()
                 birth_date = body.get('birth_date', '').strip()
-                passport_photo = body.get('passport_photo', '')
-                selfie_photo = body.get('selfie_photo', '')
+                passport_photo = body.get('passport_photo') or ''
+                selfie_photo = body.get('selfie_photo') or ''
                 
-                print(f"Verification request from user {user_id}: name={full_name}, passport_size={len(passport_photo)}, selfie_size={len(selfie_photo)}")
+                print(f"Verification request from user {user_id}: name={full_name}, passport_size={len(passport_photo) if passport_photo else 0}, selfie_size={len(selfie_photo) if selfie_photo else 0}")
                 
                 if not all([full_name, birth_date, passport_photo]):
                     return {
