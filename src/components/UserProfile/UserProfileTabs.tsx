@@ -135,6 +135,11 @@ export const UserProfileTabs = ({
                 if (transaction.type === 'escrow_complete') return { icon: 'CheckCircle2', color: 'gray' };
                 if (transaction.type === 'blackjack_win') return { icon: 'Spade', color: 'green' };
                 if (transaction.type === 'blackjack_loss') return { icon: 'Spade', color: 'red' };
+                if (transaction.type === 'win') return { icon: 'Trophy', color: 'green' };
+                if (transaction.type === 'draw') return { icon: 'Equal', color: 'blue' };
+                if (transaction.type === 'bet') return { icon: 'Dices', color: 'red' };
+                if (transaction.type === 'lottery') return { icon: 'Ticket', color: 'red' };
+                if (transaction.type === 'lottery_win') return { icon: 'Sparkles', color: 'green' };
                 if (transaction.type === 'topup') return { icon: 'Wallet', color: 'green' };
                 if (transaction.amount > 0) return { icon: 'ArrowDownToLine', color: 'green' };
                 return { icon: 'ArrowUpFromLine', color: 'red' };

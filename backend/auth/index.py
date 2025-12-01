@@ -1143,6 +1143,49 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
+        elif action == 'complete_game':
+            headers = event.get('headers', {})
+            user_id = headers.get('X-User-Id') or headers.get('x-user-id')
+            
+            if not user_id:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Требуется авторизация'}),
+                    'isBase64Encoded': False
+                }
+            
+            won = body_data.get('won', False)
+            is_draw = body_data.get('is_draw', False)
+            amount = body_data.get('amount', 0)
+            bet_amount = body_data.get('bet_amount', 0)
+            game_type = body_data.get('game_type', 'Unknown')
+            
+            if won or is_draw:
+                cur.execute(
+                    f"UPDATE {SCHEMA}.users SET balance = balance + {float(amount)} WHERE id = {int(user_id)}"
+                )
+                
+                if won and not is_draw:
+                    transaction_type = 'win'
+                    description = f'Выигрыш в игре {game_type}: +{amount:.2f} USDT'
+                else:
+                    transaction_type = 'draw'
+                    description = f'Ничья в игре {game_type}: возврат {amount:.2f} USDT'
+                
+                cur.execute(
+                    f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES ({int(user_id)}, {float(amount)}, {escape_sql_string(transaction_type)}, {escape_sql_string(description)})"
+                )
+            
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True}),
+                'isBase64Encoded': False
+            }
+        
         else:
             return {
                 'statusCode': 400,
