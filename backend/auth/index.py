@@ -147,21 +147,47 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 limit = int(params.get('limit', 50))
                 offset = int(params.get('offset', 0))
                 
+                # Получаем обычные транзакции
                 cur.execute(
-                    f"SELECT id, amount, type, description, created_at FROM {SCHEMA}.transactions WHERE user_id = {int(user_id)} ORDER BY created_at DESC LIMIT {limit} OFFSET {offset}"
+                    f"SELECT id, amount, type, description, created_at, NULL as status, NULL as network, NULL as tx_hash, NULL as confirmed_at FROM {SCHEMA}.transactions WHERE user_id = {int(user_id)}"
                 )
                 transactions = cur.fetchall()
                 
+                # Получаем крипто-пополнения
                 cur.execute(
-                    f"SELECT COUNT(*) as total FROM {SCHEMA}.transactions WHERE user_id = {int(user_id)}"
+                    f"""SELECT 
+                        id, 
+                        amount, 
+                        'crypto_payment' as type, 
+                        CASE 
+                            WHEN status = 'pending' THEN 'Ожидание USDT ' || network || ' (' || amount || ' USDT)'
+                            WHEN status = 'confirmed' THEN 'Зачисление USDT ' || network || ' (' || amount || ' USDT)'
+                            WHEN status = 'cancelled' THEN 'Отменено USDT ' || network || ' (' || amount || ' USDT)'
+                            ELSE 'Крипто-пополнение ' || network
+                        END as description, 
+                        created_at,
+                        status,
+                        network,
+                        tx_hash,
+                        confirmed_at
+                    FROM {SCHEMA}.crypto_payments 
+                    WHERE user_id = {int(user_id)}"""
                 )
-                total = cur.fetchone()['total']
+                crypto_payments = cur.fetchall()
+                
+                # Объединяем и сортируем все по дате
+                all_transactions = [dict(t) for t in transactions] + [dict(c) for c in crypto_payments]
+                all_transactions.sort(key=lambda x: x['created_at'], reverse=True)
+                
+                # Применяем пагинацию после сортировки
+                paginated_transactions = all_transactions[offset:offset+limit]
+                total = len(all_transactions)
                 
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({
-                        'transactions': [dict(t) for t in transactions],
+                        'transactions': paginated_transactions,
                         'total': total
                     }, default=str),
                     'isBase64Encoded': False

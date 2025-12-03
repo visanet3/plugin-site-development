@@ -130,6 +130,14 @@ export const UserProfileTabs = ({
           <div className="space-y-2.5">
             {transactions.map((transaction) => {
               const getTransactionIcon = () => {
+                // Крипто-пополнения с разными статусами
+                if (transaction.type === 'crypto_payment') {
+                  if (transaction.status === 'pending') return { icon: 'Clock', color: 'yellow' };
+                  if (transaction.status === 'confirmed') return { icon: 'BadgeCheck', color: 'green' };
+                  if (transaction.status === 'cancelled') return { icon: 'XCircle', color: 'red' };
+                  return { icon: 'Wallet', color: 'blue' };
+                }
+                
                 if (transaction.type === 'escrow_sale') return { icon: 'ShoppingBag', color: 'green' };
                 if (transaction.type === 'escrow_purchase') return { icon: 'ShoppingCart', color: 'blue' };
                 if (transaction.type === 'escrow_complete') return { icon: 'CheckCircle2', color: 'gray' };
@@ -149,14 +157,17 @@ export const UserProfileTabs = ({
               const amount = Number(transaction.amount);
               const isPositive = amount > 0;
               const isNeutral = amount === 0;
+              const isCryptoPayment = transaction.type === 'crypto_payment';
+              const isPending = transaction.status === 'pending';
 
               return (
-                <Card key={transaction.id} className="p-3 sm:p-4 hover:bg-accent/50 transition-all hover:shadow-md group border-border/50">
+                <Card key={`${transaction.type}-${transaction.id}`} className={`p-3 sm:p-4 hover:bg-accent/50 transition-all hover:shadow-md group border-border/50 ${isPending ? 'opacity-70' : ''}`}>
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       <div className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 transition-all group-hover:scale-110 ${
                         color === 'green' ? 'bg-gradient-to-br from-green-500/20 to-emerald-500/20' : 
                         color === 'blue' ? 'bg-gradient-to-br from-blue-500/20 to-cyan-500/20' : 
+                        color === 'yellow' ? 'bg-gradient-to-br from-yellow-500/20 to-amber-500/20' :
                         color === 'gray' ? 'bg-gradient-to-br from-gray-500/20 to-slate-500/20' : 
                         'bg-gradient-to-br from-red-500/20 to-orange-500/20'
                       }`}>
@@ -166,25 +177,40 @@ export const UserProfileTabs = ({
                           className={`sm:w-5 sm:h-5 ${
                             color === 'green' ? 'text-green-400' : 
                             color === 'blue' ? 'text-blue-400' : 
+                            color === 'yellow' ? 'text-yellow-400' :
                             color === 'gray' ? 'text-gray-400' : 
                             'text-red-400'
-                          }`}
+                          } ${isPending ? 'animate-pulse' : ''}`}
                         />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold text-sm sm:text-base truncate">{transaction.description}</p>
-                        <p className="text-xs text-muted-foreground/80 truncate flex items-center gap-1">
-                          <Icon name="Clock" size={10} />
-                          {new Date(transaction.created_at).toLocaleString('ru-RU', {
-                            day: 'numeric',
-                            month: 'short',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </p>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-xs text-muted-foreground/80 truncate flex items-center gap-1">
+                            <Icon name="Clock" size={10} />
+                            {new Date(transaction.created_at).toLocaleString('ru-RU', {
+                              day: 'numeric',
+                              month: 'short',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                          {isCryptoPayment && transaction.tx_hash && (
+                            <a 
+                              href={`https://tronscan.org/#/transaction/${transaction.tx_hash}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1"
+                            >
+                              <Icon name="ExternalLink" size={10} />
+                              TX
+                            </a>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <div className={`text-base sm:text-lg font-black shrink-0 ${
+                      isPending ? 'text-yellow-400' :
                       isNeutral ? 'text-muted-foreground' :
                       isPositive ? 'text-green-400' : 'text-red-400'
                     }`}>

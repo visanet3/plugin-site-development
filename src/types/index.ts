@@ -112,6 +112,10 @@ export interface Transaction {
   type: string;
   description: string;
   created_at: string;
+  status?: string;
+  network?: string;
+  tx_hash?: string;
+  confirmed_at?: string;
 }
 
 export interface Notification {
