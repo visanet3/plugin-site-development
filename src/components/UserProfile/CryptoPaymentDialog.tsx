@@ -96,17 +96,56 @@ export const CryptoPaymentDialog = ({
               </div>
             </Card>
 
-            <div className="space-y-2 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-              <div className="flex items-start gap-2">
-                <Icon name="AlertTriangle" size={18} className="text-yellow-400 mt-0.5" />
-                <div className="text-sm space-y-1">
-                  <p className="font-medium text-yellow-400">Важно:</p>
-                  <ul className="text-muted-foreground space-y-1 text-xs">
-                    <li>• Отправляйте только USDT в сети {cryptoPayment.network}</li>
-                    <li>• Перевод в другой сети приведёт к потере средств</li>
-                    <li>• После отправки нажмите "Я отправил"</li>
-                    <li>• Зачисление произойдёт после подтверждения</li>
-                  </ul>
+            <div className="space-y-3">
+              <div className="p-4 bg-red-500/20 border-2 border-red-500/50 rounded-lg">
+                <div className="flex items-start gap-2">
+                  <Icon name="AlertTriangle" size={20} className="text-red-400 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm space-y-2">
+                    <p className="font-bold text-red-400 text-base">⚠️ КРИТИЧЕСКИ ВАЖНО!</p>
+                    <div className="space-y-1.5 text-red-200">
+                      <p className="font-semibold">Отправляйте ТОЧНО {cryptoPayment.amount} USDT!</p>
+                      <p className="text-xs leading-relaxed">
+                        Биржи берут комиссию за вывод средств. Учитывайте это при отправке! 
+                        Если вы отправите с биржи {cryptoPayment.amount} USDT, то к нам придёт меньше из-за комиссии биржи.
+                      </p>
+                      <p className="text-xs leading-relaxed font-medium">
+                        💡 <span className="underline">Рекомендация:</span> Отправьте чуть больше, чтобы после вычета комиссии биржи пришло ровно {cryptoPayment.amount} USDT
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-orange-500/20 border-2 border-orange-500/50 rounded-lg">
+                <div className="flex items-start gap-2">
+                  <Icon name="Ban" size={20} className="text-orange-400 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm space-y-2">
+                    <p className="font-bold text-orange-400 text-base">❌ Если отправили другую сумму</p>
+                    <div className="space-y-1.5 text-orange-200">
+                      <p className="text-xs leading-relaxed">
+                        Если к нам пришла сумма отличная от {cryptoPayment.amount} USDT — деньги <span className="font-bold underline">НЕ ЗАЧИСЛЯТСЯ</span> автоматически!
+                      </p>
+                      <p className="text-xs leading-relaxed font-medium">
+                        📞 В этом случае обязательно напишите в <span className="font-semibold">службу поддержки</span> с указанием суммы и транзакции. 
+                        Мы вручную пополним ваш баланс.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                <div className="flex items-start gap-2">
+                  <Icon name="Info" size={18} className="text-yellow-400 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm space-y-1">
+                    <p className="font-medium text-yellow-400">Важная информация:</p>
+                    <ul className="text-muted-foreground space-y-1 text-xs">
+                      <li>• Отправляйте только USDT в сети {cryptoPayment.network}</li>
+                      <li>• Перевод в другой сети приведёт к потере средств</li>
+                      <li>• После отправки нажмите "Я отправил"</li>
+                      <li>• Зачисление произойдёт после подтверждения в блокчейне</li>
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>
