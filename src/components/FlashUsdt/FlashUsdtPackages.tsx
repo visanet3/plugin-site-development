@@ -59,6 +59,13 @@ export const FlashUsdtPackages = ({ packages, onPurchase, selectedPackageId }: F
             </div>
 
             <div className="p-3 sm:p-4 md:p-5 lg:p-6 space-y-2 sm:space-y-3">
+              <div className="mb-2 sm:mb-3">
+                <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/40 text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 w-full justify-center">
+                  <Icon name="TrendingUp" size={10} className="mr-1 sm:w-3 sm:h-3" />
+                  Подорожание из-за новогодних праздников
+                </Badge>
+              </div>
+              
               <div className="space-y-1 sm:space-y-1.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs sm:text-sm text-muted-foreground">Номинал:</span>
