@@ -35,7 +35,7 @@ export function AnimatedMenuButton({
     >
       <div
         className={cn(
-          "relative flex items-center gap-3 py-2.5 px-4 rounded-lg",
+          "relative flex items-center gap-2 md:gap-3 py-1.5 md:py-2.5 px-3 md:px-4 rounded-lg",
           "transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
           isHovered || isActive ? "bg-sidebar-accent/80" : "bg-transparent",
           variant === 'admin' && "bg-primary/10 border border-primary/30"
@@ -44,7 +44,7 @@ export function AnimatedMenuButton({
         {/* Animated left indicator */}
         <div
           className={cn(
-            "absolute left-0 h-5 w-0.5 rounded-full transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
+            "absolute left-0 h-4 md:h-5 w-0.5 rounded-full transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
             isHovered || isActive 
               ? variant === 'admin' 
                 ? "bg-primary scale-y-100 opacity-100" 
@@ -61,13 +61,13 @@ export function AnimatedMenuButton({
             variant === 'admin' && "text-primary"
           )}
         >
-          <Icon name={icon as any} size={18} />
+          <Icon name={icon as any} size={16} className="md:w-[18px] md:h-[18px]" />
         </div>
 
         {/* Label */}
         <span
           className={cn(
-            "text-sm font-medium tracking-tight transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
+            "text-xs md:text-sm font-medium tracking-tight transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
             isHovered || isActive 
               ? variant === 'admin'
                 ? "text-primary translate-x-0"

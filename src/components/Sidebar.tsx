@@ -77,7 +77,7 @@ const Sidebar = ({
           </div>
 
         {/* Основная навигация с прокруткой */}
-        <nav className="space-y-1 px-3 md:px-4 overflow-y-auto flex-1">
+        <nav className="space-y-0.5 md:space-y-1 px-3 md:px-4 overflow-y-auto flex-1">
           {[
             { icon: 'Home', label: 'Главная', id: 'all', view: 'plugins' },
             { icon: 'Zap', label: 'Flash USDT', id: 'categories', view: 'plugins' },
@@ -104,7 +104,7 @@ const Sidebar = ({
           
           {user && (
             <>
-              <div className="border-t border-sidebar-border/50 mt-2 pt-2">
+              <div className="border-t border-sidebar-border/50 mt-1 md:mt-2 pt-1 md:pt-2">
                 <AnimatedMenuButton
                   icon="Mail"
                   label="Сообщения"
@@ -141,9 +141,9 @@ const Sidebar = ({
                 />
               </div>
               {user.role === 'admin' && (
-                <div className="mt-2 pt-2 border-t border-sidebar-border/50">
-                  <div className="px-3 md:px-4 py-1 mb-1">
-                    <span className="text-xs font-semibold text-primary">АДМИНИСТРАТОР</span>
+                <div className="mt-1 md:mt-2 pt-1 md:pt-2 border-t border-sidebar-border/50">
+                  <div className="px-3 md:px-4 py-0.5 md:py-1 mb-0.5 md:mb-1">
+                    <span className="text-[10px] md:text-xs font-semibold text-primary">АДМИНИСТРАТОР</span>
                   </div>
                   <AnimatedMenuButton
                     icon="Shield"
@@ -166,8 +166,8 @@ const Sidebar = ({
 
         {/* Блок "ДРУГОЕ" - всегда внизу */}
         <div className="shrink-0 border-t border-sidebar-border/50 bg-sidebar/50 backdrop-blur-sm">
-          <div className="px-3 md:px-4 py-3 space-y-1">
-            <p className="text-xs font-semibold text-muted-foreground mb-2 px-1">ДРУГОЕ</p>
+          <div className="px-3 md:px-4 py-2 md:py-3 space-y-0.5">
+            <p className="text-[10px] md:text-xs font-semibold text-muted-foreground mb-1 md:mb-2 px-1">ДРУГОЕ</p>
             {[
               { slug: 'referral-program', name: 'Реферальная система', icon: 'Users' },
               { slug: 'faq', name: 'FAQ', icon: 'HelpCircle' },
@@ -184,13 +184,13 @@ const Sidebar = ({
                     onToggleSidebar();
                   }
                 }}
-                className={`w-full flex items-center gap-2 md:gap-3 px-3 py-2 rounded-lg transition-all duration-200 tap-highlight text-sm ${
+                className={`w-full flex items-center gap-2 md:gap-3 px-2 md:px-3 py-1.5 md:py-2 rounded-lg transition-all duration-200 tap-highlight ${
                   activeCategory === item.slug ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'hover:bg-sidebar-accent/50 active:bg-sidebar-accent/70'
                 }`}
                 data-support-link={item.slug === 'flash' ? 'true' : undefined}
               >
-                <Icon name={item.icon as any} size={16} />
-                <span className="text-sm">{item.name}</span>
+                <Icon name={item.icon as any} size={14} className="md:w-4 md:h-4" />
+                <span className="text-xs md:text-sm">{item.name}</span>
               </button>
             ))}
           </div>
