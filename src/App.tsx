@@ -19,6 +19,8 @@ const ROLE_UPDATER_URL = 'https://functions.poehali.dev/c31a74a8-f1ec-40ca-8eda-
 
 const CryptoChecker = () => {
   useEffect(() => {
+    // Вызываем только один раз при загрузке приложения
+    // Дальнейшие проверки происходят в useUserActivity по действиям пользователя
     const checkPendingPayments = async () => {
       try {
         const response = await fetch(CRYPTO_CHECKER_URL, {
@@ -44,18 +46,9 @@ const CryptoChecker = () => {
       }
     };
 
-    // Вызываем сразу при загрузке
+    // Вызываем один раз при загрузке приложения
     checkPendingPayments();
     updateUserRoles();
-
-    // Устанавливаем интервалы: крипто-чекер каждые 5 минут, роль-обновление каждый час
-    const cryptoInterval = setInterval(checkPendingPayments, 5 * 60 * 1000);
-    const roleInterval = setInterval(updateUserRoles, 60 * 60 * 1000);
-
-    return () => {
-      clearInterval(cryptoInterval);
-      clearInterval(roleInterval);
-    };
   }, []);
 
   return null;

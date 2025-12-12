@@ -78,7 +78,7 @@ export const useIndexState = () => {
     });
   };
 
-  useUserActivity({
+  const userActivityMethods = useUserActivity({
     user,
     setUser,
     setNotificationsUnread,
