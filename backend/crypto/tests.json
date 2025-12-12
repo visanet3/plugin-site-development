@@ -4,7 +4,7 @@
       "name": "Create crypto payment",
       "method": "POST",
       "headers": {
-        "X-User-Id": "1"
+        "X-User-Id": "7"
       },
       "body": {
         "action": "create_payment",
@@ -21,7 +21,7 @@
       "name": "Get payment status",
       "method": "GET",
       "headers": {
-        "X-User-Id": "1"
+        "X-User-Id": "7"
       },
       "queryParams": {
         "payment_id": "1"

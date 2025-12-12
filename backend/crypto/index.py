@@ -204,7 +204,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'body': json.dumps({
                             'success': False,
                             'waiting': True,
-                            'message': 'Ожидаем транзакцию в блокчейне. Проверка в течение 30 минут.'
+                            'message': 'Ожидаем транзакцию в блокчейне. У вас есть 1 час на оплату, после чего платёж будет автоматически отменён.'
                         }),
                         'isBase64Encoded': False
                     }

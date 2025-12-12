@@ -80,15 +80,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         conn = get_db_connection()
         cur = conn.cursor()
         
-        timeout_threshold = datetime.utcnow() - timedelta(minutes=30)
+        current_time = datetime.utcnow()
         
+        # Получаем все pending платежи
         cur.execute(
             """SELECT * FROM crypto_payments 
-               WHERE status = 'pending' 
-               AND created_at > %s
+               WHERE status = 'pending'
                ORDER BY created_at ASC
-               LIMIT 50""",
-            (timeout_threshold,)
+               LIMIT 100"""
         )
         pending_payments = cur.fetchall()
         
@@ -99,6 +98,23 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         for payment in pending_payments:
             payment_id = payment['id']
             user_id = payment['user_id']
+            expires_at = payment.get('expires_at')
+            
+            # Проверяем, не истёк ли срок оплаты (1 час)
+            if expires_at and current_time > expires_at:
+                cur.execute(
+                    "UPDATE crypto_payments SET status = 'cancelled' WHERE id = %s",
+                    (payment_id,)
+                )
+                
+                cur.execute(
+                    "INSERT INTO notifications (user_id, type, title, message) VALUES (%s, %s, %s, %s)",
+                    (user_id, 'warning', 'Платеж отменён', f"Платеж на {float(payment['amount']):.2f} USDT был автоматически отменён. Срок оплаты истёк (1 час).")
+                )
+                
+                expired_count += 1
+                processed_count += 1
+                continue
             
             created_timestamp = int(payment['created_at'].timestamp() * 1000)
             
@@ -141,20 +157,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 )
                 
                 confirmed_count += 1
-                processed_count += 1
-            
-            elif payment['created_at'] < timeout_threshold:
-                cur.execute(
-                    "UPDATE crypto_payments SET status = 'expired' WHERE id = %s",
-                    (payment_id,)
-                )
-                
-                cur.execute(
-                    "INSERT INTO notifications (user_id, type, title, message) VALUES (%s, %s, %s, %s)",
-                    (user_id, 'warning', 'Платеж истек', f"Платеж на {float(payment['amount']):.2f} USDT не был найден в блокчейне в течение 30 минут")
-                )
-                
-                expired_count += 1
                 processed_count += 1
         
         conn.commit()
