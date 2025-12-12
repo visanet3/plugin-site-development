@@ -457,15 +457,12 @@
   .auth-title-shimmer {
     background: linear-gradient(
       90deg,
-      hsl(var(--primary)) 0%,
-      hsl(var(--accent)) 50%,
-      hsl(var(--primary)) 100%
+      hsl(var(--foreground)) 0%,
+      hsl(var(--foreground)) 100%
     );
-    background-size: 200% 100%;
     background-clip: text;
     -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shimmer 3s ease-in-out infinite;
+    color: hsl(var(--foreground));
   }
 
   @keyframes shimmer {
