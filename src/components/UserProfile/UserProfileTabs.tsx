@@ -105,6 +105,10 @@ export const UserProfileTabs = ({
         {isOwnProfile && onUpdateProfile && (
           <VerificationForm user={user} onVerified={() => {
             onUpdateProfile({ is_verified: true });
+            toast({
+              title: '🎉 Поздравляем!',
+              description: 'Ваш аккаунт успешно верифицирован',
+            });
           }} />
         )}
       </TabsContent>

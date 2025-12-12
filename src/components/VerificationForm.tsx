@@ -34,6 +34,7 @@ const VerificationForm = ({ user, onVerified }: VerificationFormProps) => {
   const selfieInputRef = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<VerificationStatus | null>(null);
   const [loadingStatus, setLoadingStatus] = useState(true);
+  const previousVerifiedRef = useRef<boolean | null>(null);
 
   useEffect(() => {
     fetchStatus();
@@ -48,8 +49,14 @@ const VerificationForm = ({ user, onVerified }: VerificationFormProps) => {
       });
       const data = await response.json();
       
-      if (data.is_verified && status !== null && !status.is_verified) {
+      if (data.is_verified && previousVerifiedRef.current === false) {
         onVerified();
+      }
+      
+      if (previousVerifiedRef.current === null) {
+        previousVerifiedRef.current = data.is_verified;
+      } else if (!previousVerifiedRef.current && data.is_verified) {
+        previousVerifiedRef.current = true;
       }
       
       setStatus(data);
