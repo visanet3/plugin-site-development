@@ -1,4 +1,5 @@
 import { User } from '@/types';
+import { useNavigate } from 'react-router-dom';
 
 const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
 
@@ -31,6 +32,7 @@ export const useIndexHandlers = ({
   setActiveCategory,
   toast
 }: IndexHandlersProps) => {
+  const navigate = useNavigate();
   const handleAuth = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -86,6 +88,7 @@ export const useIndexHandlers = ({
         title: 'Выход выполнен',
         description: 'Вы вышли из аккаунта'
       });
+      navigate('/auth');
     }
   };
 
