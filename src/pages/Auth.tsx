@@ -299,7 +299,7 @@ const Auth = () => {
 
                 <ShinyButton 
                   type="submit" 
-                  className="w-full bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600"
+                  className="w-full"
                 >
                   {authMode === 'login' ? 'Войти' : 'Создать аккаунт'}
                 </ShinyButton>
