@@ -195,26 +195,26 @@ const FlashUsdtShop = ({ user, onShowAuthDialog, onRefreshUserBalance }: FlashUs
       </div>
 
       {/* Content поверх эффекта */}
-      <div className="relative" style={{ zIndex: 1 }}>
+      <div className="relative space-y-4 sm:space-y-6 md:space-y-8" style={{ zIndex: 1 }}>
         <FlashUsdtHeader onTestPurchase={handleTestPurchase} />
       
-      <FlashUsdtInfo />
+        <FlashUsdtInfo />
 
-      <FlashUsdtPackages 
-        packages={packages}
-        onPurchase={handlePurchase}
-        selectedPackageId={selectedPackage?.id}
-      />
-
-        <FlashUsdtPurchaseDialog
-          open={showPurchaseDialog}
-          selectedPackage={selectedPackage}
-          walletAddress={walletAddress}
-          isProcessing={isProcessing}
-          onOpenChange={handleCloseDialog}
-          onWalletAddressChange={setWalletAddress}
-          onConfirmPurchase={handleConfirmPurchase}
+        <FlashUsdtPackages 
+          packages={packages}
+          onPurchase={handlePurchase}
+          selectedPackageId={selectedPackage?.id}
         />
+
+      <FlashUsdtPurchaseDialog
+        open={showPurchaseDialog}
+        selectedPackage={selectedPackage}
+        walletAddress={walletAddress}
+        isProcessing={isProcessing}
+        onOpenChange={handleCloseDialog}
+        onWalletAddressChange={setWalletAddress}
+        onConfirmPurchase={handleConfirmPurchase}
+      />
       </div>
     </div>
   );
