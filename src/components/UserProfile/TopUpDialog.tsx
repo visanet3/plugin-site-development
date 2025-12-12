@@ -14,8 +14,6 @@ interface TopUpDialogProps {
   onTopUp: () => void;
 }
 
-const quickAmounts = [30, 100, 500, 1000, 5000, 10000, 50000, 100000];
-
 export const TopUpDialog = ({
   open,
   isLoading,
@@ -29,16 +27,6 @@ export const TopUpDialog = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^0-9]/g, '');
     onAmountChange(value || '0');
-  };
-
-  const handleQuickAmount = (amount: number) => {
-    onAmountChange(amount.toString());
-  };
-
-  const formatAmount = (amount: number): string => {
-    if (amount >= 1000000) return `${(amount / 1000000).toFixed(1)}M`;
-    if (amount >= 1000) return `${(amount / 1000)}K`;
-    return amount.toString();
   };
 
   return (
@@ -92,35 +80,6 @@ export const TopUpDialog = ({
                 <span className="text-muted-foreground">
                   Максимум: <span className="font-semibold text-foreground">1,000,000 USDT</span>
                 </span>
-              </div>
-            </div>
-
-            {/* Quick amounts */}
-            <div className="space-y-2 md:space-y-3">
-              <Label className="text-xs md:text-sm font-medium text-muted-foreground">
-                Быстрый выбор:
-              </Label>
-              <div className="grid grid-cols-4 gap-2">
-                {quickAmounts.map((amount) => (
-                  <Button
-                    key={amount}
-                    variant="outline"
-                    onClick={() => handleQuickAmount(amount)}
-                    className={cn(
-                      "h-12 md:h-14 flex flex-col items-center justify-center gap-1 text-xs md:text-sm font-semibold transition-all",
-                      currentAmount === amount 
-                        ? "bg-primary text-primary-foreground border-primary shadow-md scale-105" 
-                        : "hover:bg-muted hover:border-primary/50 hover:scale-105"
-                    )}
-                  >
-                    <span className="text-sm md:text-base font-bold">
-                      {formatAmount(amount)}
-                    </span>
-                    <span className="text-[8px] md:text-[10px] text-muted-foreground">
-                      USDT
-                    </span>
-                  </Button>
-                ))}
               </div>
             </div>
 
