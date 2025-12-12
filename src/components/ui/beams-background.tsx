@@ -13,6 +13,7 @@ interface AnimatedGradientBackgroundProps {
 interface Beam {
     x: number;
     y: number;
+    baseX: number;
     width: number;
     length: number;
     angle: number;
@@ -21,13 +22,16 @@ interface Beam {
     hue: number;
     pulse: number;
     pulseSpeed: number;
+    parallaxStrength: number;
 }
 
 function createBeam(width: number, height: number): Beam {
     const angle = -35 + Math.random() * 10;
+    const baseX = Math.random() * width * 1.5 - width * 0.25;
     return {
-        x: Math.random() * width * 1.5 - width * 0.25,
+        x: baseX,
         y: Math.random() * height * 1.5 - height * 0.25,
+        baseX: baseX,
         width: 30 + Math.random() * 60,
         length: height * 2.5,
         angle: angle,
@@ -36,6 +40,7 @@ function createBeam(width: number, height: number): Beam {
         hue: 190 + Math.random() * 70,
         pulse: Math.random() * Math.PI * 2,
         pulseSpeed: 0.02 + Math.random() * 0.03,
+        parallaxStrength: 0.3 + Math.random() * 0.7,
     };
 }
 
@@ -47,6 +52,7 @@ export function BeamsBackground({
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const beamsRef = useRef<Beam[]>([]);
     const animationFrameRef = useRef<number>(0);
+    const mouseRef = useRef({ x: 0, y: 0 });
     const MINIMUM_BEAMS = 20;
 
     const opacityMap = {
@@ -79,6 +85,15 @@ export function BeamsBackground({
         updateCanvasSize();
         window.addEventListener("resize", updateCanvasSize);
 
+        const handleMouseMove = (e: MouseEvent) => {
+            mouseRef.current = {
+                x: (e.clientX / window.innerWidth - 0.5) * 2,
+                y: (e.clientY / window.innerHeight - 0.5) * 2,
+            };
+        };
+
+        window.addEventListener("mousemove", handleMouseMove);
+
         function resetBeam(beam: Beam, index: number, totalBeams: number) {
             if (!canvas) return beam;
             
@@ -86,14 +101,14 @@ export function BeamsBackground({
             const spacing = canvas.width / 3;
 
             beam.y = canvas.height + 100;
-            beam.x =
-                column * spacing +
-                spacing / 2 +
-                (Math.random() - 0.5) * spacing * 0.5;
+            const baseX = column * spacing + spacing / 2 + (Math.random() - 0.5) * spacing * 0.5;
+            beam.x = baseX;
+            beam.baseX = baseX;
             beam.width = 100 + Math.random() * 100;
             beam.speed = 0.5 + Math.random() * 0.4;
             beam.hue = 190 + (index * 70) / totalBeams;
             beam.opacity = 0.2 + Math.random() * 0.1;
+            beam.parallaxStrength = 0.3 + Math.random() * 0.7;
             return beam;
         }
 
@@ -140,9 +155,13 @@ export function BeamsBackground({
             ctx.filter = "blur(35px)";
 
             const totalBeams = beamsRef.current.length;
+            const mouse = mouseRef.current;
+            
             beamsRef.current.forEach((beam, index) => {
                 beam.y -= beam.speed;
                 beam.pulse += beam.pulseSpeed;
+
+                beam.x = beam.baseX + mouse.x * beam.parallaxStrength * 50;
 
                 if (beam.y + beam.length < -100) {
                     resetBeam(beam, index, totalBeams);
@@ -158,6 +177,7 @@ export function BeamsBackground({
 
         return () => {
             window.removeEventListener("resize", updateCanvasSize);
+            window.removeEventListener("mousemove", handleMouseMove);
             if (animationFrameRef.current) {
                 cancelAnimationFrame(animationFrameRef.current);
             }
