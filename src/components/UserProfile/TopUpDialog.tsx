@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import Icon from '@/components/ui/icon';
-import { Boxes } from '@/components/ui/background-boxes';
+import { DottedSurface } from '@/components/ui/dotted-surface';
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
@@ -44,10 +44,10 @@ export const TopUpDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl overflow-hidden border-2 border-primary/20 bg-background/95 backdrop-blur-xl">
-        {/* Animated background */}
+        {/* 3D Dotted Wave Background */}
         <div className="absolute inset-0 w-full h-full overflow-hidden">
-          <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-background via-background/80 to-background z-20 [mask-image:radial-gradient(transparent,white)] pointer-events-none" />
-          <Boxes />
+          <DottedSurface className="absolute inset-0" />
+          <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-background/60 via-background/40 to-background/60 z-20 pointer-events-none" />
         </div>
 
         <DialogHeader className="relative z-30 space-y-3">
