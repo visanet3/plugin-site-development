@@ -1,5 +1,6 @@
 import { useEffect, lazy, Suspense } from 'react';
 import { Helmet } from 'react-helmet';
+import { useNavigate } from 'react-router-dom';
 import { useIndexState } from './index/IndexState';
 import { useIndexHandlers } from './index/IndexHandlers';
 import IndexLayout from './index/IndexLayout';
@@ -17,6 +18,7 @@ const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf79
 const NOTIFICATIONS_URL = 'https://functions.poehali.dev/6c968792-7d48-41a9-af0a-c92adb047acb';
 
 const Index = () => {
+  const navigate = useNavigate();
   const state = useIndexState();
 
   const handlers = useIndexHandlers({
@@ -62,7 +64,7 @@ const Index = () => {
           if (data.user.is_blocked) {
             localStorage.removeItem('user');
             state.setUser(null);
-            state.setAuthDialogOpen(true);
+            navigate('/auth');
             state.toast({
               title: '🚫 Аккаунт заблокирован',
               description: 'Ваш аккаунт был заблокирован администратором',
@@ -84,10 +86,7 @@ const Index = () => {
       state.setUser(parsedUser);
       syncUserData();
     } else {
-      state.setAuthDialogOpen(true);
-      if (refCode) {
-        state.setAuthMode('register');
-      }
+      navigate('/auth');
     }
     
     const handleVisibilityChange = () => {

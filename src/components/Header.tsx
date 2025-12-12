@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { User, SearchResult } from '@/types';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
   sidebarOpen: boolean;
@@ -38,6 +39,7 @@ const Header = ({
   onShowNotifications,
   onShowProfile,
 }: HeaderProps) => {
+  const navigate = useNavigate();
   const [animatedBalance, setAnimatedBalance] = useState(Number(user?.balance) || 0);
   const [isBalanceChanging, setIsBalanceChanging] = useState(false);
 
@@ -218,14 +220,14 @@ const Header = ({
           ) : (
             <div className="flex items-center gap-1.5 sm:gap-3">
               <Button 
-                onClick={() => onAuthDialogOpen('login')}
+                onClick={() => navigate('/auth')}
                 variant="outline"
                 className="font-semibold px-3 sm:px-6 text-xs sm:text-sm"
               >
                 ВХОД
               </Button>
               <Button 
-                onClick={() => onAuthDialogOpen('register')}
+                onClick={() => navigate('/auth')}
                 className="bg-primary hover:bg-primary/90 font-semibold px-3 sm:px-6 text-xs sm:text-sm"
               >
                 РЕГИСТРАЦИЯ
