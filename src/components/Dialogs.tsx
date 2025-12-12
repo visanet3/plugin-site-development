@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import VerificationForm from '@/components/VerificationForm';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CreateTopicDialog from '@/components/forum/CreateTopicDialog';
+import { BeamsBackground } from '@/components/ui/beams-background';
 
 interface DialogsProps {
   authDialogOpen: boolean;
@@ -203,7 +204,12 @@ const Dialogs = ({
   return (
     <>
       <Dialog open={authDialogOpen} onOpenChange={handleAuthDialogChange}>
-        <DialogContent className="auth-dialog-content border-0 rounded-3xl shadow-2xl bg-card/95 backdrop-blur-xl max-w-md overflow-hidden">
+        <DialogContent className="auth-dialog-content border-0 rounded-3xl shadow-2xl bg-transparent backdrop-blur-none max-w-md overflow-hidden p-0">
+          <BeamsBackground className="absolute inset-0 rounded-3xl" intensity="medium">
+            <div className="w-full h-full" />
+          </BeamsBackground>
+          
+          <div className="relative z-20 bg-card/80 backdrop-blur-xl rounded-3xl p-6">
           <div className="auth-orbs-container">
             <div className="auth-orb auth-orb-1"></div>
             <div className="auth-orb auth-orb-2"></div>
@@ -353,6 +359,7 @@ const Dialogs = ({
               </div>
             </form>
             )}
+          </div>
           </div>
         </DialogContent>
       </Dialog>
