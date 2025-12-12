@@ -1,0 +1,13 @@
+{
+  "tests": [
+    {
+      "name": "Check expired withdrawal requests",
+      "method": "POST",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

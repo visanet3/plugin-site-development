@@ -16,7 +16,7 @@ interface WithdrawalRequest {
   user_id: number;
   amount: number;
   usdt_wallet: string;
-  status: 'pending' | 'processing' | 'completed' | 'rejected';
+  status: 'pending' | 'processing' | 'completed' | 'rejected' | 'cancelled';
   admin_comment: string | null;
   created_at: string;
   updated_at: string;
@@ -36,7 +36,7 @@ const AdminWithdrawalsTab = ({ withdrawals, currentUser, onRefresh }: AdminWithd
   const [selectedWithdrawal, setSelectedWithdrawal] = useState<WithdrawalRequest | null>(null);
   const [adminComment, setAdminComment] = useState('');
   const [loading, setLoading] = useState(false);
-  const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'processing' | 'completed' | 'rejected'>('processing');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'processing' | 'completed' | 'rejected' | 'cancelled'>('processing');
 
   const processWithdrawal = async (withdrawalId: number, status: 'completed' | 'rejected') => {
     const confirmMsg = status === 'completed' 
@@ -95,7 +95,8 @@ const AdminWithdrawalsTab = ({ withdrawals, currentUser, onRefresh }: AdminWithd
       pending: { text: 'Ожидает', variant: 'secondary' },
       processing: { text: 'В обработке', variant: 'default' },
       completed: { text: 'Завершено', variant: 'outline' },
-      rejected: { text: 'Отклонено', variant: 'destructive' }
+      rejected: { text: 'Отклонено', variant: 'destructive' },
+      cancelled: { text: 'Отменено (истёк срок)', variant: 'destructive' }
     };
     const badge = badges[status] || badges.pending;
     return <Badge variant={badge.variant}>{badge.text}</Badge>;

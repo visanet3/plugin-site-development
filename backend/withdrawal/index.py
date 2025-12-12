@@ -196,11 +196,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 # Списываем сумму + комиссию
                 cursor.execute('UPDATE users SET balance = balance - %s WHERE id = %s', (total_required, user_id))
                 
+                # Устанавливаем expires_at на 1 час от создания
+                from datetime import timedelta
+                expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
+                
                 cursor.execute("""
-                    INSERT INTO withdrawal_requests (user_id, amount, usdt_wallet, status)
-                    VALUES (%s, %s, %s, 'processing')
+                    INSERT INTO withdrawal_requests (user_id, amount, usdt_wallet, status, expires_at)
+                    VALUES (%s, %s, %s, 'processing', %s)
                     RETURNING id
-                """, (user_id, amount, usdt_wallet))
+                """, (user_id, amount, usdt_wallet, expires_at))
                 
                 withdrawal_id = cursor.fetchone()['id']
                 

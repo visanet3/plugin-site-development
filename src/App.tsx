@@ -15,6 +15,7 @@ import Snowfall from "./components/Snowfall";
 const queryClient = new QueryClient();
 
 const CRYPTO_CHECKER_URL = 'https://functions.poehali.dev/c6ecf062-a0e0-47bd-8e8e-694cf7eb952b';
+const WITHDRAWAL_CHECKER_URL = 'https://functions.poehali.dev/43369591-b7bb-4c21-9a66-fbe09bb21379';
 const ROLE_UPDATER_URL = 'https://functions.poehali.dev/c31a74a8-f1ec-40ca-8eda-a5dce42fc8dc';
 
 const CryptoChecker = () => {
@@ -35,6 +36,20 @@ const CryptoChecker = () => {
       }
     };
 
+    const checkWithdrawalRequests = async () => {
+      try {
+        const response = await fetch(WITHDRAWAL_CHECKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        if (!response.ok) {
+          console.warn('Withdrawal checker service unavailable');
+        }
+      } catch (error) {
+        // Silently handle connection errors for background task
+      }
+    };
+
     const updateUserRoles = async () => {
       try {
         await fetch(ROLE_UPDATER_URL, {
@@ -48,6 +63,7 @@ const CryptoChecker = () => {
 
     // Вызываем один раз при загрузке приложения
     checkPendingPayments();
+    checkWithdrawalRequests();
     updateUserRoles();
   }, []);
 
