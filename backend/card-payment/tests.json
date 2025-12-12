@@ -7,16 +7,16 @@
       "expectedStatus": 200
     },
     {
-      "name": "Check payment status",
+      "name": "Invalid action returns error",
       "method": "POST",
       "path": "/",
       "body": {
-        "action": "check_status",
-        "payment_id": 1
+        "action": "invalid_action"
       },
-      "expectedStatus": 200,
+      "expectedStatus": 400,
       "expectedBody": {
-        "success": true
+        "success": false,
+        "error": "Invalid action"
       },
       "bodyMatcher": "partial"
     }

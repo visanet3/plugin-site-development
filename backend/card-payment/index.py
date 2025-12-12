@@ -1,8 +1,8 @@
 """
-Business: Обработка платежей банковскими картами для пополнения баланса
-Args: event - dict с httpMethod, body (action, amount, user_id)
+Business: Обработка платежей банковскими картами через Stripe для пополнения баланса
+Args: event - dict с httpMethod, body (action, amount, user_id, payment_intent_id)
       context - объект с атрибутами: request_id, function_name
-Returns: HTTP response dict с URL для оплаты или статусом платежа
+Returns: HTTP response dict с client_secret для Stripe или статусом платежа
 """
 
 import json
@@ -11,9 +11,12 @@ from typing import Dict, Any
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import requests
+import stripe
 
 SCHEMA = 't_p32599880_plugin_site_developm'
 TELEGRAM_NOTIFY_URL = 'https://functions.poehali.dev/02d813a8-279b-4a13-bfe4-ffb7d0cf5a3f'
+
+stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
 
 def escape_sql_string(s: str) -> str:
     if s is None:
@@ -37,8 +40,8 @@ def send_telegram_notification(event_type: str, user_info: Dict, details: Dict):
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
-    Business: Обработка платежей банковскими картами
-    Args: event - dict с httpMethod, body (action, amount, user_id, payment_id)
+    Business: Обработка платежей банковскими картами через Stripe
+    Args: event - dict с httpMethod, body (action, amount, user_id, payment_intent_id)
           context - объект с атрибутами: request_id, function_name
     Returns: HTTP response dict
     """
@@ -82,6 +85,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
+    if not stripe.api_key:
+        return {
+            'statusCode': 500,
+            'headers': headers,
+            'body': json.dumps({'success': False, 'error': 'STRIPE_SECRET_KEY not configured'}),
+            'isBase64Encoded': False
+        }
+    
     try:
         body_data = json.loads(event.get('body', '{}'))
         action = body_data.get('action')
@@ -90,7 +101,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         conn.autocommit = True
         cur = conn.cursor(cursor_factory=RealDictCursor)
         
-        if action == 'create_payment':
+        if action == 'create_payment_intent':
             user_id = body_data.get('user_id')
             amount = body_data.get('amount', 0)
             
@@ -102,7 +113,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            # Получаем информацию о пользователе
             cur.execute(f"SELECT username, email FROM {SCHEMA}.users WHERE id = {int(user_id)}")
             user = cur.fetchone()
             
@@ -114,49 +124,66 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            # Создаем запись о платеже в БД
+            amount_cents = int(float(amount) * 100)
+            
+            payment_intent = stripe.PaymentIntent.create(
+                amount=amount_cents,
+                currency='usd',
+                metadata={
+                    'user_id': str(user_id),
+                    'username': user['username']
+                },
+                description=f'Balance topup for user {user["username"]}'
+            )
+            
             cur.execute(f"""
                 INSERT INTO {SCHEMA}.card_payments 
-                (user_id, amount, status, created_at)
-                VALUES ({int(user_id)}, {float(amount)}, 'pending', NOW())
+                (user_id, amount, status, payment_provider, transaction_id, created_at)
+                VALUES ({int(user_id)}, {float(amount)}, 'pending', 'stripe', 
+                        {escape_sql_string(payment_intent.id)}, NOW())
                 RETURNING id
             """)
             payment = cur.fetchone()
-            payment_id = payment['id']
-            
-            # В реальной интеграции здесь был бы вызов Stripe API
-            # Для демо возвращаем mock URL
-            payment_url = f"https://payment.example.com/pay/{payment_id}"
             
             return {
                 'statusCode': 200,
                 'headers': headers,
                 'body': json.dumps({
                     'success': True,
-                    'payment_id': payment_id,
-                    'payment_url': payment_url,
+                    'client_secret': payment_intent.client_secret,
+                    'payment_id': payment['id'],
                     'amount': amount
                 }),
                 'isBase64Encoded': False
             }
         
         elif action == 'confirm_payment':
-            payment_id = body_data.get('payment_id')
+            payment_intent_id = body_data.get('payment_intent_id')
             
-            if not payment_id:
+            if not payment_intent_id:
                 return {
                     'statusCode': 400,
                     'headers': headers,
-                    'body': json.dumps({'success': False, 'error': 'Payment ID required'}),
+                    'body': json.dumps({'success': False, 'error': 'Payment intent ID required'}),
                     'isBase64Encoded': False
                 }
             
-            # Получаем информацию о платеже
+            payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
+            
+            if payment_intent.status != 'succeeded':
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'success': False, 'error': 'Payment not succeeded'}),
+                    'isBase64Encoded': False
+                }
+            
             cur.execute(f"""
                 SELECT cp.*, u.username 
                 FROM {SCHEMA}.card_payments cp
                 JOIN {SCHEMA}.users u ON cp.user_id = u.id
-                WHERE cp.id = {int(payment_id)} AND cp.status = 'pending'
+                WHERE cp.transaction_id = {escape_sql_string(payment_intent_id)} 
+                AND cp.status = 'pending'
             """)
             payment = cur.fetchone()
             
@@ -168,29 +195,25 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            # Обновляем статус платежа
             cur.execute(f"""
                 UPDATE {SCHEMA}.card_payments
                 SET status = 'completed', completed_at = NOW()
-                WHERE id = {int(payment_id)}
+                WHERE id = {int(payment['id'])}
             """)
             
-            # Пополняем баланс пользователя
             cur.execute(f"""
                 UPDATE {SCHEMA}.users
                 SET balance = balance + {float(payment['amount'])}
                 WHERE id = {int(payment['user_id'])}
             """)
             
-            # Записываем транзакцию
             cur.execute(f"""
                 INSERT INTO {SCHEMA}.transactions
                 (user_id, amount, type, description, created_at)
                 VALUES ({int(payment['user_id'])}, {float(payment['amount'])}, 
-                        'deposit', {escape_sql_string(f'Пополнение картой #{payment_id}')}, NOW())
+                        'deposit', {escape_sql_string(f'Пополнение картой Stripe #{payment["id"]}')}, NOW())
             """)
             
-            # Отправляем уведомление в Telegram
             send_telegram_notification(
                 'balance_topup',
                 {'username': payment['username'], 'user_id': payment['user_id']},
@@ -209,20 +232,22 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         elif action == 'check_status':
-            payment_id = body_data.get('payment_id')
+            payment_intent_id = body_data.get('payment_intent_id')
             
-            if not payment_id:
+            if not payment_intent_id:
                 return {
                     'statusCode': 400,
                     'headers': headers,
-                    'body': json.dumps({'success': False, 'error': 'Payment ID required'}),
+                    'body': json.dumps({'success': False, 'error': 'Payment intent ID required'}),
                     'isBase64Encoded': False
                 }
+            
+            payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
             
             cur.execute(f"""
                 SELECT id, user_id, amount, status, created_at, completed_at
                 FROM {SCHEMA}.card_payments
-                WHERE id = {int(payment_id)}
+                WHERE transaction_id = {escape_sql_string(payment_intent_id)}
             """)
             payment = cur.fetchone()
             
@@ -241,8 +266,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'success': True,
                     'payment': {
                         'id': payment['id'],
-                        'amount': float(payment['amount']),
+                        'amount': str(payment['amount']),
                         'status': payment['status'],
+                        'stripe_status': payment_intent.status,
                         'created_at': payment['created_at'].isoformat() if payment['created_at'] else None
                     }
                 }),
@@ -256,7 +282,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({'success': False, 'error': 'Invalid action'}),
                 'isBase64Encoded': False
             }
-        
+    
+    except stripe.error.StripeError as e:
+        return {
+            'statusCode': 400,
+            'headers': headers,
+            'body': json.dumps({'success': False, 'error': f'Stripe error: {str(e)}'}),
+            'isBase64Encoded': False
+        }
     except Exception as e:
         return {
             'statusCode': 500,
@@ -265,5 +298,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     finally:
+        if 'cur' in locals():
+            cur.close()
         if 'conn' in locals():
             conn.close()
