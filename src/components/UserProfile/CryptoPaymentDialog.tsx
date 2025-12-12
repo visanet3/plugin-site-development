@@ -42,9 +42,9 @@ export const CryptoPaymentDialog = ({
                 />
               </div>
               {/* Tron Logo Badge */}
-              <div className="absolute -bottom-0.5 -right-0.5 md:-bottom-1 md:-right-1 w-5 h-5 md:w-7 md:h-7 rounded-full bg-[#FF060A] flex items-center justify-center shadow-md border-2 border-background p-1">
-                <svg viewBox="0 0 32 32" className="w-full h-full" fill="white">
-                  <path d="M 7.5,4 L 24.5,4 L 28,10 L 16,28 L 4,10 Z M 16,7 L 9,11 L 12,17 L 16,25 L 20,17 L 23,11 Z" />
+              <div className="absolute -bottom-0.5 -right-0.5 md:-bottom-1 md:-right-1 w-5 h-5 md:w-7 md:h-7 rounded-full bg-[#FF060A] flex items-center justify-center shadow-md border-2 border-background p-0.5 md:p-1">
+                <svg viewBox="0 0 56 56" className="w-full h-full" fill="white">
+                  <path d="M33.48 10.88l16.93 3.67-21.93 30.5L5.92 30.74l27.56-19.86zm-1.75 3.13L9.34 28.2l19.58 11.37 17.19-23.73-14.38-1.83zM28.48 15.53l1.82 10.8 8.62-11.85-10.44.05z"/>
                 </svg>
               </div>
             </div>
