@@ -116,9 +116,8 @@ export const CryptoPaymentDialog = ({
                     size="lg"
                     variant="outline"
                     className="w-full"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
+                    onClick={() => {
+                      navigator.clipboard.writeText(cryptoPayment.wallet_address);
                       onCopyToClipboard(cryptoPayment.wallet_address);
                     }}
                   >
