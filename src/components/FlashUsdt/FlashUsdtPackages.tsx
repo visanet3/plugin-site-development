@@ -35,21 +35,12 @@ export const FlashUsdtPackages = ({ packages, onPurchase, selectedPackageId }: F
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {packages.map((pkg) => {
-          const borderColors = [
-            'border-2 border-emerald-500/60 shadow-lg shadow-emerald-500/30',
-            'border-2 border-cyan-500/60 shadow-lg shadow-cyan-500/30',
-            'border-2 border-teal-500/60 shadow-lg shadow-teal-500/30',
-            'border-2 border-blue-500/60 shadow-lg shadow-blue-500/30'
-          ];
-          const borderClass = borderColors[(pkg.id - 1) % borderColors.length];
-          
-          return (
+        {packages.map((pkg) => (
           <Card 
             key={pkg.id}
-            className={`relative overflow-hidden transition-all duration-300 sm:hover:scale-105 ${borderClass} ${
+            className={`relative overflow-hidden transition-all duration-300 sm:hover:scale-105 ${
               pkg.popular ? 'ring-2 ring-yellow-500/50' : ''
-            } ${selectedPackageId === pkg.id ? 'ring-2 ring-green-500/50' : ''}`}
+            } ${selectedPackageId === pkg.id ? 'ring-2 ring-green-500/50' : ''} ${pkg.borderColor}`}
           >
             {pkg.popular && (
               <div className="absolute top-0 right-0 z-10">
@@ -75,10 +66,10 @@ export const FlashUsdtPackages = ({ packages, onPurchase, selectedPackageId }: F
                   rotation={0}
                   speed={0.5}
                   colors={[
-                    pkg.id === 1 ? 'hsl(160, 85%, 25%)' : pkg.id === 2 ? 'hsl(180, 90%, 30%)' : pkg.id === 3 ? 'hsl(170, 80%, 28%)' : 'hsl(190, 85%, 32%)',
-                    pkg.id === 1 ? 'hsl(140, 90%, 45%)' : pkg.id === 2 ? 'hsl(185, 95%, 50%)' : pkg.id === 3 ? 'hsl(165, 85%, 48%)' : pkg.id === 4 ? 'hsl(200, 90%, 52%)' : 'hsl(175, 88%, 50%)',
-                    pkg.id === 1 ? 'hsl(150, 100%, 35%)' : pkg.id === 2 ? 'hsl(175, 90%, 38%)' : pkg.id === 3 ? 'hsl(168, 88%, 36%)' : 'hsl(195, 92%, 40%)',
-                    pkg.id === 1 ? 'hsl(155, 95%, 55%)' : pkg.id === 2 ? 'hsl(190, 100%, 60%)' : pkg.id === 3 ? 'hsl(172, 92%, 58%)' : 'hsl(205, 95%, 62%)'
+                    pkg.id === 1 ? 'hsl(200, 100%, 25%)' : pkg.id === 2 ? 'hsl(280, 100%, 30%)' : pkg.id === 3 ? 'hsl(120, 100%, 25%)' : 'hsl(30, 100%, 35%)',
+                    pkg.id === 1 ? 'hsl(180, 100%, 65%)' : pkg.id === 2 ? 'hsl(320, 100%, 60%)' : pkg.id === 3 ? 'hsl(140, 100%, 60%)' : 'hsl(50, 100%, 65%)',
+                    pkg.id === 1 ? 'hsl(160, 90%, 35%)' : pkg.id === 2 ? 'hsl(340, 90%, 40%)' : pkg.id === 3 ? 'hsl(100, 90%, 30%)' : 'hsl(40, 90%, 40%)',
+                    pkg.id === 1 ? 'hsl(190, 100%, 75%)' : pkg.id === 2 ? 'hsl(300, 100%, 70%)' : pkg.id === 3 ? 'hsl(130, 100%, 70%)' : 'hsl(45, 100%, 75%)'
                   ]}
                 />
               </div>
@@ -142,7 +133,7 @@ export const FlashUsdtPackages = ({ packages, onPurchase, selectedPackageId }: F
               </Button>
             </div>
           </Card>
-        )}))}
+        ))}
       </div>
     </div>
   );
