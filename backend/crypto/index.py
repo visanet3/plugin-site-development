@@ -124,7 +124,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 wallet_address = os.environ.get('USDT_WALLET_ADDRESS', 'TDemo123WalletAddressForTestingOnly')
                 
-                expires_at = datetime.utcnow() + timedelta(hours=1)
+                # Используем timezone-aware datetime для корректного сравнения в БД
+                from datetime import timezone as tz
+                expires_at = datetime.now(tz.utc) + timedelta(hours=1)
                 
                 cur.execute(
                     f"""INSERT INTO {SCHEMA}.crypto_payments 
@@ -196,8 +198,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
                 
                 # Проверяем срок expires_at
+                from datetime import timezone as tz
                 expires_at = payment.get('expires_at')
-                if expires_at and datetime.utcnow() > expires_at:
+                if expires_at and datetime.now(tz.utc) > expires_at:
                     # Срок истёк - отменяем заявку
                     cur.execute(
                         f"UPDATE {SCHEMA}.crypto_payments SET status = 'cancelled' WHERE id = %s",

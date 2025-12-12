@@ -8,7 +8,7 @@ Returns: HTTP response dict с количеством обработанных �
 import json
 import os
 from typing import Dict, Any, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import requests
@@ -80,7 +80,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         conn = get_db_connection()
         cur = conn.cursor()
         
-        current_time = datetime.utcnow()
+        current_time = datetime.now(timezone.utc)
         
         # Получаем все pending платежи
         cur.execute(
