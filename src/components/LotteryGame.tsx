@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { User } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { triggerUserSync } from '@/utils/userSync';
 import LotteryStats from './lottery/LotteryStats';
 import LotteryTicketPurchase from './lottery/LotteryTicketPurchase';
 import LotteryChat from './lottery/LotteryChat';
@@ -93,6 +94,7 @@ const LotteryGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: LotteryGa
       if (user) {
         loadNotificationsData();
       }
+      triggerUserSync();
       if (onRefreshUserBalance) {
         onRefreshUserBalance();
       }
@@ -194,6 +196,8 @@ const LotteryGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: LotteryGa
         description: `Ваш номер: ${data.ticket_number}`
       });
       loadLotteryData();
+      triggerUserSync();
+      triggerUserSync();
       if (onRefreshUserBalance) {
         onRefreshUserBalance();
       }

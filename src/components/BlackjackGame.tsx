@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { User } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { triggerUserSync } from '@/utils/userSync';
 import { PlayingCard, createDeck, calculateHandValue } from './blackjack/blackjack-utils';
 import { BlackjackCard } from './blackjack/BlackjackCard';
 import { BlackjackControls } from './blackjack/BlackjackControls';
@@ -79,6 +80,7 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
         return;
       }
 
+      triggerUserSync();
       onRefreshUserBalance?.();
 
       const newDeck = createDeck();
@@ -241,7 +243,9 @@ export const BlackjackGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: 
         }
 
         await clearGameSession();
-        onRefreshUserBalance?.();
+        triggerUserSync();
+        triggerUserSync();
+      onRefreshUserBalance?.();
       } catch (error) {
         console.error('Ошибка при завершении игры:', error);
       }

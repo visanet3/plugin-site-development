@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { triggerUserSync } from '@/utils/userSync';
 
 const WITHDRAWAL_URL = 'https://functions.poehali.dev/09f16983-ec42-41fe-a7bd-695752ee11c5';
 
@@ -98,6 +99,7 @@ export const WithdrawalView = ({ user, onShowAuthDialog, onRefreshUserBalance }:
           })
         });
 
+        triggerUserSync();
         if (onRefreshUserBalance) {
           onRefreshUserBalance();
         }
@@ -168,6 +170,8 @@ export const WithdrawalView = ({ user, onShowAuthDialog, onRefreshUserBalance }:
         setAmount('');
         setWallet('');
         fetchWithdrawals();
+        triggerUserSync();
+        triggerUserSync();
         if (onRefreshUserBalance) {
           onRefreshUserBalance();
         }

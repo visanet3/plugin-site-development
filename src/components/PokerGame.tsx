@@ -5,6 +5,7 @@ import Icon from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 import { User } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { triggerUserSync } from '@/utils/userSync';
 
 const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
 
@@ -177,6 +178,7 @@ const PokerGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: PokerGamePr
       setResult('Вы сбросили карты. Ставка потеряна');
       setGameState('finished');
       
+      triggerUserSync();
       if (onRefreshUserBalance) {
         onRefreshUserBalance();
       }
@@ -279,6 +281,7 @@ const PokerGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: PokerGamePr
       
       setGameState('finished');
       
+      triggerUserSync();
       if (onRefreshUserBalance) {
         onRefreshUserBalance();
       }

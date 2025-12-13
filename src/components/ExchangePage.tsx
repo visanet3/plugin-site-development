@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { User } from '@/types';
+import { triggerUserSync } from '@/utils/userSync';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import {
@@ -221,6 +222,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
           description: `Вы обменяли ${usdt} USDT на ${data.btc_received} BTC`
         });
         
+        triggerUserSync();
         if (onRefreshUserBalance) {
           onRefreshUserBalance();
         }

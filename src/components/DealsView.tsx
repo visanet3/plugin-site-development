@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { getAvatarGradient } from '@/utils/avatarColors';
 import { useToast } from '@/hooks/use-toast';
+import { triggerUserSync } from '@/utils/userSync';
 import { DealDialogMobile } from '@/components/DealDialogMobile';
 
 const useIsMobile = () => {
@@ -230,6 +231,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
           description: 'Средства заблокированы. Ожидайте передачи товара от продавца',
           duration: 5000
         });
+        triggerUserSync();
         onRefreshUserBalance?.();
         await fetchDealDetails(selectedDeal.id);
         setStatusFilter('my_deals');
@@ -318,6 +320,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
           duration: 5000
         });
         
+        triggerUserSync();
         onRefreshUserBalance?.();
         await fetchDealDetails(selectedDeal.id);
         setStatusFilter('completed');

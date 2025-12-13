@@ -7,6 +7,8 @@ import { User } from '@/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getAvatarGradient } from '@/utils/avatarColors';
+import { triggerNotificationUpdateImmediate } from '@/utils/notificationEvents';
+import { triggerVerificationCheck } from '@/utils/verificationCache';
 
 const VERIFICATION_URL = 'https://functions.poehali.dev/e0d94580-497a-452f-9044-0ef1b2ff42c8';
 
@@ -141,6 +143,10 @@ const AdminVerificationTab = ({ currentUser }: AdminVerificationTabProps) => {
           title: 'Успешно',
           description: `Заявка ${status === 'approved' ? 'одобрена' : 'отклонена'}`
         });
+        triggerNotificationUpdateImmediate();
+        if (selectedRequest) {
+          triggerVerificationCheck(selectedRequest.user_id);
+        }
         setReviewDialogOpen(false);
         fetchRequests();
       } else {

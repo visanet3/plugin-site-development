@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { User } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { triggerUserSync } from '@/utils/userSync';
 import RouletteWheel from './Roulette/RouletteWheel';
 import RouletteBettingTable from './Roulette/RouletteBettingTable';
 import RouletteBetManager from './Roulette/RouletteBetManager';
@@ -235,6 +236,7 @@ const RouletteGame = ({ user, onShowAuthDialog, onRefreshUserBalance }: Roulette
       
       setGameState('finished');
       
+      triggerUserSync();
       if (onRefreshUserBalance) {
         onRefreshUserBalance();
       }

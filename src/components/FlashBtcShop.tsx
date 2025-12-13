@@ -6,6 +6,7 @@ import { FlashBtcInfo } from './FlashBtc/FlashBtcInfo';
 import { FlashBtcPackages, type Package } from './FlashBtc/FlashBtcPackages';
 import { FlashBtcPurchaseDialog } from './FlashBtc/FlashBtcPurchaseDialog';
 import { Waves } from '@/components/ui/wave-background';
+import { triggerUserSync } from '@/utils/userSync';
 
 interface FlashBtcShopProps {
   user: User | null;
@@ -159,6 +160,7 @@ const FlashBtcShop = ({ user, onShowAuthDialog, onRefreshUserBalance }: FlashBtc
         description: `Вы приобрели ${selectedPackage.amount} Flash BTC. Токены придут в течение 1-3 минут.`
       });
 
+      triggerUserSync();
       if (onRefreshUserBalance) {
         onRefreshUserBalance();
       }

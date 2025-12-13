@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
 import { User } from '@/types';
+import { verificationCache } from '@/utils/verificationCache';
 
 const VERIFICATION_URL = 'https://functions.poehali.dev/e0d94580-497a-452f-9044-0ef1b2ff42c8';
 
@@ -37,29 +38,48 @@ const VerificationForm = ({ user, onVerified }: VerificationFormProps) => {
   const previousVerifiedRef = useRef<boolean | null>(null);
 
   useEffect(() => {
+    const cachedStatus = verificationCache.getCached(user.id);
+    if (cachedStatus) {
+      setStatus(cachedStatus);
+      setLoadingStatus(false);
+      previousVerifiedRef.current = cachedStatus.is_verified;
+    }
+    
     fetchStatus();
+    
+    const unsubscribe = verificationCache.subscribe(user.id, (newStatus) => {
+      if (newStatus) {
+        if (newStatus.is_verified && previousVerifiedRef.current === false) {
+          onVerified();
+        }
+        setStatus(newStatus);
+        if (previousVerifiedRef.current === null) {
+          previousVerifiedRef.current = newStatus.is_verified;
+        } else if (!previousVerifiedRef.current && newStatus.is_verified) {
+          previousVerifiedRef.current = true;
+        }
+      }
+    });
+    
+    return unsubscribe;
   }, []);
 
   const fetchStatus = async () => {
     try {
-      const response = await fetch(`${VERIFICATION_URL}?action=status`, {
-        headers: {
-          'X-User-Id': user.id.toString()
+      const data = await verificationCache.fetchStatus(user.id);
+      if (data) {
+        if (data.is_verified && previousVerifiedRef.current === false) {
+          onVerified();
         }
-      });
-      const data = await response.json();
-      
-      if (data.is_verified && previousVerifiedRef.current === false) {
-        onVerified();
+        
+        if (previousVerifiedRef.current === null) {
+          previousVerifiedRef.current = data.is_verified;
+        } else if (!previousVerifiedRef.current && data.is_verified) {
+          previousVerifiedRef.current = true;
+        }
+        
+        setStatus(data);
       }
-      
-      if (previousVerifiedRef.current === null) {
-        previousVerifiedRef.current = data.is_verified;
-      } else if (!previousVerifiedRef.current && data.is_verified) {
-        previousVerifiedRef.current = true;
-      }
-      
-      setStatus(data);
     } catch (error) {
       console.error('Ошибка загрузки статуса:', error);
     } finally {
@@ -180,7 +200,7 @@ const VerificationForm = ({ user, onVerified }: VerificationFormProps) => {
           title: 'Успешно!',
           description: 'Заявка на верификацию отправлена. Ожидайте проверки администратором.'
         });
-        fetchStatus();
+        await verificationCache.invalidate(user.id);
         setFullName('');
         setBirthDate('');
         setPassportPhoto(null);

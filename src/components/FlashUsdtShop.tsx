@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { User } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { triggerUserSync } from '@/utils/userSync';
 import { FlashUsdtHeader } from './FlashUsdt/FlashUsdtHeader';
 import { FlashUsdtInfo } from './FlashUsdt/FlashUsdtInfo';
 import { FlashUsdtPackages, type Package } from './FlashUsdt/FlashUsdtPackages';
@@ -158,6 +159,7 @@ const FlashUsdtShop = ({ user, onShowAuthDialog, onRefreshUserBalance }: FlashUs
         description: `Вы приобрели ${selectedPackage.amount.toLocaleString('ru-RU')} Flash USDT. Токены придут в течение 1-3 минут.`
       });
 
+      triggerUserSync();
       if (onRefreshUserBalance) {
         onRefreshUserBalance();
       }

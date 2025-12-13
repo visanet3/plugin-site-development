@@ -5,6 +5,7 @@ import { useIndexState } from './index/IndexState';
 import { useIndexHandlers } from './index/IndexHandlers';
 import IndexLayout from './index/IndexLayout';
 import { CookieConsent } from '@/components/CookieConsent';
+import { userSyncManager } from '@/utils/userSync';
 
 const AdminPanel = lazy(() => import('@/components/AdminPanel'));
 const UserProfileDialog = lazy(() => import('@/components/UserProfileDialog'));
@@ -14,7 +15,6 @@ const NotificationsPanel = lazy(() => import('@/components/NotificationsPanel'))
 const DDoSMonitor = lazy(() => import('@/components/DDoSMonitor'));
 const Dialogs = lazy(() => import('@/components/Dialogs'));
 
-const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
 const NOTIFICATIONS_URL = 'https://functions.poehali.dev/6c968792-7d48-41a9-af0a-c92adb047acb';
 
 const Index = () => {
@@ -46,58 +46,43 @@ const Index = () => {
     
     const savedUser = localStorage.getItem('user');
     
-    const syncUserData = async () => {
-      const userToSync = savedUser ? JSON.parse(savedUser) : null;
-      if (!userToSync) return;
-      
-      try {
-        const response = await fetch(AUTH_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-User-Id': userToSync.id.toString()
-          },
-          body: JSON.stringify({ action: 'get_user' })
-        });
-        const data = await response.json();
-        if (data.success && data.user) {
-          if (data.user.is_blocked) {
-            localStorage.removeItem('user');
-            state.setUser(null);
-            navigate('/auth');
-            state.toast({
-              title: '🚫 Аккаунт заблокирован',
-              description: 'Ваш аккаунт был заблокирован администратором',
-              variant: 'destructive',
-              duration: 10000
-            });
-            return;
-          }
-          state.setUser(data.user);
-          localStorage.setItem('user', JSON.stringify(data.user));
-        }
-      } catch (error) {
-        console.error('Ошибка синхронизации данных пользователя:', error);
-      }
-    };
-    
     if (savedUser) {
       const parsedUser = JSON.parse(savedUser);
       state.setUser(parsedUser);
-      syncUserData();
+      userSyncManager.syncUser(false).then(syncedUser => {
+        if (syncedUser === null) {
+          navigate('/auth');
+          state.toast({
+            title: '🚫 Аккаунт заблокирован',
+            description: 'Ваш аккаунт был заблокирован администратором',
+            variant: 'destructive',
+            duration: 10000
+          });
+        } else if (syncedUser) {
+          state.setUser(syncedUser);
+        }
+      });
     } else {
       navigate('/auth');
     }
     
+    const unsubscribe = userSyncManager.subscribe((user) => {
+      if (user === null) {
+        navigate('/auth');
+      } else if (user) {
+        state.setUser(user);
+      }
+    });
+    
     const handleVisibilityChange = () => {
       if (!document.hidden && localStorage.getItem('user')) {
-        syncUserData();
+        userSyncManager.triggerSync();
       }
     };
     
     const handleFocus = () => {
       if (localStorage.getItem('user')) {
-        syncUserData();
+        userSyncManager.triggerSync();
       }
     };
     
@@ -123,6 +108,7 @@ const Index = () => {
     window.addEventListener('beforeunload', saveScrollPosition);
     
     return () => {
+      unsubscribe();
       window.removeEventListener('beforeunload', saveScrollPosition);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleFocus);
