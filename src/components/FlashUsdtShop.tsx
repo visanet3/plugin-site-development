@@ -24,8 +24,8 @@ const FlashUsdtShop = ({ user, onShowAuthDialog, onRefreshUserBalance }: FlashUs
     {
       id: 1,
       amount: 100000,
-      price: 25560,
-      discount: '74.4%',
+      price: 25720,
+      discount: '74.3%',
       color: 'from-blue-600 to-blue-800',
       borderColor: 'border-blue-500/30',
       icon: 'Package',
@@ -34,8 +34,8 @@ const FlashUsdtShop = ({ user, onShowAuthDialog, onRefreshUserBalance }: FlashUs
     {
       id: 2,
       amount: 500000,
-      price: 105600,
-      discount: '78.9%',
+      price: 106420,
+      discount: '78.7%',
       color: 'from-purple-600 to-purple-800',
       borderColor: 'border-purple-500/30',
       icon: 'Boxes',
