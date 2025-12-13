@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import { User } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { triggerNotificationUpdate } from '@/utils/notificationEvents';
 
 interface SupportPageProps {
   user: User | null;
@@ -86,6 +87,7 @@ const SupportPage = ({ user, onShowAuthDialog }: SupportPageProps) => {
           title: 'Тикет создан!',
           description: 'Мы получили ваше обращение и ответим в ближайшее время'
         });
+        triggerNotificationUpdate();
         
         setCategory('');
         setSubject('');

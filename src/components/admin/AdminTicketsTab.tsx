@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { triggerNotificationUpdateImmediate } from '@/utils/notificationEvents';
 
 const TICKETS_URL = 'https://functions.poehali.dev/f2a5cbce-6afc-4ef1-91a6-f14075db8567';
 
@@ -92,6 +93,7 @@ const AdminTicketsTab = ({ tickets, currentUser, onRefresh, onUpdateTicketStatus
           title: 'Ответ отправлен',
           description: 'Пользователь получит уведомление'
         });
+        triggerNotificationUpdateImmediate();
         setResponse('');
         setSelectedTicket(null);
         onRefresh();

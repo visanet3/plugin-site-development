@@ -7,6 +7,7 @@ import Icon from '@/components/ui/icon';
 import { ForumCategory, User } from '@/types';
 import ForumCategorySelector from './ForumCategorySelector';
 import { useToast } from '@/hooks/use-toast';
+import { triggerNotificationUpdate } from '@/utils/notificationEvents';
 
 interface CreateTopicDialogProps {
   open: boolean;
@@ -110,6 +111,7 @@ const CreateTopicDialog = ({
           title: 'Успешно',
           description: 'Тема создана'
         });
+        triggerNotificationUpdate();
         setTitle('');
         setContent('');
         setSelectedCategory(null);

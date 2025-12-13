@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { Notification } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { notificationEvents } from '@/utils/notificationEvents';
 
 const NOTIFICATIONS_URL = 'https://functions.poehali.dev/6c968792-7d48-41a9-af0a-c92adb047acb';
 
@@ -25,6 +26,16 @@ const NotificationsPanel = ({ open, onOpenChange, userId }: NotificationsPanelPr
     if (open) {
       fetchNotifications();
     }
+  }, [open]);
+
+  useEffect(() => {
+    const unsubscribe = notificationEvents.subscribe(() => {
+      if (open) {
+        fetchNotifications();
+      }
+    });
+    
+    return unsubscribe;
   }, [open]);
 
   const fetchNotifications = async () => {

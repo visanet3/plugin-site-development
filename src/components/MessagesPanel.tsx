@@ -9,6 +9,7 @@ import Icon from '@/components/ui/icon';
 import { Message } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { getAvatarGradient } from '@/utils/avatarColors';
+import { triggerNotificationUpdate } from '@/utils/notificationEvents';
 
 const NOTIFICATIONS_URL = 'https://functions.poehali.dev/6c968792-7d48-41a9-af0a-c92adb047acb';
 const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
@@ -244,6 +245,7 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId, onUserC
 
       if (response.ok) {
         await fetchMessages();
+        triggerNotificationUpdate();
         scrollToBottom();
       } else {
         setNewMessageText(messageToSend);
