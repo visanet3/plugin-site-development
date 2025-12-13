@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { User } from '@/types';
+import { copyToClipboard } from '@/utils/clipboard';
 
 const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
 
@@ -90,95 +91,35 @@ export const ReferralTab = ({ user }: ReferralTabProps) => {
   };
 
   const copyReferralCode = async () => {
-    try {
-      await navigator.clipboard.writeText(referralCode);
+    const success = await copyToClipboard(referralCode);
+    if (success) {
       toast({
         title: 'Скопировано!',
         description: 'Реферальный код скопирован в буфер обмена'
       });
-    } catch (error) {
-      const textArea = document.createElement('textarea');
-      textArea.value = referralCode;
-      textArea.style.position = 'absolute';
-      textArea.style.left = '-9999px';
-      textArea.style.top = '0';
-      textArea.setAttribute('readonly', '');
-      document.body.appendChild(textArea);
-      
-      if (navigator.userAgent.match(/ipad|iphone/i)) {
-        const range = document.createRange();
-        range.selectNodeContents(textArea);
-        const selection = window.getSelection();
-        selection?.removeAllRanges();
-        selection?.addRange(range);
-        textArea.setSelectionRange(0, 999999);
-      } else {
-        textArea.select();
-      }
-      
-      try {
-        document.execCommand('copy');
-        toast({
-          title: 'Скопировано!',
-          description: 'Реферальный код скопирован в буфер обмена'
-        });
-      } catch (err) {
-        console.error('Ошибка копирования:', err);
-        toast({
-          title: 'Ошибка',
-          description: 'Не удалось скопировать код',
-          variant: 'destructive'
-        });
-      } finally {
-        document.body.removeChild(textArea);
-      }
+    } else {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось скопировать код',
+        variant: 'destructive'
+      });
     }
   };
 
   const copyReferralLink = async () => {
     const link = `${window.location.origin}/?ref=${referralCode}`;
-    try {
-      await navigator.clipboard.writeText(link);
+    const success = await copyToClipboard(link);
+    if (success) {
       toast({
         title: 'Скопировано!',
         description: 'Реферальная ссылка скопирована в буфер обмена'
       });
-    } catch (error) {
-      const textArea = document.createElement('textarea');
-      textArea.value = link;
-      textArea.style.position = 'absolute';
-      textArea.style.left = '-9999px';
-      textArea.style.top = '0';
-      textArea.setAttribute('readonly', '');
-      document.body.appendChild(textArea);
-      
-      if (navigator.userAgent.match(/ipad|iphone/i)) {
-        const range = document.createRange();
-        range.selectNodeContents(textArea);
-        const selection = window.getSelection();
-        selection?.removeAllRanges();
-        selection?.addRange(range);
-        textArea.setSelectionRange(0, 999999);
-      } else {
-        textArea.select();
-      }
-      
-      try {
-        document.execCommand('copy');
-        toast({
-          title: 'Скопировано!',
-          description: 'Реферальная ссылка скопирована в буфер обмена'
-        });
-      } catch (err) {
-        console.error('Ошибка копирования:', err);
-        toast({
-          title: 'Ошибка',
-          description: 'Не удалось скопировать ссылку',
-          variant: 'destructive'
-        });
-      } finally {
-        document.body.removeChild(textArea);
-      }
+    } else {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось скопировать ссылку',
+        variant: 'destructive'
+      });
     }
   };
 

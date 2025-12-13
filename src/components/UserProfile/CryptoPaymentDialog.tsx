@@ -4,6 +4,7 @@ import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { QRCodeSVG } from 'qrcode.react';
 import { cn } from '@/lib/utils';
+import { copyToClipboard } from '@/utils/clipboard';
 
 interface CryptoPaymentDialogProps {
   open: boolean;
@@ -137,9 +138,11 @@ export const CryptoPaymentDialog = ({
                     size="lg"
                     variant="outline"
                     className="w-full h-9 md:h-12 text-xs md:text-base"
-                    onClick={() => {
-                      navigator.clipboard.writeText(cryptoPayment.wallet_address);
-                      onCopyToClipboard(cryptoPayment.wallet_address);
+                    onClick={async () => {
+                      const success = await copyToClipboard(cryptoPayment.wallet_address);
+                      if (success) {
+                        onCopyToClipboard(cryptoPayment.wallet_address);
+                      }
                     }}
                   >
                     <Icon name="Copy" size={14} className="mr-2 md:w-[18px] md:h-[18px]" />
