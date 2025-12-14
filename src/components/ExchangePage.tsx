@@ -8,13 +8,7 @@ import { User } from '@/types';
 import { triggerUserSync } from '@/utils/userSync';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { CryptoDropdown, CryptoOption } from '@/components/ui/crypto-dropdown';
 import {
   Dialog,
   DialogContent,
@@ -584,31 +578,23 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <Label className="text-base">Выберите криптовалюту</Label>
-                    <Select value={selectedCrypto} onValueChange={(v) => setSelectedCrypto(v as CryptoSymbol)}>
-                      <SelectTrigger className="h-12 text-base">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.keys(CRYPTO_INFO).map(symbol => {
-                          const info = CRYPTO_INFO[symbol as CryptoSymbol];
-                          const price = buyPrices[symbol as CryptoSymbol];
-                          return (
-                            <SelectItem key={symbol} value={symbol}>
-                              <div className="flex items-center gap-3">
-                                <img src={info.logo} alt={info.name} className="w-5 h-5 object-contain" />
-                                <span className="font-medium">{symbol}</span>
-                                <span className="text-muted-foreground">- {info.name}</span>
-                                {!priceLoading && (
-                                  <span className="ml-auto text-sm font-semibold">
-                                    ${price.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                                  </span>
-                                )}
-                              </div>
-                            </SelectItem>
-                          );
-                        })}
-                      </SelectContent>
-                    </Select>
+                    <CryptoDropdown
+                      options={Object.keys(CRYPTO_INFO).map(symbol => {
+                        const info = CRYPTO_INFO[symbol as CryptoSymbol];
+                        return {
+                          id: symbol,
+                          label: symbol,
+                          name: info.name,
+                          logo: info.logo,
+                          price: buyPrices[symbol as CryptoSymbol],
+                          color: info.color.replace('text-', '')
+                        };
+                      })}
+                      value={selectedCrypto}
+                      onValueChange={(v) => setSelectedCrypto(v as CryptoSymbol)}
+                      showPrices={true}
+                      priceLoading={priceLoading}
+                    />
                   </div>
 
                   <div className="space-y-4">
@@ -708,31 +694,23 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <Label className="text-base">Выберите криптовалюту</Label>
-                    <Select value={selectedCrypto} onValueChange={(v) => setSelectedCrypto(v as CryptoSymbol)}>
-                      <SelectTrigger className="h-12 text-base">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.keys(CRYPTO_INFO).map(symbol => {
-                          const info = CRYPTO_INFO[symbol as CryptoSymbol];
-                          const price = sellPrices[symbol as CryptoSymbol];
-                          return (
-                            <SelectItem key={symbol} value={symbol}>
-                              <div className="flex items-center gap-3">
-                                <img src={info.logo} alt={info.name} className="w-5 h-5 object-contain" />
-                                <span className="font-medium">{symbol}</span>
-                                <span className="text-muted-foreground">- {info.name}</span>
-                                {!priceLoading && (
-                                  <span className="ml-auto text-sm font-semibold">
-                                    ${price.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                                  </span>
-                                )}
-                              </div>
-                            </SelectItem>
-                          );
-                        })}
-                      </SelectContent>
-                    </Select>
+                    <CryptoDropdown
+                      options={Object.keys(CRYPTO_INFO).map(symbol => {
+                        const info = CRYPTO_INFO[symbol as CryptoSymbol];
+                        return {
+                          id: symbol,
+                          label: symbol,
+                          name: info.name,
+                          logo: info.logo,
+                          price: sellPrices[symbol as CryptoSymbol],
+                          color: info.color.replace('text-', '')
+                        };
+                      })}
+                      value={selectedCrypto}
+                      onValueChange={(v) => setSelectedCrypto(v as CryptoSymbol)}
+                      showPrices={true}
+                      priceLoading={priceLoading}
+                    />
                   </div>
 
                   <div className="space-y-4">
@@ -832,26 +810,23 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <Label className="text-base">Выберите криптовалюту</Label>
-                    <Select value={withdrawCrypto} onValueChange={(v) => setWithdrawCrypto(v as CryptoSymbol)}>
-                      <SelectTrigger className="h-12 text-base">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.keys(CRYPTO_INFO).map(symbol => {
-                          const info = CRYPTO_INFO[symbol as CryptoSymbol];
-                          const balance = balances[symbol as CryptoSymbol];
-                          return (
-                            <SelectItem key={symbol} value={symbol}>
-                              <div className="flex items-center gap-3">
-                                <img src={info.logo} alt={info.name} className="w-5 h-5 object-contain" />
-                                <span className="font-medium">{symbol}</span>
-                                <span className="text-muted-foreground">- Баланс: {balance.toFixed(info.decimals)}</span>
-                              </div>
-                            </SelectItem>
-                          );
-                        })}
-                      </SelectContent>
-                    </Select>
+                    <CryptoDropdown
+                      options={Object.keys(CRYPTO_INFO).map(symbol => {
+                        const info = CRYPTO_INFO[symbol as CryptoSymbol];
+                        const balance = balances[symbol as CryptoSymbol];
+                        return {
+                          id: symbol,
+                          label: symbol,
+                          name: `Баланс: ${balance.toFixed(info.decimals)}`,
+                          logo: info.logo,
+                          color: info.color.replace('text-', '')
+                        };
+                      })}
+                      value={withdrawCrypto}
+                      onValueChange={(v) => setWithdrawCrypto(v as CryptoSymbol)}
+                      showPrices={false}
+                      priceLoading={false}
+                    />
                   </div>
 
                   <div>
