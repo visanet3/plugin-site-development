@@ -177,16 +177,11 @@ export const useUserActivity = ({
       'user_verification',
       async () => {
         try {
-          const response = await fetch(VERIFICATION_URL, {
-            method: 'POST',
+          const response = await fetch(`${VERIFICATION_URL}?action=status`, {
+            method: 'GET',
             headers: { 
-              'Content-Type': 'application/json',
               'X-User-Id': user.id.toString()
-            },
-            body: JSON.stringify({ 
-              action: 'check_verification_status',
-              user_id: user.id 
-            })
+            }
           });
           if (!response.ok) return null;
           return await response.json();
@@ -196,7 +191,7 @@ export const useUserActivity = ({
       }
     );
     
-    if (data?.verification_status === 'approved' && !user.is_verified) {
+    if (data?.request?.status === 'approved' && !user.is_verified) {
       const updatedUser = { ...user, is_verified: true };
       setUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
