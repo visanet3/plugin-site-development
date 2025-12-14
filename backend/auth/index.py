@@ -765,6 +765,30 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             conn.commit()
             
+            # Получаем информацию о пользователе для уведомления
+            cur.execute(
+                f"SELECT id, username, email FROM {SCHEMA}.users WHERE id = {int(user_id)}"
+            )
+            user_info_data = cur.fetchone()
+            
+            # Отправляем уведомление администратору
+            send_telegram_notification(
+                'crypto_exchange',
+                {
+                    'user_id': user_info_data['id'],
+                    'username': user_info_data.get('username', 'Неизвестный'),
+                    'email': user_info_data.get('email', 'Нет email')
+                },
+                {
+                    'type': 'buy',
+                    'from_currency': 'USDT',
+                    'to_currency': crypto_symbol,
+                    'from_amount': usdt_amount,
+                    'to_amount': crypto_amount,
+                    'rate': crypto_price
+                }
+            )
+            
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -830,6 +854,30 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             )
             
             conn.commit()
+            
+            # Получаем информацию о пользователе для уведомления
+            cur.execute(
+                f"SELECT id, username, email FROM {SCHEMA}.users WHERE id = {int(user_id)}"
+            )
+            user_info_data = cur.fetchone()
+            
+            # Отправляем уведомление администратору
+            send_telegram_notification(
+                'crypto_exchange',
+                {
+                    'user_id': user_info_data['id'],
+                    'username': user_info_data.get('username', 'Неизвестный'),
+                    'email': user_info_data.get('email', 'Нет email')
+                },
+                {
+                    'type': 'sell',
+                    'from_currency': crypto_symbol,
+                    'to_currency': 'USDT',
+                    'from_amount': crypto_amount,
+                    'to_amount': usdt_amount,
+                    'rate': crypto_price
+                }
+            )
             
             return {
                 'statusCode': 200,

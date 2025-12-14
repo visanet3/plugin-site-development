@@ -126,6 +126,33 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             btc_address = details.get('btc_address', 'N/A')
             message = f"💸 <b>Вывод BTC</b>\n\n👤 Пользователь: {username} (ID: {user_id})\n₿ Сумма: {btc_amount} BTC\n💼 Адрес: <code>{btc_address}</code>"
         
+        elif event_type == 'crypto_exchange':
+            exchange_type = details.get('type', 'buy')
+            from_currency = details.get('from_currency', 'N/A')
+            to_currency = details.get('to_currency', 'N/A')
+            from_amount = details.get('from_amount', 0)
+            to_amount = details.get('to_amount', 0)
+            rate = details.get('rate', 0)
+            
+            # Эмодзи для разных криптовалют
+            crypto_emoji = {
+                'BTC': '₿',
+                'ETH': 'Ξ',
+                'BNB': '◆',
+                'SOL': '◎',
+                'XRP': '✕',
+                'TRX': '▲',
+                'USDT': '💵'
+            }
+            
+            from_emoji = crypto_emoji.get(from_currency, '💰')
+            to_emoji = crypto_emoji.get(to_currency, '💰')
+            
+            if exchange_type == 'buy':
+                message = f"🔄 <b>Обмен {from_currency} → {to_currency}</b>\n\n👤 Пользователь: {username} (ID: {user_id})\n{from_emoji} Обменял: {from_amount:.2f} {from_currency}\n{to_emoji} Получил: {to_amount:.8f} {to_currency}\n📊 Курс: ${rate:,.2f}"
+            else:
+                message = f"🔄 <b>Обмен {from_currency} → {to_currency}</b>\n\n👤 Пользователь: {username} (ID: {user_id})\n{from_emoji} Обменял: {from_amount:.8f} {from_currency}\n{to_emoji} Получил: {to_amount:.2f} {to_currency}\n📊 Курс: ${rate:,.2f}"
+        
         elif event_type == 'user_registration':
             email = details.get('email', 'N/A')
             message = f"👋 <b>Новый пользователь</b>\n\n👤 Имя: {username} (ID: {user_id})\n📧 Email: {email}\n🔗 Реферал: Нет"
