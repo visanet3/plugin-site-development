@@ -1,0 +1,23 @@
+{
+  "tests": [
+    {
+      "name": "Get crypto prices",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "prices": {
+          "BTC": "number",
+          "ETH": "number",
+          "BNB": "number",
+          "SOL": "number",
+          "XRP": "number",
+          "TRX": "number"
+        },
+        "markup": 1.5
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

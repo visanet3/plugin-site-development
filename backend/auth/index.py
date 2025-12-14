@@ -673,6 +673,235 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
+        elif action == 'get_crypto_balances':
+            headers = event.get('headers', {})
+            user_id = headers.get('X-User-Id') or headers.get('x-user-id')
+            
+            if not user_id:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Требуется авторизация'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute(
+                f"SELECT COALESCE(btc_balance, 0) as btc_balance, COALESCE(eth_balance, 0) as eth_balance, COALESCE(bnb_balance, 0) as bnb_balance, COALESCE(sol_balance, 0) as sol_balance, COALESCE(xrp_balance, 0) as xrp_balance, COALESCE(trx_balance, 0) as trx_balance FROM {SCHEMA}.users WHERE id = {int(user_id)}"
+            )
+            user_data = cur.fetchone()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True,
+                    'balances': {
+                        'BTC': float(user_data['btc_balance']) if user_data else 0,
+                        'ETH': float(user_data['eth_balance']) if user_data else 0,
+                        'BNB': float(user_data['bnb_balance']) if user_data else 0,
+                        'SOL': float(user_data['sol_balance']) if user_data else 0,
+                        'XRP': float(user_data['xrp_balance']) if user_data else 0,
+                        'TRX': float(user_data['trx_balance']) if user_data else 0
+                    }
+                }),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'exchange_usdt_to_crypto':
+            headers = event.get('headers', {})
+            user_id = headers.get('X-User-Id') or headers.get('x-user-id')
+            
+            if not user_id:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Требуется авторизация'}),
+                    'isBase64Encoded': False
+                }
+            
+            usdt_amount = body_data.get('usdt_amount', 0)
+            crypto_symbol = body_data.get('crypto_symbol', '')
+            crypto_price = body_data.get('crypto_price', 0)
+            
+            if usdt_amount <= 0 or crypto_price <= 0 or not crypto_symbol:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'error': 'Некорректные параметры'}),
+                    'isBase64Encoded': False
+                }
+            
+            if crypto_symbol.upper() not in ['BTC', 'ETH', 'BNB', 'SOL', 'XRP', 'TRX']:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'error': 'Неподдерживаемая криптовалюта'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute(
+                f"SELECT balance FROM {SCHEMA}.users WHERE id = {int(user_id)}"
+            )
+            user_data = cur.fetchone()
+            
+            if not user_data or user_data['balance'] < usdt_amount:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'error': 'Недостаточно средств'}),
+                    'isBase64Encoded': False
+                }
+            
+            crypto_amount = usdt_amount / crypto_price
+            crypto_column = f"{crypto_symbol.lower()}_balance"
+            
+            cur.execute(
+                f"UPDATE {SCHEMA}.users SET balance = balance - {float(usdt_amount)}, {crypto_column} = COALESCE({crypto_column}, 0) + {float(crypto_amount)} WHERE id = {int(user_id)}"
+            )
+            
+            cur.execute(
+                f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES ({int(user_id)}, {-float(usdt_amount)}, 'exchange', {escape_sql_string(f'Обмен {usdt_amount} USDT на {crypto_amount:.8f} {crypto_symbol}')})"
+            )
+            
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True, 'crypto_received': crypto_amount}),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'exchange_crypto_to_usdt':
+            headers = event.get('headers', {})
+            user_id = headers.get('X-User-Id') or headers.get('x-user-id')
+            
+            if not user_id:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Требуется авторизация'}),
+                    'isBase64Encoded': False
+                }
+            
+            crypto_amount = body_data.get('crypto_amount', 0)
+            crypto_symbol = body_data.get('crypto_symbol', '')
+            crypto_price = body_data.get('crypto_price', 0)
+            
+            if crypto_amount <= 0 or crypto_price <= 0 or not crypto_symbol:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'error': 'Некорректные параметры'}),
+                    'isBase64Encoded': False
+                }
+            
+            if crypto_symbol.upper() not in ['BTC', 'ETH', 'BNB', 'SOL', 'XRP', 'TRX']:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'error': 'Неподдерживаемая криптовалюта'}),
+                    'isBase64Encoded': False
+                }
+            
+            crypto_column = f"{crypto_symbol.lower()}_balance"
+            
+            cur.execute(
+                f"SELECT {crypto_column} FROM {SCHEMA}.users WHERE id = {int(user_id)}"
+            )
+            user_data = cur.fetchone()
+            
+            if not user_data or (user_data[crypto_column] or 0) < crypto_amount:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'error': 'Недостаточно средств'}),
+                    'isBase64Encoded': False
+                }
+            
+            usdt_amount = crypto_amount * crypto_price
+            
+            cur.execute(
+                f"UPDATE {SCHEMA}.users SET balance = balance + {float(usdt_amount)}, {crypto_column} = COALESCE({crypto_column}, 0) - {float(crypto_amount)} WHERE id = {int(user_id)}"
+            )
+            
+            cur.execute(
+                f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES ({int(user_id)}, {float(usdt_amount)}, 'exchange', {escape_sql_string(f'Обмен {crypto_amount:.8f} {crypto_symbol} на {usdt_amount} USDT')})"
+            )
+            
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True, 'usdt_received': usdt_amount}),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'withdraw_crypto':
+            headers = event.get('headers', {})
+            user_id = headers.get('X-User-Id') or headers.get('x-user-id')
+            
+            if not user_id:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Требуется авторизация'}),
+                    'isBase64Encoded': False
+                }
+            
+            crypto_symbol = body_data.get('crypto_symbol', '')
+            amount = body_data.get('amount', 0)
+            address = body_data.get('address', '')
+            
+            if amount <= 0 or not crypto_symbol or not address:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'error': 'Некорректные параметры'}),
+                    'isBase64Encoded': False
+                }
+            
+            if crypto_symbol.upper() not in ['BTC', 'ETH', 'BNB', 'SOL', 'XRP', 'TRX']:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'error': 'Неподдерживаемая криптовалюта'}),
+                    'isBase64Encoded': False
+                }
+            
+            crypto_column = f"{crypto_symbol.lower()}_balance"
+            
+            cur.execute(
+                f"SELECT {crypto_column} FROM {SCHEMA}.users WHERE id = {int(user_id)}"
+            )
+            user_data = cur.fetchone()
+            
+            if not user_data or (user_data[crypto_column] or 0) < amount:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'error': 'Недостаточно средств'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute(
+                f"UPDATE {SCHEMA}.users SET {crypto_column} = COALESCE({crypto_column}, 0) - {float(amount)} WHERE id = {int(user_id)}"
+            )
+            
+            cur.execute(
+                f"INSERT INTO {SCHEMA}.withdrawals (user_id, crypto_symbol, amount, address, status, created_at) VALUES ({int(user_id)}, {escape_sql_string(crypto_symbol.upper())}, {float(amount)}, {escape_sql_string(address)}, 'pending', NOW())"
+            )
+            
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True}),
+                'isBase64Encoded': False
+            }
+        
         elif action == 'get_balance':
             headers = event.get('headers', {})
             user_id = headers.get('X-User-Id') or headers.get('x-user-id')

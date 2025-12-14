@@ -9,6 +9,13 @@ import { triggerUserSync } from '@/utils/userSync';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -18,34 +25,60 @@ import {
 } from '@/components/ui/dialog';
 
 const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
-const BTC_PRICE_URL = 'https://functions.poehali.dev/bdf92326-10c7-4f4f-bc94-761a9ea4ed96';
+const CRYPTO_PRICES_URL = 'https://functions.poehali.dev/f969550a-2586-4760-bff9-57823dd0a0d0';
 
 interface ExchangePageProps {
   user: User;
   onRefreshUserBalance?: () => void;
 }
 
+type CryptoSymbol = 'BTC' | 'ETH' | 'BNB' | 'SOL' | 'XRP' | 'TRX';
+
+interface CryptoInfo {
+  name: string;
+  icon: string;
+  color: string;
+  decimals: number;
+  minAmount: number;
+}
+
+const CRYPTO_INFO: Record<CryptoSymbol, CryptoInfo> = {
+  BTC: { name: 'Bitcoin', icon: 'Bitcoin', color: 'text-orange-400', decimals: 8, minAmount: 0.0001 },
+  ETH: { name: 'Ethereum', icon: 'Gem', color: 'text-purple-400', decimals: 6, minAmount: 0.001 },
+  BNB: { name: 'BNB', icon: 'Coins', color: 'text-yellow-400', decimals: 5, minAmount: 0.01 },
+  SOL: { name: 'Solana', icon: 'Zap', color: 'text-blue-400', decimals: 5, minAmount: 0.01 },
+  XRP: { name: 'Ripple', icon: 'Waves', color: 'text-cyan-400', decimals: 4, minAmount: 1 },
+  TRX: { name: 'Tron', icon: 'Triangle', color: 'text-red-400', decimals: 2, minAmount: 10 }
+};
+
 const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
   const { toast } = useToast();
+  const [prices, setPrices] = useState<Record<CryptoSymbol, number>>({
+    BTC: 0, ETH: 0, BNB: 0, SOL: 0, XRP: 0, TRX: 0
+  });
+  const [balances, setBalances] = useState<Record<CryptoSymbol, number>>({
+    BTC: 0, ETH: 0, BNB: 0, SOL: 0, XRP: 0, TRX: 0
+  });
+  
+  const [selectedCrypto, setSelectedCrypto] = useState<CryptoSymbol>('BTC');
   const [usdtAmount, setUsdtAmount] = useState<string>('');
-  const [btcAmount, setBtcAmount] = useState<string>('');
-  const [btcPrice, setBtcPrice] = useState<number>(0);
-  const [prevBtcPrice, setPrevBtcPrice] = useState<number>(0);
-  const [priceChange, setPriceChange] = useState<'up' | 'down' | 'neutral'>('neutral');
-  const [loading, setLoading] = useState(false);
-  const [btcBalance, setBtcBalance] = useState<number>(0);
+  const [cryptoAmount, setCryptoAmount] = useState<string>('');
   const [priceLoading, setPriceLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  
   const [withdrawAddress, setWithdrawAddress] = useState('');
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [withdrawLoading, setWithdrawLoading] = useState(false);
+  const [withdrawCrypto, setWithdrawCrypto] = useState<CryptoSymbol>('BTC');
+  
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [confirmAction, setConfirmAction] = useState<'usdt_to_btc' | 'btc_to_usdt' | null>(null);
+  const [confirmAction, setConfirmAction] = useState<'buy' | 'sell' | null>(null);
   const [priceUpdateTimer, setPriceUpdateTimer] = useState(60);
   const [priceLoadTime, setPriceLoadTime] = useState<Date | null>(null);
 
   useEffect(() => {
-    loadBtcBalance();
-    loadBtcPrice();
+    loadPrices();
+    loadBalances();
   }, [user.id]);
 
   useEffect(() => {
@@ -56,7 +89,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
         setPriceUpdateTimer(remaining);
         
         if (remaining === 0) {
-          loadBtcPrice();
+          loadPrices();
         }
       }, 1000);
 
@@ -64,41 +97,24 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
     }
   }, [showConfirmDialog, priceLoadTime]);
 
-  const loadBtcPrice = async () => {
+  const loadPrices = async () => {
     try {
-      const response = await fetch(BTC_PRICE_URL);
+      const response = await fetch(CRYPTO_PRICES_URL);
       const data = await response.json();
       
-      if (!data.success || !data.btc_price) {
-        throw new Error('Invalid response from BTC price API');
+      if (data.success && data.prices) {
+        setPrices(data.prices);
+        setPriceLoadTime(new Date());
+        setPriceUpdateTimer(60);
       }
-      
-      const newPrice = data.btc_price;
-      
-      if (btcPrice > 0) {
-        setPrevBtcPrice(btcPrice);
-        if (newPrice > btcPrice) {
-          setPriceChange('up');
-        } else if (newPrice < btcPrice) {
-          setPriceChange('down');
-        } else {
-          setPriceChange('neutral');
-        }
-        
-        setTimeout(() => setPriceChange('neutral'), 2000);
-      }
-      
-      setBtcPrice(newPrice);
-      setPriceLoadTime(new Date());
-      setPriceUpdateTimer(60);
     } catch (error) {
-      console.error('Ошибка загрузки курса BTC:', error);
+      console.error('Ошибка загрузки курсов:', error);
     } finally {
       setPriceLoading(false);
     }
   };
 
-  const loadBtcBalance = async () => {
+  const loadBalances = async () => {
     try {
       const response = await fetch(AUTH_URL, {
         method: 'POST',
@@ -107,55 +123,60 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
           'X-User-Id': user.id.toString()
         },
         body: JSON.stringify({
-          action: 'get_btc_balance'
+          action: 'get_crypto_balances'
         })
       });
 
       const data = await response.json();
-      if (data.success) {
-        setBtcBalance(data.btc_balance || 0);
+      if (data.success && data.balances) {
+        setBalances(data.balances);
       }
     } catch (error) {
-      console.error('Ошибка загрузки BTC баланса:', error);
+      console.error('Ошибка загрузки балансов:', error);
     }
   };
 
-  const handleUsdtToBtcChange = (value: string) => {
+  const handleUsdtToCryptoChange = (value: string) => {
     const numValue = parseFloat(value) || 0;
     setUsdtAmount(value);
-    if (btcPrice > 0 && numValue > 0) {
-      const btcResult = numValue / btcPrice;
-      setBtcAmount(btcResult > 0 ? btcResult.toFixed(8) : '0.00000000');
+    const price = prices[selectedCrypto];
+    if (price > 0 && numValue > 0) {
+      const result = numValue / price;
+      const decimals = CRYPTO_INFO[selectedCrypto].decimals;
+      setCryptoAmount(result > 0 ? result.toFixed(decimals) : '0');
     } else {
-      setBtcAmount('');
+      setCryptoAmount('');
+    }
+  };
+
+  const handleCryptoToUsdtChange = (value: string) => {
+    const numValue = parseFloat(value) || 0;
+    setCryptoAmount(value);
+    const price = prices[selectedCrypto];
+    if (price > 0 && numValue > 0) {
+      const result = numValue * price;
+      setUsdtAmount(result > 0 ? result.toFixed(2) : '0.00');
+    } else {
+      setUsdtAmount('');
     }
   };
 
   const handleMaxUsdt = () => {
     const maxAmount = Number(user.balance || 0);
     if (maxAmount > 0) {
-      handleUsdtToBtcChange(maxAmount.toFixed(2));
+      handleUsdtToCryptoChange(maxAmount.toFixed(2));
     }
   };
 
-  const handleBtcToUsdtChange = (value: string) => {
-    const numValue = parseFloat(value) || 0;
-    setBtcAmount(value);
-    if (btcPrice > 0 && numValue > 0) {
-      const gross = numValue * btcPrice;
-      setUsdtAmount(gross > 0 ? gross.toFixed(2) : '0.00');
-    } else {
-      setUsdtAmount('');
+  const handleMaxCrypto = () => {
+    const balance = balances[selectedCrypto];
+    if (balance > 0) {
+      const decimals = CRYPTO_INFO[selectedCrypto].decimals;
+      handleCryptoToUsdtChange(balance.toFixed(decimals));
     }
   };
 
-  const handleMaxBtc = () => {
-    if (btcBalance > 0) {
-      handleBtcToUsdtChange(btcBalance.toFixed(8));
-    }
-  };
-
-  const handleExchangeUsdtToBtc = async () => {
+  const handleBuyCrypto = async () => {
     const usdt = parseFloat(usdtAmount);
     
     if (!usdt || usdt <= 0) {
@@ -185,15 +206,14 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
       return;
     }
 
-    await loadBtcPrice();
-    setConfirmAction('usdt_to_btc');
+    await loadPrices();
+    setConfirmAction('buy');
     setShowConfirmDialog(true);
   };
 
-  const confirmExchangeUsdtToBtc = async () => {
+  const confirmBuyCrypto = async () => {
     const usdt = parseFloat(usdtAmount);
     setShowConfirmDialog(false);
-
     setLoading(true);
 
     try {
@@ -204,9 +224,10 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
           'X-User-Id': user.id.toString()
         },
         body: JSON.stringify({
-          action: 'exchange_usdt_to_btc',
+          action: 'exchange_usdt_to_crypto',
           usdt_amount: usdt,
-          btc_price: btcPrice
+          crypto_symbol: selectedCrypto,
+          crypto_price: prices[selectedCrypto]
         })
       });
 
@@ -215,7 +236,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
       if (data.success) {
         toast({
           title: '✅ Обмен выполнен!',
-          description: `Вы обменяли ${usdt} USDT на ${data.btc_received} BTC`
+          description: `Вы обменяли ${usdt} USDT на ${data.crypto_received} ${selectedCrypto}`
         });
         
         triggerUserSync();
@@ -223,24 +244,15 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
           onRefreshUserBalance();
         }
         
-        loadBtcBalance();
+        loadBalances();
         setUsdtAmount('');
-        setBtcAmount('');
+        setCryptoAmount('');
       } else {
-        if (data.current_price) {
-          setBtcPrice(data.current_price);
-          toast({
-            title: 'Курс обновлён',
-            description: data.error || 'Цена BTC устарела. Попробуйте снова.',
-            variant: 'destructive'
-          });
-        } else {
-          toast({
-            title: 'Ошибка',
-            description: data.error || 'Ошибка обмена',
-            variant: 'destructive'
-          });
-        }
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Ошибка обмена',
+          variant: 'destructive'
+        });
       }
     } catch (error) {
       toast({
@@ -253,10 +265,10 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
     }
   };
 
-  const handleExchangeBtcToUsdt = async () => {
-    const btc = parseFloat(btcAmount);
+  const handleSellCrypto = async () => {
+    const crypto = parseFloat(cryptoAmount);
     
-    if (!btc || btc <= 0) {
+    if (!crypto || crypto <= 0) {
       toast({
         title: 'Ошибка',
         description: 'Введите корректную сумму',
@@ -265,33 +277,33 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
       return;
     }
 
-    if (btc > btcBalance) {
+    if (crypto > balances[selectedCrypto]) {
       toast({
         title: 'Недостаточно средств',
-        description: 'На вашем балансе недостаточно BTC',
+        description: `На вашем балансе недостаточно ${selectedCrypto}`,
         variant: 'destructive'
       });
       return;
     }
 
-    if (btc < 0.0001) {
+    const minAmount = CRYPTO_INFO[selectedCrypto].minAmount;
+    if (crypto < minAmount) {
       toast({
         title: 'Минимальная сумма',
-        description: 'Минимальная сумма обмена: 0.0001 BTC',
+        description: `Минимальная сумма обмена: ${minAmount} ${selectedCrypto}`,
         variant: 'destructive'
       });
       return;
     }
 
-    await loadBtcPrice();
-    setConfirmAction('btc_to_usdt');
+    await loadPrices();
+    setConfirmAction('sell');
     setShowConfirmDialog(true);
   };
 
-  const confirmExchangeBtcToUsdt = async () => {
-    const btc = parseFloat(btcAmount);
+  const confirmSellCrypto = async () => {
+    const crypto = parseFloat(cryptoAmount);
     setShowConfirmDialog(false);
-
     setLoading(true);
 
     try {
@@ -302,9 +314,10 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
           'X-User-Id': user.id.toString()
         },
         body: JSON.stringify({
-          action: 'exchange_btc_to_usdt',
-          btc_amount: btc,
-          btc_price: btcPrice
+          action: 'exchange_crypto_to_usdt',
+          crypto_amount: crypto,
+          crypto_symbol: selectedCrypto,
+          crypto_price: prices[selectedCrypto]
         })
       });
 
@@ -313,31 +326,23 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
       if (data.success) {
         toast({
           title: '✅ Обмен выполнен!',
-          description: `Вы обменяли ${btc} BTC на ${data.usdt_received} USDT`
+          description: `Вы обменяли ${crypto} ${selectedCrypto} на ${data.usdt_received} USDT`
         });
         
+        triggerUserSync();
         if (onRefreshUserBalance) {
           onRefreshUserBalance();
         }
         
-        loadBtcBalance();
+        loadBalances();
         setUsdtAmount('');
-        setBtcAmount('');
+        setCryptoAmount('');
       } else {
-        if (data.current_price) {
-          setBtcPrice(data.current_price);
-          toast({
-            title: 'Курс обновлён',
-            description: data.error || 'Цена BTC устарела. Попробуйте снова.',
-            variant: 'destructive'
-          });
-        } else {
-          toast({
-            title: 'Ошибка',
-            description: data.error || 'Ошибка обмена',
-            variant: 'destructive'
-          });
-        }
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Ошибка обмена',
+          variant: 'destructive'
+        });
       }
     } catch (error) {
       toast({
@@ -352,16 +357,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
 
   const handleWithdraw = async () => {
     const amount = parseFloat(withdrawAmount);
-
-    if (!withdrawAddress.trim()) {
-      toast({
-        title: 'Ошибка',
-        description: 'Введите BTC адрес',
-        variant: 'destructive'
-      });
-      return;
-    }
-
+    
     if (!amount || amount <= 0) {
       toast({
         title: 'Ошибка',
@@ -371,19 +367,30 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
       return;
     }
 
-    if (amount > btcBalance) {
+    if (!withdrawAddress.trim()) {
       toast({
-        title: 'Недостаточно средств',
-        description: 'На вашем балансе недостаточно BTC',
+        title: 'Ошибка',
+        description: 'Введите адрес кошелька',
         variant: 'destructive'
       });
       return;
     }
 
-    if (amount < 0.001) {
+    const balance = balances[withdrawCrypto];
+    if (amount > balance) {
+      toast({
+        title: 'Недостаточно средств',
+        description: `На балансе ${balance.toFixed(CRYPTO_INFO[withdrawCrypto].decimals)} ${withdrawCrypto}`,
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    const minWithdraw = CRYPTO_INFO[withdrawCrypto].minAmount * 10;
+    if (amount < minWithdraw) {
       toast({
         title: 'Минимальная сумма',
-        description: 'Минимальная сумма вывода: 0.001 BTC',
+        description: `Минимум для вывода: ${minWithdraw} ${withdrawCrypto}`,
         variant: 'destructive'
       });
       return;
@@ -392,13 +399,6 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
     setWithdrawLoading(true);
 
     try {
-      console.log('🔵 Отправка запроса на вывод BTC:', {
-        action: 'withdraw_btc',
-        btc_amount: amount,
-        btc_address: withdrawAddress,
-        user_id: user.id
-      });
-
       const response = await fetch(AUTH_URL, {
         method: 'POST',
         headers: {
@@ -406,32 +406,25 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
           'X-User-Id': user.id.toString()
         },
         body: JSON.stringify({
-          action: 'withdraw_btc',
-          btc_amount: amount,
-          btc_address: withdrawAddress
+          action: 'withdraw_crypto',
+          crypto_symbol: withdrawCrypto,
+          amount: amount,
+          address: withdrawAddress
         })
       });
 
-      console.log('📡 Статус ответа:', response.status);
-
       const data = await response.json();
-      console.log('📦 Ответ сервера:', data);
 
       if (data.success) {
         toast({
-          title: '✅ Заявка на вывод принята!',
-          description: 'Ваш вывод находится на рассмотрении. Среднее время рассмотрения от 2 минут до 1 часа'
+          title: '✅ Заявка создана',
+          description: `Вывод ${amount} ${withdrawCrypto} будет обработан в течение 24 часов`
         });
         
-        if (onRefreshUserBalance) {
-          onRefreshUserBalance();
-        }
-        
-        loadBtcBalance();
+        loadBalances();
         setWithdrawAddress('');
         setWithdrawAmount('');
       } else {
-        console.error('❌ Ошибка вывода:', data.error);
         toast({
           title: 'Ошибка',
           description: data.error || 'Ошибка вывода',
@@ -439,7 +432,6 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
         });
       }
     } catch (error) {
-      console.error('💥 Исключение при выводе:', error);
       toast({
         title: 'Ошибка',
         description: 'Ошибка подключения к серверу',
@@ -449,6 +441,10 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
       setWithdrawLoading(false);
     }
   };
+
+  const currentPrice = prices[selectedCrypto];
+  const currentBalance = balances[selectedCrypto];
+  const cryptoInfo = CRYPTO_INFO[selectedCrypto];
 
   return (
     <div className="space-y-6">
@@ -462,125 +458,82 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-              <Icon name="DollarSign" size={20} className="text-green-400" />
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center">
+              <Icon name="DollarSign" size={16} className="text-green-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{Number(user.balance || 0).toFixed(2)}</p>
-              <p className="text-xs text-muted-foreground">Баланс USDT</p>
+              <p className="text-lg font-bold">{Number(user.balance || 0).toFixed(2)}</p>
+              <p className="text-xs text-muted-foreground">USDT</p>
             </div>
           </div>
         </Card>
 
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-orange-500/20 flex items-center justify-center">
-              <Icon name="Bitcoin" size={20} className="text-orange-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{btcBalance.toFixed(8)}</p>
-              <p className="text-xs text-muted-foreground">Баланс BTC</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-500 ${
-              priceChange === 'up' ? 'bg-green-500/30 scale-110' : 
-              priceChange === 'down' ? 'bg-red-500/30 scale-110' : 
-              'bg-blue-500/20'
-            }`}>
-              <Icon 
-                name={priceChange === 'up' ? 'TrendingUp' : priceChange === 'down' ? 'TrendingDown' : 'TrendingUp'} 
-                size={20} 
-                className={`transition-colors duration-500 ${
-                  priceChange === 'up' ? 'text-green-400' : 
-                  priceChange === 'down' ? 'text-red-400' : 
-                  'text-blue-400'
-                }`}
-              />
-            </div>
-            <div className="flex-1">
-              <p className={`text-2xl font-bold transition-all duration-500 ${
-                priceChange === 'up' ? 'text-green-400 scale-105' : 
-                priceChange === 'down' ? 'text-red-400 scale-105' : 
-                ''
-              }`}>
-                {priceLoading ? '...' : `$${btcPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-              </p>
-              <div className="flex items-center gap-1">
-                <p className="text-xs text-muted-foreground">Курс BTC</p>
-                {priceChange !== 'neutral' && (
-                  <span className={`text-xs font-medium ${priceChange === 'up' ? 'text-green-400' : 'text-red-400'}`}>
-                    {priceChange === 'up' ? '↑' : '↓'}
-                  </span>
-                )}
+        {(['BTC', 'ETH', 'BNB', 'SOL', 'XRP', 'TRX'] as CryptoSymbol[]).slice(0, 3).map(symbol => (
+          <Card key={symbol} className="p-4">
+            <div className="flex items-center gap-2">
+              <div className={`w-8 h-8 rounded-lg bg-${symbol === 'BTC' ? 'orange' : symbol === 'ETH' ? 'purple' : 'yellow'}-500/20 flex items-center justify-center`}>
+                <Icon name={CRYPTO_INFO[symbol].icon as any} size={16} className={CRYPTO_INFO[symbol].color} />
+              </div>
+              <div>
+                <p className="text-lg font-bold">{balances[symbol].toFixed(CRYPTO_INFO[symbol].decimals)}</p>
+                <p className="text-xs text-muted-foreground">{symbol}</p>
               </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        ))}
       </div>
 
-      <Tabs defaultValue="usdt-to-btc" className="w-full">
+      <Tabs defaultValue="buy" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="usdt-to-btc">USDT → BTC</TabsTrigger>
-          <TabsTrigger value="btc-to-usdt">BTC → USDT</TabsTrigger>
-          <TabsTrigger value="withdraw">Вывод BTC</TabsTrigger>
+          <TabsTrigger value="buy">Купить</TabsTrigger>
+          <TabsTrigger value="sell">Продать</TabsTrigger>
+          <TabsTrigger value="withdraw">Вывод</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="usdt-to-btc" className="space-y-4 mt-4">
+        <TabsContent value="buy" className="space-y-4 mt-4">
           <Card className="p-6">
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Icon name="ArrowRight" size={20} className="text-primary" />
-                  Обмен USDT на BTC
-                </h3>
-                <div className={`text-xs font-medium transition-colors duration-500 ${
-                  priceChange === 'up' ? 'text-green-400' : 
-                  priceChange === 'down' ? 'text-red-400' : 
-                  'text-muted-foreground'
-                }`}>
-                  1 BTC = ${btcPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </div>
+              <div className="space-y-2">
+                <Label>Выберите криптовалюту</Label>
+                <Select value={selectedCrypto} onValueChange={(v) => setSelectedCrypto(v as CryptoSymbol)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.keys(CRYPTO_INFO).map(symbol => (
+                      <SelectItem key={symbol} value={symbol}>
+                        <div className="flex items-center gap-2">
+                          <Icon name={CRYPTO_INFO[symbol as CryptoSymbol].icon as any} size={16} />
+                          {symbol} - {CRYPTO_INFO[symbol as CryptoSymbol].name}
+                          {!priceLoading && ` ($${prices[symbol as CryptoSymbol].toLocaleString()})`}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-4">
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="text-sm font-medium">Отдаете</label>
+                    <Label>Отдаете USDT</Label>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground">Баланс: {Number(user.balance || 0).toFixed(2)} USDT</span>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={handleMaxUsdt}
-                        className="h-6 px-2 text-xs"
-                      >
+                      <span className="text-xs text-muted-foreground">Баланс: {Number(user.balance || 0).toFixed(2)}</span>
+                      <Button variant="outline" size="sm" onClick={handleMaxUsdt} className="h-6 px-2 text-xs">
                         Все
                       </Button>
                     </div>
                   </div>
-                  <div className="relative">
-                    <Input
-                      type="number"
-                      value={usdtAmount}
-                      onChange={(e) => handleUsdtToBtcChange(e.target.value)}
-                      placeholder="0.00"
-                      className="pr-16 text-lg"
-                      min="0"
-                      step="0.01"
-                    />
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                      <Icon name="DollarSign" size={16} className="text-green-400" />
-                      USDT
-                    </div>
-                  </div>
+                  <Input
+                    type="number"
+                    value={usdtAmount}
+                    onChange={(e) => handleUsdtToCryptoChange(e.target.value)}
+                    placeholder="0.00"
+                    className="text-lg"
+                  />
                 </div>
 
                 <div className="flex justify-center">
@@ -590,20 +543,14 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Получаете</label>
-                  <div className="relative">
-                    <Input
-                      type="number"
-                      value={btcAmount}
-                      readOnly
-                      placeholder="0.00000000"
-                      className="pr-16 text-lg bg-muted/50"
-                    />
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                      <Icon name="Bitcoin" size={16} className="text-orange-400" />
-                      BTC
-                    </div>
-                  </div>
+                  <Label className="mb-2 block">Получаете {selectedCrypto}</Label>
+                  <Input
+                    type="number"
+                    value={cryptoAmount}
+                    readOnly
+                    placeholder={`0.${'0'.repeat(cryptoInfo.decimals)}`}
+                    className="text-lg bg-muted/50"
+                  />
                 </div>
               </div>
 
@@ -616,78 +563,66 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                   <span className="text-muted-foreground">Комиссия:</span>
                   <span className="font-medium text-green-400">0%</span>
                 </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Курс {selectedCrypto}:</span>
+                  <span className="font-medium">${currentPrice.toLocaleString()}</span>
+                </div>
               </div>
 
               <Button
-                onClick={handleExchangeUsdtToBtc}
+                onClick={handleBuyCrypto}
                 disabled={loading || !usdtAmount || parseFloat(usdtAmount) < 10 || priceLoading}
-                className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
+                className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
               >
-                {loading ? (
-                  <>
-                    <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
-                    Обмен...
-                  </>
-                ) : (
-                  <>
-                    <Icon name="ArrowRight" size={18} className="mr-2" />
-                    Обменять USDT на BTC
-                  </>
-                )}
+                {loading ? 'Обмен...' : `Купить ${selectedCrypto}`}
               </Button>
             </div>
           </Card>
         </TabsContent>
 
-        <TabsContent value="btc-to-usdt" className="space-y-4 mt-4">
+        <TabsContent value="sell" className="space-y-4 mt-4">
           <Card className="p-6">
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Icon name="ArrowLeft" size={20} className="text-primary" />
-                  Обмен BTC на USDT
-                </h3>
-                <div className={`text-xs font-medium transition-colors duration-500 ${
-                  priceChange === 'up' ? 'text-green-400' : 
-                  priceChange === 'down' ? 'text-red-400' : 
-                  'text-muted-foreground'
-                }`}>
-                  1 BTC = ${btcPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </div>
+              <div className="space-y-2">
+                <Label>Выберите криптовалюту</Label>
+                <Select value={selectedCrypto} onValueChange={(v) => setSelectedCrypto(v as CryptoSymbol)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.keys(CRYPTO_INFO).map(symbol => (
+                      <SelectItem key={symbol} value={symbol}>
+                        <div className="flex items-center gap-2">
+                          <Icon name={CRYPTO_INFO[symbol as CryptoSymbol].icon as any} size={16} />
+                          {symbol} - {CRYPTO_INFO[symbol as CryptoSymbol].name}
+                          {!priceLoading && ` ($${prices[symbol as CryptoSymbol].toLocaleString()})`}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-4">
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="text-sm font-medium">Отдаете</label>
+                    <Label>Отдаете {selectedCrypto}</Label>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground">Баланс: {btcBalance.toFixed(8)} BTC</span>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={handleMaxBtc}
-                        className="h-6 px-2 text-xs"
-                      >
+                      <span className="text-xs text-muted-foreground">
+                        Баланс: {currentBalance.toFixed(cryptoInfo.decimals)}
+                      </span>
+                      <Button variant="outline" size="sm" onClick={handleMaxCrypto} className="h-6 px-2 text-xs">
                         Все
                       </Button>
                     </div>
                   </div>
-                  <div className="relative">
-                    <Input
-                      type="number"
-                      value={btcAmount}
-                      onChange={(e) => handleBtcToUsdtChange(e.target.value)}
-                      placeholder="0.00000000"
-                      className="pr-16 text-lg"
-                      min="0"
-                      step="0.00000001"
-                    />
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                      <Icon name="Bitcoin" size={16} className="text-orange-400" />
-                      BTC
-                    </div>
-                  </div>
+                  <Input
+                    type="number"
+                    value={cryptoAmount}
+                    onChange={(e) => handleCryptoToUsdtChange(e.target.value)}
+                    placeholder={`0.${'0'.repeat(cryptoInfo.decimals)}`}
+                    className="text-lg"
+                  />
                 </div>
 
                 <div className="flex justify-center">
@@ -697,50 +632,38 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Получаете</label>
-                  <div className="relative">
-                    <Input
-                      type="number"
-                      value={usdtAmount}
-                      readOnly
-                      placeholder="0.00"
-                      className="pr-16 text-lg bg-muted/50"
-                    />
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                      <Icon name="DollarSign" size={16} className="text-green-400" />
-                      USDT
-                    </div>
-                  </div>
+                  <Label className="mb-2 block">Получаете USDT</Label>
+                  <Input
+                    type="number"
+                    value={usdtAmount}
+                    readOnly
+                    placeholder="0.00"
+                    className="text-lg bg-muted/50"
+                  />
                 </div>
               </div>
 
               <div className="bg-muted/50 rounded-lg p-4 space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Минимальная сумма:</span>
-                  <span className="font-medium">0.0001 BTC</span>
+                  <span className="font-medium">{cryptoInfo.minAmount} {selectedCrypto}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Комиссия:</span>
                   <span className="font-medium text-green-400">0%</span>
                 </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Курс {selectedCrypto}:</span>
+                  <span className="font-medium">${currentPrice.toLocaleString()}</span>
+                </div>
               </div>
 
               <Button
-                onClick={handleExchangeBtcToUsdt}
-                disabled={loading || !btcAmount || parseFloat(btcAmount) < 0.0001 || priceLoading}
-                className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+                onClick={handleSellCrypto}
+                disabled={loading || !cryptoAmount || parseFloat(cryptoAmount) < cryptoInfo.minAmount || priceLoading}
+                className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
               >
-                {loading ? (
-                  <>
-                    <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
-                    Обмен...
-                  </>
-                ) : (
-                  <>
-                    <Icon name="ArrowLeft" size={18} className="mr-2" />
-                    Обменять BTC на USDT
-                  </>
-                )}
+                {loading ? 'Обмен...' : `Продать ${selectedCrypto}`}
               </Button>
             </div>
           </Card>
@@ -749,75 +672,65 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
         <TabsContent value="withdraw" className="space-y-4 mt-4">
           <Card className="p-6">
             <div className="space-y-6">
-              <div className="flex items-center gap-2">
-                <Icon name="Send" size={20} className="text-primary" />
-                <h3 className="text-lg font-semibold">Вывод BTC</h3>
+              <div className="space-y-2">
+                <Label>Выберите криптовалюту</Label>
+                <Select value={withdrawCrypto} onValueChange={(v) => setWithdrawCrypto(v as CryptoSymbol)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.keys(CRYPTO_INFO).map(symbol => (
+                      <SelectItem key={symbol} value={symbol}>
+                        <div className="flex items-center gap-2">
+                          <Icon name={CRYPTO_INFO[symbol as CryptoSymbol].icon as any} size={16} />
+                          {symbol} - {CRYPTO_INFO[symbol as CryptoSymbol].name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <Label className="text-sm font-medium mb-2 block">BTC адрес получателя</Label>
-                  <Input
-                    value={withdrawAddress}
-                    onChange={(e) => setWithdrawAddress(e.target.value)}
-                    placeholder="bc1q..."
-                    className="font-mono"
-                  />
-                </div>
+              <div>
+                <Label className="mb-2 block">Адрес кошелька</Label>
+                <Input
+                  value={withdrawAddress}
+                  onChange={(e) => setWithdrawAddress(e.target.value)}
+                  placeholder={`Введите адрес ${withdrawCrypto}`}
+                  className="font-mono"
+                />
+              </div>
 
-                <div>
-                  <Label className="text-sm font-medium mb-2 block">Сумма BTC</Label>
-                  <Input
-                    type="number"
-                    value={withdrawAmount}
-                    onChange={(e) => setWithdrawAmount(e.target.value)}
-                    placeholder="0.00000000"
-                    step="0.00000001"
-                    min="0"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Доступно: {btcBalance.toFixed(8)} BTC
-                  </p>
-                </div>
+              <div>
+                <Label className="mb-2 block">Сумма {withdrawCrypto}</Label>
+                <Input
+                  type="number"
+                  value={withdrawAmount}
+                  onChange={(e) => setWithdrawAmount(e.target.value)}
+                  placeholder={`0.${'0'.repeat(CRYPTO_INFO[withdrawCrypto].decimals)}`}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Доступно: {balances[withdrawCrypto].toFixed(CRYPTO_INFO[withdrawCrypto].decimals)} {withdrawCrypto}
+                </p>
               </div>
 
               <div className="bg-muted/50 rounded-lg p-4 space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Минимальная сумма:</span>
-                  <span className="font-medium">0.001 BTC</span>
+                  <span className="text-muted-foreground">Минимум:</span>
+                  <span className="font-medium">{CRYPTO_INFO[withdrawCrypto].minAmount * 10} {withdrawCrypto}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Комиссия вывода:</span>
-                  <span className="font-medium text-orange-400">0.00015 BTC</span>
-                </div>
-                {withdrawAmount && parseFloat(withdrawAmount) > 0 && (
-                  <div className="flex items-center justify-between text-sm pt-2 border-t border-border/50">
-                    <span className="text-muted-foreground">Итого спишется:</span>
-                    <span className="font-medium text-red-400">{(parseFloat(withdrawAmount) + 0.00015).toFixed(8)} BTC</span>
-                  </div>
-                )}
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Время обработки:</span>
-                  <span className="font-medium">До 24 часов</span>
+                  <span className="text-muted-foreground">Комиссия сети:</span>
+                  <span className="font-medium text-orange-400">~{CRYPTO_INFO[withdrawCrypto].minAmount} {withdrawCrypto}</span>
                 </div>
               </div>
 
               <Button
                 onClick={handleWithdraw}
-                disabled={withdrawLoading || !withdrawAddress || !withdrawAmount || parseFloat(withdrawAmount) < 0.001}
+                disabled={withdrawLoading || !withdrawAddress || !withdrawAmount}
                 className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
               >
-                {withdrawLoading ? (
-                  <>
-                    <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
-                    Обработка...
-                  </>
-                ) : (
-                  <>
-                    <Icon name="Send" size={18} className="mr-2" />
-                    Вывести BTC
-                  </>
-                )}
+                {withdrawLoading ? 'Обработка...' : `Вывести ${withdrawCrypto}`}
               </Button>
             </div>
           </Card>
@@ -833,11 +746,11 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
             <h3 className="text-lg font-semibold">Как это работает?</h3>
             <ul className="text-sm text-muted-foreground space-y-1">
               <li>• Обмен происходит мгновенно по текущему рыночному курсу</li>
-              <li>• Курс в окне подтверждения обновляется каждую минуту</li>
-              <li>• Комиссия за обмен: 0%</li>
-              <li>• Минимум для обмена: 10 USDT или 0.0001 BTC</li>
-              <li>• Минимум для вывода BTC: 0.001 BTC</li>
-              <li>• Вывод обрабатывается администратором в течение 24 часов</li>
+              <li>• Курс обновляется каждую минуту</li>
+              <li>• Комиссия за обмен: 0% (уже включена в курс +1.5%)</li>
+              <li>• Минимум для покупки: 10 USDT</li>
+              <li>• Вывод обрабатывается в течение 24 часов</li>
+              <li>• Поддерживаются: BTC, ETH, BNB, SOL, XRP, TRX</li>
             </ul>
           </div>
         </div>
@@ -871,99 +784,48 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
               </div>
             </div>
 
-            {confirmAction === 'usdt_to_btc' && (
-              <>
-                <div className="bg-muted/50 rounded-lg p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Актуальный курс BTC:</span>
-                    <span className="font-bold text-lg text-green-400">
-                      ${btcPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                  
-                  <div className="border-t border-border/50 pt-3 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Вы отдаёте:</span>
-                      <span className="font-semibold">{usdtAmount} USDT</span>
-                    </div>
-                  </div>
-
-                  <div className="border-t border-border/50 pt-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Вы получите:</span>
-                      <span className="font-bold text-lg text-green-400">{btcAmount} BTC</span>
-                    </div>
-                  </div>
+            <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Курс {selectedCrypto}:</span>
+                <span className="font-bold text-lg text-green-400">
+                  ${currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
+              
+              <div className="border-t border-border/50 pt-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Вы отдаёте:</span>
+                  <span className="font-semibold">
+                    {confirmAction === 'buy' ? `${usdtAmount} USDT` : `${cryptoAmount} ${selectedCrypto}`}
+                  </span>
                 </div>
+              </div>
 
-                <div className="flex items-start gap-2 text-xs text-muted-foreground bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
-                  <Icon name="Info" size={16} className="text-blue-500 shrink-0 mt-0.5" />
-                  <p>Курс зафиксирован для вас на 1 минуту. После курс будет обновлен.</p>
+              <div className="border-t border-border/50 pt-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Вы получите:</span>
+                  <span className="font-bold text-lg text-green-400">
+                    {confirmAction === 'buy' ? `${cryptoAmount} ${selectedCrypto}` : `${usdtAmount} USDT`}
+                  </span>
                 </div>
-              </>
-            )}
+              </div>
+            </div>
 
-            {confirmAction === 'btc_to_usdt' && (
-              <>
-                <div className="bg-muted/50 rounded-lg p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Актуальный курс BTC:</span>
-                    <span className="font-bold text-lg text-green-400">
-                      ${btcPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                  
-                  <div className="border-t border-border/50 pt-3 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Вы отдаёте:</span>
-                      <span className="font-semibold">{btcAmount} BTC</span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">Эквивалент в USDT:</span>
-                      <span>{(parseFloat(btcAmount) * btcPrice).toFixed(2)} USDT</span>
-                    </div>
-                  </div>
-
-                  <div className="border-t border-border/50 pt-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Вы получите:</span>
-                      <span className="font-bold text-lg text-green-400">{usdtAmount} USDT</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2 text-xs text-muted-foreground bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
-                  <Icon name="Info" size={16} className="text-blue-500 shrink-0 mt-0.5" />
-                  <p>Курс зафиксирован для вас на 1 минуту. После курс будет обновлен.</p>
-                </div>
-              </>
-            )}
+            <div className="flex items-start gap-2 text-xs text-muted-foreground bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+              <Icon name="Info" size={16} className="text-blue-500 shrink-0 mt-0.5" />
+              <p>Курс зафиксирован на 1 минуту. После курс будет обновлен.</p>
+            </div>
           </div>
 
-          <DialogFooter className="gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setShowConfirmDialog(false)}
-              disabled={loading}
-            >
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
               Отмена
             </Button>
-            <Button
-              onClick={confirmAction === 'usdt_to_btc' ? confirmExchangeUsdtToBtc : confirmExchangeBtcToUsdt}
-              disabled={loading}
-              className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+            <Button 
+              onClick={confirmAction === 'buy' ? confirmBuyCrypto : confirmSellCrypto}
+              className="bg-gradient-to-r from-green-500 to-green-600"
             >
-              {loading ? (
-                <>
-                  <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
-                  Обмен...
-                </>
-              ) : (
-                <>
-                  <Icon name="Check" size={18} className="mr-2" />
-                  Подтвердить обмен
-                </>
-              )}
+              Подтвердить
             </Button>
           </DialogFooter>
         </DialogContent>
