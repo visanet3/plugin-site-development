@@ -495,8 +495,8 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
           <Card className="p-4 hover:shadow-lg transition-all duration-300 border-green-500/20 bg-gradient-to-br from-green-500/5 to-transparent">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
-                  <Icon name="DollarSign" size={20} className="text-green-400" />
+                <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center p-1.5">
+                  <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" alt="Tether" className="w-full h-full object-contain" />
                 </div>
                 <div>
                   <p className="font-semibold">USDT</p>
@@ -628,7 +628,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                           className="h-14 text-xl pl-12"
                         />
                         <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                          <Icon name="DollarSign" size={20} className="text-green-400" />
+                          <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" alt="Tether" className="w-5 h-5 object-contain" />
                         </div>
                         <div className="absolute right-4 top-1/2 -translate-y-1/2">
                           <span className="text-lg font-semibold text-muted-foreground">USDT</span>
@@ -777,7 +777,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                           className="h-14 text-xl pl-12 bg-muted/50"
                         />
                         <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                          <Icon name="DollarSign" size={20} className="text-green-400" />
+                          <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" alt="Tether" className="w-5 h-5 object-contain" />
                         </div>
                         <div className="absolute right-4 top-1/2 -translate-y-1/2">
                           <span className="text-lg font-semibold text-muted-foreground">USDT</span>
