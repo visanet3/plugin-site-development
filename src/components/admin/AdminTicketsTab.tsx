@@ -93,7 +93,7 @@ const AdminTicketsTab = ({ tickets, currentUser, onRefresh, onUpdateTicketStatus
           title: 'Ответ отправлен',
           description: 'Пользователь получит уведомление'
         });
-        triggerNotificationUpdateImmediate();
+        triggerNotificationUpdateImmediate(currentUser.id, currentUser.role);
         setResponse('');
         setSelectedTicket(null);
         onRefresh();

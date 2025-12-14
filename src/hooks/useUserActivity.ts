@@ -1,10 +1,9 @@
 import { useEffect, useCallback } from 'react';
 import { User } from '@/types';
+import { notificationsCache } from '@/utils/notificationsCache';
 
 const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
-const NOTIFICATIONS_URL = 'https://functions.poehali.dev/6c968792-7d48-41a9-af0a-c92adb047acb';
 const CRYPTO_URL = 'https://functions.poehali.dev/8caa3b76-72e5-42b5-9415-91d1f9b05210';
-const ADMIN_URL = 'https://functions.poehali.dev/d4678b1c-2acd-40bb-b8c5-cefe8d14fad4';
 const VERIFICATION_URL = 'https://functions.poehali.dev/e0d94580-497a-452f-9044-0ef1b2ff42c8';
 
 interface UseUserActivityProps {
@@ -49,64 +48,38 @@ export const useUserActivity = ({
     sessionStorage.setItem('lastActivityUpdate', now.toString());
   }, [user]);
 
-  // Проверка непрочитанных уведомлений
+  // Проверка непрочитанных уведомлений с кэшированием
   const fetchUnreadCount = useCallback(async () => {
     if (!user) return;
     
-    try {
-      const requests = [
-        fetch(`${NOTIFICATIONS_URL}?action=notifications`, {
-          headers: { 'X-User-Id': user.id.toString() }
-        }),
-        fetch(`${NOTIFICATIONS_URL}?action=messages`, {
-          headers: { 'X-User-Id': user.id.toString() }
-        })
-      ];
-
-      if (user.role === 'admin' && setAdminNotificationsUnread) {
-        requests.push(
-          fetch(`${ADMIN_URL}?action=admin_notifications_unread_count`, {
-            headers: { 'X-User-Id': user.id.toString() }
-          })
-        );
-      }
-
-      const responses = await Promise.all(requests);
-      const [notifRes, msgRes, adminNotifRes] = responses;
-
-      if (notifRes.ok && msgRes.ok) {
-        const notifData = await notifRes.json();
-        const msgData = await msgRes.json();
-        setNotificationsUnread(notifData.unread_count || 0);
-        setMessagesUnread(msgData.unread_count || 0);
-
-        if (adminNotifRes && adminNotifRes.ok && setAdminNotificationsUnread) {
-          const adminNotifData = await adminNotifRes.json();
-          const prevCountStr = sessionStorage.getItem('prevAdminNotifCount');
-          const newCount = adminNotifData.unread_count || 0;
-          
-          setAdminNotificationsUnread(newCount);
-          
-          if (prevCountStr !== null) {
-            const prevCount = parseInt(prevCountStr);
-            if (newCount > prevCount && showAdminToast) {
-              const diff = newCount - prevCount;
-              showAdminToast(
-                '🔔 Новые уведомления администратора',
-                `Появилось ${diff} ${diff === 1 ? 'новое уведомление' : 'новых уведомления'} требующих внимания`
-              );
-              
-              const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5a');
-              audio.volume = 0.4;
-              audio.play().catch(() => {});
-            }
+    const counts = await notificationsCache.getCounts(user.id, user.role);
+    if (counts) {
+      setNotificationsUnread(counts.notifications);
+      setMessagesUnread(counts.messages);
+      
+      if (counts.adminNotifications !== undefined && setAdminNotificationsUnread) {
+        const prevCountStr = sessionStorage.getItem('prevAdminNotifCount');
+        const newCount = counts.adminNotifications;
+        
+        setAdminNotificationsUnread(newCount);
+        
+        if (prevCountStr !== null) {
+          const prevCount = parseInt(prevCountStr);
+          if (newCount > prevCount && showAdminToast) {
+            const diff = newCount - prevCount;
+            showAdminToast(
+              '🔔 Новые уведомления администратора',
+              `Появилось ${diff} ${diff === 1 ? 'новое уведомление' : 'новых уведомления'} требующих внимания`
+            );
+            
+            const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5a');
+            audio.volume = 0.4;
+            audio.play().catch(() => {});
           }
-          
-          sessionStorage.setItem('prevAdminNotifCount', newCount.toString());
         }
+        
+        sessionStorage.setItem('prevAdminNotifCount', newCount.toString());
       }
-    } catch (error) {
-      // Silently handle connection errors
     }
   }, [user, setNotificationsUnread, setMessagesUnread, setAdminNotificationsUnread, showAdminToast]);
 

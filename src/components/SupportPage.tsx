@@ -87,7 +87,7 @@ const SupportPage = ({ user, onShowAuthDialog }: SupportPageProps) => {
           title: 'Тикет создан!',
           description: 'Мы получили ваше обращение и ответим в ближайшее время'
         });
-        triggerNotificationUpdate();
+        triggerNotificationUpdate(user.id, user.role);
         
         setCategory('');
         setSubject('');

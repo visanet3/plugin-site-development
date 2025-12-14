@@ -143,7 +143,7 @@ const AdminVerificationTab = ({ currentUser }: AdminVerificationTabProps) => {
           title: 'Успешно',
           description: `Заявка ${status === 'approved' ? 'одобрена' : 'отклонена'}`
         });
-        triggerNotificationUpdateImmediate();
+        triggerNotificationUpdateImmediate(currentUser.id, currentUser.role);
         if (selectedRequest) {
           triggerVerificationCheck(selectedRequest.user_id);
         }

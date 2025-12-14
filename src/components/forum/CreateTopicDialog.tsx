@@ -111,7 +111,7 @@ const CreateTopicDialog = ({
           title: 'Успешно',
           description: 'Тема создана'
         });
-        triggerNotificationUpdate();
+        triggerNotificationUpdate(user.id, user.role);
         setTitle('');
         setContent('');
         setSelectedCategory(null);

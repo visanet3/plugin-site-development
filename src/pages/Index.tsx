@@ -292,6 +292,7 @@ const Index = () => {
                   }
                 }}
                 userId={state.user.id}
+                userRole={state.user.role}
                 initialRecipientId={state.messageRecipientId}
                 onUserClick={handlers.handleUserClick}
               />

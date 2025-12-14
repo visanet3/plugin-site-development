@@ -18,6 +18,7 @@ interface MessagesPanelProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   userId: number;
+  userRole: string;
   initialRecipientId?: number | null;
   onUserClick?: (userId: number) => void;
 }
@@ -33,7 +34,7 @@ interface Chat {
   lastSeenAt?: string;
 }
 
-const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId, onUserClick }: MessagesPanelProps) => {
+const MessagesPanel = ({ open, onOpenChange, userId, userRole, initialRecipientId, onUserClick }: MessagesPanelProps) => {
   const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
   const [chats, setChats] = useState<Chat[]>([]);
@@ -245,7 +246,7 @@ const MessagesPanel = ({ open, onOpenChange, userId, initialRecipientId, onUserC
 
       if (response.ok) {
         await fetchMessages();
-        triggerNotificationUpdate();
+        triggerNotificationUpdate(userId, userRole);
         scrollToBottom();
       } else {
         setNewMessageText(messageToSend);
