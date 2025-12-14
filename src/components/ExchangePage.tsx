@@ -50,7 +50,7 @@ const CRYPTO_INFO: Record<CryptoSymbol, CryptoInfo> = {
   ETH: { name: 'Ethereum', icon: 'Gem', emoji: 'Ξ', logo: 'https://cryptologos.cc/logos/ethereum-eth-logo.png', color: 'text-purple-400', bgColor: 'bg-purple-500/10', decimals: 6, minAmount: 0.001 },
   BNB: { name: 'BNB', icon: 'Coins', emoji: '◆', logo: 'https://cryptologos.cc/logos/bnb-bnb-logo.png', color: 'text-yellow-400', bgColor: 'bg-yellow-500/10', decimals: 5, minAmount: 0.01 },
   SOL: { name: 'Solana', icon: 'Zap', emoji: '◎', logo: 'https://cryptologos.cc/logos/solana-sol-logo.png', color: 'text-blue-400', bgColor: 'bg-blue-500/10', decimals: 5, minAmount: 0.01 },
-  XRP: { name: 'Ripple', icon: 'Waves', emoji: '✕', logo: 'https://cryptologos.cc/logos/xrp-xrp-logo.png', color: 'text-cyan-400', bgColor: 'bg-cyan-500/10', decimals: 4, minAmount: 1 },
+  XRP: { name: 'Ripple', icon: 'Waves', emoji: '✕', logo: 'https://cryptologos.cc/logos/xrp-xrp-logo.png', color: 'text-cyan-300', bgColor: 'bg-cyan-400/15', decimals: 4, minAmount: 1 },
   TRX: { name: 'Tron', icon: 'Triangle', emoji: '▲', logo: 'https://cryptologos.cc/logos/tron-trx-logo.png', color: 'text-red-400', bgColor: 'bg-red-500/10', decimals: 2, minAmount: 10 }
 };
 
