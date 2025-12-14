@@ -56,7 +56,10 @@ const CRYPTO_INFO: Record<CryptoSymbol, CryptoInfo> = {
 
 const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
   const { toast } = useToast();
-  const [prices, setPrices] = useState<Record<CryptoSymbol, number>>({
+  const [buyPrices, setBuyPrices] = useState<Record<CryptoSymbol, number>>({
+    BTC: 0, ETH: 0, BNB: 0, SOL: 0, XRP: 0, TRX: 0
+  });
+  const [sellPrices, setSellPrices] = useState<Record<CryptoSymbol, number>>({
     BTC: 0, ETH: 0, BNB: 0, SOL: 0, XRP: 0, TRX: 0
   });
   const [balances, setBalances] = useState<Record<CryptoSymbol, number>>({
@@ -107,8 +110,9 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
       const response = await fetch(CRYPTO_PRICES_URL);
       const data = await response.json();
       
-      if (data.success && data.prices) {
-        setPrices(data.prices);
+      if (data.success && data.buy_prices && data.sell_prices) {
+        setBuyPrices(data.buy_prices);
+        setSellPrices(data.sell_prices);
         setPriceLoadTime(new Date());
         setPriceUpdateTimer(60);
       }
@@ -144,7 +148,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
   const handleUsdtToCryptoChange = (value: string) => {
     const numValue = parseFloat(value) || 0;
     setUsdtAmount(value);
-    const price = prices[selectedCrypto];
+    const price = buyPrices[selectedCrypto];
     if (price > 0 && numValue > 0) {
       const result = numValue / price;
       const decimals = CRYPTO_INFO[selectedCrypto].decimals;
@@ -157,7 +161,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
   const handleCryptoToUsdtChange = (value: string) => {
     const numValue = parseFloat(value) || 0;
     setCryptoAmount(value);
-    const price = prices[selectedCrypto];
+    const price = sellPrices[selectedCrypto];
     if (price > 0 && numValue > 0) {
       const result = numValue * price;
       setUsdtAmount(result > 0 ? result.toFixed(2) : '0.00');
@@ -232,7 +236,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
           action: 'exchange_usdt_to_crypto',
           usdt_amount: usdt,
           crypto_symbol: selectedCrypto,
-          crypto_price: prices[selectedCrypto]
+          crypto_price: buyPrices[selectedCrypto]
         })
       });
 
@@ -322,7 +326,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
           action: 'exchange_crypto_to_usdt',
           crypto_amount: crypto,
           crypto_symbol: selectedCrypto,
-          crypto_price: prices[selectedCrypto]
+          crypto_price: sellPrices[selectedCrypto]
         })
       });
 
@@ -447,7 +451,8 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
     }
   };
 
-  const currentPrice = prices[selectedCrypto];
+  const currentBuyPrice = buyPrices[selectedCrypto];
+  const currentSellPrice = sellPrices[selectedCrypto];
   const currentBalance = balances[selectedCrypto];
   const cryptoInfo = CRYPTO_INFO[selectedCrypto];
 
@@ -455,7 +460,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
     let total = Number(user.balance || 0);
     Object.keys(CRYPTO_INFO).forEach(symbol => {
       const cryptoSymbol = symbol as CryptoSymbol;
-      total += balances[cryptoSymbol] * prices[cryptoSymbol];
+      total += balances[cryptoSymbol] * sellPrices[cryptoSymbol];
     });
     return total;
   };
@@ -516,7 +521,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
           {(Object.keys(CRYPTO_INFO) as CryptoSymbol[]).map(symbol => {
             const info = CRYPTO_INFO[symbol];
             const balance = balances[symbol];
-            const price = prices[symbol];
+            const price = sellPrices[symbol];
             const usdValue = balance * price;
             
             return (
@@ -586,11 +591,11 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                       <SelectContent>
                         {Object.keys(CRYPTO_INFO).map(symbol => {
                           const info = CRYPTO_INFO[symbol as CryptoSymbol];
-                          const price = prices[symbol as CryptoSymbol];
+                          const price = buyPrices[symbol as CryptoSymbol];
                           return (
                             <SelectItem key={symbol} value={symbol}>
                               <div className="flex items-center gap-3">
-                                <span className={`text-xl font-bold ${info.color}`}>{info.emoji}</span>
+                                <img src={info.logo} alt={info.name} className="w-5 h-5 object-contain" />
                                 <span className="font-medium">{symbol}</span>
                                 <span className="text-muted-foreground">- {info.name}</span>
                                 {!priceLoading && (
@@ -664,12 +669,12 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
 
                   <div className="bg-muted/50 rounded-xl p-4 space-y-2">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Курс:</span>
-                      <span className="font-semibold">1 {selectedCrypto} = ${currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                      <span className="text-muted-foreground">Курс покупки:</span>
+                      <span className="font-semibold">1 {selectedCrypto} = ${currentBuyPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">Комиссия сервиса:</span>
-                      <span className="font-semibold text-green-400">0%</span>
+                      <span className="font-semibold text-orange-400">+2%</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">Минимум:</span>
@@ -710,7 +715,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                       <SelectContent>
                         {Object.keys(CRYPTO_INFO).map(symbol => {
                           const info = CRYPTO_INFO[symbol as CryptoSymbol];
-                          const price = prices[symbol as CryptoSymbol];
+                          const price = sellPrices[symbol as CryptoSymbol];
                           return (
                             <SelectItem key={symbol} value={symbol}>
                               <div className="flex items-center gap-3">
@@ -788,12 +793,12 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
 
                   <div className="bg-muted/50 rounded-xl p-4 space-y-2">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Курс:</span>
-                      <span className="font-semibold">1 {selectedCrypto} = ${currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                      <span className="text-muted-foreground">Курс продажи:</span>
+                      <span className="font-semibold">1 {selectedCrypto} = ${currentSellPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">Комиссия сервиса:</span>
-                      <span className="font-semibold text-green-400">0%</span>
+                      <span className="font-semibold text-orange-400">-2%</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">Минимум:</span>
@@ -935,16 +940,22 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
             <div className="space-y-3">
               {(Object.keys(CRYPTO_INFO) as CryptoSymbol[]).map(symbol => {
                 const info = CRYPTO_INFO[symbol];
-                const price = prices[symbol];
+                const buyPrice = buyPrices[symbol];
+                const sellPrice = sellPrices[symbol];
                 return (
                   <div key={symbol} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
                     <div className="flex items-center gap-2">
                       <img src={info.logo} alt={info.name} className="w-4 h-4 object-contain" />
                       <span className="font-medium text-sm">{symbol}</span>
                     </div>
-                    <span className="font-semibold text-sm">
-                      {priceLoading ? '...' : `$${price.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
-                    </span>
+                    <div className="text-right">
+                      <div className="font-semibold text-xs text-green-400">
+                        {priceLoading ? '...' : `↑ $${buyPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
+                      </div>
+                      <div className="font-semibold text-xs text-orange-400">
+                        {priceLoading ? '...' : `↓ $${sellPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
+                      </div>
+                    </div>
                   </div>
                 );
               })}
@@ -967,7 +978,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
               </li>
               <li className="flex items-start gap-2">
                 <Icon name="Check" size={16} className="text-green-400 mt-0.5" />
-                <span>Комиссия 0% (включена в курс +1.5%)</span>
+                <span>Спред покупки/продажи 2%</span>
               </li>
               <li className="flex items-start gap-2">
                 <Icon name="Check" size={16} className="text-green-400 mt-0.5" />
@@ -1019,7 +1030,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Курс {selectedCrypto}:</span>
                 <span className="font-bold text-lg text-green-400">
-                  ${currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  ${confirmAction === 'buy' ? currentBuyPrice.toLocaleString('en-US', { minimumFractionDigits: 2 }) : currentSellPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </span>
               </div>
               
