@@ -131,11 +131,15 @@ export function CryptoDropdown({
 
   const selectedOption = options.find(opt => opt.id === value) || options[0]
 
-  useClickAway(dropdownRef, () => setIsOpen(false))
+  useClickAway(dropdownRef, () => {
+    setIsOpen(false)
+    setHoveredOption(null)
+  })
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") {
       setIsOpen(false)
+      setHoveredOption(null)
     }
   }
 
@@ -221,33 +225,38 @@ export function CryptoDropdown({
                   initial="hidden" 
                   animate="visible"
                 >
-                  <motion.div
-                    layoutId="hover-highlight"
-                    className="absolute inset-x-1 bg-accent rounded-md"
-                    animate={{
-                      y: options.findIndex((opt) => (hoveredOption || selectedOption.id) === opt.id) * 52,
-                      height: 52,
-                    }}
-                    transition={{
-                      type: "spring",
-                      bounce: 0.15,
-                      duration: 0.5,
-                    }}
-                  />
-                  {options.map((option) => (
+                  {hoveredOption && (
+                    <motion.div
+                      layoutId="hover-highlight"
+                      className="absolute inset-x-1 bg-accent rounded-md pointer-events-none"
+                      initial={{ opacity: 0 }}
+                      animate={{
+                        opacity: 1,
+                        y: options.findIndex((opt) => opt.id === hoveredOption) * 52 + 8,
+                        height: 44,
+                      }}
+                      transition={{
+                        type: "spring",
+                        bounce: 0.2,
+                        duration: 0.4,
+                      }}
+                    />
+                  )}
+                  {options.map((option, index) => (
                     <motion.button
                       key={option.id}
                       onClick={() => {
                         onValueChange(option.id)
                         setIsOpen(false)
+                        setHoveredOption(null)
                       }}
-                      onHoverStart={() => setHoveredOption(option.id)}
-                      onHoverEnd={() => setHoveredOption(null)}
+                      onMouseEnter={() => setHoveredOption(option.id)}
+                      onMouseLeave={() => setHoveredOption(null)}
                       className={cn(
                         "relative flex w-full items-center justify-between px-4 py-3 text-sm rounded-md",
                         "transition-colors duration-150",
                         "focus:outline-none",
-                        selectedOption.id === option.id || hoveredOption === option.id
+                        hoveredOption === option.id
                           ? "text-accent-foreground"
                           : "text-muted-foreground",
                       )}
