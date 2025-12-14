@@ -263,12 +263,15 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
           description: `Вы обменяли ${usdt} USDT на ${data.crypto_received} ${selectedCrypto}`
         });
         
-        triggerUserSync();
-        if (onRefreshUserBalance) {
-          onRefreshUserBalance();
-        }
+        // Обновляем баланс через 5 секунд после успешного обмена
+        setTimeout(() => {
+          triggerUserSync();
+          if (onRefreshUserBalance) {
+            onRefreshUserBalance();
+          }
+          loadBalances();
+        }, 5000);
         
-        loadBalances();
         setUsdtAmount('');
         setCryptoAmount('');
       } else {
@@ -353,12 +356,15 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
           description: `Вы обменяли ${crypto} ${selectedCrypto} на ${data.usdt_received} USDT`
         });
         
-        triggerUserSync();
-        if (onRefreshUserBalance) {
-          onRefreshUserBalance();
-        }
+        // Обновляем баланс через 5 секунд после успешного обмена
+        setTimeout(() => {
+          triggerUserSync();
+          if (onRefreshUserBalance) {
+            onRefreshUserBalance();
+          }
+          loadBalances();
+        }, 5000);
         
-        loadBalances();
         setUsdtAmount('');
         setCryptoAmount('');
       } else {
@@ -445,7 +451,11 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
           description: `Вывод ${amount} ${withdrawCrypto} будет обработан в течение 24 часов`
         });
         
-        loadBalances();
+        // Обновляем баланс через 5 секунд после успешного вывода
+        setTimeout(() => {
+          loadBalances();
+        }, 5000);
+        
         setWithdrawAddress('');
         setWithdrawAmount('');
       } else {
