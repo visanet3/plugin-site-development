@@ -93,80 +93,13 @@ const MessagesPanel = ({ open, onOpenChange, userId, userRole, initialRecipientI
     };
   }, [open]);
 
-  useEffect(() => {
-    if (open) {
-      fetchMessages();
-      if (initialRecipientId) {
-        setSelectedChat(initialRecipientId);
-        setShowChatList(false);
-      }
-    }
-  }, [open, initialRecipientId, fetchMessages]);
-
-  useEffect(() => {
-    if (selectedChat && messages.length > 0) {
-      const chatMessages = messages.filter(
-        m => (m.from_user_id === selectedChat && m.to_user_id === userId) ||
-             (m.from_user_id === userId && m.to_user_id === selectedChat)
-      ).sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-      
-      setCurrentChatMessages(chatMessages);
-      scrollToBottom();
-      
-      const selectedChatUser = chatMessages.find(m => m.from_user_id === selectedChat || m.to_user_id === selectedChat);
-      if (selectedChatUser) {
-        const role = selectedChatUser.from_user_id === selectedChat 
-          ? (selectedChatUser as any).from_role 
-          : (selectedChatUser as any).to_role;
-        const lastSeen = selectedChatUser.from_user_id === selectedChat 
-          ? (selectedChatUser as any).from_last_seen 
-          : (selectedChatUser as any).to_last_seen;
-        setSelectedChatUserRole(role || '');
-        setSelectedChatUserLastSeen(lastSeen || '');
-      }
-      
-      chatMessages.forEach(msg => {
-        if (!msg.is_read && msg.to_user_id === userId) {
-          markMessageRead(msg.id);
-        }
-      });
-    }
-  }, [selectedChat, messages]);
-
   const scrollToBottom = () => {
     setTimeout(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }, 100);
   };
 
-  const fetchMessages = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await requestCache.get(
-        `messages:${userId}`,
-        async () => {
-          const response = await fetch(`${NOTIFICATIONS_URL}?action=messages`, {
-            headers: { 'X-User-Id': userId.toString() }
-          });
-          if (response.ok) {
-            return await response.json();
-          }
-          return null;
-        }
-      );
-      
-      if (data) {
-        setMessages(data.messages || []);
-        buildChats(data.messages || []);
-      }
-    } catch (error) {
-      console.error('Failed to fetch messages:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [userId]);
-
-  const buildChats = (allMessages: Message[]) => {
+  const buildChats = useCallback((allMessages: Message[]) => {
     const chatsMap = new Map<number, Chat>();
 
     allMessages.forEach(msg => {
@@ -209,7 +142,76 @@ const MessagesPanel = ({ open, onOpenChange, userId, userRole, initialRecipientI
     );
 
     setChats(chatsList);
-  };
+  }, [userId]);
+
+  const fetchMessages = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await requestCache.get(
+        `messages:${userId}`,
+        async () => {
+          const response = await fetch(`${NOTIFICATIONS_URL}?action=messages`, {
+            headers: { 'X-User-Id': userId.toString() }
+          });
+          if (response.ok) {
+            return await response.json();
+          }
+          return null;
+        }
+      );
+      
+      if (data) {
+        setMessages(data.messages || []);
+        buildChats(data.messages || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch messages:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [userId, buildChats]);
+
+  useEffect(() => {
+    if (open) {
+      fetchMessages();
+      if (initialRecipientId) {
+        setSelectedChat(initialRecipientId);
+        setShowChatList(false);
+      }
+    }
+  }, [open, initialRecipientId, fetchMessages]);
+
+  useEffect(() => {
+    if (selectedChat && messages.length > 0) {
+      const chatMessages = messages.filter(
+        m => (m.from_user_id === selectedChat && m.to_user_id === userId) ||
+             (m.from_user_id === userId && m.to_user_id === selectedChat)
+      ).sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      
+      setCurrentChatMessages(chatMessages);
+      scrollToBottom();
+      
+      const selectedChatUser = chatMessages.find(m => m.from_user_id === selectedChat || m.to_user_id === selectedChat);
+      if (selectedChatUser) {
+        const role = selectedChatUser.from_user_id === selectedChat 
+          ? (selectedChatUser as any).from_role 
+          : (selectedChatUser as any).to_role;
+        const lastSeen = selectedChatUser.from_user_id === selectedChat 
+          ? (selectedChatUser as any).from_last_seen 
+          : (selectedChatUser as any).to_last_seen;
+        setSelectedChatUserRole(role || '');
+        setSelectedChatUserLastSeen(lastSeen || '');
+      }
+      
+      chatMessages.forEach(msg => {
+        if (!msg.is_read && msg.to_user_id === userId) {
+          markMessageRead(msg.id);
+        }
+      });
+    }
+  }, [selectedChat, messages, userId, markMessageRead]);
+
+
 
   const markMessageRead = useCallback(async (messageId: number) => {
     try {
