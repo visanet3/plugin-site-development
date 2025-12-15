@@ -318,15 +318,36 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 if new_status == 'completed':
                     notif_msg = f'Ваша заявка на вывод {withdrawal["amount"]} USDT успешно обработана! Средства отправлены на ваш кошелек.'
+                    notification_type = 'withdrawal_completed'
                 else:
                     notif_msg = f'Ваша заявка на вывод {withdrawal["amount"]} USDT отклонена.'
                     if admin_comment:
                         notif_msg += f' Причина: {admin_comment}'
+                    notification_type = 'withdrawal_rejected'
                 
+                # Добавляем уведомление о выводе (старая таблица)
                 cursor.execute("""
                     INSERT INTO withdrawal_notifications (user_id, withdrawal_id, message)
                     VALUES (%s, %s, %s)
                 """, (withdrawal['user_id'], withdrawal_id, notif_msg))
+                
+                # Добавляем системное уведомление в основную таблицу уведомлений
+                cursor.execute("""
+                    INSERT INTO notifications (user_id, type, title, message, is_read)
+                    VALUES (%s, %s, %s, %s, FALSE)
+                """, (withdrawal['user_id'], notification_type, 'Заявка на вывод обработана', notif_msg))
+                
+                # Отправляем личное сообщение от системы (from_user_id = 1 - система)
+                system_message = notif_msg
+                if admin_comment and new_status == 'rejected':
+                    system_message = f"🔔 Заявка на вывод #{withdrawal_id} отклонена\n\n💰 Сумма: {withdrawal['amount']} USDT\n❌ Причина: {admin_comment}\n\nСредства возвращены на ваш баланс."
+                elif new_status == 'completed':
+                    system_message = f"✅ Заявка на вывод #{withdrawal_id} успешно обработана!\n\n💰 Сумма: {withdrawal['amount']} USDT\n📤 Средства отправлены на ваш кошелек."
+                
+                cursor.execute("""
+                    INSERT INTO messages (from_user_id, to_user_id, message, is_read)
+                    VALUES (1, %s, %s, FALSE)
+                """, (withdrawal['user_id'], system_message))
                 
                 conn.commit()
                 cursor.close()
