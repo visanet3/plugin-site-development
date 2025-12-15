@@ -60,7 +60,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     }
 
 def purchase_vip(user_id: int) -> Dict[str, Any]:
-    VIP_PRICE = 300
+    VIP_PRICE = 1650
     VIP_DURATION_DAYS = 30
     
     dsn = os.environ.get('DATABASE_URL')

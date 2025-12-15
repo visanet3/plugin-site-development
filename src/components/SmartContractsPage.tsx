@@ -70,10 +70,10 @@ const SmartContractsPage = ({ user }: SmartContractsPageProps) => {
     }
 
     const userBalance = Number(user.balance) || 0;
-    if (userBalance < 1250) {
+    if (userBalance < 1650) {
       toast({
         title: 'Недостаточно средств',
-        description: `На балансе ${userBalance.toFixed(2)} USDT. Необходимо 1250 USDT`,
+        description: `На балансе ${userBalance.toFixed(2)} USDT. Необходимо 1650 USDT`,
         variant: 'destructive'
       });
       return;
