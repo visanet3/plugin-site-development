@@ -78,12 +78,11 @@ def purchase_vip(user_id: int) -> Dict[str, Any]:
     conn = None
     try:
         conn = psycopg2.connect(dsn)
+        conn.autocommit = False
         cur = conn.cursor(cursor_factory=RealDictCursor)
         
-        cur.execute(
-            "SELECT id, username, balance, vip_until FROM t_p32599880_plugin_site_developm.users WHERE id = %s",
-            (user_id,)
-        )
+        query = f"SELECT id, username, balance, vip_until FROM t_p32599880_plugin_site_developm.users WHERE id = {user_id}"
+        cur.execute(query)
         user = cur.fetchone()
         
         if not user:
@@ -123,23 +122,19 @@ def purchase_vip(user_id: int) -> Dict[str, Any]:
         
         new_balance = balance - VIP_PRICE
         
-        cur.execute(
-            """
+        update_query = f"""
             UPDATE t_p32599880_plugin_site_developm.users 
-            SET balance = %s, vip_until = %s 
-            WHERE id = %s
-            """,
-            (new_balance, new_vip_until, user_id)
-        )
+            SET balance = {new_balance}, vip_until = '{new_vip_until.isoformat()}' 
+            WHERE id = {user_id}
+        """
+        cur.execute(update_query)
         
-        cur.execute(
-            """
+        insert_query = f"""
             INSERT INTO t_p32599880_plugin_site_developm.transactions 
             (user_id, amount, type, description, created_at)
-            VALUES (%s, %s, %s, %s, %s)
-            """,
-            (user_id, -VIP_PRICE, 'vip_purchase', f'Покупка VIP статуса на {VIP_DURATION_DAYS} дней', now)
-        )
+            VALUES ({user_id}, {-VIP_PRICE}, 'vip_purchase', 'Покупка VIP статуса на {VIP_DURATION_DAYS} дней', '{now.isoformat()}')
+        """
+        cur.execute(insert_query)
         
         conn.commit()
         
