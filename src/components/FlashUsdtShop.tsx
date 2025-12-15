@@ -245,7 +245,7 @@ const FlashUsdtShop = ({ user, onShowAuthDialog, onRefreshUserBalance }: FlashUs
       />
 
       <Dialog open={showVipDialog} onOpenChange={setShowVipDialog}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Покупка VIP статуса</DialogTitle>
           </DialogHeader>
