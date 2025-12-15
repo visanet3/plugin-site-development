@@ -140,11 +140,12 @@ const Index = () => {
       <div className="min-h-screen bg-background text-foreground flex relative" onClick={() => state.setShowSearchResults(false)}>
       {state.showAdminPanel && state.user?.role === 'admin' ? (
         <Suspense fallback={<div className="flex items-center justify-center h-screen w-full"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>}>
-          <AdminPanel currentUser={state.user} onClose={() => state.setShowAdminPanel(false)} />
+          <AdminPanel key={state.user?.id} currentUser={state.user} onClose={() => state.setShowAdminPanel(false)} />
         </Suspense>
       ) : (
         <>
           <IndexLayout 
+            key={state.user?.id} 
             sidebarOpen={state.sidebarOpen}
             authDialogOpen={state.authDialogOpen}
             activeCategory={state.activeCategory}
@@ -227,6 +228,7 @@ const Index = () => {
           <Suspense fallback={null}>
             {state.showUserProfile && state.selectedUserId && state.user && state.selectedUserId === state.user.id ? (
               <UserProfile
+                key={state.user.id}
                 user={state.user}
                 isOwnProfile={true}
                 onClose={() => state.setShowUserProfile(false)}
@@ -244,6 +246,7 @@ const Index = () => {
               />
             ) : (
               <UserProfileDialog
+                key={state.selectedUserId}
                 open={state.showUserProfile}
                 onOpenChange={state.setShowUserProfile}
                 userId={state.selectedUserId}
@@ -264,6 +267,7 @@ const Index = () => {
           {state.user && (
             <Suspense fallback={null}>
               <NotificationsPanel
+                key={`notif-${state.user.id}`}
                 open={state.showNotificationsPanel}
                 onOpenChange={(open) => {
                   state.setShowNotificationsPanel(open);
@@ -279,6 +283,7 @@ const Index = () => {
               />
               
               <MessagesPanel
+                key={`msg-${state.user.id}`}
                 open={state.showMessagesPanel}
                 onOpenChange={(open) => {
                   state.setShowMessagesPanel(open);
@@ -334,7 +339,7 @@ const Index = () => {
 
       {state.user && (
         <Suspense fallback={null}>
-          <DDoSMonitor currentUser={state.user} />
+          <DDoSMonitor key={state.user.id} currentUser={state.user} />
         </Suspense>
       )}
 
