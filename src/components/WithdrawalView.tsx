@@ -116,6 +116,16 @@ export const WithdrawalView = ({ user, onShowAuthDialog, onRefreshUserBalance }:
       return;
     }
 
+    if (user.withdrawal_blocked) {
+      toast({
+        title: 'Вывод средств недоступен',
+        description: user.withdrawal_blocked_reason || 'Вывод в данный момент недоступен для вас, так как пользователь превысил количество пополнений. Во избежание потери денег, обратитесь в поддержку.',
+        variant: 'destructive',
+        duration: 10000
+      });
+      return;
+    }
+
     const amountNum = parseFloat(amount);
 
     const usdtCommission = 5.0;

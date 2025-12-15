@@ -169,6 +169,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 amount = float(amount)
                 
+                # Проверяем, не заблокирован ли вывод для этого пользователя
+                cursor.execute(f'SELECT withdrawal_blocked, withdrawal_blocked_reason FROM {SCHEMA}.users WHERE id = %s', (user_id,))
+                withdrawal_check = cursor.fetchone()
+                
+                if withdrawal_check and withdrawal_check['withdrawal_blocked']:
+                    cursor.close()
+                    reason = withdrawal_check.get('withdrawal_blocked_reason') or 'Вывод в данный момент недоступен для вас. Обратитесь в поддержку.'
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': reason}),
+                        'isBase64Encoded': False
+                    }
+                
                 # Комиссия за вывод USDT
                 usdt_commission = 5.0
                 

@@ -39,6 +39,10 @@ export interface User {
   is_verified?: boolean;
   last_seen_at?: string | null;
   last_ip?: string | null;
+  withdrawal_blocked?: boolean;
+  withdrawal_blocked_reason?: string;
+  withdrawal_blocked_at?: string;
+  withdrawal_blocked_by?: number;
 }
 
 export interface ForumCategory {
