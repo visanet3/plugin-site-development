@@ -345,7 +345,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     VALUES (%s, %s, %s, %s, FALSE)
                 """, (withdrawal['user_id'], notification_type, 'Заявка на вывод обработана', notif_msg))
                 
-                # Отправляем личное сообщение от системы (from_user_id = 1 - система)
+                # Отправляем личное сообщение от администратора
                 system_subject = 'Заявка на вывод обработана'
                 system_content = notif_msg
                 if admin_comment and new_status == 'rejected':
@@ -355,8 +355,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 cursor.execute(f"""
                     INSERT INTO {SCHEMA}.messages (from_user_id, to_user_id, subject, content, is_read)
-                    VALUES (1, %s, %s, %s, FALSE)
-                """, (withdrawal['user_id'], system_subject, system_content))
+                    VALUES (%s, %s, %s, %s, FALSE)
+                """, (user_id, withdrawal['user_id'], system_subject, system_content))
                 
                 conn.commit()
                 cursor.close()
@@ -411,7 +411,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     
                     cursor.execute(f"""
                         SELECT COUNT(*) as count FROM {SCHEMA}.messages 
-                        WHERE from_user_id = 1 AND to_user_id = %s 
+                        WHERE to_user_id = %s 
                         AND content LIKE %s
                     """, (wr_user_id, f'%заявка на вывод #{withdrawal_id}%'))
                     
@@ -425,8 +425,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         
                         cursor.execute(f"""
                             INSERT INTO {SCHEMA}.messages (from_user_id, to_user_id, subject, content, is_read)
-                            VALUES (1, %s, %s, %s, FALSE)
-                        """, (wr_user_id, 'Заявка на вывод обработана', system_message))
+                            VALUES (%s, %s, %s, %s, FALSE)
+                        """, (user_id, wr_user_id, 'Заявка на вывод обработана', system_message))
                         
                         notifications_sent += 1
                 
