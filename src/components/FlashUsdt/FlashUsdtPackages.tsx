@@ -15,15 +15,18 @@ export interface Package {
   popular: boolean;
   soldOut?: boolean;
   soldOutDate?: string;
+  vipOnly?: boolean;
 }
 
 interface FlashUsdtPackagesProps {
   packages: Package[];
   onPurchase: (pkg: Package) => void;
   selectedPackageId?: number | null;
+  userHasVip?: boolean;
+  onBuyVip?: () => void;
 }
 
-export const FlashUsdtPackages = ({ packages, onPurchase, selectedPackageId }: FlashUsdtPackagesProps) => {
+export const FlashUsdtPackages = ({ packages, onPurchase, selectedPackageId, userHasVip, onBuyVip }: FlashUsdtPackagesProps) => {
   return (
     <div>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mb-3 sm:mb-4 md:mb-6">
@@ -65,6 +68,14 @@ export const FlashUsdtPackages = ({ packages, onPurchase, selectedPackageId }: F
                 <Badge className="bg-red-500 text-white rounded-tl-none rounded-br-none text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1">
                   <Icon name="X" size={12} className="mr-0.5 sm:mr-1 sm:w-[14px] sm:h-[14px]" />
                   Распродано
+                </Badge>
+              </div>
+            )}
+            {pkg.vipOnly && !pkg.soldOut && (
+              <div className="absolute top-0 left-0 z-10">
+                <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-black rounded-tr-none rounded-bl-none text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 font-bold">
+                  <Icon name="Crown" size={12} className="mr-0.5 sm:mr-1 sm:w-[14px] sm:h-[14px]" />
+                  VIP
                 </Badge>
               </div>
             )}
@@ -173,6 +184,27 @@ export const FlashUsdtPackages = ({ packages, onPurchase, selectedPackageId }: F
                       Последний пакет выкуплен: {pkg.soldOutDate}
                     </p>
                   )}
+                </div>
+              ) : pkg.vipOnly && !userHasVip ? (
+                <div className="space-y-2">
+                  <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 rounded-lg p-2 sm:p-3">
+                    <div className="flex items-start gap-2">
+                      <Icon name="Crown" size={16} className="text-yellow-500 shrink-0 mt-0.5 sm:w-5 sm:h-5" />
+                      <div className="text-[10px] sm:text-xs">
+                        <p className="font-semibold text-yellow-500 mb-1">Требуется VIP статус</p>
+                        <p className="text-muted-foreground leading-relaxed">
+                          Этот пакет доступен только для VIP-пользователей
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={onBuyVip}
+                    className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-bold text-xs sm:text-sm md:text-base py-2 sm:py-2.5"
+                  >
+                    <Icon name="Crown" size={14} className="mr-1.5 sm:mr-2 sm:w-4 sm:h-4" />
+                    Купить VIP
+                  </Button>
                 </div>
               ) : (
                 <Button

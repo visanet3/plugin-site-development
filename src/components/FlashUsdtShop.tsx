@@ -21,6 +21,12 @@ const FlashUsdtShop = ({ user, onShowAuthDialog, onRefreshUserBalance }: FlashUs
   const [walletAddress, setWalletAddress] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const userHasVip = user?.vip_until ? new Date(user.vip_until) > new Date() : false;
+
+  const handleBuyVip = () => {
+    window.open('/vip', '_blank');
+  };
+
   const packages: Package[] = [
     {
       id: 1,
@@ -42,7 +48,8 @@ const FlashUsdtShop = ({ user, onShowAuthDialog, onRefreshUserBalance }: FlashUs
       color: 'from-purple-600 to-purple-800',
       borderColor: 'border-purple-500/30',
       icon: 'Boxes',
-      popular: true
+      popular: true,
+      vipOnly: true
     },
     {
       id: 3,
@@ -211,6 +218,8 @@ const FlashUsdtShop = ({ user, onShowAuthDialog, onRefreshUserBalance }: FlashUs
           packages={packages}
           onPurchase={handlePurchase}
           selectedPackageId={selectedPackage?.id}
+          userHasVip={userHasVip}
+          onBuyVip={handleBuyVip}
         />
 
       <FlashUsdtPurchaseDialog
