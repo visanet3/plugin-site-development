@@ -174,7 +174,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             if action == 'users':
                 cur.execute(f"""
-                    SELECT id, username, email, role, forum_role, is_blocked, balance, btc_balance, created_at, last_seen_at, last_ip 
+                    SELECT id, username, email, role, forum_role, is_blocked, balance, btc_balance, 
+                           eth_balance, bnb_balance, sol_balance, xrp_balance, trx_balance,
+                           created_at, last_seen_at, last_ip, is_verified
                     FROM {SCHEMA}.users 
                     WHERE username NOT LIKE '[DELETED_%'
                     ORDER BY created_at DESC 
@@ -735,12 +737,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 # Маппинг символов токенов к полям БД
                 token_fields = {
-                    'USDT': 'token_usdt',
-                    'BTC': 'token_btc',
-                    'ETH': 'token_eth',
-                    'TRX': 'token_trx',
-                    'TON': 'token_ton',
-                    'SOL': 'token_sol'
+                    'USDT': 'balance',
+                    'BTC': 'btc_balance',
+                    'ETH': 'eth_balance',
+                    'BNB': 'bnb_balance',
+                    'SOL': 'sol_balance',
+                    'XRP': 'xrp_balance',
+                    'TRX': 'trx_balance'
                 }
                 
                 if token_symbol not in token_fields:

@@ -11,16 +11,17 @@ interface AdminExchangeTabProps {
 
 const AdminExchangeTab = ({ users, onManageToken }: AdminExchangeTabProps) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'username' | 'usdt' | 'btc' | 'eth' | 'ton'>('username');
+  const [sortBy, setSortBy] = useState<'username' | 'usdt' | 'btc' | 'eth' | 'bnb' | 'sol' | 'xrp' | 'trx'>('username');
 
   // Токены для отображения
   const tokens = [
-    { symbol: 'USDT', field: 'token_usdt' as keyof User, color: 'text-emerald-500', precision: 2 },
-    { symbol: 'BTC', field: 'token_btc' as keyof User, color: 'text-orange-500', precision: 8 },
-    { symbol: 'ETH', field: 'token_eth' as keyof User, color: 'text-blue-500', precision: 6 },
-    { symbol: 'TRX', field: 'token_trx' as keyof User, color: 'text-red-500', precision: 2 },
-    { symbol: 'TON', field: 'token_ton' as keyof User, color: 'text-cyan-500', precision: 2 },
-    { symbol: 'SOL', field: 'token_sol' as keyof User, color: 'text-purple-500', precision: 4 },
+    { symbol: 'USDT', field: 'balance' as keyof User, color: 'text-emerald-500', precision: 2 },
+    { symbol: 'BTC', field: 'btc_balance' as keyof User, color: 'text-orange-500', precision: 8 },
+    { symbol: 'ETH', field: 'eth_balance' as keyof User, color: 'text-blue-500', precision: 6 },
+    { symbol: 'BNB', field: 'bnb_balance' as keyof User, color: 'text-yellow-500', precision: 5 },
+    { symbol: 'SOL', field: 'sol_balance' as keyof User, color: 'text-purple-500', precision: 5 },
+    { symbol: 'XRP', field: 'xrp_balance' as keyof User, color: 'text-cyan-400', precision: 4 },
+    { symbol: 'TRX', field: 'trx_balance' as keyof User, color: 'text-red-500', precision: 2 },
   ];
 
   // Подсчет общих балансов
@@ -44,7 +45,17 @@ const AdminExchangeTab = ({ users, onManageToken }: AdminExchangeTabProps) => {
     if (sortBy === 'username') {
       return a.username.localeCompare(b.username);
     }
-    const tokenField = `token_${sortBy}` as keyof User;
+    // Маппинг сортировки на поля
+    const fieldMap: Record<string, keyof User> = {
+      'usdt': 'balance',
+      'btc': 'btc_balance',
+      'eth': 'eth_balance',
+      'bnb': 'bnb_balance',
+      'sol': 'sol_balance',
+      'xrp': 'xrp_balance',
+      'trx': 'trx_balance'
+    };
+    const tokenField = fieldMap[sortBy];
     const aBalance = Number(a[tokenField]) || 0;
     const bBalance = Number(b[tokenField]) || 0;
     return bBalance - aBalance; // По убыванию
@@ -98,7 +109,10 @@ const AdminExchangeTab = ({ users, onManageToken }: AdminExchangeTabProps) => {
           <option value="usdt">По USDT</option>
           <option value="btc">По BTC</option>
           <option value="eth">По ETH</option>
-          <option value="ton">По TON</option>
+          <option value="bnb">По BNB</option>
+          <option value="sol">По SOL</option>
+          <option value="xrp">По XRP</option>
+          <option value="trx">По TRX</option>
         </select>
       </div>
 
