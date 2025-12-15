@@ -50,17 +50,20 @@ const AdminExchangeTab = ({ users, onManageToken }: AdminExchangeTabProps) => {
     return bBalance - aBalance; // По убыванию
   });
 
-  // Фильтруем только тех у кого есть хоть какой-то баланс
-  const usersWithBalance = sortedUsers.filter(user => 
+  // Показываем всех пользователей (токены могут быть 0 или undefined)
+  const usersWithBalance = sortedUsers;
+  
+  // Подсчет пользователей с реальным балансом токенов
+  const usersWithRealBalance = sortedUsers.filter(user => 
     tokens.some(token => Number(user[token.field]) > 0)
-  );
+  ).length;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Обменник - Управление балансами</h2>
         <div className="text-sm text-muted-foreground">
-          Пользователей с балансом: {usersWithBalance.length}
+          Всего пользователей: {usersWithBalance.length} | С балансом токенов: {usersWithRealBalance}
         </div>
       </div>
 
@@ -122,7 +125,7 @@ const AdminExchangeTab = ({ users, onManageToken }: AdminExchangeTabProps) => {
               {usersWithBalance.length === 0 ? (
                 <tr>
                   <td colSpan={tokens.length + 2} className="px-4 py-8 text-center text-muted-foreground">
-                    {searchQuery ? 'Пользователи не найдены' : 'Нет пользователей с балансом'}
+                    {searchQuery ? 'Пользователи не найдены' : 'Нет пользователей'}
                   </td>
                 </tr>
               ) : (
@@ -178,9 +181,9 @@ const AdminExchangeTab = ({ users, onManageToken }: AdminExchangeTabProps) => {
         <div className="bg-card/30 rounded-lg p-4 border border-border/50">
           <div className="flex items-center gap-2 mb-2">
             <Icon name="Users" size={16} className="text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Активных пользователей</span>
+            <span className="text-sm text-muted-foreground">Пользователей с балансом</span>
           </div>
-          <div className="text-2xl font-bold">{usersWithBalance.length}</div>
+          <div className="text-2xl font-bold">{usersWithRealBalance}</div>
         </div>
         
         <div className="bg-card/30 rounded-lg p-4 border border-border/50">
