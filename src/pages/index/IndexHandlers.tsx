@@ -1,5 +1,6 @@
 import { User } from '@/types';
 import { useNavigate } from 'react-router-dom';
+import { userSyncManager } from '@/utils/userSync';
 
 const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
 
@@ -53,10 +54,17 @@ export const useIndexHandlers = ({
       const data = await response.json();
       
       if (data.success) {
-        setUser(data.user);
+        userSyncManager.clearCache();
+        
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('token', data.token);
+        
+        setUser(data.user);
+        
+        await userSyncManager.forceSyncImmediate();
+        
         setAuthDialogOpen(false);
+        
         toast({
           title: 'Успешно',
           description: authMode === 'login' ? 'Вы вошли в систему' : 'Регистрация успешно завершена'
@@ -81,9 +89,12 @@ export const useIndexHandlers = ({
   const handleLogout = () => {
     const confirmed = window.confirm('Вы точно хотите выйти из аккаунта?');
     if (confirmed) {
+      userSyncManager.clearCache();
+      
       setUser(null);
       localStorage.removeItem('user');
       localStorage.removeItem('token');
+      
       toast({
         title: 'Выход выполнен',
         description: 'Вы вышли из аккаунта'

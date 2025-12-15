@@ -79,6 +79,12 @@ class UserSyncManager {
     this.lastSync = 0;
     return this.syncUser(true);
   }
+
+  clearCache() {
+    this.cachedUser = null;
+    this.lastSync = 0;
+    this.syncInProgress = false;
+  }
 }
 
 export const userSyncManager = new UserSyncManager();
