@@ -74,8 +74,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             action = params.get('action', 'my_withdrawals')
             
             if action == 'my_withdrawals':
-                cursor.execute("""
-                    SELECT * FROM withdrawal_requests
+                cursor.execute(f"""
+                    SELECT * FROM {SCHEMA}.withdrawal_requests
                     WHERE user_id = %s
                     ORDER BY created_at DESC
                 """, (user_id,))
@@ -91,7 +91,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             elif action == 'all_withdrawals':
-                cursor.execute('SELECT role FROM users WHERE id = %s', (user_id,))
+                cursor.execute(f'SELECT role FROM {SCHEMA}.users WHERE id = %s', (user_id,))
                 user_role = cursor.fetchone()
                 
                 if not user_role or user_role['role'] != 'admin':
@@ -106,18 +106,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 status_filter = params.get('status', 'all')
                 
                 if status_filter == 'all':
-                    query = """
+                    query = f"""
                         SELECT wr.*, u.username, u.email
-                        FROM withdrawal_requests wr
-                        LEFT JOIN users u ON wr.user_id = u.id
+                        FROM {SCHEMA}.withdrawal_requests wr
+                        LEFT JOIN {SCHEMA}.users u ON wr.user_id = u.id
                         ORDER BY wr.created_at DESC
                     """
                     cursor.execute(query)
                 else:
-                    query = """
+                    query = f"""
                         SELECT wr.*, u.username, u.email
-                        FROM withdrawal_requests wr
-                        LEFT JOIN users u ON wr.user_id = u.id
+                        FROM {SCHEMA}.withdrawal_requests wr
+                        LEFT JOIN {SCHEMA}.users u ON wr.user_id = u.id
                         WHERE wr.status = %s
                         ORDER BY wr.created_at DESC
                     """
@@ -134,8 +134,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             elif action == 'get_notifications':
-                cursor.execute("""
-                    SELECT * FROM withdrawal_notifications
+                cursor.execute(f"""
+                    SELECT * FROM {SCHEMA}.withdrawal_notifications
                     WHERE user_id = %s AND is_read = false
                     ORDER BY created_at DESC
                 """, (user_id,))
@@ -181,7 +181,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'isBase64Encoded': False
                     }
                 
-                cursor.execute('SELECT balance, username FROM users WHERE id = %s', (user_id,))
+                cursor.execute(f'SELECT balance, username FROM {SCHEMA}.users WHERE id = %s', (user_id,))
                 user = cursor.fetchone()
                 
                 # Проверяем, достаточно ли средств с учётом комиссии
@@ -196,36 +196,36 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
                 
                 # Списываем сумму + комиссию
-                cursor.execute('UPDATE users SET balance = balance - %s WHERE id = %s', (total_required, user_id))
+                cursor.execute(f'UPDATE {SCHEMA}.users SET balance = balance - %s WHERE id = %s', (total_required, user_id))
                 
                 # Устанавливаем expires_at на 1 час от создания
                 from datetime import timedelta
                 expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
                 
-                cursor.execute("""
-                    INSERT INTO withdrawal_requests (user_id, amount, usdt_wallet, status, expires_at)
+                cursor.execute(f"""
+                    INSERT INTO {SCHEMA}.withdrawal_requests (user_id, amount, usdt_wallet, status, expires_at)
                     VALUES (%s, %s, %s, 'processing', %s)
                     RETURNING id
                 """, (user_id, amount, usdt_wallet, expires_at))
                 
                 withdrawal_id = cursor.fetchone()['id']
                 
-                cursor.execute("""
-                    INSERT INTO transactions (user_id, amount, type, description)
+                cursor.execute(f"""
+                    INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description)
                     VALUES (%s, %s, 'withdrawal_request', %s)
                 """, (user_id, -total_required, f'Заявка на вывод {amount} USDT (комиссия: {usdt_commission} USDT)'))
                 
-                cursor.execute("""
-                    INSERT INTO withdrawal_notifications (user_id, withdrawal_id, message)
+                cursor.execute(f"""
+                    INSERT INTO {SCHEMA}.withdrawal_notifications (user_id, withdrawal_id, message)
                     VALUES (%s, %s, %s)
                 """, (user_id, withdrawal_id, f'Ваша заявка на вывод {amount} USDT находится в обработке (комиссия {usdt_commission} USDT уже списана). Пожалуйста, ожидайте.'))
                 
-                cursor.execute('SELECT username FROM users WHERE id = %s', (user_id,))
+                cursor.execute(f'SELECT username FROM {SCHEMA}.users WHERE id = %s', (user_id,))
                 user_info = cursor.fetchone()
                 username = user_info['username'] if user_info else f"ID {user_id}"
                 
-                cursor.execute("""
-                    INSERT INTO admin_notifications (type, title, message, related_id, related_type)
+                cursor.execute(f"""
+                    INSERT INTO {SCHEMA}.admin_notifications (type, title, message, related_id, related_type)
                     VALUES (%s, %s, %s, %s, %s)
                 """, ('withdrawal_request', '💸 Заявка на вывод', f"Пользователь {username} создал заявку на вывод {amount} USDT", withdrawal_id, 'withdrawal'))
                 
@@ -248,7 +248,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             elif action == 'process_withdrawal':
-                cursor.execute('SELECT role FROM users WHERE id = %s', (user_id,))
+                cursor.execute(f'SELECT role FROM {SCHEMA}.users WHERE id = %s', (user_id,))
                 user_role = cursor.fetchone()
                 
                 if not user_role or user_role['role'] != 'admin':
@@ -273,8 +273,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'isBase64Encoded': False
                     }
                 
-                cursor.execute("""
-                    SELECT user_id, amount, status, usdt_wallet FROM withdrawal_requests
+                cursor.execute(f"""
+                    SELECT user_id, amount, status, usdt_wallet FROM {SCHEMA}.withdrawal_requests
                     WHERE id = %s
                 """, (withdrawal_id,))
                 
@@ -303,22 +303,22 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     usdt_commission = 5.0
                     refund_amount = float(withdrawal['amount']) + usdt_commission
                     
-                    cursor.execute('UPDATE users SET balance = balance + %s WHERE id = %s', 
+                    cursor.execute(f'UPDATE {SCHEMA}.users SET balance = balance + %s WHERE id = %s', 
                                  (refund_amount, withdrawal['user_id']))
                     
-                    cursor.execute("""
-                        INSERT INTO transactions (user_id, amount, type, description)
+                    cursor.execute(f"""
+                        INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description)
                         VALUES (%s, %s, 'withdrawal_rejected', %s)
                     """, (withdrawal['user_id'], refund_amount, f'Возврат средств (заявка #{withdrawal_id} отклонена, адрес: {withdrawal["usdt_wallet"]}, вкл. комиссию {usdt_commission} USDT)'))
                 elif new_status == 'completed':
                     # При успешном выводе добавляем запись в историю транзакций
-                    cursor.execute("""
-                        INSERT INTO transactions (user_id, amount, type, description)
+                    cursor.execute(f"""
+                        INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description)
                         VALUES (%s, %s, 'withdrawal_completed', %s)
                     """, (withdrawal['user_id'], -float(withdrawal['amount']), f'Вывод {withdrawal["amount"]} USDT на адрес {withdrawal["usdt_wallet"]} (заявка #{withdrawal_id})'))
                 
-                cursor.execute("""
-                    UPDATE withdrawal_requests
+                cursor.execute(f"""
+                    UPDATE {SCHEMA}.withdrawal_requests
                     SET status = %s, admin_comment = %s, processed_by = %s, 
                         completed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
                     WHERE id = %s
@@ -334,8 +334,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     notification_type = 'withdrawal_rejected'
                 
                 # Добавляем уведомление о выводе (старая таблица)
-                cursor.execute("""
-                    INSERT INTO withdrawal_notifications (user_id, withdrawal_id, message)
+                cursor.execute(f"""
+                    INSERT INTO {SCHEMA}.withdrawal_notifications (user_id, withdrawal_id, message)
                     VALUES (%s, %s, %s)
                 """, (withdrawal['user_id'], withdrawal_id, notif_msg))
                 
@@ -368,7 +368,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             elif action == 'send_historical_notifications':
-                cursor.execute('SELECT role FROM users WHERE id = %s', (user_id,))
+                cursor.execute(f'SELECT role FROM {SCHEMA}.users WHERE id = %s', (user_id,))
                 user_role = cursor.fetchone()
                 
                 if not user_role or user_role['role'] != 'admin':
@@ -440,8 +440,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             elif action == 'mark_notifications_read':
-                cursor.execute("""
-                    UPDATE withdrawal_notifications
+                cursor.execute(f"""
+                    UPDATE {SCHEMA}.withdrawal_notifications
                     SET is_read = true
                     WHERE user_id = %s AND is_read = false
                 """, (user_id,))
