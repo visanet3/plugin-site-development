@@ -7,6 +7,13 @@ import { FlashUsdtInfo } from './FlashUsdt/FlashUsdtInfo';
 import { FlashUsdtPackages, type Package } from './FlashUsdt/FlashUsdtPackages';
 import { FlashUsdtPurchaseDialog } from './FlashUsdt/FlashUsdtPurchaseDialog';
 import { Waves } from '@/components/ui/wave-background';
+import VipTonPurchase from '@/components/VipTonPurchase';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface FlashUsdtShopProps {
   user: User | null;
@@ -20,11 +27,16 @@ const FlashUsdtShop = ({ user, onShowAuthDialog, onRefreshUserBalance }: FlashUs
   const [showPurchaseDialog, setShowPurchaseDialog] = useState(false);
   const [walletAddress, setWalletAddress] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showVipDialog, setShowVipDialog] = useState(false);
 
   const userHasVip = user?.vip_until ? new Date(user.vip_until) > new Date() : false;
 
   const handleBuyVip = () => {
-    window.open('/vip', '_blank');
+    if (!user) {
+      onShowAuthDialog();
+      return;
+    }
+    setShowVipDialog(true);
   };
 
   const packages: Package[] = [
@@ -231,6 +243,15 @@ const FlashUsdtShop = ({ user, onShowAuthDialog, onRefreshUserBalance }: FlashUs
         onWalletAddressChange={setWalletAddress}
         onConfirmPurchase={handleConfirmPurchase}
       />
+
+      <Dialog open={showVipDialog} onOpenChange={setShowVipDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Покупка VIP статуса</DialogTitle>
+          </DialogHeader>
+          <VipTonPurchase user={user} onShowAuthDialog={onShowAuthDialog} />
+        </DialogContent>
+      </Dialog>
       </div>
     </div>
   );

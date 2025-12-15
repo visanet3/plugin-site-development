@@ -13,9 +13,10 @@ import AdminFlashUsdtTab from '@/components/admin/AdminFlashUsdtTab';
 import AdminFlashBtcTab from '@/components/admin/AdminFlashBtcTab';
 import AdminDealsSection from '@/components/admin/AdminDealsSection';
 import AdminWithdrawalControl from '@/components/AdminWithdrawalControl';
+import AdminVipTonTab from '@/components/admin/AdminVipTonTab';
 
 interface AdminPanelContentProps {
-  activeTab: 'users' | 'topics' | 'disputes' | 'deposits' | 'withdrawals' | 'btc-withdrawals' | 'flash-usdt' | 'flash-btc' | 'tickets' | 'verification' | 'forum-categories' | 'deals' | 'withdrawal-control';
+  activeTab: 'users' | 'topics' | 'disputes' | 'deposits' | 'withdrawals' | 'btc-withdrawals' | 'flash-usdt' | 'flash-btc' | 'tickets' | 'verification' | 'forum-categories' | 'deals' | 'withdrawal-control' | 'vip-ton';
   deals: any[];
   users: User[];
   topics: ForumTopic[];
@@ -173,6 +174,13 @@ const AdminPanelContent = ({
       {activeTab === 'withdrawal-control' && (
         <AdminWithdrawalControl 
           user={currentUser}
+        />
+      )}
+
+      {activeTab === 'vip-ton' && (
+        <AdminVipTonTab 
+          currentUser={currentUser}
+          onRefresh={() => {}}
         />
       )}
     </div>
