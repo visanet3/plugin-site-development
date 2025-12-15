@@ -12,6 +12,8 @@ from datetime import datetime, timezone
 from typing import Dict, Any
 import requests
 
+SCHEMA = 't_p32599880_plugin_site_developm'
+
 def send_telegram_notification(event_type: str, user_info: Dict, details: Dict):
     '''Send notification to admin via Telegram'''
     try:
@@ -338,8 +340,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 """, (withdrawal['user_id'], withdrawal_id, notif_msg))
                 
                 # Добавляем системное уведомление в основную таблицу уведомлений
-                cursor.execute("""
-                    INSERT INTO notifications (user_id, type, title, message, is_read)
+                cursor.execute(f"""
+                    INSERT INTO {SCHEMA}.notifications (user_id, type, title, message, is_read)
                     VALUES (%s, %s, %s, %s, FALSE)
                 """, (withdrawal['user_id'], notification_type, 'Заявка на вывод обработана', notif_msg))
                 
@@ -350,8 +352,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 elif new_status == 'completed':
                     system_message = f"✅ Заявка на вывод #{withdrawal_id} успешно обработана!\n\n💰 Сумма: {withdrawal['amount']} USDT\n📍 Адрес: {withdrawal['usdt_wallet']}\n📤 Средства отправлены на ваш кошелек."
                 
-                cursor.execute("""
-                    INSERT INTO messages (from_user_id, to_user_id, message, is_read)
+                cursor.execute(f"""
+                    INSERT INTO {SCHEMA}.messages (from_user_id, to_user_id, message, is_read)
                     VALUES (1, %s, %s, FALSE)
                 """, (withdrawal['user_id'], system_message))
                 
