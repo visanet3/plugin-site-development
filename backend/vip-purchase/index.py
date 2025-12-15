@@ -2,7 +2,8 @@ import json
 import os
 from datetime import datetime, timedelta
 from typing import Dict, Any
-import pg8000.native
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
@@ -59,7 +60,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     }
 
 def purchase_vip(user_id: int) -> Dict[str, Any]:
-    VIP_PRICE = 1650
+    VIP_PRICE = 300
     VIP_DURATION_DAYS = 30
     
     dsn = os.environ.get('DATABASE_URL')
@@ -74,28 +75,18 @@ def purchase_vip(user_id: int) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
+    conn = None
     try:
-        from urllib.parse import urlparse
-        print(f"[DEBUG] Connecting to database with DSN: {dsn[:30]}...")
-        parsed = urlparse(dsn)
+        conn = psycopg2.connect(dsn)
+        cur = conn.cursor(cursor_factory=RealDictCursor)
         
-        print(f"[DEBUG] Parsed - host: {parsed.hostname}, port: {parsed.port}, db: {parsed.path[1:] if parsed.path else 'postgres'}")
-        conn = pg8000.native.Connection(
-            user=parsed.username,
-            password=parsed.password,
-            host=parsed.hostname,
-            port=parsed.port or 5432,
-            database=parsed.path[1:] if parsed.path else 'postgres'
+        cur.execute(
+            "SELECT id, username, balance, vip_until FROM t_p32599880_plugin_site_developm.users WHERE id = %s",
+            (user_id,)
         )
-        print("[DEBUG] Database connection established")
+        user = cur.fetchone()
         
-        query = f"SELECT id, username, balance, vip_until FROM t_p32599880_plugin_site_developm.users WHERE id = {user_id}"
-        print(f"[DEBUG] Executing query: {query}")
-        rows = conn.run(query)
-        print(f"[DEBUG] Query returned {len(rows)} rows")
-        
-        if not rows:
-            conn.close()
+        if not user:
             return {
                 'statusCode': 404,
                 'headers': {
@@ -106,12 +97,9 @@ def purchase_vip(user_id: int) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
-        user = rows[0]
-        balance = float(user[2] or 0)
-
+        balance = float(user['balance'] or 0)
         
         if balance < VIP_PRICE:
-            conn.close()
             return {
                 'statusCode': 400,
                 'headers': {
@@ -126,7 +114,7 @@ def purchase_vip(user_id: int) -> Dict[str, Any]:
             }
         
         now = datetime.utcnow()
-        current_vip_until = user[3]
+        current_vip_until = user['vip_until']
         
         if current_vip_until and current_vip_until > now:
             new_vip_until = current_vip_until + timedelta(days=VIP_DURATION_DAYS)
@@ -135,21 +123,25 @@ def purchase_vip(user_id: int) -> Dict[str, Any]:
         
         new_balance = balance - VIP_PRICE
         
-        update_query = f"""
+        cur.execute(
+            """
             UPDATE t_p32599880_plugin_site_developm.users 
-            SET balance = {new_balance}, vip_until = '{new_vip_until.isoformat()}' 
-            WHERE id = {user_id}
-        """
-        conn.run(update_query)
+            SET balance = %s, vip_until = %s 
+            WHERE id = %s
+            """,
+            (new_balance, new_vip_until, user_id)
+        )
         
-        insert_query = f"""
+        cur.execute(
+            """
             INSERT INTO t_p32599880_plugin_site_developm.transactions 
             (user_id, amount, type, description, created_at)
-            VALUES ({user_id}, {-VIP_PRICE}, 'vip_purchase', 'Покупка VIP статуса на {VIP_DURATION_DAYS} дней', '{now.isoformat()}')
-        """
-        conn.run(insert_query)
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (user_id, -VIP_PRICE, 'vip_purchase', f'Покупка VIP статуса на {VIP_DURATION_DAYS} дней', now)
+        )
         
-        conn.close()
+        conn.commit()
         
         return {
             'statusCode': 200,
@@ -167,9 +159,8 @@ def purchase_vip(user_id: int) -> Dict[str, Any]:
         }
         
     except Exception as e:
-        print(f"[ERROR] Exception occurred: {type(e).__name__}: {str(e)}")
-        import traceback
-        print(f"[ERROR] Traceback: {traceback.format_exc()}")
+        if conn:
+            conn.rollback()
         return {
             'statusCode': 500,
             'headers': {
@@ -179,3 +170,7 @@ def purchase_vip(user_id: int) -> Dict[str, Any]:
             'body': json.dumps({'success': False, 'error': str(e)}),
             'isBase64Encoded': False
         }
+    finally:
+        if conn:
+            cur.close()
+            conn.close()

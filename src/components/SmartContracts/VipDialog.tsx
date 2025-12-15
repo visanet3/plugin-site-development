@@ -29,7 +29,7 @@ const VipDialog = ({ open, onOpenChange, user, isPurchasing, onPurchase }: VipDi
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">Стоимость:</span>
-                <span className="text-xl font-bold text-amber-400">1650 USDT</span>
+                <span className="text-xl font-bold text-amber-400">1250 USDT</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">Срок действия:</span>
@@ -37,7 +37,7 @@ const VipDialog = ({ open, onOpenChange, user, isPurchasing, onPurchase }: VipDi
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">Ваш баланс:</span>
-                <span className={`font-bold ${userBalance >= 1650 ? 'text-green-400' : 'text-red-400'}`}>
+                <span className={`font-bold ${userBalance >= 1250 ? 'text-green-400' : 'text-red-400'}`}>
                   {userBalance.toFixed(2)} USDT
                 </span>
               </div>
@@ -61,21 +61,21 @@ const VipDialog = ({ open, onOpenChange, user, isPurchasing, onPurchase }: VipDi
             </ul>
           </div>
 
-          {userBalance < 1650 && (
+          {userBalance < 1250 && (
             <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
               <p className="text-red-400 text-sm flex items-start gap-2">
                 <Icon name="AlertCircle" size={18} className="flex-shrink-0 mt-0.5" />
-                <span>Недостаточно средств. Пополните баланс на {(1650 - userBalance).toFixed(2)} USDT</span>
+                <span>Недостаточно средств. Пополните баланс на {(1250 - userBalance).toFixed(2)} USDT</span>
               </p>
             </div>
           )}
 
           <Button
             onClick={onPurchase}
-            disabled={isPurchasing || userBalance < 1650}
+            disabled={isPurchasing || userBalance < 1250}
             className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold"
           >
-            {isPurchasing ? 'Обработка...' : 'Купить VIP за 1650 USDT'}
+            {isPurchasing ? 'Обработка...' : 'Купить VIP за 1250 USDT'}
           </Button>
         </div>
       </DialogContent>
