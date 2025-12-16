@@ -385,11 +385,11 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
         seller: '📢 Ожидание покупателя',
         buyer: '🛒 Вы можете купить этот товар'
       },
-      buyer_paid: {
+      seller_sending: {
         seller: '💰 Покупатель оплатил. Передайте товар',
         buyer: '⏳ Ожидайте передачи товара от продавца'
       },
-      seller_sent: {
+      buyer_confirming: {
         seller: '📦 Ожидайте подтверждения от покупателя',
         buyer: '✅ Проверьте товар и подтвердите получение'
       },
@@ -983,7 +983,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                   </Button>
                 )}
 
-                {selectedDeal.step === 'buyer_paid' && user && Number(user.id) === Number(selectedDeal.seller_id) && (
+                {selectedDeal.step === 'seller_sending' && user && Number(user.id) === Number(selectedDeal.seller_id) && (
                   <Button
                     onClick={handleSellerSent}
                     disabled={actionLoading}
@@ -994,7 +994,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
                   </Button>
                 )}
 
-                {selectedDeal.step === 'seller_sent' && user && Number(user.id) === Number(selectedDeal.buyer_id) && (
+                {selectedDeal.step === 'buyer_confirming' && user && Number(user.id) === Number(selectedDeal.buyer_id) && (
                   <Card className="p-2 bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/30 space-y-1.5 shadow-lg shadow-orange-900/20 transition-all duration-300 hover:shadow-xl hover:shadow-orange-800/30 animate-pulse-subtle">
                     <div className="flex items-start gap-1.5">
                       <div className="w-7 h-7 rounded-full bg-gradient-to-br from-orange-500/30 to-red-500/20 flex items-center justify-center flex-shrink-0 shadow-inner">
