@@ -259,6 +259,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 cursor.close()
                 
+                print(f"DEBUG: Returning deal data: deal_id={deal_id}, messages_count={len(messages)}")
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -271,6 +272,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             else:
                 cursor.close()
+                print(f"DEBUG: Unknown action in GET: {action}")
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
