@@ -265,6 +265,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }, default=serialize_datetime),
                     'isBase64Encoded': False
                 }
+            
+            else:
+                cursor.close()
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': f'Unknown action: {action}'}),
+                    'isBase64Encoded': False
+                }
         
         elif method == 'POST':
             if not user_id:
