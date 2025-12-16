@@ -403,12 +403,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'isBase64Encoded': False
                     }
                 
-                # Проверяем баланс и блокируем средства
+                # Проверяем сделку и баланс покупателя
                 cursor.execute("""
-                    SELECT d.id, d.price, d.seller_id, u.balance
+                    SELECT d.id, d.price, d.seller_id, d.status, d.buyer_id, u.balance
                     FROM deals d
                     INNER JOIN users u ON u.id = %s
-                    WHERE d.id = %s AND d.buyer_id = %s AND d.step = 'buyer_payment'
+                    WHERE d.id = %s AND d.status = 'active' AND (d.buyer_id IS NULL OR d.buyer_id = %s)
                 """, (user_id, deal_id, user_id))
                 
                 deal_data = cursor.fetchone()
@@ -431,15 +431,27 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'isBase64Encoded': False
                     }
                 
-                # Блокируем средства и обновляем шаг
+                # Назначаем покупателя, блокируем средства и обновляем статус
+                cursor.execute("""
+                    UPDATE deals 
+                    SET buyer_id = %s, status = 'in_progress', step = 'seller_sending', updated_at = CURRENT_TIMESTAMP
+                    WHERE id = %s AND status = 'active'
+                    RETURNING id
+                """, (user_id, deal_id))
+                
+                result = cursor.fetchone()
+                if not result:
+                    cursor.close()
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Deal already taken'}),
+                        'isBase64Encoded': False
+                    }
+                
                 cursor.execute("""
                     UPDATE users SET balance = balance - %s WHERE id = %s
                 """, (deal_data['price'], user_id))
-                
-                cursor.execute("""
-                    UPDATE deals SET step = 'seller_sending', updated_at = CURRENT_TIMESTAMP
-                    WHERE id = %s
-                """, (deal_id,))
                 
                 cursor.execute("""
                     INSERT INTO deal_messages (deal_id, user_id, message, is_system)
