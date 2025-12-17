@@ -13,6 +13,7 @@ export interface Package {
   borderColor: string;
   icon: string;
   popular: boolean;
+  soldOut?: boolean;
 }
 
 interface FlashBtcPackagesProps {
@@ -46,11 +47,19 @@ export const FlashBtcPackages = ({ packages, onPurchase, selectedPackageId }: Fl
           return (
           <Card 
             key={pkg.id}
-            className={`relative overflow-hidden transition-all duration-300 hover:scale-105 ${getBorderAndHover(pkg.id)} ${
+            className={`relative overflow-hidden transition-all duration-300 ${pkg.soldOut ? 'opacity-60' : 'hover:scale-105'} ${getBorderAndHover(pkg.id)} ${
               pkg.popular ? 'ring-2 ring-yellow-500/50' : ''
-            } ${selectedPackageId === pkg.id ? 'ring-2 ring-green-500/50' : ''} group`}
+            } ${selectedPackageId === pkg.id ? 'ring-2 ring-green-500/50' : ''} ${pkg.soldOut ? 'grayscale' : ''} group`}
           >
-            {pkg.popular && (
+            {pkg.soldOut && (
+              <div className="absolute top-0 right-0 z-10">
+                <Badge className="bg-red-600 text-white rounded-tl-none rounded-br-none text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1">
+                  <Icon name="XCircle" size={12} className="mr-0.5 sm:mr-1 sm:w-[14px] sm:h-[14px]" />
+                  Распродано
+                </Badge>
+              </div>
+            )}
+            {pkg.popular && !pkg.soldOut && (
               <div className="absolute top-0 right-0 z-10">
                 <Badge className="bg-yellow-500 text-black rounded-tl-none rounded-br-none text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1">
                   <Icon name="Star" size={12} className="mr-0.5 sm:mr-1 sm:w-[14px] sm:h-[14px]" />
@@ -126,11 +135,21 @@ export const FlashBtcPackages = ({ packages, onPurchase, selectedPackageId }: Fl
               </div>
 
               <Button
-                onClick={() => onPurchase(pkg)}
-                className={`w-full bg-gradient-to-r ${pkg.color} hover:opacity-90 text-xs sm:text-sm md:text-base py-2 sm:py-2.5`}
+                onClick={() => !pkg.soldOut && onPurchase(pkg)}
+                disabled={pkg.soldOut}
+                className={`w-full bg-gradient-to-r ${pkg.color} hover:opacity-90 text-xs sm:text-sm md:text-base py-2 sm:py-2.5 ${pkg.soldOut ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                <Icon name="ShoppingCart" size={14} className="mr-1.5 sm:mr-2 sm:w-4 sm:h-4" />
-                Купить
+                {pkg.soldOut ? (
+                  <>
+                    <Icon name="XCircle" size={14} className="mr-1.5 sm:mr-2 sm:w-4 sm:h-4" />
+                    Распродано
+                  </>
+                ) : (
+                  <>
+                    <Icon name="ShoppingCart" size={14} className="mr-1.5 sm:mr-2 sm:w-4 sm:h-4" />
+                    Купить
+                  </>
+                )}
               </Button>
             </div>
           </Card>

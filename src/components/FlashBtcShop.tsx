@@ -30,7 +30,8 @@ const FlashBtcShop = ({ user, onShowAuthDialog, onRefreshUserBalance }: FlashBtc
       color: 'from-orange-600 to-orange-800',
       borderColor: 'border-orange-500/30',
       icon: 'Package',
-      popular: false
+      popular: false,
+      soldOut: true
     },
     {
       id: 2,
@@ -40,7 +41,8 @@ const FlashBtcShop = ({ user, onShowAuthDialog, onRefreshUserBalance }: FlashBtc
       color: 'from-amber-600 to-amber-800',
       borderColor: 'border-amber-500/30',
       icon: 'Boxes',
-      popular: true
+      popular: true,
+      soldOut: true
     },
     {
       id: 3,
@@ -50,7 +52,8 @@ const FlashBtcShop = ({ user, onShowAuthDialog, onRefreshUserBalance }: FlashBtc
       color: 'from-yellow-600 to-yellow-800',
       borderColor: 'border-yellow-500/30',
       icon: 'Warehouse',
-      popular: false
+      popular: false,
+      soldOut: false
     },
     {
       id: 4,
@@ -60,7 +63,8 @@ const FlashBtcShop = ({ user, onShowAuthDialog, onRefreshUserBalance }: FlashBtc
       color: 'from-red-600 to-red-800',
       borderColor: 'border-red-500/30',
       icon: 'Building',
-      popular: false
+      popular: false,
+      soldOut: false
     }
   ];
 
