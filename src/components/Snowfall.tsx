@@ -42,20 +42,6 @@ const Snowfall = () => {
     }
 
     let animationFrameId: number;
-    let scrollSpeed = 0;
-    let lastScrollY = window.scrollY;
-
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      scrollSpeed = Math.abs(currentScrollY - lastScrollY) * 0.1;
-      lastScrollY = currentScrollY;
-      
-      setTimeout(() => {
-        scrollSpeed *= 0.95;
-      }, 100);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
 
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -66,7 +52,7 @@ const Snowfall = () => {
         ctx.fillStyle = `rgba(255, 255, 255, ${flake.opacity})`;
         ctx.fill();
 
-        flake.y += flake.speed + scrollSpeed;
+        flake.y += flake.speed;
         flake.x += flake.drift;
 
         if (flake.y > canvas.height) {
@@ -88,7 +74,6 @@ const Snowfall = () => {
 
     return () => {
       window.removeEventListener('resize', updateCanvasSize);
-      window.removeEventListener('scroll', handleScroll);
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
