@@ -191,6 +191,33 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
+            elif action == 'messages':
+                cur.execute(f"""
+                    SELECT 
+                        m.id,
+                        m.from_user_id,
+                        m.to_user_id,
+                        m.subject,
+                        m.content,
+                        m.is_read,
+                        m.created_at,
+                        u_from.username as from_username,
+                        u_to.username as to_username
+                    FROM {SCHEMA}.messages m
+                    LEFT JOIN {SCHEMA}.users u_from ON m.from_user_id = u_from.id
+                    LEFT JOIN {SCHEMA}.users u_to ON m.to_user_id = u_to.id
+                    ORDER BY m.created_at DESC
+                    LIMIT 500
+                """)
+                messages = cur.fetchall()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'messages': [dict(m) for m in messages]}, default=serialize_datetime),
+                    'isBase64Encoded': False
+                }
+            
             elif action == 'logs':
                 cur.execute(f"""
                     SELECT aa.*, u.username as admin_name
