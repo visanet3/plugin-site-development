@@ -238,7 +238,7 @@ Flash USDT предназначен для образовательных цел
     icon: 'FileCode',
     color: 'from-purple-500 to-pink-500',
     difficulty: 'Продвинутый',
-    duration: '30 мин',
+    duration: '60 мин',
     lessons: [
       {
         id: '1',
@@ -259,59 +259,757 @@ Flash USDT предназначен для образовательных цел
 ✓ Прозрачность — код виден всем
 ✓ Неизменность — нельзя изменить после развертывания
 ✓ Безопасность — защищены блокчейном
-✓ Экономия — не нужны посредники`
+✓ Экономия — не нужны посредники
+
+**Где используются:**
+• DeFi (децентрализованные финансы)
+• NFT-маркетплейсы
+• Токены и ICO
+• Системы голосования
+• Страхование
+• Цепочки поставок
+
+**Блокчейн TRON:**
+TRON — это платформа для смарт-контрактов, похожая на Ethereum:
+• Быстрее (3 секунды на блок)
+• Дешевле (комиссии в центы)
+• Высокая пропускная способность (2000 TPS)
+• Совместимость с Solidity`
       },
       {
         id: '2',
-        title: 'Работа с TRC20 токенами',
-        icon: 'Coins',
-        content: `TRC20 — это стандарт токенов на блокчейне TRON (аналог ERC20 в Ethereum).
+        title: 'Архитектура TRON',
+        icon: 'Network',
+        content: `Понимание архитектуры TRON поможет эффективно разрабатывать смарт-контракты.
 
-**Что такое TRC20?**
-Набор правил для создания токенов на TRON, обеспечивающий совместимость.
+**Трехуровневая архитектура:**
 
-**Основные функции TRC20:**
+1. **Storage Layer (Слой хранения)**
+   • Распределенное хранилище данных
+   • Использует технологию распределенных баз данных
+   • Блоки, транзакции, состояния контрактов
 
-1. **totalSupply()** — общее количество токенов
-2. **balanceOf(address)** — баланс адреса
-3. **transfer(to, amount)** — перевод токенов
-4. **approve(spender, amount)** — разрешение на трату
-5. **transferFrom(from, to, amount)** — перевод от имени владельца
+2. **Core Layer (Ядро)**
+   • TRON Virtual Machine (TVM)
+   • Консенсус механизм (DPoS)
+   • Обработка смарт-контрактов
+   • Управление аккаунтами
 
-**Популярные TRC20 токены:**
-• USDT — стейблкоин привязан к доллару
-• USDC — стейблкоин от Circle
-• BTT — BitTorrent Token
-• JST — JustStables`
+3. **Application Layer (Слой приложений)**
+   • Кошельки
+   • DApps (децентрализованные приложения)
+   • API для разработчиков
+
+**TRON Virtual Machine (TVM):**
+• Совместима с Ethereum Virtual Machine (EVM)
+• Поддерживает Solidity
+• Оптимизирована для высокой производительности
+• Энергетическая модель для оплаты газа
+
+**Ресурсная модель TRON:**
+
+**Bandwidth Points (Пропускная способность):**
+• Используется для обычных транзакций
+• 5000 бесплатных единиц в день
+• Восстанавливается каждые 24 часа
+• Можно получить, заморозив TRX
+
+**Energy (Энергия):**
+• Требуется для выполнения смарт-контрактов
+• Получается путем заморозки TRX
+• 1 TRX ≈ 2000 Energy (при заморозке)
+• Восстанавливается каждые 24 часа
+
+**Преимущества ресурсной модели:**
+✓ Предсказуемые расходы
+✓ Нет платы за газ при наличии энергии
+✓ Возможность заморозить TRX вместо оплаты
+✓ Ресурсы восстанавливаются автоматически`
       },
       {
         id: '3',
-        title: 'Создание своего токена',
+        title: 'Solidity для TRON',
+        icon: 'FileCode2',
+        content: `Solidity — основной язык программирования для смарт-контрактов TRON.
+
+**Основы синтаксиса:**
+
+**1. Структура контракта:**
+\`\`\`solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract MyContract {
+    // Переменные состояния
+    string public name;
+    uint256 public value;
+    
+    // Конструктор
+    constructor() {
+        name = "My Contract";
+        value = 0;
+    }
+    
+    // Функции
+    function setValue(uint256 _value) public {
+        value = _value;
+    }
+}
+\`\`\`
+
+**2. Типы данных:**
+• **uint** — беззнаковое целое (uint8, uint256)
+• **int** — целое число со знаком
+• **bool** — логический тип (true/false)
+• **address** — адрес кошелька
+• **string** — текстовая строка
+• **bytes** — массив байтов
+• **array** — массивы [1,2,3]
+• **mapping** — словари (ключ => значение)
+
+**3. Видимость функций:**
+• **public** — доступна всем
+• **private** — только внутри контракта
+• **internal** — контракт и наследники
+• **external** — только извне
+
+**4. Модификаторы:**
+• **view** — не изменяет состояние
+• **pure** — не читает и не изменяет
+• **payable** — может принимать TRX
+
+**5. События (Events):**
+\`\`\`solidity
+event Transfer(address from, address to, uint256 amount);
+
+function transfer(address to, uint256 amount) public {
+    // ... логика перевода
+    emit Transfer(msg.sender, to, amount);
+}
+\`\`\`
+
+**Специальные переменные:**
+• **msg.sender** — адрес отправителя
+• **msg.value** — количество отправленных TRX
+• **block.timestamp** — время блока
+• **block.number** — номер блока
+• **address(this)** — адрес контракта
+
+**Операторы управления:**
+\`\`\`solidity
+// Условия
+if (value > 100) {
+    // код
+} else {
+    // код
+}
+
+// Циклы
+for (uint i = 0; i < 10; i++) {
+    // код
+}
+
+while (condition) {
+    // код
+}
+
+// Требования
+require(balance >= amount, "Insufficient balance");
+assert(value != 0);
+revert("Error message");
+\`\`\`
+
+**Лучшие практики:**
+✓ Используйте require() для проверки входных данных
+✓ Используйте assert() для проверки внутренних ошибок
+✓ Минимизируйте операции записи (дорого по газу)
+✓ Используйте события для логирования
+✓ Проверяйте адреса на != address(0)`
+      },
+      {
+        id: '4',
+        title: 'Стандарт TRC20',
+        icon: 'Coins',
+        content: `TRC20 — стандарт токенов на TRON, аналог ERC20 из Ethereum.
+
+**Обязательные функции TRC20:**
+
+\`\`\`solidity
+// Название токена
+function name() public view returns (string)
+
+// Символ токена
+function symbol() public view returns (string)
+
+// Количество десятичных знаков
+function decimals() public view returns (uint8)
+
+// Общее количество токенов
+function totalSupply() public view returns (uint256)
+
+// Баланс адреса
+function balanceOf(address _owner) public view returns (uint256)
+
+// Перевод токенов
+function transfer(address _to, uint256 _value) public returns (bool)
+
+// Разрешение на трату
+function approve(address _spender, uint256 _value) public returns (bool)
+
+// Проверка разрешения
+function allowance(address _owner, address _spender) public view returns (uint256)
+
+// Перевод от имени владельца
+function transferFrom(address _from, address _to, uint256 _value) public returns (bool)
+\`\`\`
+
+**Обязательные события:**
+\`\`\`solidity
+event Transfer(address indexed _from, address indexed _to, uint256 _value)
+event Approval(address indexed _owner, address indexed _spender, uint256 _value)
+\`\`\`
+
+**Пример базового TRC20:**
+\`\`\`solidity
+pragma solidity ^0.8.0;
+
+contract MyToken {
+    string public name = "My Token";
+    string public symbol = "MTK";
+    uint8 public decimals = 6;
+    uint256 public totalSupply;
+    
+    mapping(address => uint256) public balanceOf;
+    mapping(address => mapping(address => uint256)) public allowance;
+    
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+    
+    constructor(uint256 _initialSupply) {
+        totalSupply = _initialSupply * 10**decimals;
+        balanceOf[msg.sender] = totalSupply;
+    }
+    
+    function transfer(address _to, uint256 _value) public returns (bool) {
+        require(_to != address(0), "Invalid address");
+        require(balanceOf[msg.sender] >= _value, "Insufficient balance");
+        
+        balanceOf[msg.sender] -= _value;
+        balanceOf[_to] += _value;
+        
+        emit Transfer(msg.sender, _to, _value);
+        return true;
+    }
+    
+    function approve(address _spender, uint256 _value) public returns (bool) {
+        allowance[msg.sender][_spender] = _value;
+        emit Approval(msg.sender, _spender, _value);
+        return true;
+    }
+    
+    function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {
+        require(_to != address(0), "Invalid address");
+        require(balanceOf[_from] >= _value, "Insufficient balance");
+        require(allowance[_from][msg.sender] >= _value, "Allowance exceeded");
+        
+        balanceOf[_from] -= _value;
+        balanceOf[_to] += _value;
+        allowance[_from][msg.sender] -= _value;
+        
+        emit Transfer(_from, _to, _value);
+        return true;
+    }
+}
+\`\`\`
+
+**Зачем нужен approve/transferFrom?**
+Эта пара функций позволяет:
+• Делегировать права на перевод другому контракту
+• Создавать DEX (децентрализованные биржи)
+• Автоматизировать платежи
+• Реализовывать подписки
+
+**Важные моменты:**
+⚠️ decimals обычно 6 на TRON (в Ethereum 18)
+⚠️ Всегда проверяйте адрес на != address(0)
+⚠️ Используйте SafeMath или Solidity 0.8+ (встроенная защита)`
+      },
+      {
+        id: '5',
+        title: 'Безопасность смарт-контрактов',
+        icon: 'ShieldAlert',
+        content: `Безопасность — критический аспект разработки смарт-контрактов.
+
+**Типичные уязвимости:**
+
+**1. Reentrancy (Повторный вход):**
+Атакующий контракт вызывает вашу функцию рекурсивно до завершения первого вызова.
+
+**Защита:**
+\`\`\`solidity
+bool private locked;
+
+modifier noReentrant() {
+    require(!locked, "No reentrancy");
+    locked = true;
+    _;
+    locked = false;
+}
+
+function withdraw() public noReentrant {
+    // безопасный код
+}
+\`\`\`
+
+**2. Integer Overflow/Underflow:**
+Переполнение чисел при арифметических операциях.
+
+**Защита:**
+• Используйте Solidity 0.8+ (встроенная защита)
+• Или библиотеку SafeMath
+
+**3. Проблема tx.origin:**
+Никогда не используйте tx.origin для авторизации!
+
+**Неправильно:**
+\`\`\`solidity
+require(tx.origin == owner); // ОПАСНО!
+\`\`\`
+
+**Правильно:**
+\`\`\`solidity
+require(msg.sender == owner); // Безопасно
+\`\`\`
+
+**4. Unchecked External Calls:**
+Всегда проверяйте результат внешних вызовов.
+
+\`\`\`solidity
+(bool success, ) = recipient.call{value: amount}("");
+require(success, "Transfer failed");
+\`\`\`
+
+**5. Denial of Service (DoS):**
+Избегайте циклов по неограниченным массивам.
+
+**Неправильно:**
+\`\`\`solidity
+for (uint i = 0; i < users.length; i++) {
+    // Может стать слишком дорогим
+}
+\`\`\`
+
+**6. Front-Running:**
+Злоумышленник видит вашу транзакцию и отправляет свою раньше.
+
+**Защита:**
+• Используйте commit-reveal схемы
+• Минимизируйте зависимость от порядка транзакций
+
+**7. Timestamp Dependence:**
+Не полагайтесь на точность block.timestamp для критической логики.
+
+**Лучшие практики безопасности:**
+
+✓ **Checks-Effects-Interactions Pattern:**
+1. Проверки (require)
+2. Изменение состояния
+3. Внешние вызовы (последними!)
+
+✓ **Pull over Push:**
+Пусть пользователи сами забирают средства, а не отправляйте им.
+
+✓ **Ограничение доступа:**
+\`\`\`solidity
+address public owner;
+
+modifier onlyOwner() {
+    require(msg.sender == owner, "Not owner");
+    _;
+}
+\`\`\`
+
+✓ **Паузы:**
+\`\`\`solidity
+bool public paused = false;
+
+modifier whenNotPaused() {
+    require(!paused, "Contract paused");
+    _;
+}
+\`\`\`
+
+✓ **Аудит кода:**
+• Проводите код-ревью
+• Используйте автоматические анализаторы
+• Нанимайте профессиональных аудиторов
+• Тестируйте на testnet перед mainnet
+
+✓ **Обновляемость:**
+Рассмотрите прокси-паттерн для обновлений:
+• Transparent Proxy
+• UUPS (Universal Upgradeable Proxy Standard)
+
+**Инструменты для аудита:**
+• Slither (автоматический анализатор)
+• Mythril (поиск уязвимостей)
+• Remix IDE (встроенные предупреждения)
+• Manual Code Review (ручная проверка)`
+      },
+      {
+        id: '6',
+        title: 'Взаимодействие с контрактами',
+        icon: 'Link',
+        content: `Как взаимодействовать со смарт-контрактами из приложений и других контрактов.
+
+**1. Из JavaScript/TypeScript (TronWeb):**
+
+**Установка:**
+\`\`\`bash
+npm install tronweb
+\`\`\`
+
+**Подключение:**
+\`\`\`javascript
+const TronWeb = require('tronweb');
+
+const tronWeb = new TronWeb({
+    fullHost: 'https://api.trongrid.io',
+    privateKey: 'ваш_приватный_ключ'
+});
+\`\`\`
+
+**Вызов view функций (чтение):**
+\`\`\`javascript
+const contractAddress = 'TXxx...';
+const contract = await tronWeb.contract().at(contractAddress);
+
+// Чтение баланса
+const balance = await contract.balanceOf('адрес').call();
+console.log('Balance:', balance.toString());
+\`\`\`
+
+**Вызов функций с изменением (запись):**
+\`\`\`javascript
+// Перевод токенов
+const result = await contract.transfer(
+    'адрес_получателя',
+    1000000  // 1 токен (с учетом decimals=6)
+).send();
+
+console.log('Transaction ID:', result);
+\`\`\`
+
+**Отправка TRX с транзакцией:**
+\`\`\`javascript
+const result = await contract.someFunction().send({
+    callValue: tronWeb.toSun(10)  // 10 TRX
+});
+\`\`\`
+
+**Прослушивание событий:**
+\`\`\`javascript
+contract.Transfer().watch((err, event) => {
+    if (err) return console.error(err);
+    console.log('Transfer event:', event);
+});
+\`\`\`
+
+**2. Из другого смарт-контракта:**
+
+**Прямой вызов через интерфейс:**
+\`\`\`solidity
+// Определяем интерфейс
+interface ITRC20 {
+    function transfer(address to, uint256 amount) external returns (bool);
+    function balanceOf(address account) external view returns (uint256);
+}
+
+contract MyContract {
+    ITRC20 public token;
+    
+    constructor(address _tokenAddress) {
+        token = ITRC20(_tokenAddress);
+    }
+    
+    function sendTokens(address recipient, uint256 amount) public {
+        require(token.transfer(recipient, amount), "Transfer failed");
+    }
+    
+    function checkBalance(address account) public view returns (uint256) {
+        return token.balanceOf(account);
+    }
+}
+\`\`\`
+
+**Low-level call:**
+\`\`\`solidity
+function callAnotherContract(address target, bytes memory data) public {
+    (bool success, bytes memory returnData) = target.call(data);
+    require(success, "Call failed");
+}
+\`\`\`
+
+**3. С использованием TronLink (браузерное расширение):**
+
+\`\`\`javascript
+// Проверка наличия TronLink
+if (window.tronWeb && window.tronWeb.defaultAddress.base58) {
+    const tronWeb = window.tronWeb;
+    
+    // Получение контракта
+    const contract = await tronWeb.contract().at(contractAddress);
+    
+    // Вызов функции
+    const result = await contract.transfer(to, amount).send();
+}
+\`\`\`
+
+**4. Запрос разрешения у пользователя:**
+
+\`\`\`javascript
+// Запрос подключения кошелька
+await window.tronLink.request({
+    method: 'tron_requestAccounts'
+});
+
+// Получение адреса пользователя
+const userAddress = tronWeb.defaultAddress.base58;
+\`\`\`
+
+**5. Обработка ошибок:**
+
+\`\`\`javascript
+try {
+    const result = await contract.transfer(to, amount).send();
+    console.log('Success:', result);
+} catch (error) {
+    if (error.message.includes('REVERT')) {
+        console.error('Transaction reverted:', error);
+    } else {
+        console.error('Error:', error);
+    }
+}
+\`\`\`
+
+**Важные замечания:**
+⚠️ View функции — бесплатные (не требуют подписи)
+⚠️ Функции с изменением — требуют TRX для энергии
+⚠️ Всегда проверяйте адрес контракта перед вызовом
+⚠️ Используйте try-catch для обработки ошибок
+⚠️ Тестируйте на Shasta Testnet перед продакшеном`
+      },
+      {
+        id: '7',
+        title: 'Создание своего контракта: практика',
         icon: 'Rocket',
-        content: `Пошаговое руководство по созданию собственного TRC20 токена.
+        content: `Пошаговое руководство по созданию и развертыванию своего TRC20 токена.
+
+**Шаг 1: Подготовка**
 
 **Что потребуется:**
 • 1000-1500 TRX на балансе (~$150-200)
-• Базовые знания Solidity
-• Кошелек TronLink
-• Доступ к TronIDE или Remix IDE
+• Кошелек TronLink (установлен и настроен)
+• Доступ к TronIDE (ide.tronlink.org)
+• Или Remix IDE + TRON plugin
 
-**Основные этапы:**
+**Шаг 2: Написание контракта**
 
-1. **Написание контракта**
-   Создайте смарт-контракт с функциями TRC20
+Создайте файл MyToken.sol:
 
-2. **Компиляция**
-   Проверьте код на ошибки и скомпилируйте
+\`\`\`solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
-3. **Развертывание**
-   Опубликуйте контракт в сети TRON
+contract MyToken {
+    string public name;
+    string public symbol;
+    uint8 public decimals = 6;
+    uint256 public totalSupply;
+    
+    address public owner;
+    
+    mapping(address => uint256) public balanceOf;
+    mapping(address => mapping(address => uint256)) public allowance;
+    
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+    event Mint(address indexed to, uint256 amount);
+    event Burn(address indexed from, uint256 amount);
+    
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not owner");
+        _;
+    }
+    
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        uint256 _initialSupply
+    ) {
+        name = _name;
+        symbol = _symbol;
+        owner = msg.sender;
+        
+        _mint(msg.sender, _initialSupply * 10**decimals);
+    }
+    
+    function transfer(address _to, uint256 _value) public returns (bool) {
+        require(_to != address(0), "Invalid address");
+        require(balanceOf[msg.sender] >= _value, "Insufficient balance");
+        
+        balanceOf[msg.sender] -= _value;
+        balanceOf[_to] += _value;
+        
+        emit Transfer(msg.sender, _to, _value);
+        return true;
+    }
+    
+    function approve(address _spender, uint256 _value) public returns (bool) {
+        allowance[msg.sender][_spender] = _value;
+        emit Approval(msg.sender, _spender, _value);
+        return true;
+    }
+    
+    function transferFrom(
+        address _from,
+        address _to,
+        uint256 _value
+    ) public returns (bool) {
+        require(_to != address(0), "Invalid address");
+        require(balanceOf[_from] >= _value, "Insufficient balance");
+        require(allowance[_from][msg.sender] >= _value, "Allowance exceeded");
+        
+        balanceOf[_from] -= _value;
+        balanceOf[_to] += _value;
+        allowance[_from][msg.sender] -= _value;
+        
+        emit Transfer(_from, _to, _value);
+        return true;
+    }
+    
+    function mint(address _to, uint256 _amount) public onlyOwner {
+        _mint(_to, _amount);
+    }
+    
+    function burn(uint256 _amount) public {
+        require(balanceOf[msg.sender] >= _amount, "Insufficient balance");
+        
+        balanceOf[msg.sender] -= _amount;
+        totalSupply -= _amount;
+        
+        emit Burn(msg.sender, _amount);
+        emit Transfer(msg.sender, address(0), _amount);
+    }
+    
+    function _mint(address _to, uint256 _amount) internal {
+        require(_to != address(0), "Invalid address");
+        
+        totalSupply += _amount;
+        balanceOf[_to] += _amount;
+        
+        emit Mint(_to, _amount);
+        emit Transfer(address(0), _to, _amount);
+    }
+    
+    function renounceOwnership() public onlyOwner {
+        owner = address(0);
+    }
+}
+\`\`\`
 
-4. **Верификация**
-   Подтвердите код на TronScan
+**Шаг 3: Компиляция**
 
-5. **Тестирование**
-   Проверьте все функции токена`
+В TronIDE:
+1. Вставьте код контракта
+2. Выберите компилятор: Solidity 0.8.0+
+3. Нажмите "Compile"
+4. Проверьте отсутствие ошибок
+
+**Шаг 4: Развертывание**
+
+1. Подключите TronLink кошелек
+2. Убедитесь что на балансе > 1000 TRX
+3. В разделе "Deploy" укажите параметры:
+   - _name: "My Awesome Token"
+   - _symbol: "MAT"
+   - _initialSupply: 1000000 (1 миллион токенов)
+4. Нажмите "Deploy"
+5. Подтвердите транзакцию в TronLink
+6. Дождитесь подтверждения (~3 секунды)
+7. **Скопируйте адрес контракта!**
+
+**Шаг 5: Верификация контракта**
+
+1. Откройте TronScan.org
+2. Найдите ваш контракт по адресу
+3. Перейдите на вкладку "Contract"
+4. Нажмите "Verify Contract"
+5. Вставьте исходный код
+6. Выберите компилятор (0.8.0)
+7. Нажмите "Verify and Publish"
+
+**Шаг 6: Тестирование**
+
+**Добавление токена в TronLink:**
+1. Откройте TronLink
+2. Перейдите в "Tokens"
+3. Нажмите "Add Token"
+4. Вставьте адрес контракта
+5. Подтвердите
+
+**Тестовый перевод:**
+1. В TronScan откройте контракт
+2. Вкладка "Contract" → "Write Contract"
+3. Подключите кошелек
+4. Вызовите функцию transfer
+5. Укажите адрес и сумму
+6. Подтвердите транзакцию
+
+**Шаг 7: Публикация**
+
+**Создайте документацию:**
+• Название и символ токена
+• Общее количество
+• Адрес контракта
+• Описание проекта
+• Ссылка на верифицированный код
+
+**Листинг на DEX:**
+• JustSwap (justswap.io)
+• SunSwap (sunswap.com)
+• Создайте пул ликвидности
+
+**Социальные сети:**
+• Создайте сайт проекта
+• Twitter, Telegram канал
+• CoinGecko / CoinMarketCap заявки
+
+**Важные советы:**
+
+✓ **Тестируйте на Shasta Testnet** перед mainnet
+✓ **Проведите аудит кода** перед запуском
+✓ **Заморозьте TRX** для получения энергии (экономия)
+✓ **Сохраните приватный ключ** в безопасном месте
+✓ **Не публикуйте адрес owner'а** публично
+✓ **Подготовьте whitepaper** для инвесторов
+
+**Стоимость операций:**
+• Развертывание контракта: ~1000-1500 TRX
+• Верификация: бесплатно
+• Transfer (с энергией): ~0 TRX
+• Transfer (без энергии): ~15 TRX
+• Approve: ~15 TRX
+
+**Заморозка TRX для энергии:**
+1 TRX замороженный = ~2000 Energy
+Для активного токена рекомендуется:
+• Минимум 10,000 TRX заморожено
+• Это даст ~20,000,000 Energy
+• Достаточно для тысяч транзакций
+
+**Поздравляем!** 🎉
+Вы создали свой TRC20 токен на блокчейне TRON!`
       }
     ]
   },
