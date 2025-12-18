@@ -1,0 +1,26 @@
+{
+  "tests": [
+    {
+      "name": "Get hot crypto news",
+      "method": "GET",
+      "path": "/?filter=hot",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "news": "array",
+        "count": "number"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get news for specific currencies",
+      "method": "GET",
+      "path": "/?currencies=BTC,ETH",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

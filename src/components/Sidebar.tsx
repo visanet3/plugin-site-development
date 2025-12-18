@@ -80,6 +80,7 @@ const Sidebar = ({
         <nav className="space-y-0.5 md:space-y-1 px-3 md:px-4 overflow-y-auto flex-1">
           {[
             { icon: 'Home', label: 'Главная', id: 'all', view: 'plugins' },
+            { icon: 'Newspaper', label: 'Новости', id: 'crypto-news', view: 'plugins' },
             { icon: 'Zap', label: 'Flash USDT', id: 'categories', view: 'plugins' },
             { icon: 'Bitcoin', label: 'Flash BTC', id: 'flash-btc', view: 'plugins' },
             { icon: 'ShieldCheck', label: 'Гарант-сервис', id: 'deals', view: 'plugins' },

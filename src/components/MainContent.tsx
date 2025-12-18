@@ -16,6 +16,7 @@ import AboutPage from './AboutPage';
 import ExchangePage from './ExchangePage';
 import UserTicketsPage from './UserTicketsPage';
 import LearningCenter from './LearningCenter';
+import CryptoNews from './CryptoNews';
 
 interface MainContentProps {
   activeView: 'plugins' | 'forum';
@@ -61,7 +62,9 @@ const MainContent = ({
   return (
     <main className="p-2 sm:p-3 md:p-4 lg:p-6 animate-fade-in max-w-full overflow-x-hidden">
       {activeView === 'plugins' ? (
-        activeCategory === 'rules' ? (
+        activeCategory === 'crypto-news' ? (
+          <CryptoNews />
+        ) : activeCategory === 'rules' ? (
           <RulesPage />
         ) : activeCategory === 'about' ? (
           <AboutPage />
