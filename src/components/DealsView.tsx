@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
@@ -81,19 +81,54 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
     price: ''
   });
 
-  useEffect(() => {
-    fetchDeals();
-  }, [statusFilter, user]);
+  const fetchDealsRef = useRef<number | null>(null);
+  const lastFetchParams = useRef<{statusFilter: string, userId: number | null}>({ statusFilter: '', userId: null });
+  const isFetchingRef = useRef(false);
 
   useEffect(() => {
-    if (selectedDeal) {
+    const currentParams = { statusFilter, userId: user?.id || null };
+    
+    if (lastFetchParams.current.statusFilter === currentParams.statusFilter && 
+        lastFetchParams.current.userId === currentParams.userId) {
+      return;
+    }
+    
+    if (isFetchingRef.current) {
+      return;
+    }
+    
+    lastFetchParams.current = currentParams;
+    
+    if (fetchDealsRef.current) {
+      clearTimeout(fetchDealsRef.current);
+    }
+    
+    fetchDealsRef.current = window.setTimeout(() => {
+      isFetchingRef.current = true;
+      fetchDeals().finally(() => {
+        isFetchingRef.current = false;
+      });
+    }, 150);
+    
+    return () => {
+      if (fetchDealsRef.current) {
+        clearTimeout(fetchDealsRef.current);
+      }
+    };
+  }, [statusFilter, user?.id, fetchDeals]);
+
+  const selectedDealIdRef = useRef<number | null>(null);
+  
+  useEffect(() => {
+    if (selectedDeal && selectedDeal.id !== selectedDealIdRef.current) {
+      selectedDealIdRef.current = selectedDeal.id;
       fetchDealDetails(selectedDeal.id);
     }
-  }, [selectedDeal]);
+  }, [selectedDeal?.id, fetchDealDetails]);
 
 
 
-  const fetchDeals = async () => {
+  const fetchDeals = useCallback(async () => {
     setLoading(true);
     try {
       const url = new URL(DEALS_URL);
@@ -115,9 +150,9 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter, user]);
 
-  const fetchDealDetails = async (dealId: number) => {
+  const fetchDealDetails = useCallback(async (dealId: number) => {
     try {
       const headers: HeadersInit = {};
       if (user) {
@@ -133,7 +168,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
     } catch (error) {
       console.error('Ошибка загрузки деталей сделки:', error);
     }
-  };
+  }, [user]);
 
   const createDeal = async () => {
     if (!user) {
@@ -176,7 +211,7 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
           title: 'Успешно',
           description: 'Объявление создано!'
         });
-        fetchDeals();
+        setStatusFilter('my_deals');
       } else {
         toast({
           title: 'Ошибка',
@@ -240,7 +275,6 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
         
         await fetchDealDetails(selectedDeal.id);
         setStatusFilter('my_deals');
-        fetchDeals();
       } else {
         toast({
           title: 'Ошибка',
@@ -333,7 +367,6 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
         
         await fetchDealDetails(selectedDeal.id);
         setStatusFilter('completed');
-        fetchDeals();
         
         setTimeout(() => {
           setSelectedDeal(null);
