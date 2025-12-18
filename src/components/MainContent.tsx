@@ -15,6 +15,7 @@ import ReferralProgramPage from './ReferralProgramPage';
 import AboutPage from './AboutPage';
 import ExchangePage from './ExchangePage';
 import UserTicketsPage from './UserTicketsPage';
+import LearningCenter from './LearningCenter';
 
 interface MainContentProps {
   activeView: 'plugins' | 'forum';
@@ -83,6 +84,11 @@ const MainContent = ({
             user={user} 
             onShowAuthDialog={onShowAuthDialog}
             onRefreshUserBalance={onRefreshUserBalance}
+          />
+        ) : activeCategory === 'learning' ? (
+          <LearningCenter 
+            user={user} 
+            onShowAuthDialog={onShowAuthDialog}
           />
         ) : activeCategory === 'categories' ? (
           <FlashUsdtShop 

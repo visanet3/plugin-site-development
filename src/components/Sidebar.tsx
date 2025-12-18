@@ -85,6 +85,7 @@ const Sidebar = ({
             { icon: 'ShieldCheck', label: 'Гарант-сервис', id: 'deals', view: 'plugins' },
             { icon: 'ArrowLeftRight', label: 'Обменник', id: 'exchange', view: 'plugins' },
             { icon: 'FileCode', label: 'Смарт-контракты', id: 'smart-contracts', view: 'plugins' },
+            { icon: 'GraduationCap', label: 'Обучающий центр', id: 'learning', view: 'plugins' },
             { icon: 'MessageSquare', label: 'Форум', id: 'forum', view: 'forum' },
           ].map(item => (
             <AnimatedMenuButton
