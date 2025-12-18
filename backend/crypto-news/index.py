@@ -37,7 +37,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     try:
-        news_url = 'https://min-api.cryptocompare.com/data/v2/news/?lang=EN&api_key=demo'
+        news_url = 'https://min-api.cryptocompare.com/data/v2/news/?lang=RU&api_key=demo'
         
         req = urllib.request.Request(
             news_url,
@@ -52,18 +52,46 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             news_items = []
             if data.get('Type') == 100:
                 for item in data.get('Data', [])[:25]:
+                    body_text = item.get('body') or ''
+                    
                     news_items.append({
                         'id': item.get('id'),
                         'title': item.get('title'),
-                        'body': (item.get('body') or '')[:250],
+                        'body': body_text,
                         'url': item.get('url') or item.get('guid'),
                         'imageurl': item.get('imageurl'),
                         'published_at': item.get('published_on'),
                         'source': item.get('source', 'CryptoNews'),
                         'source_info': item.get('source_info', {}),
                         'categories': item.get('categories', '').split('|') if item.get('categories') else [],
-                        'lang': item.get('lang', 'EN')
+                        'lang': item.get('lang', 'RU'),
+                        'tags': item.get('tags', '').split('|') if item.get('tags') else []
                     })
+            
+            if not news_items:
+                news_url_en = 'https://min-api.cryptocompare.com/data/v2/news/?lang=EN&api_key=demo'
+                req_en = urllib.request.Request(news_url_en, headers={'User-Agent': 'Mozilla/5.0'})
+                
+                with urllib.request.urlopen(req_en, timeout=15) as response_en:
+                    data_en = json.loads(response_en.read().decode('utf-8'))
+                    
+                    if data_en.get('Type') == 100:
+                        for item in data_en.get('Data', [])[:25]:
+                            body_text = item.get('body') or ''
+                            
+                            news_items.append({
+                                'id': item.get('id'),
+                                'title': item.get('title'),
+                                'body': body_text,
+                                'url': item.get('url') or item.get('guid'),
+                                'imageurl': item.get('imageurl'),
+                                'published_at': item.get('published_on'),
+                                'source': item.get('source', 'CryptoNews'),
+                                'source_info': item.get('source_info', {}),
+                                'categories': item.get('categories', '').split('|') if item.get('categories') else [],
+                                'lang': 'EN',
+                                'tags': item.get('tags', '').split('|') if item.get('tags') else []
+                            })
             
             return {
                 'statusCode': 200,
@@ -76,7 +104,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'success': True,
                     'news': news_items,
                     'count': len(news_items)
-                }),
+                }, ensure_ascii=False),
                 'isBase64Encoded': False
             }
             
