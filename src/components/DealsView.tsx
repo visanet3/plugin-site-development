@@ -85,49 +85,6 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
   const lastFetchParams = useRef<{statusFilter: string, userId: number | null}>({ statusFilter: '', userId: null });
   const isFetchingRef = useRef(false);
 
-  useEffect(() => {
-    const currentParams = { statusFilter, userId: user?.id || null };
-    
-    if (lastFetchParams.current.statusFilter === currentParams.statusFilter && 
-        lastFetchParams.current.userId === currentParams.userId) {
-      return;
-    }
-    
-    if (isFetchingRef.current) {
-      return;
-    }
-    
-    lastFetchParams.current = currentParams;
-    
-    if (fetchDealsRef.current) {
-      clearTimeout(fetchDealsRef.current);
-    }
-    
-    fetchDealsRef.current = window.setTimeout(() => {
-      isFetchingRef.current = true;
-      fetchDeals().finally(() => {
-        isFetchingRef.current = false;
-      });
-    }, 150);
-    
-    return () => {
-      if (fetchDealsRef.current) {
-        clearTimeout(fetchDealsRef.current);
-      }
-    };
-  }, [statusFilter, user?.id, fetchDeals]);
-
-  const selectedDealIdRef = useRef<number | null>(null);
-  
-  useEffect(() => {
-    if (selectedDeal && selectedDeal.id !== selectedDealIdRef.current) {
-      selectedDealIdRef.current = selectedDeal.id;
-      fetchDealDetails(selectedDeal.id);
-    }
-  }, [selectedDeal?.id, fetchDealDetails]);
-
-
-
   const fetchDeals = useCallback(async () => {
     setLoading(true);
     try {
@@ -169,6 +126,47 @@ export const DealsView = ({ user, onShowAuthDialog, onRefreshUserBalance }: Deal
       console.error('Ошибка загрузки деталей сделки:', error);
     }
   }, [user]);
+
+  useEffect(() => {
+    const currentParams = { statusFilter, userId: user?.id || null };
+    
+    if (lastFetchParams.current.statusFilter === currentParams.statusFilter && 
+        lastFetchParams.current.userId === currentParams.userId) {
+      return;
+    }
+    
+    if (isFetchingRef.current) {
+      return;
+    }
+    
+    lastFetchParams.current = currentParams;
+    
+    if (fetchDealsRef.current) {
+      clearTimeout(fetchDealsRef.current);
+    }
+    
+    fetchDealsRef.current = window.setTimeout(() => {
+      isFetchingRef.current = true;
+      fetchDeals().finally(() => {
+        isFetchingRef.current = false;
+      });
+    }, 150);
+    
+    return () => {
+      if (fetchDealsRef.current) {
+        clearTimeout(fetchDealsRef.current);
+      }
+    };
+  }, [statusFilter, user?.id, fetchDeals]);
+
+  const selectedDealIdRef = useRef<number | null>(null);
+  
+  useEffect(() => {
+    if (selectedDeal && selectedDeal.id !== selectedDealIdRef.current) {
+      selectedDealIdRef.current = selectedDeal.id;
+      fetchDealDetails(selectedDeal.id);
+    }
+  }, [selectedDeal?.id, fetchDealDetails]);
 
   const createDeal = async () => {
     if (!user) {
