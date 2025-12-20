@@ -81,6 +81,7 @@ const Sidebar = ({
           {[
             { icon: 'Home', label: 'Главная', id: 'all', view: 'plugins' },
             { icon: 'Zap', label: 'Flash USDT', id: 'categories', view: 'plugins' },
+            { icon: 'Gem', label: 'TON Flash USDT', id: 'ton-flash', view: 'plugins' },
             { icon: 'Bitcoin', label: 'Flash BTC', id: 'flash-btc', view: 'plugins' },
             { icon: 'ShieldCheck', label: 'Гарант-сервис', id: 'deals', view: 'plugins' },
             { icon: 'ArrowLeftRight', label: 'Обменник', id: 'exchange', view: 'plugins' },

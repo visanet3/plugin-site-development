@@ -5,6 +5,7 @@ import { ForumTopicDetail } from './MainContent/ForumTopicDetail';
 
 import FlashUsdtShop from './FlashUsdtShop';
 import FlashBtcShop from './FlashBtcShop';
+import TonFlashPackages from './TonFlashPackages';
 import { DealsView } from './DealsView';
 import FAQPage from './FAQPage';
 import SupportPage from './SupportPage';
@@ -95,6 +96,11 @@ const MainContent = ({
             user={user} 
             onShowAuthDialog={onShowAuthDialog}
             onRefreshUserBalance={onRefreshUserBalance}
+          />
+        ) : activeCategory === 'ton-flash' ? (
+          <TonFlashPackages 
+            user={user} 
+            onShowAuthDialog={onShowAuthDialog}
           />
         ) : activeCategory === 'flash-btc' ? (
           <FlashBtcShop 
