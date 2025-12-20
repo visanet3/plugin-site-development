@@ -42,15 +42,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         price = body.get('price')
         amount = body.get('amount')
         package_type = body.get('type', 'ton-flash')
+        ton_address = body.get('tonAddress', '')
         
-        if not all([user_id, package_id, price, amount]):
+        if not all([user_id, package_id, price, amount, ton_address]):
             return {
                 'statusCode': 400,
                 'headers': {
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': '*'
                 },
-                'body': json.dumps({'error': 'Missing required fields'})
+                'body': json.dumps({'error': 'Missing required fields (userId, packageId, price, amount, tonAddress)'})
             }
         
         dsn = os.environ['DATABASE_URL']
@@ -99,10 +100,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         cur.execute('''
             INSERT INTO ton_flash_purchases 
-            (user_id, package_id, package_name, price, amount, created_at)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            (user_id, package_id, package_name, price, amount, ton_address, created_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
             RETURNING id
-        ''', (user_id, package_id, package_name, price, amount, datetime.now()))
+        ''', (user_id, package_id, package_name, price, amount, ton_address, datetime.now()))
         
         purchase_id = cur.fetchone()[0]
         

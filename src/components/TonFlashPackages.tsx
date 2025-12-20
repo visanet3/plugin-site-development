@@ -154,6 +154,7 @@ const getColorClasses = (color?: string, popular?: boolean, isTest?: boolean) =>
 export const TonFlashPackages = ({ user, onShowAuthDialog, onRefreshUserBalance }: TonFlashPackagesProps) => {
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
   const [isPurchasing, setIsPurchasing] = useState(false);
+  const [tonAddress, setTonAddress] = useState('');
   const { toast } = useToast();
 
   const formatNumber = (num: number) => {
@@ -166,10 +167,29 @@ export const TonFlashPackages = ({ user, onShowAuthDialog, onRefreshUserBalance 
       return;
     }
     setSelectedPackage(pkg);
+    setTonAddress('');
   };
 
   const confirmPurchase = async () => {
     if (!user || !selectedPackage) return;
+
+    if (!tonAddress.trim()) {
+      toast({
+        title: '❌ Укажите адрес',
+        description: 'Введите адрес TON кошелька для получения Flash USDT',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!tonAddress.startsWith('UQ') && !tonAddress.startsWith('EQ')) {
+      toast({
+        title: '❌ Неверный формат адреса',
+        description: 'Адрес TON должен начинаться с UQ или EQ',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     if (user.balance < selectedPackage.price) {
       toast({
@@ -192,7 +212,8 @@ export const TonFlashPackages = ({ user, onShowAuthDialog, onRefreshUserBalance 
           packageName: selectedPackage.name,
           price: selectedPackage.price,
           amount: selectedPackage.amount,
-          type: 'ton-flash'
+          type: 'ton-flash',
+          tonAddress: tonAddress.trim()
         }),
       });
 
@@ -201,9 +222,10 @@ export const TonFlashPackages = ({ user, onShowAuthDialog, onRefreshUserBalance 
       if (response.ok && data.success) {
         toast({
           title: '✅ Покупка успешна!',
-          description: `Вы получили ${formatNumber(selectedPackage.amount)} TON Flash USDT`,
+          description: `${formatNumber(selectedPackage.amount)} TON Flash USDT отправлены на ваш адрес`,
         });
         setSelectedPackage(null);
+        setTonAddress('');
         onRefreshUserBalance?.();
       } else {
         throw new Error(data.error || 'Ошибка покупки');
@@ -420,6 +442,28 @@ export const TonFlashPackages = ({ user, onShowAuthDialog, onRefreshUserBalance 
                   </div>
                 </div>
 
+                {/* Адрес TON кошелька */}
+                <div className="p-5 rounded-2xl bg-muted/50 border-2 border-border backdrop-blur-sm">
+                  <label className="block text-sm font-semibold text-muted-foreground mb-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Icon name="Wallet" size={16} />
+                      Адрес TON кошелька
+                    </div>
+                  </label>
+                  <input
+                    type="text"
+                    value={tonAddress}
+                    onChange={(e) => setTonAddress(e.target.value)}
+                    placeholder="UQxxx... или EQxxx..."
+                    className="w-full px-4 py-3 rounded-xl bg-black/30 border-2 border-white/10 focus:border-purple-500/50 transition-colors text-sm font-mono outline-none"
+                    disabled={isPurchasing}
+                  />
+                  <p className="text-xs text-muted-foreground mt-2 flex items-start gap-2">
+                    <Icon name="Info" size={12} className="shrink-0 mt-0.5" />
+                    <span>Flash USDT будут отправлены на этот адрес</span>
+                  </p>
+                </div>
+
                 {/* Баланс пользователя */}
                 {user && (
                   <div className="p-5 rounded-2xl bg-muted/50 border-2 border-border backdrop-blur-sm">
@@ -446,7 +490,7 @@ export const TonFlashPackages = ({ user, onShowAuthDialog, onRefreshUserBalance 
                 <Button 
                   className="w-full h-14 text-lg font-bold bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 shadow-lg shadow-purple-500/30"
                   onClick={confirmPurchase}
-                  disabled={isPurchasing || !user || user.balance < selectedPackage.price}
+                  disabled={isPurchasing || !user || user.balance < selectedPackage.price || !tonAddress.trim()}
                 >
                   {isPurchasing ? (
                     <>
