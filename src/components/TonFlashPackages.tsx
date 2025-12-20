@@ -203,21 +203,28 @@ export const TonFlashPackages = ({ user, onShowAuthDialog, onRefreshUserBalance 
     setIsPurchasing(true);
 
     try {
+      const requestBody = {
+        userId: user.id,
+        packageId: selectedPackage.id,
+        packageName: selectedPackage.name,
+        price: selectedPackage.price,
+        amount: selectedPackage.amount,
+        type: 'ton-flash',
+        tonAddress: tonAddress.trim()
+      };
+      
+      console.log('Sending purchase request:', requestBody);
+      
       const response = await fetch('https://functions.poehali.dev/84036a5f-dd22-44dd-9e67-e79f064c620e', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.id,
-          packageId: selectedPackage.id,
-          packageName: selectedPackage.name,
-          price: selectedPackage.price,
-          amount: selectedPackage.amount,
-          type: 'ton-flash',
-          tonAddress: tonAddress.trim()
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       const data = await response.json();
+      
+      console.log('Response status:', response.status);
+      console.log('Response data:', data);
 
       if (response.ok && data.success) {
         toast({
@@ -228,9 +235,12 @@ export const TonFlashPackages = ({ user, onShowAuthDialog, onRefreshUserBalance 
         setTonAddress('');
         onRefreshUserBalance?.();
       } else {
-        throw new Error(data.error || 'Ошибка покупки');
+        const errorMsg = data.error || data.details || 'Ошибка покупки';
+        console.error('Purchase error:', errorMsg, data);
+        throw new Error(errorMsg);
       }
     } catch (error) {
+      console.error('Purchase exception:', error);
       toast({
         title: '❌ Ошибка покупки',
         description: error instanceof Error ? error.message : 'Попробуйте позже',
