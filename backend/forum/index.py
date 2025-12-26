@@ -213,11 +213,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 headers = event.get('headers', {})
                 user_id = headers.get('X-User-Id') or headers.get('x-user-id')
             
+            # Debug logging
+            print(f"DEBUG: action={action}, user_id from body={body_data.get('user_id')}, headers={event.get('headers', {})}")
+            
             if not user_id:
                 return {
                     'statusCode': 401,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Требуется авторизация'}),
+                    'body': json.dumps({'error': f'Требуется авторизация. Debug: body_user_id={body_data.get("user_id")}, headers={list(event.get("headers", {}).keys())}'}),
                     'isBase64Encoded': False
                 }
             
