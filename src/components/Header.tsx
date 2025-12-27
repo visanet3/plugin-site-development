@@ -164,19 +164,35 @@ const Header = ({
               <div className="flex items-center gap-1.5 sm:gap-3">
                 <button
                   onClick={() => navigate('/christmas-tree')}
-                  className="relative group overflow-hidden"
+                  className="relative group cursor-pointer"
                   title="Новогодняя акция! Получите бонус до 100%"
                 >
-                  <div className="absolute -inset-1 bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-300 animate-pulse"></div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                  <div className="relative flex items-center gap-1.5 sm:gap-2 bg-gradient-to-r from-red-600 via-red-500 to-green-600 px-3 sm:px-4 py-2.5 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 group-hover:scale-110">
-                    <span className="text-xl sm:text-2xl" style={{ animation: 'bounce 1s ease-in-out infinite' }}>🎄</span>
-                    <div className="flex flex-col items-start">
-                      <span className="text-[10px] sm:text-xs font-black text-yellow-300 leading-none tracking-wider">АКЦИЯ</span>
-                      <span className="text-[8px] sm:text-[10px] text-yellow-100 leading-none hidden sm:block font-bold">до 100%</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 via-yellow-500/20 to-green-500/20 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                  <div className="relative bg-gradient-to-r from-red-600/20 to-green-600/20 hover:from-red-600/30 hover:to-green-600/30 border border-red-500/30 hover:border-yellow-500/50 rounded-lg px-3 sm:px-4 py-2 transition-all duration-200 group-hover:scale-105 backdrop-blur-sm shadow-md hover:shadow-lg hover:shadow-yellow-500/20">
+                    <div className="flex items-center gap-2">
+                      <div className="relative w-7 h-7 sm:w-8 sm:h-8">
+                        <div className="w-full h-full rounded-full bg-gradient-to-br from-red-500 to-green-500 flex items-center justify-center shadow-sm p-1 sm:p-1.5 animate-pulse">
+                          <span className="text-base sm:text-xl">🎄</span>
+                        </div>
+                        <div className="absolute -top-0.5 -right-0.5 w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full bg-yellow-400 flex items-center justify-center shadow-sm border border-background animate-ping"></div>
+                        <div className="absolute -top-0.5 -right-0.5 w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full bg-yellow-400 flex items-center justify-center shadow-sm border border-background">
+                          <span className="text-[8px]">🔥</span>
+                        </div>
+                      </div>
+                      <div className="hidden sm:block">
+                        <p className="text-[9px] text-yellow-300/80 font-medium uppercase tracking-wide leading-none">🎁 Акция</p>
+                        <p className="text-base font-semibold bg-gradient-to-r from-yellow-200 to-yellow-400 bg-clip-text text-transparent transition-all duration-300 leading-tight">
+                          до 100%
+                          <span className="text-[10px] ml-1 text-white/90 font-bold">БОНУС</span>
+                        </p>
+                      </div>
+                      <div className="sm:hidden">
+                        <p className="text-xs font-bold bg-gradient-to-r from-yellow-200 to-yellow-400 bg-clip-text text-transparent leading-none">
+                          100%
+                        </p>
+                      </div>
                     </div>
-                    <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-yellow-400 rounded-full animate-ping"></div>
-                    <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-yellow-300 rounded-full"></div>
                   </div>
                 </button>
                 
