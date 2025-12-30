@@ -31,7 +31,7 @@ const FlashBtcShop = ({ user, onShowAuthDialog, onRefreshUserBalance }: FlashBtc
       borderColor: 'border-orange-500/30',
       icon: 'Package',
       popular: false,
-      soldOut: true
+      soldOut: false
     },
     {
       id: 2,
@@ -42,7 +42,7 @@ const FlashBtcShop = ({ user, onShowAuthDialog, onRefreshUserBalance }: FlashBtc
       borderColor: 'border-amber-500/30',
       icon: 'Boxes',
       popular: true,
-      soldOut: true
+      soldOut: false
     },
     {
       id: 3,
