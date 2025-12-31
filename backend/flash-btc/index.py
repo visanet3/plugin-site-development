@@ -110,9 +110,10 @@ def handler(event, context):
             new_balance = user['balance'] - price
             cur.execute(f"""
                 UPDATE {SCHEMA}.users 
-                SET balance = %s 
+                SET balance = %s,
+                    flash_btc_balance = flash_btc_balance + %s
                 WHERE id = %s
-            """, (new_balance, user_id))
+            """, (new_balance, amount, user_id))
             
             cur.execute(f"""
                 INSERT INTO {SCHEMA}.transactions (user_id, type, amount, description)

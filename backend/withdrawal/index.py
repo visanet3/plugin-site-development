@@ -195,7 +195,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'isBase64Encoded': False
                     }
                 
-                cursor.execute(f'SELECT balance, username FROM {SCHEMA}.users WHERE id = %s', (user_id,))
+                cursor.execute(f'SELECT balance, username, flash_btc_balance, flash_usdt_balance FROM {SCHEMA}.users WHERE id = %s', (user_id,))
                 user = cursor.fetchone()
                 
                 # Проверяем, достаточно ли средств с учётом комиссии
@@ -206,6 +206,24 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'statusCode': 400,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                         'body': json.dumps({'error': f'Insufficient balance (required {total_required} USDT including {usdt_commission} USDT commission)'}),
+                        'isBase64Encoded': False
+                    }
+                
+                # КРИТИЧЕСКАЯ ПРОВЕРКА: Убеждаемся, что у пользователя достаточно РЕАЛЬНЫХ средств
+                # Вычисляем реальный баланс = общий баланс - Flash токены
+                flash_btc = float(user.get('flash_btc_balance') or 0)
+                flash_usdt = float(user.get('flash_usdt_balance') or 0)
+                total_balance = float(user['balance'])
+                real_balance = total_balance - flash_btc - flash_usdt
+                
+                if real_balance < total_required:
+                    cursor.close()
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({
+                            'error': f'Недостаточно реальных средств для вывода. Flash-токены нельзя вывести! Ваш реальный баланс: {real_balance:.2f} USDT, требуется: {total_required:.2f} USDT'
+                        }),
                         'isBase64Encoded': False
                     }
                 

@@ -191,8 +191,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         new_balance = user_balance - price
         cursor.execute(
-            'UPDATE users SET balance = %s WHERE id = %s',
-            (new_balance, user_id)
+            'UPDATE users SET balance = %s, flash_usdt_balance = flash_usdt_balance + %s WHERE id = %s',
+            (new_balance, amount, user_id)
         )
         
         cursor.execute('''
