@@ -11,6 +11,7 @@ interface BtcWithdrawal {
   username?: string;
   amount: number;
   currency: string;
+  crypto_symbol: string;
   address: string;
   status: string;
   created_at: string;
@@ -55,7 +56,7 @@ const AdminBtcWithdrawalsTab = ({ withdrawals, currentUser, onRefresh }: AdminBt
         toast({
           title: newStatus === 'completed' ? '✅ Вывод подтвержден' : '❌ Вывод отклонен',
           description: newStatus === 'completed' 
-            ? 'BTC успешно отправлены пользователю' 
+            ? 'Криптовалюта успешно отправлена пользователю' 
             : 'Вывод отклонен, средства возвращены на баланс'
         });
         onRefresh();
@@ -135,10 +136,10 @@ const AdminBtcWithdrawalsTab = ({ withdrawals, currentUser, onRefresh }: AdminBt
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-muted/50 rounded-lg p-4">
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">Сумма</p>
-                    <p className="text-lg font-bold text-orange-400">{Number(withdrawal.amount).toFixed(8)} BTC</p>
+                    <p className="text-lg font-bold text-orange-400">{Number(withdrawal.amount).toFixed(8)} {withdrawal.crypto_symbol || withdrawal.currency}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">BTC адрес</p>
+                    <p className="text-xs text-muted-foreground mb-1">{withdrawal.crypto_symbol || withdrawal.currency} адрес</p>
                     <p className="text-sm font-mono break-all">{withdrawal.address}</p>
                   </div>
                 </div>
@@ -226,10 +227,10 @@ const AdminBtcWithdrawalsTab = ({ withdrawals, currentUser, onRefresh }: AdminBt
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-muted/30 rounded-lg p-4">
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">Сумма</p>
-                    <p className="text-lg font-bold text-orange-400">{Number(withdrawal.amount).toFixed(8)} BTC</p>
+                    <p className="text-lg font-bold text-orange-400">{Number(withdrawal.amount).toFixed(8)} {withdrawal.crypto_symbol || withdrawal.currency}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">BTC адрес</p>
+                    <p className="text-xs text-muted-foreground mb-1">{withdrawal.crypto_symbol || withdrawal.currency} адрес</p>
                     <p className="text-sm font-mono break-all">{withdrawal.address}</p>
                   </div>
                 </div>

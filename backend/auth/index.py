@@ -1,8 +1,9 @@
 '''
-Business: Регистрация и авторизация пользователей в каталоге плагинов
+Business: Регистрация, авторизация пользователей и обработка вывода криптовалют
 Args: event - dict с httpMethod, body, queryStringParameters
       context - объект с атрибутами: request_id, function_name
 Returns: HTTP response dict с токеном и данными пользователя
+Updated: 2025-12-31 - added process_btc_withdrawal handler
 '''
 
 import json
@@ -108,6 +109,7 @@ def validate_btc_price(client_price: float, tolerance_percent: float = 2.0) -> b
     return lower_bound <= client_price <= upper_bound
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
+    """Обработчик запросов авторизации, регистрации и управления выводом криптовалют"""
     method: str = event.get('httpMethod', 'POST')
     
     # CORS preflight
@@ -973,6 +975,90 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             cur.execute(
                 f"INSERT INTO {SCHEMA}.withdrawals (user_id, crypto_symbol, amount, address, status, created_at) VALUES ({int(user_id)}, {escape_sql_string(crypto_symbol.upper())}, {float(amount)}, {escape_sql_string(address)}, 'pending', NOW())"
+            )
+            
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True}),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'process_btc_withdrawal':
+            headers = event.get('headers', {})
+            user_id = headers.get('X-User-Id') or headers.get('x-user-id')
+            
+            if not user_id:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Требуется авторизация'}),
+                    'isBase64Encoded': False
+                }
+            
+            # Проверяем, что пользователь - админ
+            cur.execute(f"SELECT role FROM {SCHEMA}.users WHERE id = {int(user_id)}")
+            user_role = cur.fetchone()
+            
+            if not user_role or user_role['role'] != 'admin':
+                return {
+                    'statusCode': 403,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Access denied'}),
+                    'isBase64Encoded': False
+                }
+            
+            withdrawal_id = body_data.get('withdrawal_id')
+            new_status = body_data.get('status')
+            admin_comment = body_data.get('admin_comment', '')
+            
+            if not withdrawal_id or not new_status:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Некорректные параметры'}),
+                    'isBase64Encoded': False
+                }
+            
+            # Получаем данные заявки на вывод
+            cur.execute(
+                f"SELECT user_id, crypto_symbol, amount, status FROM {SCHEMA}.withdrawals WHERE id = {int(withdrawal_id)}"
+            )
+            withdrawal = cur.fetchone()
+            
+            if not withdrawal:
+                return {
+                    'statusCode': 404,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Заявка не найдена'}),
+                    'isBase64Encoded': False
+                }
+            
+            if withdrawal['status'] != 'pending':
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Заявка уже обработана'}),
+                    'isBase64Encoded': False
+                }
+            
+            # Если отклоняем - возвращаем средства на ПРАВИЛЬНЫЙ криптобаланс
+            if new_status == 'rejected':
+                crypto_column = f"{withdrawal['crypto_symbol'].lower()}_balance"
+                cur.execute(
+                    f"UPDATE {SCHEMA}.users SET {crypto_column} = COALESCE({crypto_column}, 0) + {float(withdrawal['amount'])} WHERE id = {int(withdrawal['user_id'])}"
+                )
+                
+                # Добавляем транзакцию о возврате
+                cur.execute(
+                    f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES ({int(withdrawal['user_id'])}, {float(withdrawal['amount'])}, 'withdrawal_rejected', {escape_sql_string(f'Возврат {withdrawal['amount']} {withdrawal['crypto_symbol']} (заявка #{withdrawal_id} отклонена)')})"
+                )
+            
+            # Обновляем статус заявки
+            cur.execute(
+                f"UPDATE {SCHEMA}.withdrawals SET status = {escape_sql_string(new_status)}, admin_comment = {escape_sql_string(admin_comment)}, processed_at = NOW() WHERE id = {int(withdrawal_id)}"
             )
             
             conn.commit()

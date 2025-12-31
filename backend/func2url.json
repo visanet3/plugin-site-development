@@ -20,6 +20,5 @@
   "crypto": "https://functions.poehali.dev/8caa3b76-72e5-42b5-9415-91d1f9b05210",
   "notifications": "https://functions.poehali.dev/6c968792-7d48-41a9-af0a-c92adb047acb",
   "admin": "https://functions.poehali.dev/d4678b1c-2acd-40bb-b8c5-cefe8d14fad4",
-  "forum": "https://functions.poehali.dev/045d6571-633c-4239-ae69-8d76c933532c",
-  "auth": "https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03"
+  "forum": "https://functions.poehali.dev/045d6571-633c-4239-ae69-8d76c933532c"
 }
