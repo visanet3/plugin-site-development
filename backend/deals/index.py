@@ -800,10 +800,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 # Получаем информацию о сделке перед удалением
                 cursor.execute("""
-                    SELECT d.id, d.title, d.status, d.seller_id, d.buyer_id,
-                           s.username as seller_name
+                    SELECT d.id, d.title, d.status, d.seller_id, d.buyer_id, d.price,
+                           s.username as seller_name, b.username as buyer_name
                     FROM deals d
                     LEFT JOIN users s ON d.seller_id = s.id
+                    LEFT JOIN users b ON d.buyer_id = b.id
                     WHERE d.id = %s
                 """, (deal_id,))
                 
@@ -818,6 +819,27 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'isBase64Encoded': False
                     }
                 
+                # КРИТИЧЕСКИ ВАЖНО: Если сделка активна и есть покупатель - возвращаем средства
+                if deal['buyer_id'] and deal['status'] == 'in_progress':
+                    deal_price = float(deal['price'])
+                    
+                    # Возвращаем заблокированные средства покупателю
+                    cursor.execute("""
+                        UPDATE users SET balance = balance + %s WHERE id = %s
+                    """, (deal_price, deal['buyer_id']))
+                    
+                    # Создаем транзакцию о возврате
+                    cursor.execute("""
+                        INSERT INTO transactions (user_id, amount, type, description)
+                        VALUES (%s, %s, 'deal_refund', %s)
+                    """, (deal['buyer_id'], deal_price, f"Возврат средств за удаленную сделку '{deal['title']}' (#{deal_id})"))
+                    
+                    # Уведомление покупателю
+                    cursor.execute("""
+                        INSERT INTO notifications (user_id, type, title, message, is_read)
+                        VALUES (%s, 'deal_deleted', 'Сделка удалена администратором', %s, FALSE)
+                    """, (deal['buyer_id'], f"Сделка '{deal['title']}' была удалена администратором. Заблокированные средства ({deal_price} USDT) возвращены на ваш баланс."))
+                
                 # Удаляем сообщения сделки
                 cursor.execute('DELETE FROM deal_messages WHERE deal_id = %s', (deal_id,))
                 
@@ -825,10 +847,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cursor.execute('DELETE FROM deals WHERE id = %s', (deal_id,))
                 
                 # Логируем действие администратора
+                refund_info = f" (возврат {deal['price']} USDT пользователю {deal['buyer_name']})" if deal['buyer_id'] and deal['status'] == 'in_progress' else ""
                 cursor.execute("""
                     INSERT INTO admin_actions (admin_id, action, target_type, target_id, details)
                     VALUES (%s, 'delete_deal', 'deal', %s, %s)
-                """, (user_id, deal_id, f"Deleted deal '{deal['title']}' by {deal['seller_name']}"))
+                """, (user_id, deal_id, f"Deleted deal '{deal['title']}' by {deal['seller_name']}{refund_info}"))
                 
                 conn.commit()
                 cursor.close()
