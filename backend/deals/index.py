@@ -403,9 +403,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'isBase64Encoded': False
                     }
                 
-                # Проверяем сделку и баланс покупателя
+                # Проверяем сделку и баланс покупателя с учетом Flash токенов
                 cursor.execute("""
-                    SELECT d.id, d.price, d.seller_id, d.status, d.buyer_id, u.balance
+                    SELECT d.id, d.price, d.seller_id, d.status, d.buyer_id, 
+                           u.balance, u.flash_btc_balance, u.flash_usdt_balance
                     FROM deals d
                     INNER JOIN users u ON u.id = %s
                     WHERE d.id = %s AND d.status = 'active' AND (d.buyer_id IS NULL OR d.buyer_id = %s)
@@ -422,12 +423,19 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'isBase64Encoded': False
                     }
                 
-                if deal_data['balance'] < deal_data['price']:
+                # КРИТИЧЕСКАЯ ПРОВЕРКА: вычисляем реальный баланс без Flash токенов
+                total_balance = float(deal_data['balance'] or 0)
+                flash_btc = float(deal_data.get('flash_btc_balance') or 0)
+                flash_usdt = float(deal_data.get('flash_usdt_balance') or 0)
+                real_balance = total_balance - flash_btc - flash_usdt
+                required_amount = float(deal_data['price'])
+                
+                if real_balance < required_amount:
                     cursor.close()
                     return {
                         'statusCode': 400,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Insufficient balance'}),
+                        'body': json.dumps({'error': f'Недостаточно реальных средств! Flash-токены нельзя использовать в сделках. Доступно: {real_balance:.2f} USDT'}),
                         'isBase64Encoded': False
                     }
                 
@@ -734,6 +742,93 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     INSERT INTO deal_messages (deal_id, user_id, message, is_system)
                     VALUES (%s, %s, 'Сделка отменена', true)
                 """, (deal_id, user_id))
+                
+                conn.commit()
+                cursor.close()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True}),
+                    'isBase64Encoded': False
+                }
+            
+            cursor.close()
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Unknown action'}),
+                'isBase64Encoded': False
+            }
+        
+        elif method == 'DELETE':
+            if not user_id:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Unauthorized'}),
+                    'isBase64Encoded': False
+                }
+            
+            body = json.loads(event.get('body', '{}'))
+            action = body.get('action')
+            
+            if action == 'admin_delete_deal':
+                # Проверка прав администратора
+                cursor.execute('SELECT role FROM users WHERE id = %s', (user_id,))
+                user = cursor.fetchone()
+                
+                if not user or user['role'] != 'admin':
+                    cursor.close()
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Access denied'}),
+                        'isBase64Encoded': False
+                    }
+                
+                deal_id = body.get('deal_id')
+                
+                if not deal_id:
+                    cursor.close()
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'deal_id required'}),
+                        'isBase64Encoded': False
+                    }
+                
+                # Получаем информацию о сделке перед удалением
+                cursor.execute("""
+                    SELECT d.id, d.title, d.status, d.seller_id, d.buyer_id,
+                           s.username as seller_name
+                    FROM deals d
+                    LEFT JOIN users s ON d.seller_id = s.id
+                    WHERE d.id = %s
+                """, (deal_id,))
+                
+                deal = cursor.fetchone()
+                
+                if not deal:
+                    cursor.close()
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Deal not found'}),
+                        'isBase64Encoded': False
+                    }
+                
+                # Удаляем сообщения сделки
+                cursor.execute('DELETE FROM deal_messages WHERE deal_id = %s', (deal_id,))
+                
+                # Удаляем саму сделку
+                cursor.execute('DELETE FROM deals WHERE id = %s', (deal_id,))
+                
+                # Логируем действие администратора
+                cursor.execute("""
+                    INSERT INTO admin_actions (admin_id, action, target_type, target_id, details)
+                    VALUES (%s, 'delete_deal', 'deal', %s, %s)
+                """, (user_id, deal_id, f"Deleted deal '{deal['title']}' by {deal['seller_name']}"))
                 
                 conn.commit()
                 cursor.close()

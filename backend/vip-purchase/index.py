@@ -81,7 +81,7 @@ def purchase_vip(user_id: int) -> Dict[str, Any]:
         cur = conn.cursor(cursor_factory=RealDictCursor)
         
         cur.execute(
-            "SELECT id, username, balance, vip_until FROM t_p32599880_plugin_site_developm.users WHERE id = %s",
+            "SELECT id, username, balance, vip_until, flash_btc_balance, flash_usdt_balance FROM t_p32599880_plugin_site_developm.users WHERE id = %s",
             (user_id,)
         )
         user = cur.fetchone()
@@ -97,9 +97,13 @@ def purchase_vip(user_id: int) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
-        balance = float(user['balance'] or 0)
+        # КРИТИЧЕСКАЯ ПРОВЕРКА: вычисляем реальный баланс без Flash токенов
+        total_balance = float(user['balance'] or 0)
+        flash_btc = float(user.get('flash_btc_balance') or 0)
+        flash_usdt = float(user.get('flash_usdt_balance') or 0)
+        real_balance = total_balance - flash_btc - flash_usdt
         
-        if balance < VIP_PRICE:
+        if real_balance < VIP_PRICE:
             return {
                 'statusCode': 400,
                 'headers': {
@@ -108,7 +112,7 @@ def purchase_vip(user_id: int) -> Dict[str, Any]:
                 },
                 'body': json.dumps({
                     'success': False,
-                    'error': f'Insufficient balance. Required: {VIP_PRICE} USDT, Available: {balance} USDT'
+                    'error': f'Недостаточно реальных средств! Flash-токены нельзя использовать для покупки VIP. Требуется: {VIP_PRICE} USDT, Доступно: {real_balance:.2f} USDT'
                 }),
                 'isBase64Encoded': False
             }
@@ -121,7 +125,7 @@ def purchase_vip(user_id: int) -> Dict[str, Any]:
         else:
             new_vip_until = now + timedelta(days=VIP_DURATION_DAYS)
         
-        new_balance = balance - VIP_PRICE
+        new_balance = total_balance - VIP_PRICE
         
         cur.execute(
             """

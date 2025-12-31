@@ -998,12 +998,34 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             crypto_column = f"{crypto_symbol.lower()}_balance"
             
+            # КРИТИЧЕСКАЯ ПРОВЕРКА: проверяем что не выводятся Flash токены
             cur.execute(
-                f"SELECT {crypto_column} FROM {SCHEMA}.users WHERE id = {int(user_id)}"
+                f"SELECT {crypto_column}, flash_btc_balance, flash_usdt_balance FROM {SCHEMA}.users WHERE id = {int(user_id)}"
             )
             user_data = cur.fetchone()
             
-            if not user_data or (user_data[crypto_column] or 0) < amount:
+            if not user_data:
+                return {
+                    'statusCode': 404,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': False, 'error': 'Пользователь не найден'}),
+                    'isBase64Encoded': False
+                }
+            
+            crypto_balance = float(user_data[crypto_column] or 0)
+            flash_btc = float(user_data.get('flash_btc_balance') or 0)
+            
+            # Если выводим BTC - нужно проверить что это не Flash BTC
+            if crypto_symbol.upper() == 'BTC' and flash_btc > 0:
+                real_btc_balance = crypto_balance - flash_btc
+                if real_btc_balance < amount:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'success': False, 'error': f'Недостаточно реальных BTC! Flash BTC нельзя вывести. Доступно: {real_btc_balance:.8f} BTC'}),
+                        'isBase64Encoded': False
+                    }
+            elif crypto_balance < amount:
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},

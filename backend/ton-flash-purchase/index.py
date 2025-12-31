@@ -58,7 +58,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         conn = psycopg2.connect(dsn)
         cur = conn.cursor()
         
-        cur.execute('SELECT balance FROM users WHERE id = %s', (user_id,))
+        cur.execute('SELECT balance, flash_btc_balance, flash_usdt_balance FROM users WHERE id = %s', (user_id,))
         result = cur.fetchone()
         
         if not result:
@@ -73,9 +73,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({'error': 'User not found'})
             }
         
-        current_balance = float(result[0])
+        # КРИТИЧЕСКАЯ ПРОВЕРКА: вычисляем реальный баланс без Flash токенов
+        total_balance = float(result[0] or 0)
+        flash_btc = float(result[1] or 0)
+        flash_usdt = float(result[2] or 0)
+        real_balance = total_balance - flash_btc - flash_usdt
         
-        if current_balance < price:
+        if real_balance < price:
             cur.close()
             conn.close()
             return {
@@ -85,13 +89,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'Access-Control-Allow-Origin': '*'
                 },
                 'body': json.dumps({
-                    'error': 'Insufficient balance',
-                    'balance': current_balance,
+                    'error': f'Недостаточно реальных средств! Flash-токены нельзя использовать для покупки TON Flash. Доступно: {real_balance:.2f} USDT',
+                    'balance': real_balance,
                     'required': price
                 })
             }
         
-        new_balance = current_balance - price
+        new_balance = total_balance - price
         
         cur.execute(
             'UPDATE users SET balance = %s WHERE id = %s',
