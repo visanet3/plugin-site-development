@@ -90,21 +90,29 @@ const CreateTopicDialog = ({
     setIsSubmitting(true);
 
     try {
+      const requestBody = {
+        action: 'create_topic',
+        title: title.trim(),
+        content: content.trim(),
+        category_id: selectedCategory
+      };
+      
+      const requestHeaders = {
+        'Content-Type': 'application/json',
+        'X-User-Id': user.id.toString()
+      };
+      
+      console.log('Creating topic with:', { requestHeaders, requestBody });
+      
       const response = await fetch(FORUM_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': user.id.toString()
-        },
-        body: JSON.stringify({
-          action: 'create_topic',
-          title: title.trim(),
-          content: content.trim(),
-          category_id: selectedCategory
-        })
+        headers: requestHeaders,
+        body: JSON.stringify(requestBody)
       });
 
+      console.log('Response status:', response.status);
       const data = await response.json();
+      console.log('Response data:', data);
 
       if (data.success) {
         toast({
