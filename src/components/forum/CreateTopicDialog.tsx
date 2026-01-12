@@ -93,11 +93,11 @@ const CreateTopicDialog = ({
       const response = await fetch(FORUM_URL, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-User-Id': user.id.toString()
         },
         body: JSON.stringify({
           action: 'create_topic',
-          user_id: user.id,
           title: title.trim(),
           content: content.trim(),
           category_id: selectedCategory
