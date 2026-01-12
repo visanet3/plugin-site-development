@@ -11,7 +11,7 @@ import ResetPassword from "./pages/ResetPassword";
 import ChristmasTree from "./pages/ChristmasTree";
 import NotFound from "./pages/NotFound";
 import { CookieProvider } from "./contexts/CookieContext";
-import Snowfall from "./components/Snowfall";
+
 
 const queryClient = new QueryClient();
 
@@ -25,7 +25,7 @@ const App = () => (
           <title>Купить Flash USDT TRC20 | GitCrypto - Флеш USDT криптовалюта</title>
           <meta name="description" content="Купить Flash USDT TRC20 - надежная платформа GitCrypto для покупки флеш криптовалюты. Смарт-контракты на блокчейне TRON, безопасные транзакции. Flash токены USDT TRC20 с мгновенной отправкой. Форум криптосообщества и плагины для разработчиков" />
         </Helmet>
-        <Snowfall />
+
         <Toaster />
         <Sonner />
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>

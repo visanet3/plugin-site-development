@@ -162,38 +162,6 @@ const Header = ({
           {user ? (
             <>
               <div className="flex items-center gap-1.5 sm:gap-3">
-                <button
-                  onClick={() => navigate('/christmas-tree')}
-                  className="relative cursor-pointer"
-                  title="Новогодняя акция! Получите бонус до 100%"
-                >
-                  <div className="relative bg-gradient-to-r from-red-600/20 to-green-600/20 border border-red-500/30 rounded-lg px-2 sm:px-4 py-1.5 sm:py-2 backdrop-blur-sm shadow-md">
-                    <div className="flex items-center gap-1 sm:gap-2">
-                      <div className="relative w-6 h-6 sm:w-8 sm:h-8">
-                        <div className="w-full h-full rounded-full bg-gradient-to-br from-red-500 to-green-500 flex items-center justify-center shadow-sm p-0.5 sm:p-1.5 animate-pulse">
-                          <span className="text-sm sm:text-xl">🎄</span>
-                        </div>
-                        <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 rounded-full bg-yellow-400 flex items-center justify-center shadow-sm border border-background animate-ping"></div>
-                        <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 rounded-full bg-yellow-400 flex items-center justify-center shadow-sm border border-background">
-                          <span className="text-[6px] sm:text-[8px]">🔥</span>
-                        </div>
-                      </div>
-                      <div className="hidden sm:block">
-                        <p className="text-[9px] text-yellow-300/80 font-medium uppercase tracking-wide leading-none">🎁 до 10.01</p>
-                        <p className="text-base font-semibold bg-gradient-to-r from-yellow-200 to-yellow-400 bg-clip-text text-transparent transition-all duration-300 leading-tight">
-                          до 100%
-                          <span className="text-[10px] ml-1 text-white/90 font-bold">БОНУС</span>
-                        </p>
-                      </div>
-                      <div className="sm:hidden">
-                        <p className="text-[10px] font-bold bg-gradient-to-r from-yellow-200 to-yellow-400 bg-clip-text text-transparent leading-none">
-                          100%
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </button>
-                
                 <button 
                   onClick={onShowProfile}
                   className="relative group cursor-pointer"
