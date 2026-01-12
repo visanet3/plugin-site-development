@@ -9,15 +9,10 @@ interface DialogsProps {
   showTopicDialog: boolean;
   showProfileDialog: boolean;
   user: User | null;
-  newTopicTitle: string;
-  newTopicContent: string;
   onAuthDialogChange: (open: boolean) => void;
   onAuthModeChange: (mode: 'login' | 'register') => void;
   onAuthSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   onTopicDialogChange: (open: boolean) => void;
-  onTopicTitleChange: (title: string) => void;
-  onTopicContentChange: (content: string) => void;
-  onCreateTopic: () => void;
   onProfileDialogChange: (open: boolean) => void;
   onUpdateProfile: (profileData: Partial<User>) => void;
   onAuthDialogAttemptClose?: () => void;
@@ -30,15 +25,10 @@ const Dialogs = ({
   showTopicDialog,
   showProfileDialog,
   user,
-  newTopicTitle,
-  newTopicContent,
   onAuthDialogChange,
   onAuthModeChange,
   onAuthSubmit,
   onTopicDialogChange,
-  onTopicTitleChange,
-  onTopicContentChange,
-  onCreateTopic,
   onProfileDialogChange,
   onUpdateProfile,
   onAuthDialogAttemptClose,
@@ -65,12 +55,8 @@ const Dialogs = ({
 
       <CreateTopicDialog
         open={showTopicDialog}
-        newTopicTitle={newTopicTitle}
-        newTopicContent={newTopicContent}
+        user={user}
         onOpenChange={onTopicDialogChange}
-        onTitleChange={onTopicTitleChange}
-        onContentChange={onTopicContentChange}
-        onCreate={onCreateTopic}
         onTopicCreated={onTopicCreated}
       />
     </>

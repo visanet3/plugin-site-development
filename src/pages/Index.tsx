@@ -222,15 +222,10 @@ const Index = () => {
               showTopicDialog={state.showTopicDialog}
               showProfileDialog={state.showProfileDialog}
               user={state.user}
-              newTopicTitle={state.newTopicTitle}
-              newTopicContent={state.newTopicContent}
               onAuthDialogChange={state.setAuthDialogOpen}
               onAuthModeChange={state.setAuthMode}
               onAuthSubmit={handlers.handleAuth}
               onTopicDialogChange={state.setShowTopicDialog}
-              onTopicTitleChange={state.setNewTopicTitle}
-              onTopicContentChange={state.setNewTopicContent}
-              onCreateTopic={state.handleCreateTopic}
               onProfileDialogChange={state.setShowProfileDialog}
               onUpdateProfile={handlers.handleUpdateProfile}
               onAuthDialogAttemptClose={handlers.handleAuthDialogAttemptClose}
