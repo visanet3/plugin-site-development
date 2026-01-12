@@ -20,6 +20,7 @@ interface Package {
   badge?: string;
   color?: string;
   isTest?: boolean;
+  soldOut?: boolean;
 }
 
 const packages: Package[] = [
@@ -256,6 +257,20 @@ export const TonFlashPackages = ({ user, onShowAuthDialog, onRefreshUserBalance 
       </div>
 
       <div className="max-w-7xl mx-auto p-4 md:p-6 animate-fade-in relative">
+        {/* Out of Stock Warning */}
+        <div className="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-500/20 via-orange-500/20 to-red-500/20 border-2 border-red-500/50 p-6 animate-pulse">
+          <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-transparent"></div>
+          <div className="relative z-10 flex items-center gap-4">
+            <div className="flex items-center justify-center w-14 h-14 rounded-full bg-red-500/20 border-2 border-red-500/50">
+              <Icon name="AlertTriangle" size={28} className="text-red-400" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-red-400 mb-1">Товар закончился</h3>
+              <p className="text-sm text-red-300/80">Все пакеты TON Flash USDT временно недоступны. Технические специалисты работают над созданием нового товара.</p>
+            </div>
+          </div>
+        </div>
+
         {/* Заголовок */}
         <div className="mb-12 relative overflow-hidden rounded-3xl">
           {/* Background */}
@@ -355,16 +370,11 @@ export const TonFlashPackages = ({ user, onShowAuthDialog, onRefreshUserBalance 
 
                   {/* Кнопка */}
                   <Button
-                    onClick={() => handlePurchase(pkg)}
-                    className={`w-full h-12 text-base font-bold shadow-lg transition-all duration-300 ${
-                      pkg.popular
-                        ? colors.button
-                        : `border-2 ${colors.button}`
-                    }`}
-                    variant={pkg.popular ? 'default' : 'outline'}
+                    disabled
+                    className="w-full h-12 text-base font-bold bg-gray-500 text-white opacity-50 cursor-not-allowed"
                   >
-                    <Icon name="ShoppingCart" size={18} />
-                    Приобрести
+                    <Icon name="X" size={18} />
+                    Нет в наличии
                   </Button>
                 </div>
 
