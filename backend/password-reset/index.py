@@ -148,6 +148,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         body_data = json.loads(event.get('body', '{}'))
         action = body_data.get('action')
         
+        print(f"DEBUG: Received action: '{action}', body_data: {body_data}")
+        
         if action == 'request_reset':
             email = body_data.get('email', '').strip()
             custom_smtp = body_data.get('smtp_settings')
