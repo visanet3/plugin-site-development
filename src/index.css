@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap");
+@import url("https://fonts.cdnfonts.com/css/tt-norms-pro");
 
 @tailwind base;
 @tailwind components;
@@ -60,10 +60,17 @@
   body {
     @apply bg-background text-foreground;
     font-family:
-      "Rubik",
+      "TT Norms Pro",
       -apple-system,
       BlinkMacSystemFont,
       "Segoe UI",
+      "Roboto",
+      "Oxygen",
+      "Ubuntu",
+      "Cantarell",
+      "Fira Sans",
+      "Droid Sans",
+      "Helvetica Neue",
       sans-serif;
     overflow-x: hidden;
     max-width: 100vw;
