@@ -87,6 +87,20 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
   
   const [priceHistory, setPriceHistory] = useState<Array<{time: string, price: number}>>([]);
 
+  interface Transaction {
+    id: string;
+    type: 'buy' | 'sell' | 'withdraw';
+    crypto: CryptoSymbol;
+    amount: number;
+    price: number;
+    total: number;
+    timestamp: Date;
+    status: 'completed' | 'pending';
+    address?: string;
+  }
+
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+
   useEffect(() => {
     loadPrices();
     loadBalances();
@@ -382,6 +396,18 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
       const data = await response.json();
 
       if (data.success) {
+        const newTransaction: Transaction = {
+          id: Date.now().toString(),
+          type: 'sell',
+          crypto: selectedCrypto,
+          amount: crypto,
+          price: sellPrices[selectedCrypto],
+          total: data.usdt_received,
+          timestamp: new Date(),
+          status: 'completed'
+        };
+        setTransactions(prev => [newTransaction, ...prev]);
+
         toast({
           title: '✅ Обмен выполнен!',
           description: `Вы обменяли ${crypto} ${selectedCrypto} на ${data.usdt_received} USDT`
@@ -476,6 +502,19 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
       const data = await response.json();
 
       if (data.success) {
+        const newTransaction: Transaction = {
+          id: Date.now().toString(),
+          type: 'withdraw',
+          crypto: withdrawCrypto,
+          amount: amount,
+          price: sellPrices[withdrawCrypto],
+          total: amount * sellPrices[withdrawCrypto],
+          timestamp: new Date(),
+          status: 'pending',
+          address: withdrawAddress
+        };
+        setTransactions(prev => [newTransaction, ...prev]);
+
         toast({
           title: '✅ Заявка создана',
           description: `Вывод ${amount} ${withdrawCrypto} будет обработан в течение 24 часов`
@@ -1074,6 +1113,125 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <div className="container mx-auto px-4 py-8">
+        <Card className="border-2 border-primary/20 shadow-2xl bg-gradient-to-br from-card via-card to-primary/5">
+          <div className="p-4 border-b border-primary/20 bg-gradient-to-r from-transparent to-primary/5">
+            <h3 className="font-semibold flex items-center gap-2 text-xl">
+              <Icon name="History" size={22} className="text-primary" />
+              История транзакций
+            </h3>
+          </div>
+          <ScrollArea className="h-[500px]">
+            <div className="p-4">
+              {transactions.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <Icon name="FileText" size={48} className="text-muted-foreground/30 mb-4" />
+                  <p className="text-muted-foreground">История транзакций пуста</p>
+                  <p className="text-sm text-muted-foreground/70 mt-1">Совершите первую операцию</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {transactions.map((tx) => {
+                    const cryptoInfo = CRYPTO_INFO[tx.crypto];
+                    const isWithdraw = tx.type === 'withdraw';
+                    const isBuy = tx.type === 'buy';
+                    const isSell = tx.type === 'sell';
+
+                    return (
+                      <div 
+                        key={tx.id}
+                        className="p-4 rounded-lg border-2 hover:shadow-lg transition-all bg-gradient-to-r from-card to-muted/20"
+                        style={{
+                          borderColor: isBuy ? 'rgba(34, 197, 94, 0.3)' : 
+                                      isSell ? 'rgba(239, 68, 68, 0.3)' : 
+                                      'rgba(168, 85, 247, 0.3)'
+                        }}
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex items-start gap-3 flex-1">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                              isBuy ? 'bg-green-500/20' :
+                              isSell ? 'bg-red-500/20' :
+                              'bg-purple-500/20'
+                            }`}>
+                              <Icon 
+                                name={isWithdraw ? 'Send' : isBuy ? 'TrendingUp' : 'TrendingDown'} 
+                                size={20}
+                                className={
+                                  isBuy ? 'text-green-500' :
+                                  isSell ? 'text-red-500' :
+                                  'text-purple-500'
+                                }
+                              />
+                            </div>
+                            
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-semibold">
+                                  {isWithdraw ? 'Вывод' : isBuy ? 'Покупка' : 'Продажа'}
+                                </span>
+                                {tx.status === 'pending' && (
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-600 border border-yellow-500/30">
+                                    В обработке
+                                  </span>
+                                )}
+                                {tx.status === 'completed' && (
+                                  <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-600 border border-green-500/30">
+                                    Выполнено
+                                  </span>
+                                )}
+                              </div>
+                              
+                              <div className="text-sm text-muted-foreground space-y-1">
+                                <div className="flex items-center gap-2">
+                                  <img src={cryptoInfo.logo} alt={tx.crypto} className="w-4 h-4" />
+                                  <span className="font-mono">
+                                    {tx.amount.toFixed(cryptoInfo.decimals)} {tx.crypto}
+                                  </span>
+                                  {!isWithdraw && (
+                                    <>
+                                      <span>×</span>
+                                      <span>${tx.price.toFixed(2)}</span>
+                                    </>
+                                  )}
+                                </div>
+                                {tx.address && (
+                                  <div className="flex items-center gap-1 text-xs">
+                                    <Icon name="Wallet" size={12} />
+                                    <span className="font-mono truncate max-w-[200px]">{tx.address}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="text-right">
+                            <div className={`text-lg font-bold ${
+                              isBuy ? 'text-red-500' : 'text-green-500'
+                            }`}>
+                              {isBuy ? '-' : '+'}{tx.total.toFixed(2)} USDT
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {tx.timestamp.toLocaleString('ru-RU', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+        </Card>
+      </div>
     </div>
   );
 };
