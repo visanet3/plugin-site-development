@@ -556,17 +556,17 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
   const { buyOrders, sellOrders } = getOrderBookData();
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="border-b border-border/40 bg-card/50">
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-purple-500/5">
+      <div className="border-b border-border/40 bg-gradient-to-r from-card/80 via-primary/10 to-card/80 backdrop-blur-md shadow-lg">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                  <Icon name="TrendingUp" size={24} className="text-primary" />
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 flex items-center justify-center shadow-lg animate-pulse">
+                  <Icon name="TrendingUp" size={24} className="text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold">Обменник</h1>
+                  <h1 className="text-2xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">Обменник</h1>
                   <p className="text-sm text-muted-foreground">Торговля криптовалютой</p>
                 </div>
               </div>
@@ -603,7 +603,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-3xl font-bold">${currentBuyPrice.toFixed(2)}</p>
+                  <p className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">${currentBuyPrice.toFixed(2)}</p>
                   <p className="text-sm text-muted-foreground">24ч Объём: ${(Math.random() * 1000000).toFixed(0)}</p>
                 </div>
               </div>
@@ -658,10 +658,10 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                     <button
                       key={symbol}
                       onClick={() => setSelectedCrypto(symbol)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all whitespace-nowrap ${
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all whitespace-nowrap transform hover:scale-105 ${
                         isActive 
-                          ? 'border-primary bg-primary/10' 
-                          : 'border-border/40 hover:border-primary/50 hover:bg-muted/50'
+                          ? 'border-primary bg-gradient-to-r from-primary/20 to-purple-500/20 shadow-lg shadow-primary/20' 
+                          : 'border-border/40 hover:border-primary/50 hover:bg-gradient-to-r hover:from-muted/50 hover:to-primary/5'
                       }`}
                     >
                       <img src={info.logo} alt={info.name} className="w-6 h-6" />
@@ -675,18 +675,18 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
               </div>
             </Card>
 
-            <Card className="p-4 border-border/40">
+            <Card className="p-4 border-2 border-primary/20 shadow-2xl bg-gradient-to-br from-card via-card to-primary/5 backdrop-blur-sm">
               <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'buy' | 'sell' | 'withdraw')} className="w-full">
-                <TabsList className="grid w-full grid-cols-3 h-11 mb-4">
-                  <TabsTrigger value="buy" className="data-[state=active]:bg-green-500/10 data-[state=active]:text-green-500">
+                <TabsList className="grid w-full grid-cols-3 h-11 mb-4 bg-gradient-to-r from-muted/50 to-primary/5">
+                  <TabsTrigger value="buy" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500/20 data-[state=active]:to-emerald-500/20 data-[state=active]:text-green-500 data-[state=active]:shadow-lg transition-all">
                     <Icon name="ArrowDownCircle" size={16} className="mr-2" />
                     Купить
                   </TabsTrigger>
-                  <TabsTrigger value="sell" className="data-[state=active]:bg-red-500/10 data-[state=active]:text-red-500">
+                  <TabsTrigger value="sell" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-red-500 data-[state=active]:shadow-lg transition-all">
                     <Icon name="ArrowUpCircle" size={16} className="mr-2" />
                     Продать
                   </TabsTrigger>
-                  <TabsTrigger value="withdraw">
+                  <TabsTrigger value="withdraw" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-purple-500/20 data-[state=active]:shadow-lg transition-all">
                     <Icon name="Send" size={16} className="mr-2" />
                     Вывести
                   </TabsTrigger>
@@ -738,7 +738,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
 
                   <div>
                     <Label className="text-xs mb-1.5 block">Получите {selectedCrypto}</Label>
-                    <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+                    <div className="p-4 rounded-lg bg-gradient-to-r from-primary/10 to-purple-500/10 border-2 border-primary/30 shadow-lg">
                       <p className="text-2xl font-bold text-primary">
                         {cryptoAmount || '0'} {selectedCrypto}
                       </p>
@@ -749,7 +749,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                     onClick={handleBuyCrypto} 
                     disabled={loading || priceLoading || !usdtAmount}
                     size="lg"
-                    className="w-full h-12 bg-green-600 hover:bg-green-700"
+                    className="w-full h-12 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg hover:shadow-green-500/50 transition-all transform hover:scale-105"
                   >
                     {loading ? (
                       <Icon name="Loader2" size={20} className="animate-spin mr-2" />
@@ -801,14 +801,14 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                   </div>
 
                   <div className="flex items-center justify-center">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Icon name="ArrowDownUp" size={16} className="text-primary" />
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center shadow-lg animate-pulse">
+                      <Icon name="ArrowDownUp" size={16} className="text-white" />
                     </div>
                   </div>
 
                   <div>
                     <Label className="text-xs mb-1.5 block">Получите USDT</Label>
-                    <div className="p-4 rounded-lg bg-green-500/5 border border-green-500/20">
+                    <div className="p-4 rounded-lg bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-2 border-green-500/30 shadow-lg">
                       <p className="text-2xl font-bold text-green-500">
                         ${usdtAmount || '0.00'}
                       </p>
@@ -819,7 +819,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                     onClick={handleSellCrypto} 
                     disabled={loading || priceLoading || !cryptoAmount}
                     size="lg"
-                    className="w-full h-12 bg-red-600 hover:bg-red-700"
+                    className="w-full h-12 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 shadow-lg hover:shadow-red-500/50 transition-all transform hover:scale-105"
                   >
                     {loading ? (
                       <Icon name="Loader2" size={20} className="animate-spin mr-2" />
@@ -837,7 +837,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                       value={withdrawCrypto} 
                       onValueChange={(v) => setWithdrawCrypto(v as CryptoSymbol)}
                     >
-                      <SelectTrigger className="h-12">
+                      <SelectTrigger className="h-12 border-2 hover:border-primary/50 transition-all">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -887,7 +887,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                     />
                   </div>
 
-                  <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+                  <div className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border-2 border-blue-500/30 rounded-lg p-4 shadow-lg">
                     <div className="flex gap-3">
                       <Icon name="Info" size={18} className="text-blue-500 mt-0.5 flex-shrink-0" />
                       <div className="text-sm text-muted-foreground">
@@ -901,7 +901,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                     onClick={handleWithdraw}
                     disabled={withdrawLoading || !withdrawAddress || !withdrawAmount}
                     size="lg"
-                    className="w-full h-12"
+                    className="w-full h-12 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700 shadow-lg hover:shadow-primary/50 transition-all transform hover:scale-105"
                   >
                     {withdrawLoading ? (
                       <Icon name="Loader2" size={20} className="animate-spin mr-2" />
@@ -942,7 +942,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                     </ScrollArea>
                   </div>
 
-                  <div className="py-2 px-3 bg-primary/10 rounded-lg text-center">
+                  <div className="py-2 px-3 bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-lg text-center shadow-lg border-2 border-primary/30">
                     <p className="text-lg font-bold">${currentBuyPrice.toFixed(2)}</p>
                     <p className="text-xs text-muted-foreground">Текущая цена</p>
                   </div>
@@ -963,10 +963,10 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
               </div>
             </Card>
 
-            <Card className="border-border/40">
-              <div className="p-4 border-b border-border/40">
+            <Card className="border-2 border-primary/20 shadow-2xl bg-gradient-to-br from-card via-card to-primary/5 backdrop-blur-sm">
+              <div className="p-4 border-b border-primary/20 bg-gradient-to-r from-transparent to-primary/5">
                 <h3 className="font-semibold flex items-center gap-2">
-                  <Icon name="Wallet" size={18} />
+                  <Icon name="Wallet" size={18} className="text-primary" />
                   Ваши активы
                 </h3>
               </div>
@@ -978,7 +978,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                     const valueUSD = balance * sellPrices[symbol];
                     
                     return (
-                      <div key={symbol} className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
+                      <div key={symbol} className="flex items-center justify-between p-3 rounded-lg hover:bg-gradient-to-r hover:from-primary/10 hover:to-purple-500/10 cursor-pointer transition-all hover:shadow-lg border border-transparent hover:border-primary/30 transform hover:scale-105">
                         <div className="flex items-center gap-3">
                           <img src={info.logo} alt={info.name} className="w-8 h-8" />
                           <div>
@@ -1001,7 +1001,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
       </div>
 
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md border-2 border-primary/20 shadow-2xl bg-gradient-to-br from-card via-card to-primary/5">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Icon name="CheckCircle2" size={22} className="text-primary" />
@@ -1013,7 +1013,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
           </DialogHeader>
           
           <div className="space-y-3">
-            <div className="p-4 rounded-lg bg-muted/50 space-y-2">
+            <div className="p-4 rounded-lg bg-gradient-to-r from-muted/50 to-primary/10 space-y-2 border-2 border-primary/20 shadow-lg">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Операция</span>
                 <span className={`font-semibold ${confirmAction === 'buy' ? 'text-green-500' : 'text-red-500'}`}>
