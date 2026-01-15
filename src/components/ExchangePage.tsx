@@ -992,16 +992,23 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                       onValueChange={(v) => setWithdrawCrypto(v as CryptoSymbol)}
                     >
                       <SelectTrigger className="h-10 sm:h-12 border-2 hover:border-primary/50 transition-all text-sm">
-                        <SelectValue />
+                        <div className="flex items-center gap-2 w-full">
+                          <img 
+                            src={CRYPTO_INFO[withdrawCrypto].logo} 
+                            alt={CRYPTO_INFO[withdrawCrypto].name} 
+                            className="w-5 h-5 flex-shrink-0" 
+                          />
+                          <span className="font-semibold">{withdrawCrypto}</span>
+                        </div>
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="max-h-[300px]">
                         {(Object.keys(CRYPTO_INFO) as CryptoSymbol[]).map((symbol) => {
                           const info = CRYPTO_INFO[symbol];
                           return (
-                            <SelectItem key={symbol} value={symbol}>
-                              <div className="flex items-center gap-3">
-                                <img src={info.logo} alt={info.name} className="w-6 h-6" />
-                                <div>
+                            <SelectItem key={symbol} value={symbol} className="cursor-pointer">
+                              <div className="flex items-center gap-3 py-1">
+                                <img src={info.logo} alt={info.name} className="w-6 h-6 flex-shrink-0" />
+                                <div className="flex-1 min-w-0">
                                   <div className="font-semibold">{symbol}</div>
                                   <div className="text-xs text-muted-foreground">
                                     Баланс: {balances[symbol].toFixed(info.decimals)}
