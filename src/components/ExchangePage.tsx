@@ -712,53 +712,53 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
   const { buyOrders, sellOrders } = getOrderBookData();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-purple-500/5 overflow-x-hidden">
-      <div className="sticky top-0 z-50 border-b border-border/40 bg-gradient-to-r from-card/95 via-primary/10 to-card/95 backdrop-blur-lg shadow-lg">
-        <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-purple-500/5 overflow-x-hidden max-w-full">
+      <div className="sticky top-0 z-50 border-b border-border/40 bg-gradient-to-r from-card/95 via-primary/10 to-card/95 backdrop-blur-lg shadow-lg overflow-hidden">
+        <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3 overflow-hidden">
+          <div className="flex items-center justify-between overflow-hidden">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 overflow-hidden">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 flex items-center justify-center shadow-lg flex-shrink-0">
                 <Icon name="TrendingUp" size={18} className="text-white sm:hidden" />
                 <Icon name="TrendingUp" size={20} className="text-white hidden sm:block" />
               </div>
-              <div>
-                <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">Обменник</h1>
-                <p className="text-xs text-muted-foreground hidden sm:block">Торговля криптовалютой</p>
+              <div className="min-w-0 overflow-hidden">
+                <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent truncate">Обменник</h1>
+                <p className="text-xs text-muted-foreground hidden sm:block truncate">Торговля криптовалютой</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
               <div className="text-right">
-                <p className="text-[10px] sm:text-xs text-muted-foreground">Баланс</p>
-                <p className="text-sm sm:text-lg font-semibold text-green-500">${Number(user.balance || 0).toFixed(2)}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground whitespace-nowrap">Баланс</p>
+                <p className="text-sm sm:text-lg font-semibold text-green-500 whitespace-nowrap">${Number(user.balance || 0).toFixed(2)}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 py-2 sm:py-4 pb-20 sm:pb-4">
-        <div className="grid lg:grid-cols-12 gap-2 sm:gap-4">
-          <div className="lg:col-span-8 space-y-2 sm:space-y-4">
-            <Card className="p-3 sm:p-4 border-border/40 overflow-hidden">
-              <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2">
+      <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 py-2 sm:py-4 pb-20 sm:pb-4 overflow-hidden">
+        <div className="grid lg:grid-cols-12 gap-2 sm:gap-4 overflow-hidden">
+          <div className="lg:col-span-8 space-y-2 sm:space-y-4 min-w-0 overflow-hidden">
+            <Card className="p-3 sm:p-4 border-border/40 overflow-hidden max-w-full">
+              <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2 overflow-hidden">
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 overflow-hidden">
                   <img src={cryptoInfo.logo} alt={cryptoInfo.name} className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0" />
-                  <div className="min-w-0 overflow-hidden">
-                    <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
-                      <h2 className="text-base sm:text-2xl font-bold whitespace-nowrap">{selectedCrypto}/USDT</h2>
-                      <span className={`text-[10px] sm:text-sm px-1 sm:px-2 py-0.5 rounded whitespace-nowrap ${priceChange24h >= 0 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+                  <div className="min-w-0 overflow-hidden flex-1">
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      <h2 className="text-base sm:text-2xl font-bold truncate">{selectedCrypto}/USDT</h2>
+                      <span className={`text-[10px] sm:text-sm px-1 sm:px-2 py-0.5 rounded whitespace-nowrap flex-shrink-0 ${priceChange24h >= 0 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
                         {priceChange24h >= 0 ? '+' : ''}{priceChange24h.toFixed(2)}%
                       </span>
                     </div>
                     <p className="text-xs sm:text-sm text-muted-foreground truncate">{cryptoInfo.name}</p>
                   </div>
                 </div>
-                <div className="text-right flex-shrink-0">
-                  <p className="text-base sm:text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent whitespace-nowrap">${currentBuyPrice.toFixed(2)}</p>
+                <div className="text-right flex-shrink-0 max-w-[40%]">
+                  <p className="text-base sm:text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent truncate">${currentBuyPrice.toFixed(2)}</p>
                 </div>
               </div>
 
-              <div className="h-[180px] sm:h-[280px] w-full overflow-hidden">
+              <div className="h-[180px] sm:h-[280px] w-full overflow-hidden max-w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={priceHistory}>
                     <defs>
@@ -800,8 +800,8 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                 </ResponsiveContainer>
               </div>
 
-              <div className="w-full overflow-x-auto mt-3 sm:mt-4">
-                <div className="flex gap-1.5 sm:gap-2 pb-2 min-w-max">
+              <div className="w-full overflow-x-auto mt-3 sm:mt-4 max-w-full">
+                <div className="flex gap-1.5 sm:gap-2 pb-2 min-w-max max-w-max">
                 {(Object.keys(CRYPTO_INFO) as CryptoSymbol[]).map((symbol) => {
                   const info = CRYPTO_INFO[symbol];
                   const price = buyPrices[symbol];
@@ -829,7 +829,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
               </div>
             </Card>
 
-            <Card className="p-3 sm:p-4 border-2 border-primary/20 shadow-2xl bg-gradient-to-br from-card via-card to-primary/5 backdrop-blur-sm overflow-hidden">
+            <Card className="p-3 sm:p-4 border-2 border-primary/20 shadow-2xl bg-gradient-to-br from-card via-card to-primary/5 backdrop-blur-sm overflow-hidden max-w-full">
               <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'buy' | 'sell' | 'withdraw')} className="w-full">
                 <TabsList className="grid w-full grid-cols-3 h-9 sm:h-11 mb-3 sm:mb-4 bg-gradient-to-r from-muted/50 to-primary/5">
                   <TabsTrigger value="buy" className="text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500/20 data-[state=active]:to-emerald-500/20 data-[state=active]:text-green-500 data-[state=active]:shadow-lg transition-all">
@@ -1069,7 +1069,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
             </Card>
           </div>
 
-          <div className="lg:col-span-4 space-y-2 sm:space-y-4 hidden lg:block">
+          <div className="lg:col-span-4 space-y-2 sm:space-y-4 hidden lg:block min-w-0 overflow-hidden">
             <Card className="border-border/40 overflow-hidden">
               <div className="p-3 sm:p-4 border-b border-border/40">
                 <h3 className="text-sm sm:text-base font-semibold flex items-center gap-2">
@@ -1229,8 +1229,8 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
         </DialogContent>
       </Dialog>
 
-      <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
-        <Card className="border-2 border-primary/20 shadow-2xl bg-gradient-to-br from-card via-card to-primary/5 overflow-hidden">
+      <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-8 overflow-hidden">
+        <Card className="border-2 border-primary/20 shadow-2xl bg-gradient-to-br from-card via-card to-primary/5 overflow-hidden max-w-full">
           <div className="p-3 sm:p-4 border-b border-primary/20 bg-gradient-to-r from-transparent to-primary/5">
             <div className="flex items-center justify-between">
               <h3 className="text-base sm:text-xl font-semibold flex items-center gap-2">

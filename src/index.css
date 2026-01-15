@@ -50,11 +50,14 @@
 @layer base {
   * {
     @apply border-border;
+    box-sizing: border-box;
   }
 
   html {
     scroll-behavior: smooth;
     overflow-x: hidden;
+    max-width: 100vw;
+    box-sizing: border-box;
   }
 
   body {
@@ -72,16 +75,18 @@
       "Droid Sans",
       "Helvetica Neue",
       sans-serif;
-    overflow-x: hidden;
-    max-width: 100vw;
-    width: 100%;
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+    width: 100% !important;
     position: relative;
+    box-sizing: border-box;
   }
 
   #root {
-    overflow-x: hidden;
-    max-width: 100vw;
-    width: 100%;
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+    width: 100% !important;
+    box-sizing: border-box;
   }
 
   *::-webkit-scrollbar {
@@ -111,6 +116,12 @@
 }
 
 @layer utilities {
+  .prevent-overflow {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+  }
+
   .animate-fade-in {
     animation: fadeIn 0.4s ease-in-out;
   }
@@ -295,6 +306,14 @@
     scrollbar-width: none;
   }
 
+  /* Responsive container */
+  .safe-container {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+
   /* Improve touch behavior on mobile */
   @media (max-width: 768px) {
     input:focus,
@@ -313,13 +332,44 @@
 
     /* Prevent horizontal overflow */
     * {
-      max-width: 100%;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+    }
+
+    body,
+    html,
+    #root {
+      overflow-x: hidden !important;
     }
 
     .container {
       padding-left: 0.5rem;
       padding-right: 0.5rem;
+      max-width: 100vw !important;
+      overflow-x: hidden !important;
     }
+
+    .grid {
+      max-width: 100% !important;
+    }
+  }
+
+  /* Дополнительная защита от overflow */
+  img,
+  svg,
+  video,
+  canvas,
+  audio,
+  iframe,
+  embed,
+  object {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Ограничения для Radix компонентов */
+  [data-radix-popper-content-wrapper] {
+    max-width: calc(100vw - 16px) !important;
   }
 
   [data-radix-dialog-overlay] {
