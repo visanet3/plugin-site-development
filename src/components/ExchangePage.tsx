@@ -23,7 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { LineChart, Line, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import * as XLSX from 'xlsx';
 
@@ -665,7 +665,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
     const csvContent = [
       headers.join(','),
       ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\\n');
+    ].join('\n');
 
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
@@ -713,58 +713,52 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-purple-500/5">
-      <div className="border-b border-border/40 bg-gradient-to-r from-card/80 via-primary/10 to-card/80 backdrop-blur-md shadow-lg">
-        <div className="container mx-auto px-4 py-3">
+      <div className="sticky top-0 z-50 border-b border-border/40 bg-gradient-to-r from-card/95 via-primary/10 to-card/95 backdrop-blur-lg shadow-lg">
+        <div className="container mx-auto px-3 sm:px-4 py-2 sm:py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 flex items-center justify-center shadow-lg animate-pulse">
-                  <Icon name="TrendingUp" size={24} className="text-white" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">Обменник</h1>
-                  <p className="text-sm text-muted-foreground">Торговля криптовалютой</p>
-                </div>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
+                <Icon name="TrendingUp" size={18} className="text-white sm:hidden" />
+                <Icon name="TrendingUp" size={20} className="text-white hidden sm:block" />
+              </div>
+              <div>
+                <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">Обменник</h1>
+                <p className="text-xs text-muted-foreground hidden sm:block">Торговля криптовалютой</p>
               </div>
             </div>
-            <div className="hidden md:flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <div className="text-right">
-                <p className="text-xs text-muted-foreground">Общий баланс</p>
-                <p className="text-xl font-bold">${getTotalBalanceUSD().toFixed(2)}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs text-muted-foreground">USDT</p>
-                <p className="text-lg font-semibold text-green-500">${Number(user.balance || 0).toFixed(2)}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Баланс</p>
+                <p className="text-sm sm:text-lg font-semibold text-green-500">${Number(user.balance || 0).toFixed(2)}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-4">
-        <div className="grid lg:grid-cols-12 gap-4">
-          <div className="lg:col-span-8 space-y-4">
-            <Card className="p-4 border-border/40">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <img src={cryptoInfo.logo} alt={cryptoInfo.name} className="w-10 h-10" />
+      <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-4 pb-20 sm:pb-4">
+        <div className="grid lg:grid-cols-12 gap-2 sm:gap-4">
+          <div className="lg:col-span-8 space-y-2 sm:space-y-4">
+            <Card className="p-3 sm:p-4 border-border/40">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <img src={cryptoInfo.logo} alt={cryptoInfo.name} className="w-8 h-8 sm:w-10 sm:h-10" />
                   <div>
-                    <div className="flex items-center gap-2">
-                      <h2 className="text-2xl font-bold">{selectedCrypto}/USDT</h2>
-                      <span className={`text-sm px-2 py-0.5 rounded ${priceChange24h >= 0 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      <h2 className="text-lg sm:text-2xl font-bold">{selectedCrypto}/USDT</h2>
+                      <span className={`text-xs sm:text-sm px-1.5 sm:px-2 py-0.5 rounded ${priceChange24h >= 0 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
                         {priceChange24h >= 0 ? '+' : ''}{priceChange24h.toFixed(2)}%
                       </span>
                     </div>
-                    <p className="text-sm text-muted-foreground">{cryptoInfo.name}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">{cryptoInfo.name}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">${currentBuyPrice.toFixed(2)}</p>
-                  <p className="text-sm text-muted-foreground">24ч Объём: ${(Math.random() * 1000000).toFixed(0)}</p>
+                  <p className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">${currentBuyPrice.toFixed(2)}</p>
                 </div>
               </div>
 
-              <div className="h-[280px] -mx-2">
+              <div className="h-[180px] sm:h-[280px] -mx-1 sm:-mx-2">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={priceHistory}>
                     <defs>
@@ -776,14 +770,16 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                     <XAxis 
                       dataKey="time" 
                       stroke="hsl(var(--muted-foreground))"
-                      fontSize={11}
+                      fontSize={9}
                       tickLine={false}
+                      interval="preserveStartEnd"
                     />
                     <YAxis 
                       stroke="hsl(var(--muted-foreground))"
-                      fontSize={11}
+                      fontSize={9}
                       tickLine={false}
                       domain={['dataMin - 100', 'dataMax + 100']}
+                      width={40}
                     />
                     <Tooltip 
                       contentStyle={{
@@ -804,7 +800,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                 </ResponsiveContainer>
               </div>
 
-              <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+              <div className="flex gap-1.5 sm:gap-2 mt-3 sm:mt-4 overflow-x-auto pb-2 scrollbar-hide">
                 {(Object.keys(CRYPTO_INFO) as CryptoSymbol[]).map((symbol) => {
                   const info = CRYPTO_INFO[symbol];
                   const price = buyPrices[symbol];
@@ -814,16 +810,16 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                     <button
                       key={symbol}
                       onClick={() => setSelectedCrypto(symbol)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all whitespace-nowrap transform hover:scale-105 ${
+                      className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg border transition-all whitespace-nowrap flex-shrink-0 ${
                         isActive 
                           ? 'border-primary bg-gradient-to-r from-primary/20 to-purple-500/20 shadow-lg shadow-primary/20' 
                           : 'border-border/40 hover:border-primary/50 hover:bg-gradient-to-r hover:from-muted/50 hover:to-primary/5'
                       }`}
                     >
-                      <img src={info.logo} alt={info.name} className="w-6 h-6" />
+                      <img src={info.logo} alt={info.name} className="w-5 h-5 sm:w-6 sm:h-6" />
                       <div className="text-left">
-                        <p className="text-sm font-semibold">{symbol}</p>
-                        <p className="text-xs text-muted-foreground">${price.toFixed(2)}</p>
+                        <p className="text-xs sm:text-sm font-semibold">{symbol}</p>
+                        <p className="text-[10px] sm:text-xs text-muted-foreground">${price.toFixed(2)}</p>
                       </div>
                     </button>
                   );
@@ -831,47 +827,47 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
               </div>
             </Card>
 
-            <Card className="p-4 border-2 border-primary/20 shadow-2xl bg-gradient-to-br from-card via-card to-primary/5 backdrop-blur-sm">
+            <Card className="p-3 sm:p-4 border-2 border-primary/20 shadow-2xl bg-gradient-to-br from-card via-card to-primary/5 backdrop-blur-sm">
               <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'buy' | 'sell' | 'withdraw')} className="w-full">
-                <TabsList className="grid w-full grid-cols-3 h-11 mb-4 bg-gradient-to-r from-muted/50 to-primary/5">
-                  <TabsTrigger value="buy" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500/20 data-[state=active]:to-emerald-500/20 data-[state=active]:text-green-500 data-[state=active]:shadow-lg transition-all">
-                    <Icon name="ArrowDownCircle" size={16} className="mr-2" />
+                <TabsList className="grid w-full grid-cols-3 h-9 sm:h-11 mb-3 sm:mb-4 bg-gradient-to-r from-muted/50 to-primary/5">
+                  <TabsTrigger value="buy" className="text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500/20 data-[state=active]:to-emerald-500/20 data-[state=active]:text-green-500 data-[state=active]:shadow-lg transition-all">
+                    <Icon name="ArrowDownCircle" size={14} className="mr-1 sm:mr-2" />
                     Купить
                   </TabsTrigger>
-                  <TabsTrigger value="sell" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-red-500 data-[state=active]:shadow-lg transition-all">
-                    <Icon name="ArrowUpCircle" size={16} className="mr-2" />
+                  <TabsTrigger value="sell" className="text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-red-500 data-[state=active]:shadow-lg transition-all">
+                    <Icon name="ArrowUpCircle" size={14} className="mr-1 sm:mr-2" />
                     Продать
                   </TabsTrigger>
-                  <TabsTrigger value="withdraw" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-purple-500/20 data-[state=active]:shadow-lg transition-all">
-                    <Icon name="Send" size={16} className="mr-2" />
+                  <TabsTrigger value="withdraw" className="text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-purple-500/20 data-[state=active]:shadow-lg transition-all">
+                    <Icon name="Send" size={14} className="mr-1 sm:mr-2" />
                     Вывести
                   </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="buy" className="space-y-3 mt-0">
-                  <div className="grid grid-cols-2 gap-3">
+                <TabsContent value="buy" className="space-y-2 sm:space-y-3 mt-0">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3">
                     <div>
-                      <Label className="text-xs text-muted-foreground mb-1.5 block">Доступно USDT</Label>
-                      <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                        <span className="text-sm font-semibold">{Number(user.balance || 0).toFixed(2)}</span>
-                        <Icon name="DollarSign" size={16} className="text-green-500" />
+                      <Label className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-1.5 block">Доступно USDT</Label>
+                      <div className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-muted/50">
+                        <span className="text-xs sm:text-sm font-semibold">{Number(user.balance || 0).toFixed(2)}</span>
+                        <Icon name="DollarSign" size={14} className="text-green-500" />
                       </div>
                     </div>
                     <div>
-                      <Label className="text-xs text-muted-foreground mb-1.5 block">Курс покупки</Label>
-                      <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                        <span className="text-sm font-semibold">${currentBuyPrice.toFixed(2)}</span>
-                        <Icon name="TrendingUp" size={16} className="text-primary" />
+                      <Label className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-1.5 block">Курс покупки</Label>
+                      <div className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-muted/50">
+                        <span className="text-xs sm:text-sm font-semibold">${currentBuyPrice.toFixed(2)}</span>
+                        <Icon name="TrendingUp" size={14} className="text-primary" />
                       </div>
                     </div>
                   </div>
 
                   <div>
-                    <div className="flex justify-between items-center mb-1.5">
-                      <Label className="text-xs">Сумма USDT</Label>
+                    <div className="flex justify-between items-center mb-1 sm:mb-1.5">
+                      <Label className="text-[10px] sm:text-xs">Сумма USDT</Label>
                       <button 
                         onClick={handleMaxUsdt}
-                        className="text-xs text-primary hover:text-primary/80 font-medium"
+                        className="text-[10px] sm:text-xs text-primary hover:text-primary/80 font-medium"
                       >
                         MAX
                       </button>
@@ -881,21 +877,21 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                       placeholder="0.00"
                       value={usdtAmount}
                       onChange={(e) => handleUsdtToCryptoChange(e.target.value)}
-                      className="h-12 text-lg"
+                      className="h-10 sm:h-12 text-base sm:text-lg"
                     />
-                    <p className="text-xs text-muted-foreground mt-1">Минимум: 10 USDT</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">Минимум: 10 USDT</p>
                   </div>
 
-                  <div className="flex items-center justify-center">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Icon name="ArrowDownUp" size={16} className="text-primary" />
+                  <div className="flex items-center justify-center py-1">
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Icon name="ArrowDownUp" size={14} className="text-primary" />
                     </div>
                   </div>
 
                   <div>
-                    <Label className="text-xs mb-1.5 block">Получите {selectedCrypto}</Label>
-                    <div className="p-4 rounded-lg bg-gradient-to-r from-primary/10 to-purple-500/10 border-2 border-primary/30 shadow-lg">
-                      <p className="text-2xl font-bold text-primary">
+                    <Label className="text-[10px] sm:text-xs mb-1 sm:mb-1.5 block">Получите {selectedCrypto}</Label>
+                    <div className="p-3 sm:p-4 rounded-lg bg-gradient-to-r from-primary/10 to-purple-500/10 border-2 border-primary/30 shadow-lg">
+                      <p className="text-xl sm:text-2xl font-bold text-primary">
                         {cryptoAmount || '0'} {selectedCrypto}
                       </p>
                     </div>
@@ -905,41 +901,41 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                     onClick={handleBuyCrypto} 
                     disabled={loading || priceLoading || !usdtAmount}
                     size="lg"
-                    className="w-full h-12 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg hover:shadow-green-500/50 transition-all transform hover:scale-105"
+                    className="w-full h-11 sm:h-12 text-sm sm:text-base bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg hover:shadow-green-500/50 transition-all"
                   >
                     {loading ? (
-                      <Icon name="Loader2" size={20} className="animate-spin mr-2" />
+                      <Icon name="Loader2" size={18} className="animate-spin mr-2" />
                     ) : (
-                      <Icon name="ShoppingCart" size={20} className="mr-2" />
+                      <Icon name="ShoppingCart" size={18} className="mr-2" />
                     )}
                     Купить {selectedCrypto}
                   </Button>
                 </TabsContent>
 
-                <TabsContent value="sell" className="space-y-3 mt-0">
-                  <div className="grid grid-cols-2 gap-3">
+                <TabsContent value="sell" className="space-y-2 sm:space-y-3 mt-0">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3">
                     <div>
-                      <Label className="text-xs text-muted-foreground mb-1.5 block">Баланс {selectedCrypto}</Label>
-                      <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                        <span className="text-sm font-semibold">{currentBalance.toFixed(cryptoInfo.decimals)}</span>
-                        <img src={cryptoInfo.logo} alt={cryptoInfo.name} className="w-5 h-5" />
+                      <Label className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-1.5 block">Баланс {selectedCrypto}</Label>
+                      <div className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-muted/50">
+                        <span className="text-xs sm:text-sm font-semibold">{currentBalance.toFixed(cryptoInfo.decimals)}</span>
+                        <img src={cryptoInfo.logo} alt={cryptoInfo.name} className="w-4 h-4 sm:w-5 sm:h-5" />
                       </div>
                     </div>
                     <div>
-                      <Label className="text-xs text-muted-foreground mb-1.5 block">Курс продажи</Label>
-                      <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                        <span className="text-sm font-semibold">${currentSellPrice.toFixed(2)}</span>
-                        <Icon name="TrendingDown" size={16} className="text-red-500" />
+                      <Label className="text-[10px] sm:text-xs text-muted-foreground mb-1 sm:mb-1.5 block">Курс продажи</Label>
+                      <div className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-muted/50">
+                        <span className="text-xs sm:text-sm font-semibold">${currentSellPrice.toFixed(2)}</span>
+                        <Icon name="TrendingDown" size={14} className="text-red-500" />
                       </div>
                     </div>
                   </div>
 
                   <div>
-                    <div className="flex justify-between items-center mb-1.5">
-                      <Label className="text-xs">Количество {selectedCrypto}</Label>
+                    <div className="flex justify-between items-center mb-1 sm:mb-1.5">
+                      <Label className="text-[10px] sm:text-xs">Количество {selectedCrypto}</Label>
                       <button 
                         onClick={handleMaxCrypto}
-                        className="text-xs text-primary hover:text-primary/80 font-medium"
+                        className="text-[10px] sm:text-xs text-primary hover:text-primary/80 font-medium"
                       >
                         MAX
                       </button>
@@ -949,23 +945,23 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                       placeholder="0.00"
                       value={cryptoAmount}
                       onChange={(e) => handleCryptoToUsdtChange(e.target.value)}
-                      className="h-12 text-lg"
+                      className="h-10 sm:h-12 text-base sm:text-lg"
                     />
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
                       Минимум: {CRYPTO_INFO[selectedCrypto].minAmount} {selectedCrypto}
                     </p>
                   </div>
 
-                  <div className="flex items-center justify-center">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center shadow-lg animate-pulse">
-                      <Icon name="ArrowDownUp" size={16} className="text-white" />
+                  <div className="flex items-center justify-center py-1">
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center shadow-lg">
+                      <Icon name="ArrowDownUp" size={14} className="text-white" />
                     </div>
                   </div>
 
                   <div>
-                    <Label className="text-xs mb-1.5 block">Получите USDT</Label>
-                    <div className="p-4 rounded-lg bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-2 border-green-500/30 shadow-lg">
-                      <p className="text-2xl font-bold text-green-500">
+                    <Label className="text-[10px] sm:text-xs mb-1 sm:mb-1.5 block">Получите USDT</Label>
+                    <div className="p-3 sm:p-4 rounded-lg bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-2 border-green-500/30 shadow-lg">
+                      <p className="text-xl sm:text-2xl font-bold text-green-500">
                         ${usdtAmount || '0.00'}
                       </p>
                     </div>
@@ -975,25 +971,25 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                     onClick={handleSellCrypto} 
                     disabled={loading || priceLoading || !cryptoAmount}
                     size="lg"
-                    className="w-full h-12 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 shadow-lg hover:shadow-red-500/50 transition-all transform hover:scale-105"
+                    className="w-full h-11 sm:h-12 text-sm sm:text-base bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 shadow-lg hover:shadow-red-500/50 transition-all"
                   >
                     {loading ? (
-                      <Icon name="Loader2" size={20} className="animate-spin mr-2" />
+                      <Icon name="Loader2" size={18} className="animate-spin mr-2" />
                     ) : (
-                      <Icon name="TrendingDown" size={20} className="mr-2" />
+                      <Icon name="TrendingDown" size={18} className="mr-2" />
                     )}
                     Продать {selectedCrypto}
                   </Button>
                 </TabsContent>
 
-                <TabsContent value="withdraw" className="space-y-4 mt-0">
+                <TabsContent value="withdraw" className="space-y-3 sm:space-y-4 mt-0">
                   <div>
-                    <Label className="mb-2">Криптовалюта</Label>
+                    <Label className="mb-1.5 sm:mb-2 text-xs sm:text-sm">Криптовалюта</Label>
                     <Select 
                       value={withdrawCrypto} 
                       onValueChange={(v) => setWithdrawCrypto(v as CryptoSymbol)}
                     >
-                      <SelectTrigger className="h-12 border-2 hover:border-primary/50 transition-all">
+                      <SelectTrigger className="h-10 sm:h-12 border-2 hover:border-primary/50 transition-all text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -1018,19 +1014,19 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                   </div>
 
                   <div>
-                    <Label className="mb-2">Адрес кошелька</Label>
+                    <Label className="mb-1.5 sm:mb-2 text-xs sm:text-sm">Адрес кошелька</Label>
                     <Input
                       placeholder="Введите адрес получателя"
                       value={withdrawAddress}
                       onChange={(e) => setWithdrawAddress(e.target.value)}
-                      className="h-12"
+                      className="h-10 sm:h-12 text-sm"
                     />
                   </div>
 
                   <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <Label>Сумма</Label>
-                      <span className="text-xs text-muted-foreground">
+                    <div className="flex justify-between items-center mb-1.5 sm:mb-2">
+                      <Label className="text-xs sm:text-sm">Сумма</Label>
+                      <span className="text-[10px] sm:text-xs text-muted-foreground">
                         Мин: {CRYPTO_INFO[withdrawCrypto].minAmount * 10} {withdrawCrypto}
                       </span>
                     </div>
@@ -1039,14 +1035,14 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                       placeholder="0.00"
                       value={withdrawAmount}
                       onChange={(e) => setWithdrawAmount(e.target.value)}
-                      className="h-12 text-lg"
+                      className="h-10 sm:h-12 text-base sm:text-lg"
                     />
                   </div>
 
-                  <div className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border-2 border-blue-500/30 rounded-lg p-4 shadow-lg">
-                    <div className="flex gap-3">
-                      <Icon name="Info" size={18} className="text-blue-500 mt-0.5 flex-shrink-0" />
-                      <div className="text-sm text-muted-foreground">
+                  <div className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border-2 border-blue-500/30 rounded-lg p-3 sm:p-4 shadow-lg">
+                    <div className="flex gap-2 sm:gap-3">
+                      <Icon name="Info" size={16} className="text-blue-500 mt-0.5 flex-shrink-0" />
+                      <div className="text-xs sm:text-sm text-muted-foreground">
                         <p className="font-semibold text-foreground mb-1">Важная информация</p>
                         <p>Вывод обрабатывается вручную в течение 24 часов. Убедитесь в правильности адреса!</p>
                       </div>
@@ -1057,12 +1053,12 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                     onClick={handleWithdraw}
                     disabled={withdrawLoading || !withdrawAddress || !withdrawAmount}
                     size="lg"
-                    className="w-full h-12 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700 shadow-lg hover:shadow-primary/50 transition-all transform hover:scale-105"
+                    className="w-full h-11 sm:h-12 text-sm sm:text-base bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700 shadow-lg hover:shadow-primary/50 transition-all"
                   >
                     {withdrawLoading ? (
-                      <Icon name="Loader2" size={20} className="animate-spin mr-2" />
+                      <Icon name="Loader2" size={18} className="animate-spin mr-2" />
                     ) : (
-                      <Icon name="Send" size={20} className="mr-2" />
+                      <Icon name="Send" size={18} className="mr-2" />
                     )}
                     Создать заявку на вывод
                   </Button>
@@ -1071,15 +1067,15 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
             </Card>
           </div>
 
-          <div className="lg:col-span-4 space-y-4">
+          <div className="lg:col-span-4 space-y-2 sm:space-y-4 hidden lg:block">
             <Card className="border-border/40">
-              <div className="p-4 border-b border-border/40">
-                <h3 className="font-semibold flex items-center gap-2">
-                  <Icon name="BookOpen" size={18} />
+              <div className="p-3 sm:p-4 border-b border-border/40">
+                <h3 className="text-sm sm:text-base font-semibold flex items-center gap-2">
+                  <Icon name="BookOpen" size={16} />
                   Стакан заявок
                 </h3>
               </div>
-              <div className="p-4">
+              <div className="p-3 sm:p-4">
                 <div className="space-y-3">
                   <div>
                     <div className="flex items-center justify-between mb-2">
@@ -1120,14 +1116,14 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
             </Card>
 
             <Card className="border-2 border-primary/20 shadow-2xl bg-gradient-to-br from-card via-card to-primary/5 backdrop-blur-sm">
-              <div className="p-4 border-b border-primary/20 bg-gradient-to-r from-transparent to-primary/5">
-                <h3 className="font-semibold flex items-center gap-2">
-                  <Icon name="Wallet" size={18} className="text-primary" />
+              <div className="p-3 sm:p-4 border-b border-primary/20 bg-gradient-to-r from-transparent to-primary/5">
+                <h3 className="text-sm sm:text-base font-semibold flex items-center gap-2">
+                  <Icon name="Wallet" size={16} className="text-primary" />
                   Ваши активы
                 </h3>
               </div>
-              <ScrollArea className="h-[300px]">
-                <div className="p-4 space-y-2">
+              <ScrollArea className="h-[250px] sm:h-[300px]">
+                <div className="p-3 sm:p-4 space-y-2">
                   {(Object.keys(CRYPTO_INFO) as CryptoSymbol[]).map((symbol) => {
                     const info = CRYPTO_INFO[symbol];
                     const balance = balances[symbol];
@@ -1231,48 +1227,48 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
         </DialogContent>
       </Dialog>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         <Card className="border-2 border-primary/20 shadow-2xl bg-gradient-to-br from-card via-card to-primary/5">
-          <div className="p-4 border-b border-primary/20 bg-gradient-to-r from-transparent to-primary/5">
+          <div className="p-3 sm:p-4 border-b border-primary/20 bg-gradient-to-r from-transparent to-primary/5">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold flex items-center gap-2 text-xl">
-                <Icon name="History" size={22} className="text-primary" />
+              <h3 className="text-base sm:text-xl font-semibold flex items-center gap-2">
+                <Icon name="History" size={18} className="text-primary" />
                 История транзакций
               </h3>
               {transactions.length > 0 && (
-                <div className="flex gap-2">
+                <div className="flex gap-1.5 sm:gap-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => exportToExcel()}
-                    className="gap-2"
+                    className="gap-1 sm:gap-2 text-xs sm:text-sm h-8 sm:h-9"
                   >
-                    <Icon name="FileSpreadsheet" size={16} />
-                    Excel
+                    <Icon name="FileSpreadsheet" size={14} />
+                    <span className="hidden sm:inline">Excel</span>
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => exportToCSV()}
-                    className="gap-2"
+                    className="gap-1 sm:gap-2 text-xs sm:text-sm h-8 sm:h-9"
                   >
-                    <Icon name="FileText" size={16} />
-                    CSV
+                    <Icon name="FileText" size={14} />
+                    <span className="hidden sm:inline">CSV</span>
                   </Button>
                 </div>
               )}
             </div>
           </div>
-          <ScrollArea className="h-[500px]">
-            <div className="p-4">
+          <ScrollArea className="h-[350px] sm:h-[500px]">
+            <div className="p-3 sm:p-4">
               {transactions.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <Icon name="FileText" size={48} className="text-muted-foreground/30 mb-4" />
-                  <p className="text-muted-foreground">История транзакций пуста</p>
-                  <p className="text-sm text-muted-foreground/70 mt-1">Совершите первую операцию</p>
+                <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-center">
+                  <Icon name="FileText" size={40} className="text-muted-foreground/30 mb-3 sm:mb-4" />
+                  <p className="text-sm sm:text-base text-muted-foreground">История транзакций пуста</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground/70 mt-1">Совершите первую операцию</p>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {transactions.map((tx) => {
                     const cryptoInfo = CRYPTO_INFO[tx.crypto];
                     const isWithdraw = tx.type === 'withdraw';
@@ -1282,23 +1278,23 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                     return (
                       <div 
                         key={tx.id}
-                        className="p-4 rounded-lg border-2 hover:shadow-lg transition-all bg-gradient-to-r from-card to-muted/20"
+                        className="p-3 sm:p-4 rounded-lg border-2 hover:shadow-lg transition-all bg-gradient-to-r from-card to-muted/20"
                         style={{
                           borderColor: isBuy ? 'rgba(34, 197, 94, 0.3)' : 
                                       isSell ? 'rgba(239, 68, 68, 0.3)' : 
                                       'rgba(168, 85, 247, 0.3)'
                         }}
                       >
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex items-start gap-3 flex-1">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        <div className="flex items-start justify-between gap-2 sm:gap-4">
+                          <div className="flex items-start gap-2 sm:gap-3 flex-1">
+                            <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                               isBuy ? 'bg-green-500/20' :
                               isSell ? 'bg-red-500/20' :
                               'bg-purple-500/20'
                             }`}>
                               <Icon 
                                 name={isWithdraw ? 'Send' : isBuy ? 'TrendingUp' : 'TrendingDown'} 
-                                size={20}
+                                size={16}
                                 className={
                                   isBuy ? 'text-green-500' :
                                   isSell ? 'text-red-500' :
@@ -1307,9 +1303,9 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                               />
                             </div>
                             
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="font-semibold">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1.5 sm:gap-2 mb-1 flex-wrap">
+                                <span className="text-sm sm:text-base font-semibold">
                                   {isWithdraw ? 'Вывод' : isBuy ? 'Покупка' : 'Продажа'}
                                 </span>
                                 {tx.status === 'pending' && (
@@ -1324,10 +1320,10 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                                 )}
                               </div>
                               
-                              <div className="text-sm text-muted-foreground space-y-1">
-                                <div className="flex items-center gap-2">
-                                  <img src={cryptoInfo.logo} alt={tx.crypto} className="w-4 h-4" />
-                                  <span className="font-mono">
+                              <div className="text-xs sm:text-sm text-muted-foreground space-y-0.5 sm:space-y-1">
+                                <div className="flex items-center gap-1.5 sm:gap-2">
+                                  <img src={cryptoInfo.logo} alt={tx.crypto} className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                  <span className="font-mono text-xs sm:text-sm">
                                     {tx.amount.toFixed(cryptoInfo.decimals)} {tx.crypto}
                                   </span>
                                   {!isWithdraw && (
@@ -1338,22 +1334,22 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
                                   )}
                                 </div>
                                 {tx.address && (
-                                  <div className="flex items-center gap-1 text-xs">
-                                    <Icon name="Wallet" size={12} />
-                                    <span className="font-mono truncate max-w-[200px]">{tx.address}</span>
+                                  <div className="flex items-center gap-1 text-[10px] sm:text-xs">
+                                    <Icon name="Wallet" size={10} className="flex-shrink-0" />
+                                    <span className="font-mono truncate max-w-[120px] sm:max-w-[200px]">{tx.address}</span>
                                   </div>
                                 )}
                               </div>
                             </div>
                           </div>
 
-                          <div className="text-right">
-                            <div className={`text-lg font-bold ${
+                          <div className="text-right flex-shrink-0">
+                            <div className={`text-sm sm:text-lg font-bold ${
                               isBuy ? 'text-red-500' : 'text-green-500'
                             }`}>
-                              {isBuy ? '-' : '+'}{tx.total.toFixed(2)} USDT
+                              {isBuy ? '-' : '+'}{tx.total.toFixed(2)}
                             </div>
-                            <div className="text-xs text-muted-foreground mt-1">
+                            <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1">
                               {tx.timestamp.toLocaleString('ru-RU', {
                                 day: '2-digit',
                                 month: '2-digit',
