@@ -8,7 +8,7 @@ import { CookieConsent } from '@/components/CookieConsent';
 import { userSyncManager } from '@/utils/userSync';
 import MessagesPanel from '@/components/MessagesPanel';
 
-const AdminPanel = lazy(() => import('@/components/AdminPanel'));
+const AdminPanel = lazy(() => import('@/components/AdminPanelGlassmorphism'));
 const UserProfileDialog = lazy(() => import('@/components/UserProfileDialog'));
 const UserProfile = lazy(() => import('@/components/UserProfile'));
 const NotificationsPanel = lazy(() => import('@/components/NotificationsPanel'));
