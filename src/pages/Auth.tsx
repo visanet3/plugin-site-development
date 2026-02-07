@@ -125,7 +125,7 @@ const Auth = () => {
 
   return (
     <BeamsBackground intensity="medium">
-      <div className="w-full max-w-6xl px-4 grid lg:grid-cols-2 gap-8 items-center overflow-y-auto lg:overflow-visible max-h-screen lg:max-h-none">
+      <div className="w-full max-w-6xl px-4 pt-20 sm:pt-16 grid lg:grid-cols-2 gap-8 items-center overflow-y-auto lg:overflow-visible max-h-screen lg:max-h-none">
         <div className="hidden lg:block space-y-8">
           <div className="space-y-4">
             <div className="flex items-center gap-3">

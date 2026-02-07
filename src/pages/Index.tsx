@@ -144,7 +144,7 @@ const Index = () => {
         <meta name="twitter:url" content={currentUrl} />
         <meta name="twitter:image" content={ogImage} />
       </Helmet>
-      <div className="min-h-screen bg-background text-foreground flex relative" onClick={() => state.setShowSearchResults(false)}>
+      <div className="min-h-screen bg-background text-foreground flex relative pt-[72px] sm:pt-[60px]" onClick={() => state.setShowSearchResults(false)}>
       {state.showAdminPanel && state.user?.role === 'admin' ? (
         <Suspense fallback={<div className="flex items-center justify-center h-screen w-full"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>}>
           <AdminPanel key={state.user?.id} currentUser={state.user} onClose={() => state.setShowAdminPanel(false)} />
