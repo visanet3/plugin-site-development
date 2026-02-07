@@ -124,14 +124,9 @@ const Auth = () => {
   };
 
   return (
-    <GradientBackground 
-      blur="80px"
-      overlay={true}
-      overlayOpacity={0.5}
-      animationDuration={12}
-    >
+    <>
       {/* Security Banner */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-red-600 via-red-500 to-orange-500 text-white shadow-lg">
+      <div className="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-red-600 via-red-500 to-orange-500 text-white shadow-lg">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm items-center justify-center">
@@ -151,7 +146,13 @@ const Auth = () => {
         </div>
       </div>
 
-      <div className="w-full max-w-6xl px-4 pt-32 sm:pt-28 pb-8 grid lg:grid-cols-2 gap-8 items-center overflow-y-auto lg:overflow-visible max-h-screen lg:max-h-none">
+      <GradientBackground 
+        blur="80px"
+        overlay={true}
+        overlayOpacity={0.5}
+        animationDuration={12}
+      >
+        <div className="w-full max-w-6xl px-4 pt-32 sm:pt-28 pb-8 grid lg:grid-cols-2 gap-8 items-center overflow-y-auto lg:overflow-visible max-h-screen lg:max-h-none">
         <div className="hidden lg:block space-y-8">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
