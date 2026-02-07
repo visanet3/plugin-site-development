@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
-import { BeamsBackground } from '@/components/ui/beams-background';
+
 import { ShinyButton } from '@/components/ui/shiny-button';
 
 const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
@@ -124,7 +124,7 @@ const Auth = () => {
   };
 
   return (
-    <BeamsBackground intensity="medium">
+    <div className="min-h-screen w-full bg-neutral-950 flex items-center justify-center overflow-hidden">
       <div className="w-full max-w-6xl px-4 pt-20 sm:pt-16 grid lg:grid-cols-2 gap-8 items-center overflow-y-auto lg:overflow-visible max-h-screen lg:max-h-none">
         <div className="hidden lg:block space-y-8">
           <div className="space-y-4">
@@ -347,7 +347,7 @@ const Auth = () => {
         </div>
         </div>
       </div>
-    </BeamsBackground>
+    </div>
   );
 };
 
