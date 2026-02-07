@@ -1177,8 +1177,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 )
                 
                 # Добавляем транзакцию о возврате
+                withdrawal_amount = withdrawal['amount']
+                withdrawal_crypto = withdrawal['crypto_symbol']
+                withdrawal_user = withdrawal['user_id']
+                description = f"Возврат {withdrawal_amount} {withdrawal_crypto} (заявка #{withdrawal_id} отклонена)"
                 cur.execute(
-                    f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES ({int(withdrawal['user_id'])}, {float(withdrawal['amount'])}, 'withdrawal_rejected', {escape_sql_string(f'Возврат {withdrawal['amount']} {withdrawal['crypto_symbol']} (заявка #{withdrawal_id} отклонена)')})"
+                    f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES ({int(withdrawal_user)}, {float(withdrawal_amount)}, 'withdrawal_rejected', {escape_sql_string(description)})"
                 )
             
             # Обновляем статус заявки
