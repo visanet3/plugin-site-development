@@ -130,7 +130,28 @@ const Auth = () => {
       overlayOpacity={0.5}
       animationDuration={12}
     >
-      <div className="w-full max-w-6xl px-4 pt-20 sm:pt-16 grid lg:grid-cols-2 gap-8 items-center overflow-y-auto lg:overflow-visible max-h-screen lg:max-h-none">
+      {/* Security Banner */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-red-600 via-red-500 to-orange-500 text-white shadow-lg">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm items-center justify-center">
+              <Icon name="ShieldAlert" size={20} className="text-white" />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <Icon name="ShieldCheck" size={16} className="text-white sm:hidden" />
+                <h3 className="font-bold text-sm sm:text-base">Служба безопасности активна</h3>
+              </div>
+              <p className="text-xs sm:text-sm text-white/90">
+                На проекте активно работает служба безопасности для выявления и блокировки мошенников. 
+                Если заметили подозрительную активность, сообщите в поддержку: <a href="https://t.me/gitcryptosupport" target="_blank" rel="noopener noreferrer" className="font-semibold underline hover:text-white/80 transition-colors">@gitcryptosupport</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="w-full max-w-6xl px-4 pt-32 sm:pt-28 pb-8 grid lg:grid-cols-2 gap-8 items-center overflow-y-auto lg:overflow-visible max-h-screen lg:max-h-none">
         <div className="hidden lg:block space-y-8">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
