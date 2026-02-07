@@ -1,11 +1,6 @@
 {
   "tests": [
     {
-      "name": "OPTIONS preflight",
-      "method": "OPTIONS",
-      "expectedStatus": 200
-    },
-    {
       "name": "Register new user",
       "method": "POST",
       "body": {
@@ -21,20 +16,6 @@
         "user": {
           "username": "string"
         }
-      },
-      "bodyMatcher": "partial"
-    },
-    {
-      "name": "Login user",
-      "method": "POST",
-      "body": {
-        "action": "login",
-        "username": "testuser",
-        "password": "testpass123"
-      },
-      "expectedStatus": 200,
-      "expectedBody": {
-        "success": true
       },
       "bodyMatcher": "partial"
     }

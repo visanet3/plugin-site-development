@@ -210,12 +210,20 @@ def handler(event, context):
         
     except Exception as e:
         conn.rollback()
-        response = {
+        return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
             'body': json.dumps({'error': str(e)}),
             'isBase64Encoded': False
         }
-        return fix_cors_response(response, event, include_credentials=True)
     finally:
         conn.close()
+
+
+# CORS Middleware - автоматически исправляет CORS во всех ответах
+_original_handler = handler
+
+def handler(event, context):
+    """Wrapper для автоматического исправления CORS"""
+    response = _original_handler(event, context)
+    return fix_cors_response(response, event, include_credentials=True)

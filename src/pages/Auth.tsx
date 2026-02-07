@@ -70,10 +70,9 @@ const Auth = () => {
         });
       }
     } catch (error) {
-      console.error('Auth error:', error);
       toast({
-        title: 'Ошибка подключения',
-        description: 'Функция auth недоступна. Свяжитесь с поддержкой Poehali.',
+        title: 'Ошибка',
+        description: 'Не удалось подключиться к серверу',
         variant: 'destructive',
       });
     }
