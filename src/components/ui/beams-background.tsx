@@ -70,10 +70,13 @@ export function BeamsBackground({
 
         const updateCanvasSize = () => {
             const dpr = window.devicePixelRatio || 1;
-            canvas.width = window.innerWidth * dpr;
-            canvas.height = window.innerHeight * dpr;
-            canvas.style.width = `${window.innerWidth}px`;
-            canvas.style.height = `${window.innerHeight}px`;
+            const blurPadding = 100; // Padding to prevent blur edge artifacts
+            canvas.width = (window.innerWidth + blurPadding * 2) * dpr;
+            canvas.height = (window.innerHeight + blurPadding * 2) * dpr;
+            canvas.style.width = `${window.innerWidth + blurPadding * 2}px`;
+            canvas.style.height = `${window.innerHeight + blurPadding * 2}px`;
+            canvas.style.left = `-${blurPadding}px`;
+            canvas.style.top = `-${blurPadding}px`;
             ctx.scale(dpr, dpr);
 
             const totalBeams = MINIMUM_BEAMS * 1.5;
