@@ -117,7 +117,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     # CORS preflight
     if method == 'OPTIONS':
-        return handle_cors_preflight(event)
+        response = handle_cors_preflight(event)
+        return fix_cors_response(response, event, include_credentials=True)
     
     conn = get_db_connection()
     cur = conn.cursor()
@@ -393,7 +394,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             token = generate_token()
             
-            return {
+            response = {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({
@@ -403,6 +404,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }, default=str),
                 'isBase64Encoded': False
             }
+            return fix_cors_response(response, event, include_credentials=True)
         
         # Вход
         elif action == 'login':
@@ -458,7 +460,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 {}
             )
             
-            return {
+            response = {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({
@@ -468,6 +470,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }, default=str),
                 'isBase64Encoded': False
             }
+            return fix_cors_response(response, event, include_credentials=True)
         
         elif action == 'update_activity':
             headers = event.get('headers', {})
@@ -1796,12 +1799,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         else:
-            return {
+            response = {
                 'statusCode': 400,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({'error': 'Неизвестное действие'}),
                 'isBase64Encoded': False
             }
+            return fix_cors_response(response, event, include_credentials=True)
     
     except Exception as e:
         conn.rollback()
