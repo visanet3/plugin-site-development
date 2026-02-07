@@ -194,6 +194,7 @@ export function BeamsBackground({
             <canvas
                 ref={canvasRef}
                 className="absolute inset-0"
+                style={{ filter: "blur(20px)" }}
             />
 
             <div className="relative z-10 flex h-screen w-full items-center justify-center">

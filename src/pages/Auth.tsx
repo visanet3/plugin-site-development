@@ -141,7 +141,7 @@ const Auth = () => {
             </div>
           </div>
 
-          <div className="space-y-6 bg-card/40 backdrop-blur-sm rounded-2xl p-6 border border-border/30">
+          <div className="space-y-6 bg-card/20 backdrop-blur-md rounded-2xl p-6 border border-border/20">
             <h3 className="text-xl font-semibold text-foreground">Что вас ждёт:</h3>
             
             <div className="space-y-4">
@@ -197,7 +197,7 @@ const Auth = () => {
             </div>
           </div>
 
-          <div className="bg-primary/5 backdrop-blur-sm rounded-2xl p-5 border border-primary/20">
+          <div className="bg-primary/5 backdrop-blur-md rounded-2xl p-5 border border-primary/20">
             <div className="flex items-center gap-3 mb-3">
               <Icon name="Shield" size={24} className="text-primary" />
               <h4 className="font-semibold text-foreground">Безопасность превыше всего</h4>
@@ -209,7 +209,7 @@ const Auth = () => {
         </div>
 
         <div className="w-full max-w-md mx-auto lg:mx-0">
-          <div className="bg-card/40 backdrop-blur-sm rounded-2xl p-6 border border-border/30 relative overflow-hidden">
+          <div className="bg-card/20 backdrop-blur-md rounded-2xl p-6 border border-border/20 relative overflow-hidden">
           <div className="auth-orbs-container rounded-2xl">
             <div className="auth-orb auth-orb-1"></div>
             <div className="auth-orb auth-orb-2"></div>
