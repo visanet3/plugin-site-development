@@ -124,35 +124,13 @@ const Auth = () => {
   };
 
   return (
-    <>
-      {/* Security Banner */}
-      <div className="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-red-600 via-red-500 to-orange-500 text-white shadow-lg">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm items-center justify-center">
-              <Icon name="ShieldAlert" size={20} className="text-white" />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <Icon name="ShieldCheck" size={16} className="text-white sm:hidden" />
-                <h3 className="font-bold text-sm sm:text-base">Служба безопасности активна</h3>
-              </div>
-              <p className="text-xs sm:text-sm text-white/90">
-                На проекте активно работает служба безопасности для выявления и блокировки мошенников. 
-                Если заметили подозрительную активность, сообщите в поддержку: <a href="https://t.me/gitcryptosupport" target="_blank" rel="noopener noreferrer" className="font-semibold underline hover:text-white/80 transition-colors">@gitcryptosupport</a>
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <GradientBackground 
-        blur="80px"
-        overlay={true}
-        overlayOpacity={0.5}
-        animationDuration={12}
-      >
-        <div className="w-full max-w-6xl px-4 pt-32 sm:pt-28 pb-8 grid lg:grid-cols-2 gap-8 items-center overflow-y-auto lg:overflow-visible max-h-screen lg:max-h-none">
+    <GradientBackground 
+      blur="80px"
+      overlay={true}
+      overlayOpacity={0.5}
+      animationDuration={12}
+    >
+      <div className="w-full max-w-6xl px-4 pt-20 sm:pt-16 pb-8 grid lg:grid-cols-2 gap-8 items-center overflow-y-auto lg:overflow-visible max-h-screen lg:max-h-none">
         <div className="hidden lg:block space-y-8">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
@@ -371,7 +349,36 @@ const Auth = () => {
               </form>
             )}
           </div>
-        </div>
+          </div>
+
+          {/* Security Banner */}
+          <div className="mt-6 bg-gradient-to-r from-red-600/20 via-red-500/20 to-orange-500/20 backdrop-blur-md rounded-2xl p-5 border border-red-500/30">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center shrink-0">
+                <Icon name="ShieldAlert" size={20} className="text-red-400" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                  <Icon name="ShieldCheck" size={16} className="text-red-400" />
+                  Служба безопасности активна
+                </h4>
+                <p className="text-sm text-muted-foreground mb-2">
+                  На проекте активно работает служба безопасности для выявления и блокировки мошенников.
+                </p>
+                <p className="text-sm text-foreground">
+                  Заметили подозрительную активность? Сообщите в поддержку:{' '}
+                  <a 
+                    href="https://t.me/gitcryptosupport" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-red-400 hover:text-red-300 font-semibold underline transition-colors"
+                  >
+                    @gitcryptosupport
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </GradientBackground>
