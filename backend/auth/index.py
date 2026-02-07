@@ -1171,15 +1171,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             # Если отклоняем - возвращаем средства на ПРАВИЛЬНЫЙ криптобаланс
             if new_status == 'rejected':
-                crypto_column = f"{withdrawal['crypto_symbol'].lower()}_balance"
+                withdrawal_crypto = withdrawal['crypto_symbol']
+                withdrawal_amount = withdrawal['amount']
+                withdrawal_user = withdrawal['user_id']
+                crypto_column = f"{withdrawal_crypto.lower()}_balance"
+                
                 cur.execute(
-                    f"UPDATE {SCHEMA}.users SET {crypto_column} = COALESCE({crypto_column}, 0) + {float(withdrawal['amount'])} WHERE id = {int(withdrawal['user_id'])}"
+                    f"UPDATE {SCHEMA}.users SET {crypto_column} = COALESCE({crypto_column}, 0) + {float(withdrawal_amount)} WHERE id = {int(withdrawal_user)}"
                 )
                 
                 # Добавляем транзакцию о возврате
-                withdrawal_amount = withdrawal['amount']
-                withdrawal_crypto = withdrawal['crypto_symbol']
-                withdrawal_user = withdrawal['user_id']
                 description = f"Возврат {withdrawal_amount} {withdrawal_crypto} (заявка #{withdrawal_id} отклонена)"
                 cur.execute(
                     f"INSERT INTO {SCHEMA}.transactions (user_id, amount, type, description) VALUES ({int(withdrawal_user)}, {float(withdrawal_amount)}, 'withdrawal_rejected', {escape_sql_string(description)})"
