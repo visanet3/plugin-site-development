@@ -19,11 +19,31 @@ console.log('[AUTH] Current origin:', window.location.origin);
 // Тестовый OPTIONS запрос для проверки CORS
 fetch(AUTH_URL, { method: 'OPTIONS' })
   .then(response => {
-    console.log('[AUTH] CORS preflight тест - статус:', response.status);
+    console.log('[AUTH] ✅ CORS preflight тест - статус:', response.status);
     console.log('[AUTH] CORS preflight тест - headers:', Object.fromEntries(response.headers.entries()));
+    if (response.ok) {
+      console.log('[AUTH] ✅ Сервер доступен, CORS настроен правильно');
+    } else {
+      console.warn('[AUTH] ⚠️ Сервер ответил, но статус:', response.status);
+    }
   })
   .catch(error => {
-    console.error('[AUTH] CORS preflight тест - ошибка:', error);
+    console.error('[AUTH] ❌ CORS preflight тест - ОШИБКА:', error);
+    console.error('[AUTH] ❌ Сервер недоступен или CORS блокирует запросы');
+    console.error('[AUTH] Функция auth должна быть задеплоена по URL:', AUTH_URL);
+  });
+
+// Дополнительная проверка - простой GET запрос
+fetch(AUTH_URL, { method: 'GET' })
+  .then(response => {
+    console.log('[AUTH] GET тест - статус:', response.status);
+    return response.text();
+  })
+  .then(text => {
+    console.log('[AUTH] GET тест - ответ:', text.substring(0, 200));
+  })
+  .catch(error => {
+    console.error('[AUTH] GET тест - ошибка:', error);
   });
 
 const Auth = () => {
