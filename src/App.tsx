@@ -11,7 +11,6 @@ import ResetPassword from "./pages/ResetPassword";
 import ChristmasTree from "./pages/ChristmasTree";
 import NotFound from "./pages/NotFound";
 import { CookieProvider } from "./contexts/CookieContext";
-import { MaintenanceBanner } from "./components/MaintenanceBanner";
 
 
 const queryClient = new QueryClient();
@@ -29,7 +28,6 @@ const App = () => (
 
         <Toaster />
         <Sonner />
-        <MaintenanceBanner />
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <Routes>
             <Route path="/" element={<Index />} />
