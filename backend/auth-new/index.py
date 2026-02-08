@@ -267,6 +267,197 @@ def handler(event, context):
                 'isBase64Encoded': False
             }
         
+        elif action == 'get_crypto_balances':
+            user_id = event.get('headers', {}).get('X-User-Id') or event.get('headers', {}).get('x-user-id')
+            if not user_id:
+                return {
+                    'statusCode': 400,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': 'User ID не указан'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute(
+                """SELECT btc_balance, eth_balance, bnb_balance, sol_balance, xrp_balance, trx_balance
+                FROM users WHERE id = %s""",
+                (user_id,)
+            )
+            balances = cur.fetchone()
+            
+            if not balances:
+                return {
+                    'statusCode': 404,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': 'Пользователь не найден'}),
+                    'isBase64Encoded': False
+                }
+            
+            return {
+                'statusCode': 200,
+                'headers': cors_headers,
+                'body': json.dumps({
+                    'success': True,
+                    'balances': {
+                        'BTC': float(balances[0]),
+                        'ETH': float(balances[1]),
+                        'BNB': float(balances[2]),
+                        'SOL': float(balances[3]),
+                        'XRP': float(balances[4]),
+                        'TRX': float(balances[5])
+                    }
+                }),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'get_crypto_transactions':
+            user_id = event.get('headers', {}).get('X-User-Id') or event.get('headers', {}).get('x-user-id')
+            if not user_id:
+                return {
+                    'statusCode': 400,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': 'User ID не указан'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute(
+                """SELECT id, transaction_type, crypto_symbol, amount, price, total, 
+                status, wallet_address, created_at
+                FROM crypto_transactions
+                WHERE user_id = %s
+                ORDER BY created_at DESC
+                LIMIT 100""",
+                (user_id,)
+            )
+            transactions = cur.fetchall()
+            
+            return {
+                'statusCode': 200,
+                'headers': cors_headers,
+                'body': json.dumps({
+                    'success': True,
+                    'transactions': [{
+                        'id': t[0],
+                        'transaction_type': t[1],
+                        'crypto_symbol': t[2],
+                        'amount': float(t[3]),
+                        'price': float(t[4]),
+                        'total': float(t[5]),
+                        'status': t[6],
+                        'wallet_address': t[7],
+                        'created_at': t[8].isoformat() if t[8] else None
+                    } for t in transactions]
+                }),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'exchange_usdt_to_crypto':
+            user_id = event.get('headers', {}).get('X-User-Id') or event.get('headers', {}).get('x-user-id')
+            usdt_amount = body.get('usdt_amount')
+            crypto_symbol = body.get('crypto_symbol')
+            crypto_price = body.get('crypto_price')
+            
+            if not user_id or not usdt_amount or not crypto_symbol or not crypto_price:
+                return {
+                    'statusCode': 400,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': 'Заполните все поля'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute("SELECT balance FROM users WHERE id = %s", (user_id,))
+            user = cur.fetchone()
+            
+            if not user or float(user[0]) < usdt_amount:
+                return {
+                    'statusCode': 400,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': 'Недостаточно средств'}),
+                    'isBase64Encoded': False
+                }
+            
+            crypto_received = usdt_amount / crypto_price
+            new_balance = float(user[0]) - usdt_amount
+            
+            balance_field = f"{crypto_symbol.lower()}_balance"
+            cur.execute(
+                f"UPDATE users SET balance = %s, {balance_field} = {balance_field} + %s WHERE id = %s",
+                (new_balance, crypto_received, user_id)
+            )
+            
+            cur.execute(
+                """INSERT INTO crypto_transactions 
+                (user_id, transaction_type, crypto_symbol, amount, price, total, status)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+                (user_id, 'buy', crypto_symbol, crypto_received, crypto_price, usdt_amount, 'completed')
+            )
+            
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': cors_headers,
+                'body': json.dumps({
+                    'success': True,
+                    'crypto_received': crypto_received,
+                    'new_balance': new_balance
+                }),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'exchange_crypto_to_usdt':
+            user_id = event.get('headers', {}).get('X-User-Id') or event.get('headers', {}).get('x-user-id')
+            crypto_amount = body.get('crypto_amount')
+            crypto_symbol = body.get('crypto_symbol')
+            crypto_price = body.get('crypto_price')
+            
+            if not user_id or not crypto_amount or not crypto_symbol or not crypto_price:
+                return {
+                    'statusCode': 400,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': 'Заполните все поля'}),
+                    'isBase64Encoded': False
+                }
+            
+            balance_field = f"{crypto_symbol.lower()}_balance"
+            cur.execute(f"SELECT balance, {balance_field} FROM users WHERE id = %s", (user_id,))
+            user = cur.fetchone()
+            
+            if not user or float(user[1]) < crypto_amount:
+                return {
+                    'statusCode': 400,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': f'Недостаточно {crypto_symbol}'}),
+                    'isBase64Encoded': False
+                }
+            
+            usdt_received = crypto_amount * crypto_price
+            new_balance = float(user[0]) + usdt_received
+            
+            cur.execute(
+                f"UPDATE users SET balance = %s, {balance_field} = {balance_field} - %s WHERE id = %s",
+                (new_balance, crypto_amount, user_id)
+            )
+            
+            cur.execute(
+                """INSERT INTO crypto_transactions 
+                (user_id, transaction_type, crypto_symbol, amount, price, total, status)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+                (user_id, 'sell', crypto_symbol, crypto_amount, crypto_price, usdt_received, 'completed')
+            )
+            
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': cors_headers,
+                'body': json.dumps({
+                    'success': True,
+                    'usdt_received': usdt_received,
+                    'new_balance': new_balance
+                }),
+                'isBase64Encoded': False
+            }
+        
         else:
             return {
                 'statusCode': 400,
