@@ -458,6 +458,112 @@ def handler(event, context):
                 'isBase64Encoded': False
             }
         
+        elif action == 'get_referral_info':
+            user_id = event.get('headers', {}).get('X-User-Id') or event.get('headers', {}).get('x-user-id')
+            if not user_id:
+                return {
+                    'statusCode': 400,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': 'User ID не указан'}),
+                    'isBase64Encoded': False
+                }
+            
+            # Получаем реферальный код пользователя
+            cur.execute(
+                "SELECT code FROM t_p32599880_plugin_site_developm.referral_codes WHERE user_id = %s AND is_active = true LIMIT 1",
+                (user_id,)
+            )
+            ref_code = cur.fetchone()
+            referral_code = ref_code[0] if ref_code else ''
+            
+            # Получаем список рефералов
+            cur.execute(
+                """SELECT u.id, u.username, u.created_at 
+                FROM t_p32599880_plugin_site_developm.users u 
+                WHERE u.referred_by_code = %s 
+                ORDER BY u.created_at DESC""",
+                (referral_code,)
+            )
+            referrals_data = cur.fetchall()
+            
+            referrals = []
+            for ref in referrals_data:
+                referrals.append({
+                    'id': ref[0],
+                    'referred_username': ref[1],
+                    'status': 'active',
+                    'created_at': ref[2].isoformat() if ref[2] else None,
+                    'total_deposited': 0,
+                    'bonus_earned': 0
+                })
+            
+            return {
+                'statusCode': 200,
+                'headers': cors_headers,
+                'body': json.dumps({
+                    'success': True,
+                    'referral_code': referral_code,
+                    'referrals': referrals,
+                    'stats': {
+                        'total_referrals': len(referrals),
+                        'completed': 0,
+                        'pending': 0,
+                        'active': len(referrals),
+                        'can_claim': False,
+                        'total_earned': 0,
+                        'total_claimed': 0
+                    }
+                }),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'get_user_expenses':
+            # Детальная информация о расходах пользователя для админки
+            target_user_id = body.get('user_id')
+            if not target_user_id:
+                return {
+                    'statusCode': 400,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': 'user_id не указан'}),
+                    'isBase64Encoded': False
+                }
+            
+            # Получаем транзакции обменника
+            cur.execute(
+                """SELECT id, transaction_type, crypto_symbol, amount, price, total, 
+                wallet_address, created_at, status
+                FROM t_p32599880_plugin_site_developm.crypto_transactions
+                WHERE user_id = %s
+                ORDER BY created_at DESC
+                LIMIT 100""",
+                (target_user_id,)
+            )
+            exchange_txs = cur.fetchall()
+            
+            expenses = {
+                'exchange_transactions': [{
+                    'id': tx[0],
+                    'type': tx[1],
+                    'crypto': tx[2],
+                    'amount': float(tx[3]),
+                    'price': float(tx[4]),
+                    'total': float(tx[5]),
+                    'wallet': tx[6],
+                    'date': tx[7].isoformat() if tx[7] else None,
+                    'status': tx[8]
+                } for tx in exchange_txs]
+            }
+            
+            return {
+                'statusCode': 200,
+                'headers': cors_headers,
+                'body': json.dumps({
+                    'success': True,
+                    'expenses': expenses
+                }),
+                'isBase64Encoded': False
+            }
+        
         else:
             return {
                 'statusCode': 400,

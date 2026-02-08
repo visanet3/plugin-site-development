@@ -7,9 +7,11 @@ import { useState } from 'react';
 interface AdminExchangeTabProps {
   users: User[];
   onManageToken: (userId: number, username: string, tokenSymbol: string, currentBalance: number) => void;
+  onDownloadExchangeData?: () => void;
+  onViewUserExpenses?: (userId: number, username: string) => void;
 }
 
-const AdminExchangeTab = ({ users, onManageToken }: AdminExchangeTabProps) => {
+const AdminExchangeTab = ({ users, onManageToken, onDownloadExchangeData, onViewUserExpenses }: AdminExchangeTabProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'username' | 'usdt' | 'btc' | 'eth' | 'bnb' | 'sol' | 'xrp' | 'trx'>('username');
 
@@ -71,10 +73,18 @@ const AdminExchangeTab = ({ users, onManageToken }: AdminExchangeTabProps) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <h2 className="text-xl font-semibold">Обменник - Управление балансами</h2>
-        <div className="text-sm text-muted-foreground">
-          Всего пользователей: {usersWithBalance.length} | С балансом токенов: {usersWithRealBalance}
+        <div className="flex items-center gap-3">
+          <div className="text-sm text-muted-foreground">
+            Всего: {usersWithBalance.length} | С балансом: {usersWithRealBalance}
+          </div>
+          {onDownloadExchangeData && (
+            <Button onClick={onDownloadExchangeData} size="sm" variant="outline">
+              <Icon name="Download" size={16} className="mr-2" />
+              Скачать сделки
+            </Button>
+          )}
         </div>
       </div>
 
@@ -168,6 +178,17 @@ const AdminExchangeTab = ({ users, onManageToken }: AdminExchangeTabProps) => {
                     })}
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-1 flex-wrap">
+                        {onViewUserExpenses && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => onViewUserExpenses(user.id, user.username)}
+                            className="text-xs px-2"
+                            title="Расходы пользователя"
+                          >
+                            <Icon name="Eye" size={14} />
+                          </Button>
+                        )}
                         {tokens.map(token => (
                           <Button
                             key={token.symbol}

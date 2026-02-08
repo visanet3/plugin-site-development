@@ -47,6 +47,8 @@ interface AdminPanelContentProps {
   onRefreshTopics: () => void;
   onUpdateTicketStatus: (ticketId: number, status: 'open' | 'answered' | 'closed') => void;
   onRefreshDeals: () => void;
+  onDownloadExchangeData?: () => void;
+  onViewUserExpenses?: (userId: number, username: string) => void;
 }
 
 const AdminPanelContent = ({
@@ -78,7 +80,9 @@ const AdminPanelContent = ({
   onRefreshTickets,
   onRefreshTopics,
   onUpdateTicketStatus,
-  onRefreshDeals
+  onRefreshDeals,
+  onDownloadExchangeData,
+  onViewUserExpenses
 }: AdminPanelContentProps) => {
   return (
     <div className="bg-card/30 backdrop-blur-sm border border-border/50 rounded-2xl p-3 sm:p-6 animate-fade-in">
@@ -193,6 +197,8 @@ const AdminPanelContent = ({
         <AdminExchangeTab 
           users={users}
           onManageToken={onManageToken}
+          onDownloadExchangeData={onDownloadExchangeData}
+          onViewUserExpenses={onViewUserExpenses}
         />
       )}
 

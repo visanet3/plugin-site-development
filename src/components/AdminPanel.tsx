@@ -769,6 +769,108 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
     setShowTokenBalanceDialog(true);
   };
 
+  const downloadExchangeTransactions = async () => {
+    try {
+      const response = await fetch(AUTH_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': currentUser.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'get_crypto_transactions'
+        })
+      });
+      
+      const data = await response.json();
+      if (data.success && data.transactions) {
+        const csv = convertToCSV(data.transactions, [
+          { key: 'id', label: 'ID' },
+          { key: 'transaction_type', label: 'Тип' },
+          { key: 'crypto_symbol', label: 'Криптовалюта' },
+          { key: 'amount', label: 'Количество' },
+          { key: 'price', label: 'Цена' },
+          { key: 'total', label: 'Сумма USDT' },
+          { key: 'wallet_address', label: 'Кошелёк' },
+          { key: 'status', label: 'Статус' },
+          { key: 'created_at', label: 'Дата' }
+        ]);
+        downloadCSVFile(csv, 'exchange_transactions.csv');
+        toast({
+          title: 'Готово',
+          description: 'Файл со сделками скачан'
+        });
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки сделок:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось скачать данные',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const viewUserExpenses = async (userId: number, username: string) => {
+    try {
+      const response = await fetch(AUTH_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': currentUser.id.toString()
+        },
+        body: JSON.stringify({
+          action: 'get_user_expenses',
+          user_id: userId
+        })
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        const expenses = data.expenses;
+        const message = `
+Пользователь: ${username}
+Сделки в обменнике: ${expenses.exchange_transactions.length}
+
+Последние сделки:
+${expenses.exchange_transactions.slice(0, 5).map((tx: any) => 
+  `- ${tx.type === 'buy' ? 'Покупка' : 'Продажа'} ${tx.amount} ${tx.crypto} за ${tx.total} USDT (${tx.date})`
+).join('\n')}
+        `.trim();
+        
+        alert(message);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки расходов:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось загрузить данные',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const convertToCSV = (data: any[], columns: { key: string; label: string }[]) => {
+    const headers = columns.map(col => col.label).join(',');
+    const rows = data.map(row => 
+      columns.map(col => {
+        const value = row[col.key];
+        if (value === null || value === undefined) return '';
+        const str = String(value).replace(/"/g, '""');
+        return `"${str}"`;
+      }).join(',')
+    );
+    return [headers, ...rows].join('\n');
+  };
+
+  const downloadCSVFile = (csv: string, filename: string) => {
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+  };
+
   const handleTokenBalanceSubmit = async (action: 'add' | 'subtract', amount: number) => {
     try {
       const finalAmount = action === 'subtract' ? -amount : amount;
@@ -949,6 +1051,8 @@ const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
           onRefreshTopics={fetchTopics}
           onUpdateTicketStatus={handleUpdateTicketStatus}
           onRefreshDeals={fetchDeals}
+          onDownloadExchangeData={downloadExchangeTransactions}
+          onViewUserExpenses={viewUserExpenses}
         />
 
         <AdminBalanceDialog 
