@@ -9,7 +9,6 @@ import os
 import psycopg2
 from datetime import datetime
 from typing import Dict, Any
-from cors_helper import fix_cors_response
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method = event.get('httpMethod', 'POST')
@@ -23,7 +22,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'Access-Control-Allow-Headers': 'Content-Type',
                 'Access-Control-Max-Age': '86400'
             },
-            'body': ''
+            'body': '',
+            'isBase64Encoded': False
         }
     
     if method != 'POST':
@@ -33,7 +33,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
             },
-            'body': json.dumps({'error': 'Method not allowed'})
+            'body': json.dumps({'error': 'Method not allowed'}),
+            'isBase64Encoded': False
         }
     
     try:
@@ -154,14 +155,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({
                 'error': 'Internal server error',
                 'details': str(e)
-            })
+            }),
+            'isBase64Encoded': False
         }
-
-
-# CORS Middleware - автоматически исправляет CORS во всех ответах
-_original_handler = handler
-
-def handler(event, context):
-    """Wrapper для автоматического исправления CORS"""
-    response = _original_handler(event, context)
-    return fix_cors_response(response, event, include_credentials=True)
