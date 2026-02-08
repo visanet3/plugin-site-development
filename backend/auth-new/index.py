@@ -164,7 +164,7 @@ def handler(event, context):
             
             # Получаем пользователя
             cur.execute(
-                """SELECT u.id, u.username, u.email, u.balance, rc.code
+                """SELECT u.id, u.username, u.email, u.balance, rc.code, u.is_blocked, u.block_reason
                 FROM users u
                 LEFT JOIN referral_codes rc ON rc.user_id = u.id AND rc.is_active = true
                 WHERE u.username = %s AND u.password_hash = %s
@@ -178,6 +178,16 @@ def handler(event, context):
                     'statusCode': 401,
                     'headers': cors_headers,
                     'body': json.dumps({'error': 'Неверный логин или пароль'}),
+                    'isBase64Encoded': False
+                }
+            
+            # Проверяем блокировку
+            if user[5]:  # is_blocked
+                block_reason = user[6] or 'Ваш аккаунт заблокирован администратором'
+                return {
+                    'statusCode': 403,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': f'Аккаунт заблокирован: {block_reason}'}),
                     'isBase64Encoded': False
                 }
             
