@@ -1,10 +1,15 @@
 /**
  * Централизованное хранилище URL для backend функций
- * Импортируется из func2url.json, который генерируется автоматически при деплое
+ * CRITICAL: auth URL захардкожен, так как func2url.json постоянно теряет его при деплоях
  */
 import funcUrls from '../../backend/func2url.json';
 
-export const API_URLS = funcUrls as Record<string, string>;
+// Захардкоженные URL для критичных функций
+const HARDCODED_URLS: Record<string, string> = {
+  'auth': 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03',
+};
+
+export const API_URLS = { ...funcUrls, ...HARDCODED_URLS } as Record<string, string>;
 
 /**
  * Получить URL функции по имени
