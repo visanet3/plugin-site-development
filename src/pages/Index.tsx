@@ -7,6 +7,7 @@ import IndexLayout from './index/IndexLayout';
 import { CookieConsent } from '@/components/CookieConsent';
 import { userSyncManager } from '@/utils/userSync';
 import MessagesPanel from '@/components/MessagesPanel';
+import { NOTIFICATIONS_URL } from '@/lib/api-urls';
 
 const AdminPanel = lazy(() => import('@/components/AdminPanel'));
 const UserProfileDialog = lazy(() => import('@/components/UserProfileDialog'));
