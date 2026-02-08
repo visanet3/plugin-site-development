@@ -10,6 +10,22 @@ import { ShinyButton } from '@/components/ui/shiny-button';
 const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
 const PASSWORD_RESET_URL = 'https://functions.poehali.dev/d4973344-e5cd-411c-8957-4c1d4d0072ab';
 
+// Проверка доступности API при загрузке
+console.log('[AUTH] Конфигурация:');
+console.log('[AUTH] AUTH_URL:', AUTH_URL);
+console.log('[AUTH] PASSWORD_RESET_URL:', PASSWORD_RESET_URL);
+console.log('[AUTH] Current origin:', window.location.origin);
+
+// Тестовый OPTIONS запрос для проверки CORS
+fetch(AUTH_URL, { method: 'OPTIONS' })
+  .then(response => {
+    console.log('[AUTH] CORS preflight тест - статус:', response.status);
+    console.log('[AUTH] CORS preflight тест - headers:', Object.fromEntries(response.headers.entries()));
+  })
+  .catch(error => {
+    console.error('[AUTH] CORS preflight тест - ошибка:', error);
+  });
+
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -62,17 +78,36 @@ const Auth = () => {
     console.log('[AUTH] Тело запроса:', { ...requestBody, password: '***' });
     
     try {
+      console.log('[AUTH] Выполнение fetch запроса...');
       const response = await fetch(AUTH_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
         body: JSON.stringify(requestBody),
+        mode: 'cors',
+        credentials: 'omit',
       });
 
+      console.log('[AUTH] Fetch успешно выполнен');
       console.log('[AUTH] Ответ сервера - статус:', response.status);
+      console.log('[AUTH] Ответ сервера - statusText:', response.statusText);
+      console.log('[AUTH] Ответ сервера - ok:', response.ok);
       console.log('[AUTH] Ответ сервера - headers:', Object.fromEntries(response.headers.entries()));
 
-      const data = await response.json();
-      console.log('[AUTH] Ответ сервера - данные:', data);
+      const contentType = response.headers.get('content-type');
+      console.log('[AUTH] Content-Type:', contentType);
+
+      let data;
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+        console.log('[AUTH] Ответ сервера - данные:', data);
+      } else {
+        const text = await response.text();
+        console.log('[AUTH] Ответ сервера - текст:', text);
+        data = { error: 'Неверный формат ответа от сервера' };
+      }
 
       if (response.ok) {
         console.log('[AUTH] Успешная авторизация');
@@ -99,9 +134,22 @@ const Auth = () => {
       }
     } catch (error) {
       console.error('[AUTH] Ошибка подключения к серверу:', error);
+      console.error('[AUTH] Тип ошибки:', error?.constructor?.name);
+      console.error('[AUTH] Сообщение ошибки:', error?.message);
+      console.error('[AUTH] Stack:', error?.stack);
+      
+      // Дополнительная диагностика
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        console.error('[AUTH] Возможные причины:');
+        console.error('[AUTH] 1. CORS заблокирован сервером');
+        console.error('[AUTH] 2. Сервер недоступен');
+        console.error('[AUTH] 3. Проблемы с сетью');
+        console.error('[AUTH] 4. Блокировка браузером смешанного контента');
+      }
+      
       toast({
         title: 'Ошибка',
-        description: 'Не удалось подключиться к серверу',
+        description: 'Не удалось подключиться к серверу. Проверьте консоль для деталей.',
         variant: 'destructive',
       });
     }
@@ -130,13 +178,21 @@ const Auth = () => {
     console.log('[RESET_PASSWORD] Тело запроса:', requestBody);
 
     try {
+      console.log('[RESET_PASSWORD] Выполнение fetch запроса...');
       const response = await fetch(PASSWORD_RESET_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
         body: JSON.stringify(requestBody),
+        mode: 'cors',
+        credentials: 'omit',
       });
 
+      console.log('[RESET_PASSWORD] Fetch успешно выполнен');
       console.log('[RESET_PASSWORD] Ответ сервера - статус:', response.status);
+      console.log('[RESET_PASSWORD] Ответ сервера - ok:', response.ok);
       
       const data = await response.json();
       console.log('[RESET_PASSWORD] Ответ сервера - данные:', data);
@@ -159,9 +215,12 @@ const Auth = () => {
       }
     } catch (error) {
       console.error('[RESET_PASSWORD] Ошибка подключения к серверу:', error);
+      console.error('[RESET_PASSWORD] Тип ошибки:', error?.constructor?.name);
+      console.error('[RESET_PASSWORD] Сообщение ошибки:', error?.message);
+      
       toast({
         title: 'Ошибка',
-        description: 'Не удалось подключиться к серверу',
+        description: 'Не удалось подключиться к серверу. Проверьте консоль для деталей.',
         variant: 'destructive',
       });
     }
