@@ -165,7 +165,7 @@ def handler(event, context):
             
             # Получаем пользователя
             cur.execute(
-                """SELECT u.id, u.username, u.email, u.balance, rc.code, u.is_blocked, u.block_reason
+                """SELECT u.id, u.username, u.email, u.balance, rc.code, u.is_blocked, u.block_reason, u.role
                 FROM users u
                 LEFT JOIN referral_codes rc ON rc.user_id = u.id AND rc.is_active = true
                 WHERE u.username = %s AND u.password_hash = %s
@@ -209,7 +209,8 @@ def handler(event, context):
                         'username': user[1],
                         'email': user[2],
                         'balance': float(user[3]),
-                        'referral_code': user[4] or ''
+                        'referral_code': user[4] or '',
+                        'role': user[7] or 'user'
                     }
                 }),
                 'isBase64Encoded': False
@@ -231,7 +232,7 @@ def handler(event, context):
             
             # Получаем пользователя по ID
             cur.execute(
-                """SELECT u.id, u.username, u.email, u.balance, rc.code, u.is_blocked, u.block_reason
+                """SELECT u.id, u.username, u.email, u.balance, rc.code, u.is_blocked, u.block_reason, u.role
                 FROM users u
                 LEFT JOIN referral_codes rc ON rc.user_id = u.id AND rc.is_active = true
                 WHERE u.id = %s
@@ -259,7 +260,8 @@ def handler(event, context):
                         'email': user[2],
                         'balance': float(user[3]),
                         'referral_code': user[4] or '',
-                        'is_blocked': user[5] or False
+                        'is_blocked': user[5] or False,
+                        'role': user[7] or 'user'
                     }
                 }),
                 'isBase64Encoded': False
