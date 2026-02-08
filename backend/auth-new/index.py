@@ -217,9 +217,11 @@ def handler(event, context):
         
         elif action == 'get_user':
             # Получение данных пользователя по ID
-            user_id = event.get('headers', {}).get('X-User-Id') or body.get('user_id')
+            user_id = event.get('headers', {}).get('X-User-Id') or event.get('headers', {}).get('x-user-id') or body.get('user_id')
+            print(f"[AUTH] get_user request, user_id: {user_id}, headers: {event.get('headers', {})}")
             
             if not user_id:
+                print(f"[AUTH] get_user ERROR: User ID не указан")
                 return {
                     'statusCode': 400,
                     'headers': cors_headers,
