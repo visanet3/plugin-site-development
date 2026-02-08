@@ -17,7 +17,7 @@ from typing import Dict, Any, Optional
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import requests
-from cors_helper import handle_cors_preflight, create_response, fix_cors_response
+import traceback
 
 SCHEMA = 't_p32599880_plugin_site_developm'
 
@@ -112,12 +112,24 @@ def validate_btc_price(client_price: float, tolerance_percent: float = 2.0) -> b
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """Обработчик запросов авторизации, регистрации и управления выводом криптовалют"""
-    # Force redeploy with CORS fix
     method: str = event.get('httpMethod', 'POST')
+    
+    # CORS headers
+    cors_headers = {
+        'Access-Control-Allow-Origin': 'https://gitcrypto.pro',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, X-User-Id, X-Auth-Token, X-Session-Id',
+        'Access-Control-Allow-Credentials': 'true'
+    }
     
     # CORS preflight
     if method == 'OPTIONS':
-        return handle_cors_preflight(event)
+        return {
+            'statusCode': 200,
+            'headers': cors_headers,
+            'body': '',
+            'isBase64Encoded': False
+        }
     
     conn = get_db_connection()
     cur = conn.cursor()
