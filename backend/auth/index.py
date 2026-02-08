@@ -112,6 +112,7 @@ def validate_btc_price(client_price: float, tolerance_percent: float = 2.0) -> b
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """Обработчик запросов авторизации, регистрации и управления выводом криптовалют"""
+    # Force redeploy with CORS fix
     method: str = event.get('httpMethod', 'POST')
     
     # CORS preflight
