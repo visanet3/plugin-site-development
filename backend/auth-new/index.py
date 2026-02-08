@@ -7,11 +7,20 @@ import os
 import psycopg2
 from datetime import datetime
 import secrets
+import hashlib
 
 def get_db_connection():
     """Подключение к базе данных"""
     dsn = os.environ.get('DATABASE_URL')
     return psycopg2.connect(dsn)
+
+def hash_password(password):
+    """Хеширование пароля"""
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def generate_token():
+    """Генерация токена авторизации"""
+    return secrets.token_urlsafe(32)
 
 def handler(event, context):
     """Обработчик авторизации и регистрации"""
@@ -65,7 +74,7 @@ def handler(event, context):
             username = body.get('username')
             password = body.get('password')
             email = body.get('email')
-            referral_code = body.get('referral_code')
+            referral_code_input = body.get('referral_code')
             
             if not username or not password or not email:
                 return {
@@ -88,19 +97,38 @@ def handler(event, context):
                     'isBase64Encoded': False
                 }
             
-            # Создаем пользователя
-            token = secrets.token_urlsafe(32)
-            user_ref_code = secrets.token_urlsafe(8)
+            # Хешируем пароль
+            password_hash = hash_password(password)
             
+            # Создаем пользователя
             cur.execute(
                 """INSERT INTO users 
-                (username, password, email, token, referral_code, created_at) 
-                VALUES (%s, %s, %s, %s, %s, %s) 
-                RETURNING id, username, email, balance, referral_code""",
-                (username, password, email, token, user_ref_code, datetime.now())
+                (username, password_hash, email, created_at) 
+                VALUES (%s, %s, %s, %s) 
+                RETURNING id, username, email, balance""",
+                (username, password_hash, email, datetime.now())
             )
             user = cur.fetchone()
+            user_id = user[0]
+            
+            # Создаем реферальный код для нового пользователя
+            user_ref_code = secrets.token_urlsafe(8)
+            cur.execute(
+                "INSERT INTO referral_codes (user_id, code) VALUES (%s, %s)",
+                (user_id, user_ref_code)
+            )
+            
+            # Если был указан реферальный код, привязываем
+            if referral_code_input:
+                cur.execute(
+                    "UPDATE users SET referred_by_code = %s WHERE id = %s",
+                    (referral_code_input, user_id)
+                )
+            
             conn.commit()
+            
+            # Генерируем токен
+            token = generate_token()
             
             return {
                 'statusCode': 200,
@@ -112,7 +140,7 @@ def handler(event, context):
                         'username': user[1],
                         'email': user[2],
                         'balance': float(user[3]),
-                        'referral_code': user[4]
+                        'referral_code': user_ref_code
                     }
                 }),
                 'isBase64Encoded': False
@@ -131,10 +159,17 @@ def handler(event, context):
                     'isBase64Encoded': False
                 }
             
+            # Хешируем пароль для сравнения
+            password_hash = hash_password(password)
+            
+            # Получаем пользователя
             cur.execute(
-                """SELECT id, username, email, balance, token, referral_code 
-                FROM users WHERE username = %s AND password = %s""",
-                (username, password)
+                """SELECT u.id, u.username, u.email, u.balance, rc.code
+                FROM users u
+                LEFT JOIN referral_codes rc ON rc.user_id = u.id AND rc.is_active = true
+                WHERE u.username = %s AND u.password_hash = %s
+                LIMIT 1""",
+                (username, password_hash)
             )
             user = cur.fetchone()
             
@@ -146,17 +181,20 @@ def handler(event, context):
                     'isBase64Encoded': False
                 }
             
+            # Генерируем токен
+            token = generate_token()
+            
             return {
                 'statusCode': 200,
                 'headers': cors_headers,
                 'body': json.dumps({
-                    'token': user[4],
+                    'token': token,
                     'user': {
                         'id': user[0],
                         'username': user[1],
                         'email': user[2],
                         'balance': float(user[3]),
-                        'referral_code': user[5]
+                        'referral_code': user[4] or ''
                     }
                 }),
                 'isBase64Encoded': False
