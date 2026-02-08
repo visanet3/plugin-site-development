@@ -27,9 +27,7 @@ def get_cors_headers(event: dict, include_credentials: bool = True) -> dict:
         'http://localhost:5173',
         'http://localhost:4173',
         'http://127.0.0.1:5173',
-        'http://127.0.0.1:4173',
-        'https://gitcrypto.poehali.dev',
-        'https://poehali.dev'
+        'http://127.0.0.1:4173'
     ]
     
     # Если origin есть в списке разрешенных, используем его

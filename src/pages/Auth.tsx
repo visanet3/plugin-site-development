@@ -10,42 +10,6 @@ import { ShinyButton } from '@/components/ui/shiny-button';
 const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
 const PASSWORD_RESET_URL = 'https://functions.poehali.dev/d4973344-e5cd-411c-8957-4c1d4d0072ab';
 
-// Проверка доступности API при загрузке
-console.log('[AUTH] Конфигурация:');
-console.log('[AUTH] AUTH_URL:', AUTH_URL);
-console.log('[AUTH] PASSWORD_RESET_URL:', PASSWORD_RESET_URL);
-console.log('[AUTH] Current origin:', window.location.origin);
-
-// Тестовый OPTIONS запрос для проверки CORS
-fetch(AUTH_URL, { method: 'OPTIONS' })
-  .then(response => {
-    console.log('[AUTH] ✅ CORS preflight тест - статус:', response.status);
-    console.log('[AUTH] CORS preflight тест - headers:', Object.fromEntries(response.headers.entries()));
-    if (response.ok) {
-      console.log('[AUTH] ✅ Сервер доступен, CORS настроен правильно');
-    } else {
-      console.warn('[AUTH] ⚠️ Сервер ответил, но статус:', response.status);
-    }
-  })
-  .catch(error => {
-    console.error('[AUTH] ❌ CORS preflight тест - ОШИБКА:', error);
-    console.error('[AUTH] ❌ Сервер недоступен или CORS блокирует запросы');
-    console.error('[AUTH] Функция auth должна быть задеплоена по URL:', AUTH_URL);
-  });
-
-// Дополнительная проверка - простой GET запрос
-fetch(AUTH_URL, { method: 'GET' })
-  .then(response => {
-    console.log('[AUTH] GET тест - статус:', response.status);
-    return response.text();
-  })
-  .then(text => {
-    console.log('[AUTH] GET тест - ответ:', text.substring(0, 200));
-  })
-  .catch(error => {
-    console.error('[AUTH] GET тест - ошибка:', error);
-  });
-
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -56,27 +20,14 @@ const Auth = () => {
 
   const handleAuthSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('[AUTH] Начало процесса авторизации');
-    console.log('[AUTH] Режим:', authMode);
-    
     const formData = new FormData(e.currentTarget);
-    const username = formData.get('username') as string;
-    const password = formData.get('password') as string;
-    const email = formData.get('email') as string;
-    const referralCode = formData.get('referral_code') as string;
     
-    console.log('[AUTH] Данные формы:', {
-      username,
-      hasPassword: !!password,
-      email: email || 'не указан',
-      referralCode: referralCode || 'не указан',
-    });
+    const email = formData.get('email') as string;
     
     // Валидация email при регистрации
     if (authMode === 'register' && email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
-        console.log('[AUTH] Ошибка валидации email:', email);
         toast({
           title: 'Ошибка',
           description: 'Введите корректный email',
@@ -86,54 +37,22 @@ const Auth = () => {
       }
     }
     
-    const requestBody = {
-      action: authMode,
-      username,
-      password,
-      email: authMode === 'register' ? email : undefined,
-      referral_code: authMode === 'register' ? referralCode : undefined,
-    };
-    
-    console.log('[AUTH] Отправка запроса на:', AUTH_URL);
-    console.log('[AUTH] Тело запроса:', { ...requestBody, password: '***' });
-    
     try {
-      console.log('[AUTH] Выполнение fetch запроса...');
       const response = await fetch(AUTH_URL, {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-        mode: 'cors',
-        credentials: 'omit',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: authMode,
+          username: formData.get('username'),
+          password: formData.get('password'),
+          email: authMode === 'register' ? email : undefined,
+          referral_code: authMode === 'register' ? formData.get('referral_code') : undefined,
+        }),
       });
 
-      console.log('[AUTH] Fetch успешно выполнен');
-      console.log('[AUTH] Ответ сервера - статус:', response.status);
-      console.log('[AUTH] Ответ сервера - statusText:', response.statusText);
-      console.log('[AUTH] Ответ сервера - ok:', response.ok);
-      console.log('[AUTH] Ответ сервера - headers:', Object.fromEntries(response.headers.entries()));
-
-      const contentType = response.headers.get('content-type');
-      console.log('[AUTH] Content-Type:', contentType);
-
-      let data;
-      if (contentType && contentType.includes('application/json')) {
-        data = await response.json();
-        console.log('[AUTH] Ответ сервера - данные:', data);
-      } else {
-        const text = await response.text();
-        console.log('[AUTH] Ответ сервера - текст:', text);
-        data = { error: 'Неверный формат ответа от сервера' };
-      }
+      const data = await response.json();
 
       if (response.ok) {
-        console.log('[AUTH] Успешная авторизация');
-        console.log('[AUTH] Токен получен:', !!data.token);
-        console.log('[AUTH] Данные пользователя:', data.user);
-        
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         
@@ -142,10 +61,8 @@ const Auth = () => {
           description: authMode === 'login' ? 'Вы вошли в систему' : 'Аккаунт создан',
         });
         
-        console.log('[AUTH] Переход на главную страницу');
         navigate('/');
       } else {
-        console.error('[AUTH] Ошибка авторизации:', data.error || 'Неизвестная ошибка');
         toast({
           title: 'Ошибка',
           description: data.error || 'Что-то пошло не так',
@@ -153,34 +70,16 @@ const Auth = () => {
         });
       }
     } catch (error) {
-      console.error('[AUTH] Ошибка подключения к серверу:', error);
-      console.error('[AUTH] Тип ошибки:', error?.constructor?.name);
-      console.error('[AUTH] Сообщение ошибки:', error?.message);
-      console.error('[AUTH] Stack:', error?.stack);
-      
-      // Дополнительная диагностика
-      if (error instanceof TypeError && error.message === 'Failed to fetch') {
-        console.error('[AUTH] Возможные причины:');
-        console.error('[AUTH] 1. CORS заблокирован сервером');
-        console.error('[AUTH] 2. Сервер недоступен');
-        console.error('[AUTH] 3. Проблемы с сетью');
-        console.error('[AUTH] 4. Блокировка браузером смешанного контента');
-      }
-      
       toast({
         title: 'Ошибка',
-        description: 'Не удалось подключиться к серверу. Проверьте консоль для деталей.',
+        description: 'Не удалось подключиться к серверу',
         variant: 'destructive',
       });
     }
   };
 
   const handleResetPassword = async () => {
-    console.log('[RESET_PASSWORD] Начало процесса сброса пароля');
-    console.log('[RESET_PASSWORD] Email:', resetEmail);
-    
     if (!resetEmail) {
-      console.log('[RESET_PASSWORD] Ошибка: email не указан');
       toast({
         title: 'Ошибка',
         description: 'Введите email',
@@ -189,36 +88,19 @@ const Auth = () => {
       return;
     }
 
-    const requestBody = { 
-      action: 'request_reset',
-      email: resetEmail 
-    };
-    
-    console.log('[RESET_PASSWORD] Отправка запроса на:', PASSWORD_RESET_URL);
-    console.log('[RESET_PASSWORD] Тело запроса:', requestBody);
-
     try {
-      console.log('[RESET_PASSWORD] Выполнение fetch запроса...');
       const response = await fetch(PASSWORD_RESET_URL, {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-        mode: 'cors',
-        credentials: 'omit',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          action: 'request_reset',
+          email: resetEmail 
+        }),
       });
 
-      console.log('[RESET_PASSWORD] Fetch успешно выполнен');
-      console.log('[RESET_PASSWORD] Ответ сервера - статус:', response.status);
-      console.log('[RESET_PASSWORD] Ответ сервера - ok:', response.ok);
-      
       const data = await response.json();
-      console.log('[RESET_PASSWORD] Ответ сервера - данные:', data);
 
       if (response.ok) {
-        console.log('[RESET_PASSWORD] Ссылка успешно отправлена');
         toast({
           title: 'Успешно!',
           description: 'Ссылка для сброса пароля отправлена на почту',
@@ -226,7 +108,6 @@ const Auth = () => {
         setShowResetPassword(false);
         setResetEmail('');
       } else {
-        console.error('[RESET_PASSWORD] Ошибка:', data.error);
         toast({
           title: 'Ошибка',
           description: data.error || 'Не удалось отправить ссылку',
@@ -234,13 +115,9 @@ const Auth = () => {
         });
       }
     } catch (error) {
-      console.error('[RESET_PASSWORD] Ошибка подключения к серверу:', error);
-      console.error('[RESET_PASSWORD] Тип ошибки:', error?.constructor?.name);
-      console.error('[RESET_PASSWORD] Сообщение ошибки:', error?.message);
-      
       toast({
         title: 'Ошибка',
-        description: 'Не удалось подключиться к серверу. Проверьте консоль для деталей.',
+        description: 'Не удалось подключиться к серверу',
         variant: 'destructive',
       });
     }
