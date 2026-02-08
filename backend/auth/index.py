@@ -3,6 +3,7 @@ Business: Регистрация, авторизация пользовател�
 Args: event - dict с httpMethod, body, queryStringParameters
       context - объект с атрибутами: request_id, function_name
 Returns: HTTP response dict с токеном и данными пользователя
+
 Updated: 2025-12-31 - added crypto withdrawal system with admin approval
 '''
 
