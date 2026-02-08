@@ -17,8 +17,6 @@ from typing import Dict, Any, Optional
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import requests
-import sys
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from cors_helper import handle_cors_preflight, create_response, fix_cors_response
 
 SCHEMA = 't_p32599880_plugin_site_developm'
