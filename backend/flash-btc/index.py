@@ -3,9 +3,8 @@ import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime
+
 import requests
-import sys
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from cors_helper import fix_cors_response
 
 def serialize_datetime(obj):

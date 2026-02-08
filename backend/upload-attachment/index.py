@@ -2,8 +2,6 @@ import json
 import os
 import psycopg2
 from typing import Dict, Any
-import sys
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from cors_helper import fix_cors_response
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:

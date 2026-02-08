@@ -2,14 +2,13 @@
 Покупка TON Flash USDT пакетов
 
 Обрабатывает покупку TON Flash пакетов, списывая средства с баланса пользователя
+
 """
 import json
 import os
 import psycopg2
 from datetime import datetime
 from typing import Dict, Any
-import sys
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from cors_helper import fix_cors_response
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:

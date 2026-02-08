@@ -1,5 +1,6 @@
 {
   "ton-flash-purchase": "https://functions.poehali.dev/b17010ac-fa87-47eb-8a75-57782d28fe75",
+  "auth": "https://functions.poehali.dev/f70348e7-9d3c-4358-8db3-96cfcbd4c735",
   "vip-ton-purchase": "https://functions.poehali.dev/671797ff-2c45-4b83-b351-7c7545147491",
   "admin-withdrawal-control": "https://functions.poehali.dev/d545f1eb-6d98-4274-8192-0e8b0140d4b4",
   "crypto-prices": "https://functions.poehali.dev/f969550a-2586-4760-bff9-57823dd0a0d0",
