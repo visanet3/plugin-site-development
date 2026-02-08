@@ -60,7 +60,7 @@ const FlashUsdtShop = ({ user, onShowAuthDialog, onRefreshUserBalance }: FlashUs
       color: 'from-purple-600 to-purple-800',
       borderColor: 'border-purple-500/30',
       icon: 'Boxes',
-      popular: true,
+      popular: false,
       vipOnly: true
     },
     {
@@ -84,6 +84,72 @@ const FlashUsdtShop = ({ user, onShowAuthDialog, onRefreshUserBalance }: FlashUs
       icon: 'Building',
       popular: false,
       soldOut: false,
+      vipOnly: true
+    },
+    {
+      id: 5,
+      amount: 7500000,
+      price: 1087500,
+      discount: '85.5%',
+      color: 'from-emerald-600 to-emerald-800',
+      borderColor: 'border-emerald-500/30',
+      icon: 'Store',
+      popular: true,
+      vipOnly: true
+    },
+    {
+      id: 6,
+      amount: 10000000,
+      price: 1400000,
+      discount: '86%',
+      color: 'from-cyan-600 to-cyan-800',
+      borderColor: 'border-cyan-500/30',
+      icon: 'Building2',
+      popular: false,
+      vipOnly: true
+    },
+    {
+      id: 7,
+      amount: 15000000,
+      price: 2025000,
+      discount: '86.5%',
+      color: 'from-indigo-600 to-indigo-800',
+      borderColor: 'border-indigo-500/30',
+      icon: 'Landmark',
+      popular: false,
+      vipOnly: true
+    },
+    {
+      id: 8,
+      amount: 25000000,
+      price: 3250000,
+      discount: '87%',
+      color: 'from-pink-600 to-pink-800',
+      borderColor: 'border-pink-500/30',
+      icon: 'Castle',
+      popular: false,
+      vipOnly: true
+    },
+    {
+      id: 9,
+      amount: 50000000,
+      price: 6250000,
+      discount: '87.5%',
+      color: 'from-violet-600 to-violet-800',
+      borderColor: 'border-violet-500/30',
+      icon: 'TowerControl',
+      popular: true,
+      vipOnly: true
+    },
+    {
+      id: 10,
+      amount: 100000000,
+      price: 12000000,
+      discount: '88%',
+      color: 'from-amber-600 to-amber-800',
+      borderColor: 'border-amber-500/30',
+      icon: 'Building',
+      popular: false,
       vipOnly: true
     }
   ];
