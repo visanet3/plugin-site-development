@@ -4,9 +4,9 @@
  */
 import funcUrls from '../../backend/func2url.json';
 
-// Захардкоженные URL для критичных функций
+// Временно используем admin function для auth пока не починим auth
 const HARDCODED_URLS: Record<string, string> = {
-  'auth': 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03',
+  'auth': 'https://functions.poehali.dev/d4678b1c-2acd-40bb-b8c5-cefe8d14fad4', // admin function
 };
 
 export const API_URLS = { ...funcUrls, ...HARDCODED_URLS } as Record<string, string>;
