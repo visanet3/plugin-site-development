@@ -4,6 +4,7 @@ import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
+import { AUTH_URL } from '@/lib/api-urls';
 
 interface BtcWithdrawal {
   id: number;
@@ -24,8 +25,6 @@ interface AdminBtcWithdrawalsTabProps {
   currentUser: { id: number };
   onRefresh: () => void;
 }
-
-const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
 
 const AdminBtcWithdrawalsTab = ({ withdrawals, currentUser, onRefresh }: AdminBtcWithdrawalsTabProps) => {
   const { toast } = useToast();

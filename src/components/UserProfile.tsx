@@ -10,10 +10,7 @@ import { CryptoPaymentDialog } from '@/components/UserProfile/CryptoPaymentDialo
 
 
 import { useToast } from '@/hooks/use-toast';
-
-const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
-const CRYPTO_URL = 'https://functions.poehali.dev/8caa3b76-72e5-42b5-9415-91d1f9b05210';
-const ADMIN_URL = 'https://functions.poehali.dev/d4678b1c-2acd-40bb-b8c5-cefe8d14fad4';
+import { AUTH_URL, CRYPTO_URL, ADMIN_URL } from '@/lib/api-urls';
 
 
 interface UserProfileProps {

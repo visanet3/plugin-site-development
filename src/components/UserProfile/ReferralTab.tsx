@@ -7,8 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { User } from '@/types';
 import { copyToClipboard } from '@/utils/clipboard';
 import { CopyButtonIcon } from '@/components/ui/copy-button-icon';
-
-const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
+import { AUTH_URL } from '@/lib/api-urls';
 
 interface ReferralData {
   id: number;

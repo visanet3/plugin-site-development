@@ -4,8 +4,7 @@ import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import MessagesChatItem from './MessagesChatItem';
 import { useToast } from '@/hooks/use-toast';
-
-const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
+import { AUTH_URL } from '@/lib/api-urls';
 
 interface Chat {
   userId: number;

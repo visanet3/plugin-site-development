@@ -6,8 +6,7 @@ import { ReferralCodeCard } from '@/components/referral/ReferralCodeCard';
 import { ReferralBonusCard } from '@/components/referral/ReferralBonusCard';
 import { ReferralsList } from '@/components/referral/ReferralsList';
 import { copyToClipboard } from '@/utils/clipboard';
-
-const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
+import { AUTH_URL } from '@/lib/api-urls';
 
 interface Referral {
   id: number;

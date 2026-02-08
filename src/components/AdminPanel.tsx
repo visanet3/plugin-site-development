@@ -8,21 +8,12 @@ import AdminBtcBalanceDialog from '@/components/admin/AdminBtcBalanceDialog';
 import AdminTokenBalanceDialog from '@/components/admin/AdminTokenBalanceDialog';
 import AdminTopicEditDialog from '@/components/admin/AdminTopicEditDialog';
 import { useToast } from '@/hooks/use-toast';
+import { AUTH_URL, FORUM_URL, ADMIN_URL, WITHDRAWAL_URL, CRYPTO_URL, FLASH_USDT_URL, SUPPORT_TICKETS_URL as TICKETS_URL, DEALS_URL } from '@/lib/api-urls';
 
 interface AdminPanelProps {
   currentUser: User;
   onClose: () => void;
 }
-
-const FORUM_URL = 'https://functions.poehali.dev/045d6571-633c-4239-ae69-8d76c933532c';
-const ADMIN_URL = 'https://functions.poehali.dev/d4678b1c-2acd-40bb-b8c5-cefe8d14fad4';
-const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
-
-const WITHDRAWAL_URL = 'https://functions.poehali.dev/09f16983-ec42-41fe-a7bd-695752ee11c5';
-const CRYPTO_URL = 'https://functions.poehali.dev/8caa3b76-72e5-42b5-9415-91d1f9b05210';
-const FLASH_USDT_URL = 'https://functions.poehali.dev/9d93686d-9a6f-47bc-85a8-7b7c28e4edd7';
-const TICKETS_URL = 'https://functions.poehali.dev/f2a5cbce-6afc-4ef1-91a6-f14075db8567';
-const DEALS_URL = 'https://functions.poehali.dev/8a665174-b0af-4138-82e0-a9422dbb8fc4';
 
 const AdminPanel = ({ currentUser, onClose }: AdminPanelProps) => {
   const { toast } = useToast();

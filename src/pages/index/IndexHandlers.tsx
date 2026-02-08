@@ -1,8 +1,7 @@
 import { User } from '@/types';
 import { useNavigate } from 'react-router-dom';
 import { userSyncManager } from '@/utils/userSync';
-
-const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
+import { AUTH_URL } from '@/lib/api-urls';
 
 interface IndexHandlersProps {
   user: User | null;

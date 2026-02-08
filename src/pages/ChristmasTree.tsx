@@ -4,6 +4,7 @@ import { Gift, Sparkles, Zap, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import Icon from '@/components/ui/icon';
+import { AUTH_URL } from '@/lib/api-urls';
 
 const BONUSES = [10, 15, 20, 30, 35, 45, 55, 70, 100];
 
@@ -59,7 +60,7 @@ const ChristmasTree = () => {
       if (savedUser) {
         const user = JSON.parse(savedUser);
         try {
-          await fetch('https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03', {
+          await fetch(AUTH_URL, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

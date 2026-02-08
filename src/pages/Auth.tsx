@@ -6,8 +6,8 @@ import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { GradientBackground } from '@/components/ui/gradient-background';
 import { ShinyButton } from '@/components/ui/shiny-button';
+import { AUTH_URL } from '@/lib/api-urls';
 
-const AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
 const PASSWORD_RESET_URL = 'https://functions.poehali.dev/d4973344-e5cd-411c-8957-4c1d4d0072ab';
 
 const Auth = () => {

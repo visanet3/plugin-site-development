@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { User } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { AUTH_URL } from '@/lib/api-urls';
 
 interface VipFlashPurchaseProps {
   user: User | null;
@@ -41,7 +42,7 @@ export const VipFlashPurchase = ({ user, onShowAuthDialog, onRefreshUserBalance,
 
     setLoading(true);
     try {
-      const response = await fetch('https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03', {
+      const response = await fetch(AUTH_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
