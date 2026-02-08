@@ -4,9 +4,6 @@ from datetime import datetime, timedelta
 from typing import Dict, Any
 import psycopg2
 from psycopg2.extras import RealDictCursor
-import sys
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from cors_helper import fix_cors_response
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
@@ -181,12 +178,3 @@ def purchase_vip(user_id: int) -> Dict[str, Any]:
         if conn:
             cur.close()
             conn.close()
-
-
-# CORS Middleware - автоматически исправляет CORS во всех ответах
-_original_handler = handler
-
-def handler(event, context):
-    """Wrapper для автоматического исправления CORS"""
-    response = _original_handler(event, context)
-    return fix_cors_response(response, event, include_credentials=True)

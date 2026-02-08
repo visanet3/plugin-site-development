@@ -5,7 +5,6 @@ from psycopg2.extras import RealDictCursor
 from datetime import datetime
 
 import requests
-from cors_helper import fix_cors_response
 
 def serialize_datetime(obj):
     if isinstance(obj, datetime):
@@ -217,12 +216,3 @@ def handler(event, context):
         }
     finally:
         conn.close()
-
-
-# CORS Middleware - автоматически исправляет CORS во всех ответах
-_original_handler = handler
-
-def handler(event, context):
-    """Wrapper для автоматического исправления CORS"""
-    response = _original_handler(event, context)
-    return fix_cors_response(response, event, include_credentials=True)

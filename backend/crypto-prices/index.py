@@ -8,10 +8,6 @@ Returns: HTTP response с курсами криптовалют (buy_prices и s
 import json
 import urllib.request
 from typing import Dict, Any, Tuple
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from cors_helper import fix_cors_response
 
 BUY_MARKUP = 0.5   # +0.5% для покупки криптовалюты (пользователь платит дороже)
 SELL_DISCOUNT = 0.5  # -0.5% для продажи криптовалюты (пользователь получает меньше)
@@ -119,12 +115,3 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }),
         'isBase64Encoded': False
     }
-
-
-# CORS Middleware - автоматически исправляет CORS во всех ответах
-_original_handler = handler
-
-def handler(event, context):
-    """Wrapper для автоматического исправления CORS"""
-    response = _original_handler(event, context)
-    return fix_cors_response(response, event, include_credentials=True)

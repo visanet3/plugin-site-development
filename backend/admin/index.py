@@ -11,9 +11,6 @@ from typing import Dict, Any, List
 from datetime import datetime, timezone
 import psycopg2
 from psycopg2.extras import RealDictCursor
-import sys
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from cors_helper import fix_cors_response
 
 SCHEMA = 't_p32599880_plugin_site_developm'
 
@@ -1161,12 +1158,3 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     finally:
         cur.close()
         conn.close()
-
-
-# CORS Middleware - автоматически исправляет CORS во всех ответах
-_original_handler = handler
-
-def handler(event, context):
-    """Wrapper для автоматического исправления CORS"""
-    response = _original_handler(event, context)
-    return fix_cors_response(response, event, include_credentials=True)

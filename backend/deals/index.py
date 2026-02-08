@@ -12,9 +12,6 @@ from datetime import datetime, timezone
 from typing import Dict, Any, List
 from decimal import Decimal
 import requests
-import sys
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from cors_helper import fix_cors_response
 
 def send_telegram_notification(event_type: str, user_info: Dict, details: Dict):
     '''Send notification to admin via Telegram'''
@@ -893,12 +890,3 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     finally:
         if conn:
             conn.close()
-
-
-# CORS Middleware - автоматически исправляет CORS во всех ответах
-_original_handler = handler
-
-def handler(event, context):
-    """Wrapper для автоматического исправления CORS"""
-    response = _original_handler(event, context)
-    return fix_cors_response(response, event, include_credentials=True)

@@ -8,9 +8,6 @@ import json
 import os
 import time
 from typing import Dict, Any
-import sys
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from cors_helper import fix_cors_response
 from collections import defaultdict
 from datetime import datetime, timezone
 import psycopg2
@@ -284,12 +281,3 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': f'Internal server error: {str(e)}'}),
             'isBase64Encoded': False
         }
-
-
-# CORS Middleware - автоматически исправляет CORS во всех ответах
-_original_handler = handler
-
-def handler(event, context):
-    """Wrapper для автоматического исправления CORS"""
-    response = _original_handler(event, context)
-    return fix_cors_response(response, event, include_credentials=True)

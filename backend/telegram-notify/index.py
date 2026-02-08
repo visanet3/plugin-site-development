@@ -8,9 +8,6 @@ import json
 import os
 from typing import Dict, Any
 import requests
-import sys
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from cors_helper import fix_cors_response
 
 def send_telegram_message(text: str) -> bool:
     """Отправить сообщение в Telegram"""
@@ -234,12 +231,3 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False,
             'body': json.dumps({'error': str(e)})
         }
-
-
-# CORS Middleware - автоматически исправляет CORS во всех ответах
-_original_handler = handler
-
-def handler(event, context):
-    """Wrapper для автоматического исправления CORS"""
-    response = _original_handler(event, context)
-    return fix_cors_response(response, event, include_credentials=True)
