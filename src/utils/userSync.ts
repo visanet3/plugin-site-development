@@ -9,7 +9,7 @@ class UserSyncManager {
   private minInterval: number = 120000; // 2 минуты минимум между синхронизациями (было 60 секунд)
   private syncInProgress: boolean = false;
   private cachedUser: any = null;
-  private AUTH_URL = 'https://functions.poehali.dev/2497448a-6aff-4df5-97ef-9181cf792f03';
+  private AUTH_URL = 'https://functions.poehali.dev/2ed67388-1aff-4538-8115-a84928fcdb94';
 
   subscribe(listener: UserSyncListener) {
     this.listeners.add(listener);

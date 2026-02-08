@@ -215,6 +215,54 @@ def handler(event, context):
                 'isBase64Encoded': False
             }
         
+        elif action == 'get_user':
+            # Получение данных пользователя по ID
+            user_id = event.get('headers', {}).get('X-User-Id') or body.get('user_id')
+            
+            if not user_id:
+                return {
+                    'statusCode': 400,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': 'User ID не указан'}),
+                    'isBase64Encoded': False
+                }
+            
+            # Получаем пользователя по ID
+            cur.execute(
+                """SELECT u.id, u.username, u.email, u.balance, rc.code, u.is_blocked, u.block_reason
+                FROM users u
+                LEFT JOIN referral_codes rc ON rc.user_id = u.id AND rc.is_active = true
+                WHERE u.id = %s
+                LIMIT 1""",
+                (user_id,)
+            )
+            user = cur.fetchone()
+            
+            if not user:
+                return {
+                    'statusCode': 404,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': 'Пользователь не найден'}),
+                    'isBase64Encoded': False
+                }
+            
+            return {
+                'statusCode': 200,
+                'headers': cors_headers,
+                'body': json.dumps({
+                    'success': True,
+                    'user': {
+                        'id': user[0],
+                        'username': user[1],
+                        'email': user[2],
+                        'balance': float(user[3]),
+                        'referral_code': user[4] or '',
+                        'is_blocked': user[5] or False
+                    }
+                }),
+                'isBase64Encoded': False
+            }
+        
         else:
             return {
                 'statusCode': 400,
