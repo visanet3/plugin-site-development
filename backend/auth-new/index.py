@@ -184,14 +184,17 @@ def handler(event, context):
                 }
             
             # Проверяем блокировку
-            if user[5]:  # is_blocked
+            if user[5] is True:  # is_blocked — явная проверка на True
                 block_reason = user[6] or 'Ваш аккаунт заблокирован администратором'
+                print(f"[AUTH] User {username} is BLOCKED: {block_reason}")
                 return {
                     'statusCode': 403,
                     'headers': cors_headers,
                     'body': json.dumps({'error': f'Аккаунт заблокирован: {block_reason}'}),
                     'isBase64Encoded': False
                 }
+            
+            print(f"[AUTH] User {username} login SUCCESS")
             
             # Генерируем токен
             token = generate_token()
