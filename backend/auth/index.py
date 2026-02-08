@@ -4,7 +4,7 @@ Args: event - dict с httpMethod, body, queryStringParameters
       context - объект с атрибутами: request_id, function_name
 Returns: HTTP response dict с токеном и данными пользователя
 
-Updated: 2025-12-31 - added crypto withdrawal system with admin approval
+Updated: 2026-02-08 - fixed CORS wrapper removal
 '''
 
 import json
@@ -42,6 +42,8 @@ def send_telegram_notification(event_type: str, user_info: Dict, details: Dict):
 def get_db_connection():
     """Получить подключение к БД"""
     database_url = os.environ.get('DATABASE_URL')
+    if not database_url:
+        raise ValueError('DATABASE_URL environment variable is not set')
     return psycopg2.connect(database_url, cursor_factory=RealDictCursor)
 
 def hash_password(password: str) -> str:
@@ -112,27 +114,46 @@ def validate_btc_price(client_price: float, tolerance_percent: float = 2.0) -> b
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """Обработчик запросов авторизации, регистрации и управления выводом криптовалют"""
-    method: str = event.get('httpMethod', 'POST')
     
-    # CORS headers
-    cors_headers = {
-        'Access-Control-Allow-Origin': 'https://gitcrypto.pro',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, X-User-Id, X-Auth-Token, X-Session-Id',
-        'Access-Control-Allow-Credentials': 'true'
-    }
-    
-    # CORS preflight
-    if method == 'OPTIONS':
+    # Добавляем try-except на весь handler для отладки
+    try:
+        method: str = event.get('httpMethod', 'POST')
+        
+        # CORS headers
+        cors_headers = {
+            'Access-Control-Allow-Origin': 'https://gitcrypto.pro',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, X-User-Id, X-Auth-Token, X-Session-Id',
+            'Access-Control-Allow-Credentials': 'true'
+        }
+        
+        # CORS preflight - КРИТИЧНО: проверяем ДО подключения к БД
+        if method == 'OPTIONS':
+            return {
+                'statusCode': 200,
+                'headers': cors_headers,
+                'body': '',
+                'isBase64Encoded': False
+            }
+        
+        # Подключаемся к БД только после проверки OPTIONS
+        try:
+            conn = get_db_connection()
+            cur = conn.cursor()
+        except Exception as db_error:
+            return {
+                'statusCode': 500,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': f'Database connection failed: {str(db_error)}'}),
+                'isBase64Encoded': False
+            }
+    except Exception as global_error:
         return {
-            'statusCode': 200,
-            'headers': cors_headers,
-            'body': '',
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': f'Handler init failed: {str(global_error)}', 'traceback': traceback.format_exc()}),
             'isBase64Encoded': False
         }
-    
-    conn = get_db_connection()
-    cur = conn.cursor()
     
     try:
         if method == 'GET':
