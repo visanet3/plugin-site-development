@@ -161,6 +161,7 @@ def handler(event, context):
             
             # Хешируем пароль для сравнения
             password_hash = hash_password(password)
+            print(f"[AUTH] Login attempt for user: {username}")
             
             # Получаем пользователя
             cur.execute(
@@ -172,6 +173,7 @@ def handler(event, context):
                 (username, password_hash)
             )
             user = cur.fetchone()
+            print(f"[AUTH] User found: {user is not None}, is_blocked: {user[5] if user else 'N/A'}")
             
             if not user:
                 return {
