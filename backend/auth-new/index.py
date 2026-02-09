@@ -656,6 +656,47 @@ def handler(event, context):
                 'isBase64Encoded': False
             }
         
+        elif action == 'transactions':
+            # История транзакций для личного кабинета (старый формат для совместимости)
+            user_id = event.get('headers', {}).get('X-User-Id') or event.get('headers', {}).get('x-user-id')
+            if not user_id:
+                return {
+                    'statusCode': 400,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': 'User ID не указан'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute(
+                """SELECT id, amount, type, description, created_at
+                FROM transactions
+                WHERE user_id = %s
+                ORDER BY created_at DESC
+                LIMIT 100""",
+                (user_id,)
+            )
+            txs = cur.fetchall()
+            
+            transactions = []
+            for tx in txs:
+                transactions.append({
+                    'id': tx[0],
+                    'amount': float(tx[1]),
+                    'type': tx[2],
+                    'description': tx[3],
+                    'created_at': tx[4].isoformat() if tx[4] else None
+                })
+            
+            return {
+                'statusCode': 200,
+                'headers': cors_headers,
+                'body': json.dumps({
+                    'success': True,
+                    'transactions': transactions
+                }),
+                'isBase64Encoded': False
+            }
+        
         else:
             return {
                 'statusCode': 400,
