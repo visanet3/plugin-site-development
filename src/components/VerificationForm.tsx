@@ -52,16 +52,15 @@ const VerificationForm = ({ user, onVerified }: VerificationFormProps) => {
     
     const unsubscribe = verificationCache.subscribe(user.id, (newStatus) => {
       if (newStatus) {
-        // Вызываем onVerified ТОЛЬКО при изменении статуса с false на true
-        if (newStatus.is_verified && previousVerifiedRef.current === false) {
-          onVerified();
-        }
-        setStatus(newStatus);
+        // Инициализируем previousVerifiedRef при первой загрузке БЕЗ вызова onVerified
         if (previousVerifiedRef.current === null) {
           previousVerifiedRef.current = newStatus.is_verified;
         } else if (!previousVerifiedRef.current && newStatus.is_verified) {
+          // Вызываем onVerified ТОЛЬКО если был реальный переход false → true
           previousVerifiedRef.current = true;
+          onVerified();
         }
+        setStatus(newStatus);
       }
     });
     
@@ -72,16 +71,13 @@ const VerificationForm = ({ user, onVerified }: VerificationFormProps) => {
     try {
       const data = await verificationCache.fetchStatus(user.id);
       if (data) {
-        // Вызываем onVerified ТОЛЬКО при изменении статуса с false на true
-        if (data.is_verified && previousVerifiedRef.current === false) {
-          onVerified();
-        }
-        
-        // Инициализируем previousVerifiedRef при первой загрузке
+        // Инициализируем previousVerifiedRef при первой загрузке БЕЗ вызова onVerified
         if (previousVerifiedRef.current === null) {
           previousVerifiedRef.current = data.is_verified;
         } else if (!previousVerifiedRef.current && data.is_verified) {
+          // Вызываем onVerified ТОЛЬКО если был реальный переход false → true
           previousVerifiedRef.current = true;
+          onVerified();
         }
         
         setStatus(data);
