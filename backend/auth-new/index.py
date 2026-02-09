@@ -309,47 +309,6 @@ def handler(event, context):
                 'isBase64Encoded': False
             }
         
-        elif action == 'get_crypto_transactions':
-            user_id = event.get('headers', {}).get('X-User-Id') or event.get('headers', {}).get('x-user-id')
-            if not user_id:
-                return {
-                    'statusCode': 400,
-                    'headers': cors_headers,
-                    'body': json.dumps({'error': 'User ID не указан'}),
-                    'isBase64Encoded': False
-                }
-            
-            cur.execute(
-                """SELECT id, transaction_type, crypto_symbol, amount, price, total, 
-                status, wallet_address, created_at
-                FROM crypto_transactions
-                WHERE user_id = %s
-                ORDER BY created_at DESC
-                LIMIT 100""",
-                (user_id,)
-            )
-            transactions = cur.fetchall()
-            
-            return {
-                'statusCode': 200,
-                'headers': cors_headers,
-                'body': json.dumps({
-                    'success': True,
-                    'transactions': [{
-                        'id': t[0],
-                        'transaction_type': t[1],
-                        'crypto_symbol': t[2],
-                        'amount': float(t[3]),
-                        'price': float(t[4]),
-                        'total': float(t[5]),
-                        'status': t[6],
-                        'wallet_address': t[7],
-                        'created_at': t[8].isoformat() if t[8] else None
-                    } for t in transactions]
-                }),
-                'isBase64Encoded': False
-            }
-        
         elif action == 'exchange_usdt_to_crypto':
             user_id = event.get('headers', {}).get('X-User-Id') or event.get('headers', {}).get('x-user-id')
             usdt_amount = body.get('usdt_amount')
@@ -470,7 +429,7 @@ def handler(event, context):
             
             # Получаем реферальный код пользователя
             cur.execute(
-                "SELECT code FROM t_p32599880_plugin_site_developm.referral_codes WHERE user_id = %s AND is_active = true LIMIT 1",
+                "SELECT code FROM referral_codes WHERE user_id = %s AND is_active = true LIMIT 1",
                 (user_id,)
             )
             ref_code = cur.fetchone()
@@ -479,7 +438,7 @@ def handler(event, context):
             # Получаем список рефералов
             cur.execute(
                 """SELECT u.id, u.username, u.created_at 
-                FROM t_p32599880_plugin_site_developm.users u 
+                FROM users u 
                 WHERE u.referred_by_code = %s 
                 ORDER BY u.created_at DESC""",
                 (referral_code,)
@@ -533,7 +492,7 @@ def handler(event, context):
             cur.execute(
                 """SELECT id, transaction_type, crypto_symbol, amount, price, total, 
                 wallet_address, created_at, status
-                FROM t_p32599880_plugin_site_developm.crypto_transactions
+                FROM crypto_transactions
                 WHERE user_id = %s
                 AND NOT (amount = 0.01 AND price = 1000)
                 ORDER BY created_at DESC
@@ -545,7 +504,7 @@ def handler(event, context):
             # Получаем старые транзакции из transactions (для обратной совместимости)
             cur.execute(
                 """SELECT id, amount, type, description, created_at
-                FROM t_p32599880_plugin_site_developm.transactions
+                FROM transactions
                 WHERE user_id = %s 
                 AND type = 'exchange'
                 AND description ILIKE '%обмен%'
@@ -558,7 +517,7 @@ def handler(event, context):
             # Получаем заявки на вывод из withdrawals
             cur.execute(
                 """SELECT id, amount, crypto_symbol, address, status, created_at, processed_at
-                FROM t_p32599880_plugin_site_developm.withdrawals
+                FROM withdrawals
                 WHERE user_id = %s
                 ORDER BY created_at DESC
                 LIMIT 50""",
@@ -665,7 +624,7 @@ def handler(event, context):
             cur.execute(
                 """SELECT id, transaction_type, crypto_symbol, amount, price, total, 
                 wallet_address, created_at, status
-                FROM t_p32599880_plugin_site_developm.crypto_transactions
+                FROM crypto_transactions
                 WHERE user_id = %s
                 ORDER BY created_at DESC
                 LIMIT 100""",
