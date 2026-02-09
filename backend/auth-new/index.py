@@ -479,45 +479,34 @@ def handler(event, context):
             }
         
         elif action == 'get_crypto_transactions':
-            try:
-                # Получение истории транзакций обменника для текущего пользователя
-                print(f"[AUTH] get_crypto_transactions action triggered")
-                user_id = event.get('headers', {}).get('X-User-Id') or event.get('headers', {}).get('x-user-id')
-                print(f"[AUTH] user_id extracted: {user_id}")
-                if not user_id:
-                    print(f"[AUTH] ERROR: User ID не указан")
-                    return {
-                        'statusCode': 400,
-                        'headers': cors_headers,
-                        'body': json.dumps({'error': 'User ID не указан'}),
-                        'isBase64Encoded': False
-                    }
-                
-                # Получаем транзакции обменника из crypto_transactions
-                # Исключаем тестовые данные (amount = 0.01 AND price = 1000)
-                print(f"[AUTH] Fetching crypto_transactions for user_id={user_id}")
-                cur.execute(
-                    """SELECT id, transaction_type, crypto_symbol, amount, price, total, 
-                    wallet_address, created_at, status
-                    FROM crypto_transactions
-                    WHERE user_id = %s
-                    AND NOT (amount = 0.01 AND price = 1000)
-                    ORDER BY created_at DESC
-                    LIMIT 100""",
-                    (user_id,)
-                )
-                crypto_txs = cur.fetchall()
-                print(f"[AUTH] Found {len(crypto_txs)} crypto_transactions")
-            except Exception as e:
-                print(f"[AUTH] EXCEPTION in get_crypto_transactions: {str(e)}")
-                import traceback
-                traceback.print_exc()
+            # Получение истории транзакций обменника для текущего пользователя
+            print(f"[AUTH] get_crypto_transactions action triggered")
+            user_id = event.get('headers', {}).get('X-User-Id') or event.get('headers', {}).get('x-user-id')
+            print(f"[AUTH] user_id extracted: {user_id}")
+            if not user_id:
+                print(f"[AUTH] ERROR: User ID не указан")
                 return {
-                    'statusCode': 500,
+                    'statusCode': 400,
                     'headers': cors_headers,
-                    'body': json.dumps({'error': f'Ошибка при получении транзакций: {str(e)}'}),
+                    'body': json.dumps({'error': 'User ID не указан'}),
                     'isBase64Encoded': False
                 }
+            
+            # Получаем транзакции обменника из crypto_transactions
+            # Исключаем тестовые данные (amount = 0.01 AND price = 1000)
+            print(f"[AUTH] Fetching crypto_transactions for user_id={user_id}")
+            cur.execute(
+                """SELECT id, transaction_type, crypto_symbol, amount, price, total, 
+                wallet_address, created_at, status
+                FROM crypto_transactions
+                WHERE user_id = %s
+                AND NOT (amount = 0.01 AND price = 1000)
+                ORDER BY created_at DESC
+                LIMIT 100""",
+                (user_id,)
+            )
+            crypto_txs = cur.fetchall()
+            print(f"[AUTH] Found {len(crypto_txs)} crypto_transactions")
             
             # Получаем старые транзакции из transactions (для обратной совместимости)
             cur.execute(
