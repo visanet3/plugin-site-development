@@ -561,58 +561,68 @@ def handler(event, context):
             
             # Парсим старые транзакции
             import re
+            print(f"[AUTH] Processing {len(old_txs)} old transactions")
             for old_tx in old_txs:
-                desc = old_tx[3] or ''
-                
-                # Парсим описание вида "Обмен 108520.62 USDT на 732.32089805 SOL"
-                match = re.search(r'Обмен ([\d.]+)\s+(\w+)\s+на\s+([\d.]+)\s+(\w+)', desc, re.IGNORECASE)
-                if match:
-                    from_amount = float(match.group(1))
-                    from_crypto = match.group(2).upper()
-                    to_amount = float(match.group(3))
-                    to_crypto = match.group(4).upper()
+                try:
+                    desc = old_tx[3] or ''
                     
-                    # Определяем тип операции
-                    if from_crypto == 'USDT':
-                        tx_type = 'buy'
-                        crypto_symbol = to_crypto
-                        crypto_amount = to_amount
-                        usdt_amount = from_amount
-                        price = usdt_amount / crypto_amount if crypto_amount > 0 else 0
-                    elif to_crypto == 'USDT':
-                        tx_type = 'sell'
-                        crypto_symbol = from_crypto
-                        crypto_amount = from_amount
-                        usdt_amount = to_amount
-                        price = usdt_amount / crypto_amount if crypto_amount > 0 else 0
-                    else:
-                        continue
-                    
-                    transactions.append({
-                        'id': f"old_{old_tx[0]}",
-                        'transaction_type': tx_type,
-                        'crypto_symbol': crypto_symbol,
-                        'amount': crypto_amount,
-                        'price': price,
-                        'total': usdt_amount,
-                        'wallet_address': None,
-                        'created_at': old_tx[4].isoformat() if old_tx[4] else None,
-                        'status': 'completed'
-                    })
+                    # Парсим описание вида "Обмен 108520.62 USDT на 732.32089805 SOL"
+                    match = re.search(r'Обмен ([\d.]+)\s+(\w+)\s+на\s+([\d.]+)\s+(\w+)', desc, re.IGNORECASE)
+                    if match:
+                        from_amount = float(match.group(1))
+                        from_crypto = match.group(2).upper()
+                        to_amount = float(match.group(3))
+                        to_crypto = match.group(4).upper()
+                        
+                        # Определяем тип операции
+                        if from_crypto == 'USDT':
+                            tx_type = 'buy'
+                            crypto_symbol = to_crypto
+                            crypto_amount = to_amount
+                            usdt_amount = from_amount
+                            price = usdt_amount / crypto_amount if crypto_amount > 0 else 0
+                        elif to_crypto == 'USDT':
+                            tx_type = 'sell'
+                            crypto_symbol = from_crypto
+                            crypto_amount = from_amount
+                            usdt_amount = to_amount
+                            price = usdt_amount / crypto_amount if crypto_amount > 0 else 0
+                        else:
+                            continue
+                        
+                        transactions.append({
+                            'id': f"old_{old_tx[0]}",
+                            'transaction_type': tx_type,
+                            'crypto_symbol': crypto_symbol,
+                            'amount': crypto_amount,
+                            'price': price,
+                            'total': usdt_amount,
+                            'wallet_address': None,
+                            'created_at': old_tx[4].isoformat() if old_tx[4] else None,
+                            'status': 'completed'
+                        })
+                except (IndexError, ValueError) as e:
+                    print(f"[AUTH] ERROR parsing old_tx: {e}, old_tx length: {len(old_tx)}, old_tx: {old_tx}")
+                    continue
             
             # Добавляем заявки на вывод
+            print(f"[AUTH] Processing {len(withdrawals)} withdrawals")
             for wd in withdrawals:
-                transactions.append({
-                    'id': f"wd_{wd[0]}",
-                    'transaction_type': 'withdraw',
-                    'crypto_symbol': wd[2],
-                    'amount': float(wd[1]),
-                    'price': 0,
-                    'total': 0,
-                    'wallet_address': wd[3],
-                    'created_at': wd[5].isoformat() if wd[5] else None,
-                    'status': wd[4]
-                })
+                try:
+                    transactions.append({
+                        'id': f"wd_{wd[0]}",
+                        'transaction_type': 'withdraw',
+                        'crypto_symbol': wd[2],
+                        'amount': float(wd[1]),
+                        'price': 0,
+                        'total': 0,
+                        'wallet_address': wd[3],
+                        'created_at': wd[5].isoformat() if wd[5] else None,
+                        'status': wd[4]
+                    })
+                except (IndexError, ValueError) as e:
+                    print(f"[AUTH] ERROR parsing withdrawal: {e}, wd length: {len(wd)}, wd: {wd}")
+                    continue
             
             # Сортируем по дате
             transactions.sort(key=lambda x: x['created_at'] or '', reverse=True)
