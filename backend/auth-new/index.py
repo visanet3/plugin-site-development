@@ -517,6 +517,137 @@ def handler(event, context):
                 'isBase64Encoded': False
             }
         
+        elif action == 'get_crypto_transactions':
+            # Получение истории транзакций обменника для текущего пользователя
+            user_id = event.get('headers', {}).get('X-User-Id') or event.get('headers', {}).get('x-user-id')
+            if not user_id:
+                return {
+                    'statusCode': 400,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': 'User ID не указан'}),
+                    'isBase64Encoded': False
+                }
+            
+            # Получаем транзакции обменника из crypto_transactions
+            cur.execute(
+                """SELECT id, transaction_type, crypto_symbol, amount, price, total, 
+                wallet_address, created_at, status
+                FROM t_p32599880_plugin_site_developm.crypto_transactions
+                WHERE user_id = %s
+                ORDER BY created_at DESC
+                LIMIT 100""",
+                (user_id,)
+            )
+            crypto_txs = cur.fetchall()
+            
+            # Получаем старые транзакции из transactions (для обратной совместимости)
+            cur.execute(
+                """SELECT id, amount, type, description, created_at
+                FROM t_p32599880_plugin_site_developm.transactions
+                WHERE user_id = %s 
+                AND type = 'exchange'
+                AND description ILIKE '%обмен%'
+                ORDER BY created_at DESC
+                LIMIT 100""",
+                (user_id,)
+            )
+            old_txs = cur.fetchall()
+            
+            # Получаем заявки на вывод из withdrawals
+            cur.execute(
+                """SELECT id, amount, crypto_symbol, address, status, created_at, processed_at
+                FROM t_p32599880_plugin_site_developm.withdrawals
+                WHERE user_id = %s
+                ORDER BY created_at DESC
+                LIMIT 50""",
+                (user_id,)
+            )
+            withdrawals = cur.fetchall()
+            
+            transactions = []
+            
+            # Добавляем транзакции обмена
+            for tx in crypto_txs:
+                transactions.append({
+                    'id': f"tx_{tx[0]}",
+                    'transaction_type': tx[1],
+                    'crypto_symbol': tx[2],
+                    'amount': float(tx[3]),
+                    'price': float(tx[4]),
+                    'total': float(tx[5]),
+                    'wallet_address': tx[6],
+                    'created_at': tx[7].isoformat() if tx[7] else None,
+                    'status': tx[8]
+                })
+            
+            # Парсим старые транзакции
+            import re
+            for old_tx in old_txs:
+                desc = old_tx[3] or ''
+                
+                # Парсим описание вида "Обмен 108520.62 USDT на 732.32089805 SOL"
+                match = re.search(r'Обмен ([\d.]+)\s+(\w+)\s+на\s+([\d.]+)\s+(\w+)', desc, re.IGNORECASE)
+                if match:
+                    from_amount = float(match.group(1))
+                    from_crypto = match.group(2).upper()
+                    to_amount = float(match.group(3))
+                    to_crypto = match.group(4).upper()
+                    
+                    # Определяем тип операции
+                    if from_crypto == 'USDT':
+                        tx_type = 'buy'
+                        crypto_symbol = to_crypto
+                        crypto_amount = to_amount
+                        usdt_amount = from_amount
+                        price = usdt_amount / crypto_amount if crypto_amount > 0 else 0
+                    elif to_crypto == 'USDT':
+                        tx_type = 'sell'
+                        crypto_symbol = from_crypto
+                        crypto_amount = from_amount
+                        usdt_amount = to_amount
+                        price = usdt_amount / crypto_amount if crypto_amount > 0 else 0
+                    else:
+                        continue
+                    
+                    transactions.append({
+                        'id': f"old_{old_tx[0]}",
+                        'transaction_type': tx_type,
+                        'crypto_symbol': crypto_symbol,
+                        'amount': crypto_amount,
+                        'price': price,
+                        'total': usdt_amount,
+                        'wallet_address': None,
+                        'created_at': old_tx[4].isoformat() if old_tx[4] else None,
+                        'status': 'completed'
+                    })
+            
+            # Добавляем заявки на вывод
+            for wd in withdrawals:
+                transactions.append({
+                    'id': f"wd_{wd[0]}",
+                    'transaction_type': 'withdraw',
+                    'crypto_symbol': wd[2],
+                    'amount': float(wd[1]),
+                    'price': 0,
+                    'total': 0,
+                    'wallet_address': wd[3],
+                    'created_at': wd[5].isoformat() if wd[5] else None,
+                    'status': wd[4]
+                })
+            
+            # Сортируем по дате
+            transactions.sort(key=lambda x: x['created_at'] or '', reverse=True)
+            
+            return {
+                'statusCode': 200,
+                'headers': cors_headers,
+                'body': json.dumps({
+                    'success': True,
+                    'transactions': transactions[:100]
+                }),
+                'isBase64Encoded': False
+            }
+        
         elif action == 'get_user_expenses':
             # Детальная информация о расходах пользователя для админки
             target_user_id = body.get('user_id')
