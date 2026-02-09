@@ -4,9 +4,10 @@
  */
 import funcUrls from '../../backend/func2url.json';
 
-// Используем новую функцию auth-new
+// Маппим auth-new на auth для обратной совместимости
 const HARDCODED_URLS: Record<string, string> = {
   'auth': 'https://functions.poehali.dev/2ed67388-1aff-4538-8115-a84928fcdb94',
+  'auth-new': 'https://functions.poehali.dev/2ed67388-1aff-4538-8115-a84928fcdb94',
 };
 
 export const API_URLS = { ...funcUrls, ...HARDCODED_URLS } as Record<string, string>;
