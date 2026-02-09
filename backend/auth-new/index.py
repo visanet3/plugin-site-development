@@ -491,12 +491,12 @@ def handler(event, context):
             
             transactions = []
             
-            # 1. Получаем транзакции обменника из crypto_transactions
+            # 1. Получаем транзакции обменника из crypto_transactions (без тестовых)
             cur.execute(
                 """SELECT id, transaction_type, crypto_symbol, amount, price, total, 
                 wallet_address, created_at, status
                 FROM crypto_transactions
-                WHERE user_id = %s
+                WHERE user_id = %s AND (is_test IS NULL OR is_test = FALSE)
                 ORDER BY created_at DESC
                 LIMIT 100""",
                 (user_id,)
