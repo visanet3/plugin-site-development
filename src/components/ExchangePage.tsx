@@ -101,6 +101,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   useEffect(() => {
+    console.log('[ExchangePage] Component mounted, user.id:', user.id);
     loadPrices();
     loadBalances();
     loadTransactions();
@@ -209,7 +210,9 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
 
   const loadTransactions = async () => {
     try {
-      console.log('[loadTransactions] Запрос истории для user_id:', user.id);
+      console.log('[loadTransactions] START - Запрос истории для user_id:', user.id);
+      console.log('[loadTransactions] AUTH_URL:', AUTH_URL);
+      
       const response = await fetch(AUTH_URL, {
         method: 'POST',
         headers: {
@@ -227,34 +230,26 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
       
       if (data.success && data.transactions) {
         console.log('[loadTransactions] Получено транзакций:', data.transactions.length);
-        const formattedTransactions: Transaction[] = data.transactions.map((t: {
-          id: string;
-          transaction_type: 'buy' | 'sell' | 'withdraw';
-          crypto_symbol: string;
-          amount: number;
-          price: number;
-          total: number;
-          wallet_address?: string;
-          created_at: string;
-          status: string;
-        }) => ({
-          id: t.id.toString(),
-          type: t.transaction_type,
-          crypto: t.crypto_symbol,
-          amount: parseFloat(t.amount),
-          price: parseFloat(t.price),
-          total: parseFloat(t.total),
-          timestamp: new Date(t.created_at),
-          status: t.status,
+        const formattedTransactions: Transaction[] = data.transactions.map((t: Record<string, unknown>) => ({
+          id: t.id ? t.id.toString() : `tx_${Date.now()}`,
+          type: t.transaction_type || 'buy',
+          crypto: (t.crypto_symbol || 'BTC') as CryptoSymbol,
+          amount: parseFloat(t.amount) || 0,
+          price: parseFloat(t.price) || 0,
+          total: parseFloat(t.total) || 0,
+          timestamp: t.created_at ? new Date(t.created_at) : new Date(),
+          status: (t.status === 'pending' ? 'pending' : 'completed') as 'completed' | 'pending',
           address: t.wallet_address
         }));
         setTransactions(formattedTransactions);
         console.log('[loadTransactions] Установлено транзакций:', formattedTransactions.length);
       } else {
         console.warn('[loadTransactions] Нет данных или ошибка:', data);
+        setTransactions([]);
       }
     } catch (error) {
-      console.error('[loadTransactions] Ошибка загрузки истории:', error);
+      console.error('[loadTransactions] EXCEPTION - Ошибка загрузки истории:', error);
+      setTransactions([]);
     }
   };
 
