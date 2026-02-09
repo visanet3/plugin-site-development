@@ -479,12 +479,9 @@ def handler(event, context):
             }
         
         elif action == 'get_crypto_transactions':
-            # Получение истории транзакций обменника для текущего пользователя
-            print(f"[AUTH] get_crypto_transactions action triggered")
+            # НОВАЯ ВЕРСИЯ: Простое и надёжное получение транзакций
             user_id = event.get('headers', {}).get('X-User-Id') or event.get('headers', {}).get('x-user-id')
-            print(f"[AUTH] user_id extracted: {user_id}")
             if not user_id:
-                print(f"[AUTH] ERROR: User ID не указан")
                 return {
                     'statusCode': 400,
                     'headers': cors_headers,
@@ -492,129 +489,57 @@ def handler(event, context):
                     'isBase64Encoded': False
                 }
             
-            # Получаем транзакции обменника из crypto_transactions
-            # Исключаем тестовые данные (amount = 0.01 AND price = 1000)
-            print(f"[AUTH] Fetching crypto_transactions for user_id={user_id}")
+            transactions = []
+            
+            # 1. Получаем транзакции обменника из crypto_transactions
             cur.execute(
                 """SELECT id, transaction_type, crypto_symbol, amount, price, total, 
                 wallet_address, created_at, status
                 FROM crypto_transactions
                 WHERE user_id = %s
-                AND NOT (amount = 0.01 AND price = 1000)
                 ORDER BY created_at DESC
                 LIMIT 100""",
                 (user_id,)
             )
-            crypto_txs = cur.fetchall()
-            print(f"[AUTH] Found {len(crypto_txs)} crypto_transactions")
             
-            # Получаем старые транзакции из transactions (для обратной совместимости)
-            cur.execute(
-                """SELECT id, amount, type, description, created_at
-                FROM transactions
-                WHERE user_id = %s 
-                AND type = 'exchange'
-                AND description ILIKE '%обмен%'
-                ORDER BY created_at DESC
-                LIMIT 100""",
-                (user_id,)
-            )
-            old_txs = cur.fetchall()
+            for row in cur.fetchall():
+                transactions.append({
+                    'id': str(row[0]),
+                    'transaction_type': row[1] or 'buy',
+                    'crypto_symbol': row[2] or 'BTC',
+                    'amount': float(row[3] or 0),
+                    'price': float(row[4] or 0),
+                    'total': float(row[5] or 0),
+                    'wallet_address': row[6],
+                    'created_at': row[7].isoformat() if row[7] else None,
+                    'status': row[8] or 'completed'
+                })
             
-            # Получаем заявки на вывод из withdrawals
+            # 2. Получаем заявки на вывод
             cur.execute(
-                """SELECT id, amount, crypto_symbol, address, status, created_at, processed_at
+                """SELECT id, amount, crypto_symbol, address, status, created_at
                 FROM withdrawals
                 WHERE user_id = %s
                 ORDER BY created_at DESC
                 LIMIT 50""",
                 (user_id,)
             )
-            withdrawals = cur.fetchall()
             
-            transactions = []
-            
-            # Добавляем транзакции обмена
-            for tx in crypto_txs:
+            for row in cur.fetchall():
                 transactions.append({
-                    'id': f"tx_{tx[0]}",
-                    'transaction_type': tx[1],
-                    'crypto_symbol': tx[2],
-                    'amount': float(tx[3]) if tx[3] else 0.0,
-                    'price': float(tx[4]) if tx[4] else 0.0,
-                    'total': float(tx[5]) if tx[5] else 0.0,
-                    'wallet_address': tx[6],
-                    'created_at': tx[7].isoformat() if tx[7] else None,
-                    'status': tx[8]
+                    'id': f"w_{row[0]}",
+                    'transaction_type': 'withdraw',
+                    'crypto_symbol': row[2] or 'BTC',
+                    'amount': float(row[1] or 0),
+                    'price': 0,
+                    'total': 0,
+                    'wallet_address': row[3],
+                    'created_at': row[5].isoformat() if row[5] else None,
+                    'status': row[4] or 'pending'
                 })
             
-            # Парсим старые транзакции
-            import re
-            print(f"[AUTH] Processing {len(old_txs)} old transactions")
-            for old_tx in old_txs:
-                try:
-                    desc = old_tx[3] or ''
-                    
-                    # Парсим описание вида "Обмен 108520.62 USDT на 732.32089805 SOL"
-                    match = re.search(r'Обмен ([\d.]+)\s+(\w+)\s+на\s+([\d.]+)\s+(\w+)', desc, re.IGNORECASE)
-                    if match:
-                        from_amount = float(match.group(1))
-                        from_crypto = match.group(2).upper()
-                        to_amount = float(match.group(3))
-                        to_crypto = match.group(4).upper()
-                        
-                        # Определяем тип операции
-                        if from_crypto == 'USDT':
-                            tx_type = 'buy'
-                            crypto_symbol = to_crypto
-                            crypto_amount = to_amount
-                            usdt_amount = from_amount
-                            price = usdt_amount / crypto_amount if crypto_amount > 0 else 0
-                        elif to_crypto == 'USDT':
-                            tx_type = 'sell'
-                            crypto_symbol = from_crypto
-                            crypto_amount = from_amount
-                            usdt_amount = to_amount
-                            price = usdt_amount / crypto_amount if crypto_amount > 0 else 0
-                        else:
-                            continue
-                        
-                        transactions.append({
-                            'id': f"old_{old_tx[0]}",
-                            'transaction_type': tx_type,
-                            'crypto_symbol': crypto_symbol,
-                            'amount': crypto_amount,
-                            'price': price,
-                            'total': usdt_amount,
-                            'wallet_address': None,
-                            'created_at': old_tx[4].isoformat() if old_tx[4] else None,
-                            'status': 'completed'
-                        })
-                except (IndexError, ValueError) as e:
-                    print(f"[AUTH] ERROR parsing old_tx: {e}, old_tx length: {len(old_tx)}, old_tx: {old_tx}")
-                    continue
-            
-            # Добавляем заявки на вывод
-            print(f"[AUTH] Processing {len(withdrawals)} withdrawals")
-            for wd in withdrawals:
-                try:
-                    transactions.append({
-                        'id': f"wd_{wd[0]}",
-                        'transaction_type': 'withdraw',
-                        'crypto_symbol': wd[2],
-                        'amount': float(wd[1]),
-                        'price': 0,
-                        'total': 0,
-                        'wallet_address': wd[3],
-                        'created_at': wd[5].isoformat() if wd[5] else None,
-                        'status': wd[4]
-                    })
-                except (IndexError, ValueError) as e:
-                    print(f"[AUTH] ERROR parsing withdrawal: {e}, wd length: {len(wd)}, wd: {wd}")
-                    continue
-            
-            # Сортируем по дате
-            transactions.sort(key=lambda x: x['created_at'] or '', reverse=True)
+            # Сортируем по дате (новые сверху)
+            transactions.sort(key=lambda x: x.get('created_at') or '0', reverse=True)
             
             return {
                 'statusCode': 200,
@@ -674,7 +599,7 @@ def handler(event, context):
             }
         
         elif action == 'transactions':
-            # История транзакций для личного кабинета (старый формат для совместимости)
+            # НОВАЯ ВЕРСИЯ: История всех транзакций для личного кабинета
             user_id = event.get('headers', {}).get('X-User-Id') or event.get('headers', {}).get('x-user-id')
             if not user_id:
                 return {
@@ -684,6 +609,9 @@ def handler(event, context):
                     'isBase64Encoded': False
                 }
             
+            transactions = []
+            
+            # Получаем все транзакции из таблицы transactions
             cur.execute(
                 """SELECT id, amount, type, description, created_at
                 FROM transactions
@@ -692,16 +620,14 @@ def handler(event, context):
                 LIMIT 100""",
                 (user_id,)
             )
-            txs = cur.fetchall()
             
-            transactions = []
-            for tx in txs:
+            for row in cur.fetchall():
                 transactions.append({
-                    'id': tx[0],
-                    'amount': float(tx[1]),
-                    'type': tx[2],
-                    'description': tx[3],
-                    'created_at': tx[4].isoformat() if tx[4] else None
+                    'id': row[0],
+                    'amount': float(row[1] or 0),
+                    'type': row[2] or 'unknown',
+                    'description': row[3] or '',
+                    'created_at': row[4].isoformat() if row[4] else None
                 })
             
             return {
