@@ -195,19 +195,6 @@ export const useUserActivity = ({
       const updatedUser = { ...user, is_verified: true };
       setUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
-      
-      if (showToast) {
-        showToast(
-          '✅ Верификация одобрена!',
-          'Ваша заявка на верификацию одобрена. Теперь рядом с вашим ником отображается значок верификации.',
-          'bg-green-500/10 border-green-500/30 text-foreground',
-          8000
-        );
-        
-        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5aFApBmeHyvWwhBTGG0fPTgjMGHW7A7+OZSA0OVajk7q5a');
-        audio.volume = 0.5;
-        audio.play().catch(() => {});
-      }
     }
   }, [user, setUser, showToast]);
 
