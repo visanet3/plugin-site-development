@@ -102,10 +102,8 @@ export const UserProfileTabs = ({
         </TabsList>
 
       <TabsContent value="verification" className="space-y-3 sm:space-y-4 mt-3 sm:mt-4">
-        {isOwnProfile && onUpdateProfile && (
-          <VerificationForm user={user} onVerified={() => {
-            onUpdateProfile({ is_verified: true });
-          }} />
+        {isOwnProfile && (
+          <VerificationForm user={user} />
         )}
       </TabsContent>
 

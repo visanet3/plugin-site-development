@@ -10,7 +10,6 @@ const VERIFICATION_URL = 'https://functions.poehali.dev/e0d94580-497a-452f-9044-
 
 interface VerificationFormProps {
   user: User;
-  onVerified: () => void;
 }
 
 interface VerificationStatus {
@@ -24,7 +23,7 @@ interface VerificationStatus {
   } | null;
 }
 
-const VerificationForm = ({ user, onVerified }: VerificationFormProps) => {
+const VerificationForm = ({ user }: VerificationFormProps) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [fullName, setFullName] = useState('');
@@ -35,31 +34,18 @@ const VerificationForm = ({ user, onVerified }: VerificationFormProps) => {
   const selfieInputRef = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<VerificationStatus | null>(null);
   const [loadingStatus, setLoadingStatus] = useState(true);
-  const previousVerifiedRef = useRef<boolean | null>(null);
 
   useEffect(() => {
     const cachedStatus = verificationCache.getCached(user.id);
     if (cachedStatus) {
       setStatus(cachedStatus);
       setLoadingStatus(false);
-      // Инициализируем previousVerifiedRef при первой загрузке
-      if (previousVerifiedRef.current === null) {
-        previousVerifiedRef.current = cachedStatus.is_verified;
-      }
     }
     
     fetchStatus();
     
     const unsubscribe = verificationCache.subscribe(user.id, (newStatus) => {
       if (newStatus) {
-        // Инициализируем previousVerifiedRef при первой загрузке БЕЗ вызова onVerified
-        if (previousVerifiedRef.current === null) {
-          previousVerifiedRef.current = newStatus.is_verified;
-        } else if (!previousVerifiedRef.current && newStatus.is_verified) {
-          // Вызываем onVerified ТОЛЬКО если был реальный переход false → true
-          previousVerifiedRef.current = true;
-          onVerified();
-        }
         setStatus(newStatus);
       }
     });
@@ -71,15 +57,6 @@ const VerificationForm = ({ user, onVerified }: VerificationFormProps) => {
     try {
       const data = await verificationCache.fetchStatus(user.id);
       if (data) {
-        // Инициализируем previousVerifiedRef при первой загрузке БЕЗ вызова onVerified
-        if (previousVerifiedRef.current === null) {
-          previousVerifiedRef.current = data.is_verified;
-        } else if (!previousVerifiedRef.current && data.is_verified) {
-          // Вызываем onVerified ТОЛЬКО если был реальный переход false → true
-          previousVerifiedRef.current = true;
-          onVerified();
-        }
-        
         setStatus(data);
       }
     } catch (error) {
