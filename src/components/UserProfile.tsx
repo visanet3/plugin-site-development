@@ -100,13 +100,18 @@ const UserProfile = ({ user, isOwnProfile, onClose, onTopUpBalance, onUpdateProf
   const fetchTransactions = async () => {
     setTransactionsLoading(true);
     try {
-      const response = await fetch(`${AUTH_URL}?action=transactions`, {
+      const response = await fetch(AUTH_URL, {
+        method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'X-User-Id': user.id.toString()
-        }
+        },
+        body: JSON.stringify({
+          action: 'transactions'
+        })
       });
       const data = await response.json();
-      if (data.transactions) {
+      if (data.success && data.transactions) {
         setTransactions(data.transactions);
       }
     } catch (error) {
