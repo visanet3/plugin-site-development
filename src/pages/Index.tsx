@@ -14,7 +14,7 @@ const UserProfileDialog = lazy(() => import('@/components/UserProfileDialog'));
 const UserProfile = lazy(() => import('@/components/UserProfile'));
 const NotificationsPanel = lazy(() => import('@/components/NotificationsPanel'));
 const DDoSMonitor = lazy(() => import('@/components/DDoSMonitor'));
-const Dialogs = lazy(() => import('@/components/Dialogs'));
+import Dialogs from '@/components/Dialogs';
 
 const Index = () => {
   const navigate = useNavigate();
