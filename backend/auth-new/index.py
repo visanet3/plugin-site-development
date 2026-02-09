@@ -529,11 +529,13 @@ def handler(event, context):
                 }
             
             # Получаем транзакции обменника из crypto_transactions
+            # Исключаем тестовые данные (amount = 0.01 AND price = 1000)
             cur.execute(
                 """SELECT id, transaction_type, crypto_symbol, amount, price, total, 
                 wallet_address, created_at, status
                 FROM t_p32599880_plugin_site_developm.crypto_transactions
                 WHERE user_id = %s
+                AND NOT (amount = 0.01 AND price = 1000)
                 ORDER BY created_at DESC
                 LIMIT 100""",
                 (user_id,)
