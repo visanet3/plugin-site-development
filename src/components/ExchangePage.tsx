@@ -209,6 +209,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
 
   const loadTransactions = async () => {
     try {
+      console.log('[loadTransactions] Запрос истории для user_id:', user.id);
       const response = await fetch(AUTH_URL, {
         method: 'POST',
         headers: {
@@ -220,9 +221,23 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
         })
       });
 
+      console.log('[loadTransactions] Response status:', response.status);
       const data = await response.json();
+      console.log('[loadTransactions] Response data:', data);
+      
       if (data.success && data.transactions) {
-        const formattedTransactions: Transaction[] = data.transactions.map((t: any) => ({
+        console.log('[loadTransactions] Получено транзакций:', data.transactions.length);
+        const formattedTransactions: Transaction[] = data.transactions.map((t: {
+          id: string;
+          transaction_type: 'buy' | 'sell' | 'withdraw';
+          crypto_symbol: string;
+          amount: number;
+          price: number;
+          total: number;
+          wallet_address?: string;
+          created_at: string;
+          status: string;
+        }) => ({
           id: t.id.toString(),
           type: t.transaction_type,
           crypto: t.crypto_symbol,
@@ -234,9 +249,12 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
           address: t.wallet_address
         }));
         setTransactions(formattedTransactions);
+        console.log('[loadTransactions] Установлено транзакций:', formattedTransactions.length);
+      } else {
+        console.warn('[loadTransactions] Нет данных или ошибка:', data);
       }
     } catch (error) {
-      console.error('Ошибка загрузки истории:', error);
+      console.error('[loadTransactions] Ошибка загрузки истории:', error);
     }
   };
 
@@ -339,18 +357,16 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
 
       if (data.success) {
         toast({
-          title: '✅ Обмен выполнен!',
-          description: `Вы обменяли ${usdt} USDT на ${data.crypto_received} ${selectedCrypto}`
+          title: '✅ Покупка выполнена!',
+          description: `Вы купили ${data.crypto_received} ${selectedCrypto} за ${usdt} USDT`
         });
         
-        setTimeout(() => {
-          triggerUserSync();
-          if (onRefreshUserBalance) {
-            onRefreshUserBalance();
-          }
-          loadBalances();
-          loadTransactions();
-        }, 5000);
+        triggerUserSync();
+        if (onRefreshUserBalance) {
+          onRefreshUserBalance();
+        }
+        loadBalances();
+        loadTransactions();
         
         setUsdtAmount('');
         setCryptoAmount('');
@@ -431,31 +447,17 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
       const data = await response.json();
 
       if (data.success) {
-        const newTransaction: Transaction = {
-          id: Date.now().toString(),
-          type: 'sell',
-          crypto: selectedCrypto,
-          amount: crypto,
-          price: sellPrices[selectedCrypto],
-          total: data.usdt_received,
-          timestamp: new Date(),
-          status: 'completed'
-        };
-        setTransactions(prev => [newTransaction, ...prev]);
-
         toast({
           title: '✅ Обмен выполнен!',
           description: `Вы обменяли ${crypto} ${selectedCrypto} на ${data.usdt_received} USDT`
         });
         
-        setTimeout(() => {
-          triggerUserSync();
-          if (onRefreshUserBalance) {
-            onRefreshUserBalance();
-          }
-          loadBalances();
-          loadTransactions();
-        }, 5000);
+        triggerUserSync();
+        if (onRefreshUserBalance) {
+          onRefreshUserBalance();
+        }
+        loadBalances();
+        loadTransactions();
         
         setUsdtAmount('');
         setCryptoAmount('');
