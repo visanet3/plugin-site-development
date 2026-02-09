@@ -48,7 +48,9 @@ def handler(event, context):
     try:
         body = json.loads(event.get('body', '{}'))
         action = body.get('action', 'login')
-    except:
+        print(f"[AUTH] Parsed action: {action}, body keys: {list(body.keys())}")
+    except Exception as e:
+        print(f"[AUTH] ERROR parsing body: {str(e)}, event.body: {event.get('body')}")
         return {
             'statusCode': 400,
             'headers': cors_headers,
@@ -477,29 +479,45 @@ def handler(event, context):
             }
         
         elif action == 'get_crypto_transactions':
-            # Получение истории транзакций обменника для текущего пользователя
-            user_id = event.get('headers', {}).get('X-User-Id') or event.get('headers', {}).get('x-user-id')
-            if not user_id:
+            try:
+                # Получение истории транзакций обменника для текущего пользователя
+                print(f"[AUTH] get_crypto_transactions action triggered")
+                user_id = event.get('headers', {}).get('X-User-Id') or event.get('headers', {}).get('x-user-id')
+                print(f"[AUTH] user_id extracted: {user_id}")
+                if not user_id:
+                    print(f"[AUTH] ERROR: User ID не указан")
+                    return {
+                        'statusCode': 400,
+                        'headers': cors_headers,
+                        'body': json.dumps({'error': 'User ID не указан'}),
+                        'isBase64Encoded': False
+                    }
+                
+                # Получаем транзакции обменника из crypto_transactions
+                # Исключаем тестовые данные (amount = 0.01 AND price = 1000)
+                print(f"[AUTH] Fetching crypto_transactions for user_id={user_id}")
+                cur.execute(
+                    """SELECT id, transaction_type, crypto_symbol, amount, price, total, 
+                    wallet_address, created_at, status
+                    FROM crypto_transactions
+                    WHERE user_id = %s
+                    AND NOT (amount = 0.01 AND price = 1000)
+                    ORDER BY created_at DESC
+                    LIMIT 100""",
+                    (user_id,)
+                )
+                crypto_txs = cur.fetchall()
+                print(f"[AUTH] Found {len(crypto_txs)} crypto_transactions")
+            except Exception as e:
+                print(f"[AUTH] EXCEPTION in get_crypto_transactions: {str(e)}")
+                import traceback
+                traceback.print_exc()
                 return {
-                    'statusCode': 400,
+                    'statusCode': 500,
                     'headers': cors_headers,
-                    'body': json.dumps({'error': 'User ID не указан'}),
+                    'body': json.dumps({'error': f'Ошибка при получении транзакций: {str(e)}'}),
                     'isBase64Encoded': False
                 }
-            
-            # Получаем транзакции обменника из crypto_transactions
-            # Исключаем тестовые данные (amount = 0.01 AND price = 1000)
-            cur.execute(
-                """SELECT id, transaction_type, crypto_symbol, amount, price, total, 
-                wallet_address, created_at, status
-                FROM crypto_transactions
-                WHERE user_id = %s
-                AND NOT (amount = 0.01 AND price = 1000)
-                ORDER BY created_at DESC
-                LIMIT 100""",
-                (user_id,)
-            )
-            crypto_txs = cur.fetchall()
             
             # Получаем старые транзакции из transactions (для обратной совместимости)
             cur.execute(
@@ -533,9 +551,9 @@ def handler(event, context):
                     'id': f"tx_{tx[0]}",
                     'transaction_type': tx[1],
                     'crypto_symbol': tx[2],
-                    'amount': float(tx[3]),
-                    'price': float(tx[4]),
-                    'total': float(tx[5]),
+                    'amount': float(tx[3]) if tx[3] else 0.0,
+                    'price': float(tx[4]) if tx[4] else 0.0,
+                    'total': float(tx[5]) if tx[5] else 0.0,
                     'wallet_address': tx[6],
                     'created_at': tx[7].isoformat() if tx[7] else None,
                     'status': tx[8]
