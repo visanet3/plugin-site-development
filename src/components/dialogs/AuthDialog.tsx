@@ -7,8 +7,6 @@ import { useToast } from '@/hooks/use-toast';
 import { BeamsBackground } from '@/components/ui/beams-background';
 import { AUTH_URL } from '@/lib/api-urls';
 
-const PASSWORD_RESET_URL = 'https://functions.poehali.dev/d4973344-e5cd-411c-8957-4c1d4d0072ab';
-
 interface AuthDialogProps {
   authDialogOpen: boolean;
   authMode: 'login' | 'register';
@@ -30,8 +28,6 @@ export const AuthDialog = ({
 }: AuthDialogProps) => {
   const { toast } = useToast();
   const savedRefCode = localStorage.getItem('referralCode') || '';
-  const [showResetPassword, setShowResetPassword] = useState(false);
-  const [resetEmail, setResetEmail] = useState('');
 
   const handleAuthDialogChange = (open: boolean) => {
     if (!open && !user) {
@@ -43,51 +39,7 @@ export const AuthDialog = ({
     onAuthDialogChange(open);
   };
 
-  const handleResetPassword = async () => {
-    if (!resetEmail.trim()) {
-      toast({
-        title: 'Ошибка',
-        description: 'Введите email',
-        variant: 'destructive'
-      });
-      return;
-    }
 
-    try {
-      const response = await fetch(PASSWORD_RESET_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'request_reset',
-          email: resetEmail
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        toast({
-          title: 'Заявка создана',
-          description: data.message || 'Администратор обработает заявку на сброс пароля в течение 24 часов.',
-          duration: 10000
-        });
-        setShowResetPassword(false);
-        setResetEmail('');
-      } else {
-        toast({
-          title: 'Ошибка',
-          description: data.error || 'Ошибка сброса пароля',
-          variant: 'destructive'
-        });
-      }
-    } catch (error) {
-      toast({
-        title: 'Ошибка',
-        description: 'Ошибка подключения к серверу',
-        variant: 'destructive'
-      });
-    }
-  };
 
   return (
     <Dialog open={authDialogOpen} onOpenChange={handleAuthDialogChange}>
@@ -116,42 +68,7 @@ export const AuthDialog = ({
           </DialogHeader>
 
           <div className="relative z-10">
-            {showResetPassword ? (
-              <div className="space-y-5 pt-2 auth-slide-in">
-                <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 auth-glow">
-                  <p className="text-sm text-foreground/80">
-                    Введите email. После отправки обратитесь к администратору для получения ссылки на сброс пароля.
-                  </p>
-                </div>
-                <div className="space-y-2 auth-input-group">
-                  <label className="text-sm font-medium text-foreground/90">Email</label>
-                  <Input 
-                    type="email" 
-                    value={resetEmail}
-                    onChange={(e) => setResetEmail(e.target.value)}
-                    placeholder="your@email.com"
-                    className="auth-input h-11 rounded-xl border-white/10 bg-background/50 backdrop-blur-sm focus-visible:ring-primary/50"
-                  />
-                </div>
-                <div className="flex gap-3">
-                  <Button 
-                    onClick={handleResetPassword}
-                    className="flex-1 h-11 rounded-xl font-medium auth-button bg-primary hover:bg-primary/90"
-                  >
-                    <Icon name="Send" size={18} className="mr-2" />
-                    Отправить
-                  </Button>
-                  <Button 
-                    onClick={() => setShowResetPassword(false)}
-                    variant="outline"
-                    className="flex-1 h-11 rounded-xl font-medium auth-button-secondary border-white/10 hover:bg-white/5"
-                  >
-                    Назад
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={onAuthSubmit} className="space-y-5 pt-2 auth-form-enter">
+            <form onSubmit={onAuthSubmit} className="space-y-5 pt-2 auth-form-enter">
                 <div className="space-y-4">
                   {authMode === 'register' && (
                     <div className="space-y-2 auth-input-group">
@@ -178,18 +95,7 @@ export const AuthDialog = ({
                   </div>
                   
                   <div className="space-y-2 auth-input-group">
-                    <div className="flex items-center justify-between">
-                      <label className="text-sm font-medium text-foreground/90">Пароль</label>
-                      {authMode === 'login' && (
-                        <button
-                          type="button"
-                          onClick={() => setShowResetPassword(true)}
-                          className="text-xs text-primary hover:text-primary/80 transition-colors"
-                        >
-                          Забыли пароль?
-                        </button>
-                      )}
-                    </div>
+                    <label className="text-sm font-medium text-foreground/90">Пароль</label>
                     <Input 
                       name="password" 
                       type="password" 
@@ -223,9 +129,7 @@ export const AuthDialog = ({
                   {authMode === 'login' ? 'Войти' : 'Создать аккаунт'}
                 </Button>
               </form>
-            )}
 
-            {!showResetPassword && (
               <div className="mt-5 pt-5 border-t border-white/5 relative z-10">
                 <p className="text-center text-sm text-muted-foreground auth-fade-in-delay">
                   {authMode === 'login' ? 'Нет аккаунта?' : 'Уже есть аккаунт?'}
@@ -239,7 +143,6 @@ export const AuthDialog = ({
                   </button>
                 </p>
               </div>
-            )}
           </div>
         </div>
       </DialogContent>
