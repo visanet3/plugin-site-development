@@ -79,14 +79,16 @@ def send_email(to_email: str, subject: str, html_content: str, custom_smtp: dict
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'POST')
     
+    # CORS headers for all responses
     cors_headers = {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, X-User-Id, Authorization',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': '*',
         'Access-Control-Max-Age': '86400',
         'Content-Type': 'application/json'
     }
     
+    # Handle preflight OPTIONS request
     if method == 'OPTIONS':
         return {
             'statusCode': 200,
