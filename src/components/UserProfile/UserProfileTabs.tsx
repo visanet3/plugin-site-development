@@ -12,8 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 
 import VerificationForm from '@/components/VerificationForm';
-
-const PASSWORD_RESET_URL = 'https://functions.poehali.dev/d4973344-e5cd-411c-8957-4c1d4d0072ab';
+import { AUTH_URL } from '@/lib/api-urls';
 
 interface UserProfileTabsProps {
   user: User;
@@ -39,36 +38,62 @@ export const UserProfileTabs = ({
   onCloseWithdrawalDialog
 }: UserProfileTabsProps) => {
   const { toast } = useToast();
-  const [showPasswordReset, setShowPasswordReset] = useState(false);
-  const [resetLoading, setResetLoading] = useState(false);
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
 
-  const handleResetPassword = async () => {
-    setResetLoading(true);
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (newPassword.length < 6) {
+      toast({
+        title: 'Ошибка',
+        description: 'Новый пароль должен быть не менее 6 символов',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: 'Ошибка',
+        description: 'Пароли не совпадают',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    setChangingPassword(true);
+    
     try {
-      const response = await fetch(PASSWORD_RESET_URL, {
+      const response = await fetch(AUTH_URL, {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json'
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': user.id.toString()
         },
         body: JSON.stringify({
-          action: 'request_reset',
-          email: user.email
+          action: 'change_password',
+          old_password: oldPassword,
+          new_password: newPassword
         })
       });
-
+      
       const data = await response.json();
-
+      
       if (data.success) {
         toast({
-          title: 'Письмо отправлено',
-          description: `Ссылка для сброса пароля отправлена на ${user.email}`,
-          duration: 10000
+          title: 'Успешно!',
+          description: 'Пароль успешно изменён'
         });
-        setShowPasswordReset(false);
+        setOldPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
       } else {
         toast({
           title: 'Ошибка',
-          description: data.error || 'Ошибка сброса пароля',
+          description: data.error || 'Не удалось изменить пароль',
           variant: 'destructive'
         });
       }
@@ -79,7 +104,7 @@ export const UserProfileTabs = ({
         variant: 'destructive'
       });
     } finally {
-      setResetLoading(false);
+      setChangingPassword(false);
     }
   };
 
@@ -164,7 +189,7 @@ export const UserProfileTabs = ({
                         'bg-gradient-to-br from-red-500/20 to-orange-500/20'
                       }`}>
                         <Icon 
-                          name={icon as any} 
+                          name={icon} 
                           size={18} 
                           className={`sm:w-5 sm:h-5 ${
                             color === 'green' ? 'text-green-400' : 
@@ -270,39 +295,80 @@ export const UserProfileTabs = ({
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl opacity-20 group-hover:opacity-30 transition-opacity blur-lg" />
               <Card className="relative bg-gradient-to-br from-orange-950/40 to-red-950/40 border-orange-500/40 backdrop-blur-sm">
-                <div className="p-4 sm:p-5">
-                  <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-                    <div className="flex items-start gap-3 flex-1">
-                      <div className="relative flex-shrink-0">
-                        <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl blur-md opacity-75" />
-                        <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
-                          <Icon name="Key" size={20} className="text-white" />
-                        </div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-sm sm:text-base font-bold text-orange-400 mb-1">Сброс пароля</h4>
-                        <p className="text-xs text-orange-300/70">
-                          Новый пароль будет отправлен на<br className="hidden sm:block" />
-                          <span className="font-medium text-orange-300">{user.email}</span>
-                        </p>
+                <form onSubmit={handleChangePassword} className="p-4 sm:p-5">
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="relative flex-shrink-0">
+                      <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl blur-md opacity-75" />
+                      <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+                        <Icon name="Key" size={20} className="text-white" />
                       </div>
                     </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm sm:text-base font-bold text-orange-400 mb-1">Сброс пароля</h4>
+                      <p className="text-xs text-orange-300/70">
+                        Введите старый пароль и новый пароль для смены
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <Label className="text-xs text-orange-300/70 mb-1.5">Старый пароль</Label>
+                      <Input
+                        type="password"
+                        value={oldPassword}
+                        onChange={(e) => setOldPassword(e.target.value)}
+                        placeholder="Введите старый пароль"
+                        required
+                        className="bg-orange-950/20 border-orange-500/30 focus:border-orange-500/50 text-white placeholder:text-orange-300/30"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label className="text-xs text-orange-300/70 mb-1.5">Новый пароль</Label>
+                      <Input
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="Минимум 6 символов"
+                        required
+                        minLength={6}
+                        className="bg-orange-950/20 border-orange-500/30 focus:border-orange-500/50 text-white placeholder:text-orange-300/30"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label className="text-xs text-orange-300/70 mb-1.5">Повторите новый пароль</Label>
+                      <Input
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Повторите новый пароль"
+                        required
+                        minLength={6}
+                        className="bg-orange-950/20 border-orange-500/30 focus:border-orange-500/50 text-white placeholder:text-orange-300/30"
+                      />
+                    </div>
+                    
                     <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleResetPassword}
-                      disabled={resetLoading}
-                      className="flex-shrink-0 w-full sm:w-auto border-orange-500/50 hover:bg-orange-500/20 hover:border-orange-500 transition-all font-medium"
+                      type="submit"
+                      disabled={changingPassword}
+                      className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white border-0 font-medium"
                     >
-                      {resetLoading ? (
-                        <Icon name="Loader2" size={16} className="animate-spin mr-2" />
+                      {changingPassword ? (
+                        <>
+                          <Icon name="Loader2" size={16} className="animate-spin mr-2" />
+                          Изменение...
+                        </>
                       ) : (
-                        <Icon name="RefreshCw" size={16} className="mr-2" />
+                        <>
+                          <Icon name="Check" size={16} className="mr-2" />
+                          Изменить пароль
+                        </>
                       )}
-                      Сбросить
                     </Button>
                   </div>
-                </div>
+                </form>
               </Card>
             </div>
           </>
