@@ -80,10 +80,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     # CORS headers MUST be defined at top level for exception handler
     cors_headers = {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, HEAD',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin, X-User-Id',
+        'Access-Control-Expose-Headers': 'Content-Length, Content-Type',
         'Access-Control-Max-Age': '86400',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Vary': 'Origin'
     }
     
     try:
