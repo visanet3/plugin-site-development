@@ -38,10 +38,10 @@ interface VipOrder {
 }
 
 const VIP_PACKAGES = [
-  { days: 90, price_ton: 3370, popular: true, label: '3 месяца' },
-  { days: 180, price_ton: 4300, popular: false, label: '6 месяцев' },
-  { days: 270, price_ton: 6400, popular: false, label: '9 месяцев' },
-  { days: 365, price_ton: 7200, popular: false, label: '1 год' }
+  { days: 90, price_ton: 4600, popular: true, label: '3 месяца' },
+  { days: 180, price_ton: 9200, popular: false, label: '6 месяцев' },
+  { days: 270, price_ton: 13800, popular: false, label: '9 месяцев' },
+  { days: 365, price_ton: 18400, popular: false, label: '1 год' }
 ];
 
 export const VipTonPurchase = ({ user, onShowAuthDialog }: VipTonPurchaseProps) => {
