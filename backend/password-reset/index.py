@@ -79,22 +79,32 @@ def send_email(to_email: str, subject: str, html_content: str, custom_smtp: dict
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'POST')
     
+    cors_headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, X-User-Id, Authorization',
+        'Access-Control-Max-Age': '86400',
+        'Content-Type': 'application/json'
+    }
+    
     if method == 'OPTIONS':
         return {
             'statusCode': 200,
-            'headers': {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, X-User-Id, Authorization',
-                'Access-Control-Max-Age': '86400',
-                'Content-Type': 'text/plain'
-            },
+            'headers': cors_headers,
             'body': '',
             'isBase64Encoded': False
         }
     
-    conn = get_db_connection()
-    cur = conn.cursor()
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': cors_headers,
+            'body': json.dumps({'error': f'Database connection failed: {str(e)}'}),
+            'isBase64Encoded': False
+        }
     
     try:
         if method == 'GET':
@@ -104,7 +114,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if not token:
                 return {
                     'statusCode': 400,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'headers': cors_headers,
                     'body': json.dumps({'error': 'Токен не указан'}),
                     'isBase64Encoded': False
                 }
@@ -118,7 +128,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if not reset_token:
                 return {
                     'statusCode': 404,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'headers': cors_headers,
                     'body': json.dumps({'error': 'Токен недействителен или уже использован'}),
                     'isBase64Encoded': False
                 }
@@ -126,14 +136,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if datetime.datetime.now() > reset_token['expires_at']:
                 return {
                     'statusCode': 400,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'headers': cors_headers,
                     'body': json.dumps({'error': 'Срок действия токена истек'}),
                     'isBase64Encoded': False
                 }
             
             return {
                 'statusCode': 200,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'headers': cors_headers,
                 'body': json.dumps({'valid': True, 'user_id': reset_token['user_id']}),
                 'isBase64Encoded': False
             }
@@ -141,7 +151,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if method != 'POST':
             return {
                 'statusCode': 405,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'headers': cors_headers,
                 'body': json.dumps({'error': 'Method not allowed'}),
                 'isBase64Encoded': False
             }
@@ -158,7 +168,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if not email:
                 return {
                     'statusCode': 400,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'headers': cors_headers,
                     'body': json.dumps({'error': 'Email обязателен'}),
                     'isBase64Encoded': False
                 }
@@ -169,7 +179,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if not user:
                 return {
                     'statusCode': 200,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'headers': cors_headers,
                     'body': json.dumps({'success': True, 'message': 'Если email существует, на него будет отправлена ссылка'}),
                     'isBase64Encoded': False
                 }
@@ -212,7 +222,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             return {
                 'statusCode': 200,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'headers': cors_headers,
                 'body': json.dumps({
                     'success': True,
                     'message': 'Ссылка для сброса пароля отправлена на email',
@@ -228,7 +238,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if not token or not new_password:
                 return {
                     'statusCode': 400,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'headers': cors_headers,
                     'body': json.dumps({'error': 'Токен и новый пароль обязательны'}),
                     'isBase64Encoded': False
                 }
@@ -236,7 +246,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if len(new_password) < 6:
                 return {
                     'statusCode': 400,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'headers': cors_headers,
                     'body': json.dumps({'error': 'Пароль должен быть не менее 6 символов'}),
                     'isBase64Encoded': False
                 }
@@ -250,7 +260,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if not reset_token:
                 return {
                     'statusCode': 404,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'headers': cors_headers,
                     'body': json.dumps({'error': 'Токен недействителен или уже использован'}),
                     'isBase64Encoded': False
                 }
@@ -258,7 +268,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if datetime.datetime.now() > reset_token['expires_at']:
                 return {
                     'statusCode': 400,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'headers': cors_headers,
                     'body': json.dumps({'error': 'Срок действия токена истек'}),
                     'isBase64Encoded': False
                 }
@@ -279,26 +289,29 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             return {
                 'statusCode': 200,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'headers': cors_headers,
                 'body': json.dumps({'success': True, 'message': 'Пароль успешно изменен'}),
                 'isBase64Encoded': False
             }
         
         return {
             'statusCode': 400,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'headers': cors_headers,
             'body': json.dumps({'error': 'Unknown action'}),
             'isBase64Encoded': False
         }
     
     except Exception as e:
-        conn.rollback()
+        if 'conn' in locals():
+            conn.rollback()
         return {
             'statusCode': 500,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'headers': cors_headers,
             'body': json.dumps({'error': str(e)}),
             'isBase64Encoded': False
         }
     finally:
-        cur.close()
-        conn.close()
+        if 'cur' in locals():
+            cur.close()
+        if 'conn' in locals():
+            conn.close()
