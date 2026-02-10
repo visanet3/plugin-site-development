@@ -1,9 +1,5 @@
 '''
-Business: Упрощённый сброс пароля БЕЗ email - только через БД заявки
-Args: event - dict с httpMethod, body, queryStringParameters
-      context - объект с атрибутами: request_id, function_name
-Returns: HTTP response dict
-Version: 3.0 - NO EMAIL, DB ONLY
+Сброс пароля без email - создание токена и сброс через БД
 '''
 
 import json
@@ -18,12 +14,10 @@ from psycopg2.extras import RealDictCursor
 SCHEMA = 't_p32599880_plugin_site_developm'
 
 def get_db_connection():
-    """Получить подключение к БД"""
     database_url = os.environ.get('DATABASE_URL')
     return psycopg2.connect(database_url, cursor_factory=RealDictCursor)
 
 def hash_password(password: str) -> str:
-    """Хеширование пароля"""
     return hashlib.sha256(password.encode()).hexdigest()
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
@@ -130,7 +124,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             # Создаём токен (без email отправки!)
             token = secrets.token_urlsafe(32)
-            expires_at = datetime.datetime.now() + datetime.timedelta(days=7)  # 7 дней на обработку админом
+            expires_at = datetime.datetime.now() + datetime.timedelta(hours=24)
             
             cur.execute(
                 f"INSERT INTO {SCHEMA}.password_reset_tokens (user_id, token, expires_at) VALUES (%s, %s, %s)",
@@ -143,7 +137,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'headers': cors_headers,
                 'body': json.dumps({
                     'success': True,
-                    'message': f'Заявка на сброс пароля для пользователя {user["username"]} создана. Администратор обработает её в течение 24 часов.'
+                    'message': 'Заявка создана. Обратитесь к администратору для получения ссылки на сброс пароля.'
                 }),
                 'isBase64Encoded': False
             }

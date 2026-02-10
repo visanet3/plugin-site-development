@@ -12,7 +12,7 @@ const PASSWORD_RESET_URL = 'https://functions.poehali.dev/d4973344-e5cd-411c-895
 interface AuthDialogProps {
   authDialogOpen: boolean;
   authMode: 'login' | 'register';
-  user: any;
+  user: unknown;
   onAuthDialogChange: (open: boolean) => void;
   onAuthModeChange: (mode: 'login' | 'register') => void;
   onAuthSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
@@ -120,7 +120,7 @@ export const AuthDialog = ({
               <div className="space-y-5 pt-2 auth-slide-in">
                 <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 auth-glow">
                   <p className="text-sm text-foreground/80">
-                    Введите email, указанный при регистрации. Мы отправим вам ссылку для сброса пароля.
+                    Введите email. После отправки обратитесь к администратору для получения ссылки на сброс пароля.
                   </p>
                 </div>
                 <div className="space-y-2 auth-input-group">
