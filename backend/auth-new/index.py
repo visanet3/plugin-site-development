@@ -640,6 +640,64 @@ def handler(event, context):
                 'isBase64Encoded': False
             }
         
+        elif action == 'change_password':
+            user_id = event.get('headers', {}).get('X-User-Id') or event.get('headers', {}).get('x-user-id')
+            old_password = body.get('old_password')
+            new_password = body.get('new_password')
+            
+            if not user_id:
+                return {
+                    'statusCode': 400,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': 'User ID не указан'}),
+                    'isBase64Encoded': False
+                }
+            
+            if not old_password or not new_password:
+                return {
+                    'statusCode': 400,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': 'Заполните все поля'}),
+                    'isBase64Encoded': False
+                }
+            
+            if len(new_password) < 6:
+                return {
+                    'statusCode': 400,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': 'Новый пароль должен быть не менее 6 символов'}),
+                    'isBase64Encoded': False
+                }
+            
+            old_password_hash = hash_password(old_password)
+            
+            cur.execute(
+                "SELECT id FROM users WHERE id = %s AND password_hash = %s",
+                (user_id, old_password_hash)
+            )
+            
+            if not cur.fetchone():
+                return {
+                    'statusCode': 401,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': 'Неверный старый пароль'}),
+                    'isBase64Encoded': False
+                }
+            
+            new_password_hash = hash_password(new_password)
+            cur.execute(
+                "UPDATE users SET password_hash = %s WHERE id = %s",
+                (new_password_hash, user_id)
+            )
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': cors_headers,
+                'body': json.dumps({'success': True, 'message': 'Пароль успешно изменён'}),
+                'isBase64Encoded': False
+            }
+        
         else:
             return {
                 'statusCode': 400,

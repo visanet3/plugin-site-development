@@ -28,6 +28,11 @@ export const ProfileDialog = ({
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
 
   const handleAvatarSelect = () => {
     fileInputRef.current?.click();
@@ -125,7 +130,7 @@ export const ProfileDialog = ({
         </DialogHeader>
 
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="profile">
               <Icon name="User" size={16} className="mr-2" />
               Профиль
@@ -133,6 +138,10 @@ export const ProfileDialog = ({
             <TabsTrigger value="balance">
               <Icon name="Wallet" size={16} className="mr-2" />
               Баланс
+            </TabsTrigger>
+            <TabsTrigger value="security">
+              <Icon name="Lock" size={16} className="mr-2" />
+              Безопасность
             </TabsTrigger>
             <TabsTrigger value="verification">
               <Icon name="ShieldCheck" size={16} className="mr-2" />
@@ -226,6 +235,136 @@ export const ProfileDialog = ({
                 </h4>
                 <p className="text-sm text-muted-foreground">История транзакций пока пуста</p>
               </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="security" className="space-y-6 mt-6">
+            <div className="p-6 rounded-lg bg-muted/50 border">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <Icon name="Lock" size={20} className="text-primary" />
+                Смена пароля
+              </h3>
+              
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                
+                if (newPassword.length < 6) {
+                  toast({
+                    title: 'Ошибка',
+                    description: 'Новый пароль должен быть не менее 6 символов',
+                    variant: 'destructive'
+                  });
+                  return;
+                }
+                
+                if (newPassword !== confirmPassword) {
+                  toast({
+                    title: 'Ошибка',
+                    description: 'Пароли не совпадают',
+                    variant: 'destructive'
+                  });
+                  return;
+                }
+                
+                setChangingPassword(true);
+                
+                try {
+                  const response = await fetch(AUTH_URL, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'X-User-Id': user.id.toString()
+                    },
+                    body: JSON.stringify({
+                      action: 'change_password',
+                      old_password: oldPassword,
+                      new_password: newPassword
+                    })
+                  });
+                  
+                  const data = await response.json();
+                  
+                  if (data.success) {
+                    toast({
+                      title: 'Успешно!',
+                      description: 'Пароль успешно изменён'
+                    });
+                    setOldPassword('');
+                    setNewPassword('');
+                    setConfirmPassword('');
+                  } else {
+                    toast({
+                      title: 'Ошибка',
+                      description: data.error || 'Не удалось изменить пароль',
+                      variant: 'destructive'
+                    });
+                  }
+                } catch (error) {
+                  toast({
+                    title: 'Ошибка',
+                    description: 'Ошибка подключения к серверу',
+                    variant: 'destructive'
+                  });
+                } finally {
+                  setChangingPassword(false);
+                }
+              }} className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium">Старый пароль</label>
+                  <Input
+                    type="password"
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
+                    placeholder="Введите старый пароль"
+                    required
+                    className="mt-1"
+                  />
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium">Новый пароль</label>
+                  <Input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Минимум 6 символов"
+                    required
+                    minLength={6}
+                    className="mt-1"
+                  />
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium">Повторите новый пароль</label>
+                  <Input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Повторите новый пароль"
+                    required
+                    minLength={6}
+                    className="mt-1"
+                  />
+                </div>
+                
+                <Button
+                  type="submit"
+                  disabled={changingPassword}
+                  className="w-full"
+                >
+                  {changingPassword ? (
+                    <>
+                      <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
+                      Изменение...
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="Check" size={16} className="mr-2" />
+                      Изменить пароль
+                    </>
+                  )}
+                </Button>
+              </form>
             </div>
           </TabsContent>
 
