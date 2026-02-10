@@ -67,8 +67,8 @@ export const AuthDialog = ({
 
       if (data.success) {
         toast({
-          title: 'Письмо отправлено',
-          description: 'Проверьте вашу почту. Мы отправили ссылку для сброса пароля.',
+          title: 'Заявка создана',
+          description: data.message || 'Администратор обработает заявку на сброс пароля в течение 24 часов.',
           duration: 10000
         });
         setShowResetPassword(false);
