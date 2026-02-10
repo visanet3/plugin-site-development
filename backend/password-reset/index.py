@@ -77,9 +77,7 @@ def send_email(to_email: str, subject: str, html_content: str, custom_smtp: dict
         return False
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
-    method: str = event.get('httpMethod', 'POST')
-    
-    # CORS headers for all responses
+    # CORS headers MUST be defined at top level for exception handler
     cors_headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -88,27 +86,22 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'Content-Type': 'application/json'
     }
     
-    # Handle preflight OPTIONS request
-    if method == 'OPTIONS':
-        return {
-            'statusCode': 200,
-            'headers': cors_headers,
-            'body': '',
-            'isBase64Encoded': False
-        }
-    
     try:
+        method: str = event.get('httpMethod', 'POST')
+        print(f"DEBUG: Request method={method}, headers={event.get('headers', {})}")
+        
+        # Handle preflight OPTIONS request
+        if method == 'OPTIONS':
+            return {
+                'statusCode': 200,
+                'headers': cors_headers,
+                'body': '',
+                'isBase64Encoded': False
+            }
+        
         conn = get_db_connection()
         cur = conn.cursor()
-    except Exception as e:
-        return {
-            'statusCode': 500,
-            'headers': cors_headers,
-            'body': json.dumps({'error': f'Database connection failed: {str(e)}'}),
-            'isBase64Encoded': False
-        }
-    
-    try:
+        
         if method == 'GET':
             params = event.get('queryStringParameters', {}) or {}
             token = params.get('token')
@@ -304,12 +297,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     except Exception as e:
-        if 'conn' in locals():
-            conn.rollback()
+        print(f"ERROR: Exception in handler: {type(e).__name__}: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        
+        try:
+            if 'conn' in locals():
+                conn.rollback()
+        except:
+            pass
+            
         return {
             'statusCode': 500,
             'headers': cors_headers,
-            'body': json.dumps({'error': str(e)}),
+            'body': json.dumps({'error': f'{type(e).__name__}: {str(e)}'}),
             'isBase64Encoded': False
         }
     finally:
