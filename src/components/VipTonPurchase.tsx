@@ -5,6 +5,39 @@ import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { User } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+
+const PROMO_END_DATE = new Date('2025-02-20T23:59:59').getTime();
+
+const usePromoCountdown = () => {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [isActive, setIsActive] = useState(true);
+
+  useEffect(() => {
+    const updateCountdown = () => {
+      const now = new Date().getTime();
+      const distance = PROMO_END_DATE - now;
+
+      if (distance < 0) {
+        setIsActive(false);
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      setTimeLeft({ days, hours, minutes, seconds });
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return { timeLeft, isActive };
+};
 import {
   Dialog,
   DialogContent,
@@ -38,14 +71,15 @@ interface VipOrder {
 }
 
 const VIP_PACKAGES = [
-  { days: 90, price_ton: 4600, popular: true, label: '3 месяца' },
-  { days: 180, price_ton: 9200, popular: false, label: '6 месяцев' },
-  { days: 270, price_ton: 13800, popular: false, label: '9 месяцев' },
-  { days: 365, price_ton: 18400, popular: false, label: '1 год' }
+  { days: 90, price_ton: 1610, original_price: 4600, popular: true, label: '3 месяца', discount: 65 },
+  { days: 180, price_ton: 3220, original_price: 9200, popular: false, label: '6 месяцев', discount: 65 },
+  { days: 270, price_ton: 4830, original_price: 13800, popular: false, label: '9 месяцев', discount: 65 },
+  { days: 365, price_ton: 6440, original_price: 18400, popular: false, label: '1 год', discount: 65 }
 ];
 
 export const VipTonPurchase = ({ user, onShowAuthDialog }: VipTonPurchaseProps) => {
   const { toast } = useToast();
+  const { timeLeft, isActive } = usePromoCountdown();
   const [orders, setOrders] = useState<VipOrder[]>([]);
   const [loading, setLoading] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
@@ -201,6 +235,38 @@ export const VipTonPurchase = ({ user, onShowAuthDialog }: VipTonPurchaseProps) 
 
   return (
     <div className="space-y-6">
+      {isActive && (
+        <Card className="p-4 bg-gradient-to-r from-red-500/20 via-orange-500/20 to-yellow-500/20 border-red-500/50">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Icon name="Zap" size={32} className="text-yellow-400 animate-pulse" />
+              <div>
+                <h3 className="text-xl font-bold text-yellow-400">🔥 АКЦИЯ! Скидка 65% на все тарифы</h3>
+                <p className="text-sm text-muted-foreground">Успейте купить VIP по специальной цене</p>
+              </div>
+            </div>
+            <div className="flex gap-2 text-center">
+              <div className="bg-background/50 rounded-lg px-3 py-2 min-w-[60px]">
+                <div className="text-2xl font-bold text-yellow-400">{timeLeft.days}</div>
+                <div className="text-xs text-muted-foreground">дней</div>
+              </div>
+              <div className="bg-background/50 rounded-lg px-3 py-2 min-w-[60px]">
+                <div className="text-2xl font-bold text-yellow-400">{timeLeft.hours}</div>
+                <div className="text-xs text-muted-foreground">часов</div>
+              </div>
+              <div className="bg-background/50 rounded-lg px-3 py-2 min-w-[60px]">
+                <div className="text-2xl font-bold text-yellow-400">{timeLeft.minutes}</div>
+                <div className="text-xs text-muted-foreground">минут</div>
+              </div>
+              <div className="bg-background/50 rounded-lg px-3 py-2 min-w-[60px]">
+                <div className="text-2xl font-bold text-yellow-400">{timeLeft.seconds}</div>
+                <div className="text-xs text-muted-foreground">секунд</div>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
+      
       <Card className="p-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 flex items-center justify-center">
@@ -222,13 +288,18 @@ export const VipTonPurchase = ({ user, onShowAuthDialog }: VipTonPurchaseProps) 
                 </Badge>
               )}
               {pkg.discount && (
-                <Badge className="absolute -top-2 -left-2 bg-green-500 text-white text-xs">
-                  -{pkg.discount}
+                <Badge className="absolute -top-2 -left-2 bg-red-500 text-white text-xs font-bold animate-pulse">
+                  -{pkg.discount}%
                 </Badge>
               )}
               
               <div className="text-center mb-4">
                 <h3 className="text-xl font-bold mb-2">{pkg.label}</h3>
+                {pkg.original_price && (
+                  <div className="text-sm text-muted-foreground line-through mb-1">
+                    {pkg.original_price} TON
+                  </div>
+                )}
                 <div className="text-3xl font-bold text-yellow-500 mb-1">
                   {pkg.price_ton} TON
                 </div>

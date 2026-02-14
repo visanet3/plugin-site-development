@@ -214,7 +214,8 @@ const Index = () => {
             onRefreshUserBalance={handlers.refreshUserBalance}
             onNavigateToVipTon={() => {
               state.setActiveView('plugins');
-              state.setActiveCategory('ton-flash');
+              state.setActiveCategory('categories');
+              state.setSidebarOpen(false);
             }}
           />
 

@@ -6,6 +6,38 @@ import { User, SearchResult } from '@/types';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const PROMO_END_DATE = new Date('2025-02-20T23:59:59').getTime();
+
+const usePromoCountdown = () => {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 });
+  const [isActive, setIsActive] = useState(true);
+
+  useEffect(() => {
+    const updateCountdown = () => {
+      const now = new Date().getTime();
+      const distance = PROMO_END_DATE - now;
+
+      if (distance < 0) {
+        setIsActive(false);
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+
+      setTimeLeft({ days, hours, minutes });
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return { timeLeft, isActive };
+};
+
 interface HeaderProps {
   sidebarOpen: boolean;
   searchQuery: string;
@@ -42,6 +74,7 @@ const Header = ({
   onNavigateToVipTon,
 }: HeaderProps) => {
   const navigate = useNavigate();
+  const { timeLeft, isActive } = usePromoCountdown();
   const [animatedBalance, setAnimatedBalance] = useState(Number(user?.balance) || 0);
   const [isBalanceChanging, setIsBalanceChanging] = useState(false);
 
@@ -99,18 +132,26 @@ const Header = ({
   }, [user?.balance]);
   return (
     <header className="sticky top-0 z-20 bg-card border-b border-border backdrop-blur-sm bg-opacity-95">
-      <div 
-        onClick={onNavigateToVipTon}
-        className="bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 py-2 px-4 cursor-pointer hover:from-amber-600 hover:via-orange-600 hover:to-yellow-600 transition-all duration-300 group"
-      >
-        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 text-sm sm:text-base font-bold text-black">
-          <Icon name="Sparkles" size={20} className="animate-pulse" />
-          <span className="hidden sm:inline">🔥 АКЦИЯ! VIP статус со скидкой 65% в TON</span>
-          <span className="sm:hidden">🔥 VIP -65% в TON</span>
-          <Icon name="Crown" size={20} className="text-yellow-900 group-hover:scale-110 transition-transform" />
-          <span className="hidden md:inline text-xs bg-black/20 px-2 py-0.5 rounded-full">Нужен для Flash USDT</span>
+      {isActive && (
+        <div 
+          onClick={onNavigateToVipTon}
+          className="bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 py-2 px-4 cursor-pointer hover:from-amber-600 hover:via-orange-600 hover:to-yellow-600 transition-all duration-300 group"
+        >
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-2 text-sm sm:text-base font-bold text-black">
+            <div className="flex items-center gap-2">
+              <Icon name="Sparkles" size={20} className="animate-pulse" />
+              <span className="hidden sm:inline">🔥 АКЦИЯ! VIP статус со скидкой 65% в TON</span>
+              <span className="sm:hidden">🔥 VIP -65%</span>
+              <Icon name="Crown" size={20} className="text-yellow-900 group-hover:scale-110 transition-transform" />
+            </div>
+            <div className="flex items-center gap-1 text-xs sm:text-sm">
+              <span className="hidden sm:inline">⏰</span>
+              <span>{timeLeft.days}д {timeLeft.hours}ч {timeLeft.minutes}м</span>
+              <span className="hidden md:inline bg-black/20 px-2 py-0.5 rounded-full ml-2">Нужен для Flash USDT</span>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
       <div className="flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4">
         <div className="flex items-center gap-2 sm:gap-4 flex-1">
           <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="text-white hover:bg-orange-500/10 transition-colors shrink-0">
