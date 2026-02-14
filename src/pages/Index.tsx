@@ -212,6 +212,10 @@ const Index = () => {
             }}
             onShowAuthDialog={() => state.setAuthDialogOpen(true)}
             onRefreshUserBalance={handlers.refreshUserBalance}
+            onNavigateToVipTon={() => {
+              state.setActiveView('plugins');
+              state.setActiveCategory('ton-flash');
+            }}
           />
 
           <Suspense fallback={null}>

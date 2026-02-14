@@ -44,6 +44,7 @@ interface IndexLayoutProps {
   onNavigateToFlashUsdt: () => void;
   onShowAuthDialog: () => void;
   onRefreshUserBalance: () => void;
+  onNavigateToVipTon: () => void;
 }
 
 const IndexLayout = ({
@@ -85,7 +86,8 @@ const IndexLayout = ({
   onNavigateToForum,
   onNavigateToFlashUsdt,
   onShowAuthDialog,
-  onRefreshUserBalance
+  onRefreshUserBalance,
+  onNavigateToVipTon
 }: IndexLayoutProps) => {
   return (
     <>
@@ -120,6 +122,7 @@ const IndexLayout = ({
           notificationsUnread={notificationsUnread}
           onShowNotifications={onShowNotifications}
           onShowProfile={onShowProfile}
+          onNavigateToVipTon={onNavigateToVipTon}
         />
 
         <MainContent

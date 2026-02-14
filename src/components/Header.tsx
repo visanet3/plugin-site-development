@@ -21,6 +21,7 @@ interface HeaderProps {
   onLogout: () => void;
   onShowNotifications?: () => void;
   onShowProfile?: () => void;
+  onNavigateToVipTon?: () => void;
 }
 
 const Header = ({
@@ -38,6 +39,7 @@ const Header = ({
   onLogout,
   onShowNotifications,
   onShowProfile,
+  onNavigateToVipTon,
 }: HeaderProps) => {
   const navigate = useNavigate();
   const [animatedBalance, setAnimatedBalance] = useState(Number(user?.balance) || 0);
@@ -97,6 +99,18 @@ const Header = ({
   }, [user?.balance]);
   return (
     <header className="sticky top-0 z-20 bg-card border-b border-border backdrop-blur-sm bg-opacity-95">
+      <div 
+        onClick={onNavigateToVipTon}
+        className="bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 py-2 px-4 cursor-pointer hover:from-amber-600 hover:via-orange-600 hover:to-yellow-600 transition-all duration-300 group"
+      >
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 text-sm sm:text-base font-bold text-black">
+          <Icon name="Sparkles" size={20} className="animate-pulse" />
+          <span className="hidden sm:inline">🔥 АКЦИЯ! VIP статус со скидкой 65% в TON</span>
+          <span className="sm:hidden">🔥 VIP -65% в TON</span>
+          <Icon name="Crown" size={20} className="text-yellow-900 group-hover:scale-110 transition-transform" />
+          <span className="hidden md:inline text-xs bg-black/20 px-2 py-0.5 rounded-full">Нужен для Flash USDT</span>
+        </div>
+      </div>
       <div className="flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4">
         <div className="flex items-center gap-2 sm:gap-4 flex-1">
           <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="text-white hover:bg-orange-500/10 transition-colors shrink-0">
