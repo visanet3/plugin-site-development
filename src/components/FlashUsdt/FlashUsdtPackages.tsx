@@ -28,6 +28,7 @@ interface FlashUsdtPackagesProps {
 export const FlashUsdtPackages = ({ packages, onPurchase, selectedPackageId, userHasVip, onBuyVip }: FlashUsdtPackagesProps) => {
   const getAccentColor = (id: number) => {
     const colors = {
+      0: { bg: 'bg-teal-500/10', border: 'border-teal-500/30', text: 'text-teal-400', hover: 'hover:border-teal-500/50' },
       1: { bg: 'bg-blue-500/10', border: 'border-blue-500/30', text: 'text-blue-400', hover: 'hover:border-blue-500/50' },
       2: { bg: 'bg-purple-500/10', border: 'border-purple-500/30', text: 'text-purple-400', hover: 'hover:border-purple-500/50' },
       3: { bg: 'bg-orange-500/10', border: 'border-orange-500/30', text: 'text-orange-400', hover: 'hover:border-orange-500/50' },
