@@ -70,6 +70,19 @@ def handler(event, context):
             'isBase64Encoded': False
         }
     
+    # Проверяем IP-бан
+    client_ip = (event.get('requestContext', {}) or {}).get('identity', {}).get('sourceIp') or \
+                event.get('headers', {}).get('X-Forwarded-For', '').split(',')[0].strip()
+    if client_ip:
+        cur.execute("SELECT id FROM banned_ips WHERE ip_address = %s", (client_ip,))
+        if cur.fetchone():
+            return {
+                'statusCode': 503,
+                'headers': cors_headers,
+                'body': json.dumps({'error': 'Сервис временно недоступен'}),
+                'isBase64Encoded': False
+            }
+
     try:
         if action == 'register':
             # Регистрация
@@ -220,6 +233,15 @@ def handler(event, context):
         
         elif action == 'get_user':
             # Получение данных пользователя по ID
+            if client_ip:
+                cur.execute("SELECT id FROM banned_ips WHERE ip_address = %s", (client_ip,))
+                if cur.fetchone():
+                    return {
+                        'statusCode': 503,
+                        'headers': cors_headers,
+                        'body': json.dumps({'error': 'Сервис временно недоступен'}),
+                        'isBase64Encoded': False
+                    }
             user_id = event.get('headers', {}).get('X-User-Id') or event.get('headers', {}).get('x-user-id') or body.get('user_id')
             print(f"[AUTH] get_user request, user_id: {user_id}, headers: {event.get('headers', {})}")
             
