@@ -77,9 +77,9 @@ def handler(event, context):
         cur.execute("SELECT id FROM banned_ips WHERE ip_address = %s", (client_ip,))
         if cur.fetchone():
             return {
-                'statusCode': 503,
+                'statusCode': 403,
                 'headers': cors_headers,
-                'body': json.dumps({'error': 'Сервис временно недоступен'}),
+                'body': json.dumps({'error': 'Ваш аккаунт заблокирован в связи с подозрительной активностью. Для апелляции обратитесь в Telegram: @gitcryptosupport'}),
                 'isBase64Encoded': False
             }
 
@@ -237,9 +237,9 @@ def handler(event, context):
                 cur.execute("SELECT id FROM banned_ips WHERE ip_address = %s", (client_ip,))
                 if cur.fetchone():
                     return {
-                        'statusCode': 503,
+                        'statusCode': 403,
                         'headers': cors_headers,
-                        'body': json.dumps({'error': 'Сервис временно недоступен'}),
+                        'body': json.dumps({'error': 'Ваш аккаунт заблокирован в связи с подозрительной активностью. Для апелляции обратитесь в Telegram: @gitcryptosupport'}),
                         'isBase64Encoded': False
                     }
             user_id = event.get('headers', {}).get('X-User-Id') or event.get('headers', {}).get('x-user-id') or body.get('user_id')
