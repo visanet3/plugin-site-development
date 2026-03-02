@@ -708,7 +708,7 @@ const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-purple-500/5 overflow-x-hidden max-w-full">
-      <div className="sticky top-0 z-50 border-b border-border/40 bg-gradient-to-r from-card/95 via-primary/10 to-card/95 backdrop-blur-lg shadow-lg overflow-hidden">
+      <div className="border-b border-border/40 bg-gradient-to-r from-card/95 via-primary/10 to-card/95 backdrop-blur-lg shadow-lg overflow-hidden">
         <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3 overflow-hidden">
           <div className="flex items-center justify-between overflow-hidden">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 overflow-hidden">
