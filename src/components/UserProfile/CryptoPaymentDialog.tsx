@@ -38,7 +38,7 @@ export const CryptoPaymentDialog = ({
               {/* USDT Circle */}
               <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-[#26A17B] flex items-center justify-center shadow-lg p-2 md:p-2.5">
                 <img 
-                  src="https://cryptologos.cc/logos/tether-usdt-logo.svg" 
+                  src="https://assets.coingecko.com/coins/images/325/small/Tether.png" 
                   alt="USDT"
                   className="w-full h-full"
                 />

@@ -229,7 +229,7 @@ const Header = ({
                         {/* USDT Circle */}
                         <div className="w-full h-full rounded-full bg-[#26A17B] flex items-center justify-center shadow-sm p-0.5 sm:p-1.5">
                           <img 
-                            src="https://cryptologos.cc/logos/tether-usdt-logo.svg" 
+                            src="https://assets.coingecko.com/coins/images/325/small/Tether.png" 
                             alt="USDT"
                             className="w-full h-full"
                           />

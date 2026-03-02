@@ -47,12 +47,12 @@ interface CryptoInfo {
 }
 
 const CRYPTO_INFO: Record<CryptoSymbol, CryptoInfo> = {
-  BTC: { name: 'Bitcoin', icon: 'Bitcoin', emoji: '₿', logo: 'https://cryptologos.cc/logos/bitcoin-btc-logo.svg', color: 'text-orange-400', bgColor: 'bg-orange-500/10', decimals: 8, minAmount: 0.0001 },
-  ETH: { name: 'Ethereum', icon: 'Gem', emoji: 'Ξ', logo: 'https://cryptologos.cc/logos/ethereum-eth-logo.svg', color: 'text-purple-400', bgColor: 'bg-purple-500/10', decimals: 6, minAmount: 0.001 },
-  BNB: { name: 'BNB', icon: 'Coins', emoji: '◆', logo: 'https://cryptologos.cc/logos/bnb-bnb-logo.svg', color: 'text-yellow-400', bgColor: 'bg-yellow-500/10', decimals: 5, minAmount: 0.01 },
-  SOL: { name: 'Solana', icon: 'Zap', emoji: '◎', logo: 'https://cryptologos.cc/logos/solana-sol-logo.svg', color: 'text-blue-400', bgColor: 'bg-blue-500/10', decimals: 5, minAmount: 0.01 },
-  XRP: { name: 'Ripple', icon: 'Waves', emoji: '✕', logo: 'https://cryptologos.cc/logos/xrp-xrp-logo.svg', color: 'text-cyan-300', bgColor: 'bg-cyan-400/15', decimals: 4, minAmount: 1 },
-  TRX: { name: 'Tron', icon: 'Triangle', emoji: '▲', logo: 'https://cryptologos.cc/logos/tron-trx-logo.svg', color: 'text-red-400', bgColor: 'bg-red-500/10', decimals: 2, minAmount: 10 }
+  BTC: { name: 'Bitcoin', icon: 'Bitcoin', emoji: '₿', logo: 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png', color: 'text-orange-400', bgColor: 'bg-orange-500/10', decimals: 8, minAmount: 0.0001 },
+  ETH: { name: 'Ethereum', icon: 'Gem', emoji: 'Ξ', logo: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png', color: 'text-purple-400', bgColor: 'bg-purple-500/10', decimals: 6, minAmount: 0.001 },
+  BNB: { name: 'BNB', icon: 'Coins', emoji: '◆', logo: 'https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png', color: 'text-yellow-400', bgColor: 'bg-yellow-500/10', decimals: 5, minAmount: 0.01 },
+  SOL: { name: 'Solana', icon: 'Zap', emoji: '◎', logo: 'https://assets.coingecko.com/coins/images/4128/small/solana.png', color: 'text-blue-400', bgColor: 'bg-blue-500/10', decimals: 5, minAmount: 0.01 },
+  XRP: { name: 'Ripple', icon: 'Waves', emoji: '✕', logo: 'https://assets.coingecko.com/coins/images/44/small/xrp-symbol-white-128.png', color: 'text-cyan-300', bgColor: 'bg-cyan-400/15', decimals: 4, minAmount: 1 },
+  TRX: { name: 'Tron', icon: 'Triangle', emoji: '▲', logo: 'https://assets.coingecko.com/coins/images/1094/small/tron-logo.png', color: 'text-red-400', bgColor: 'bg-red-500/10', decimals: 2, minAmount: 10 }
 };
 
 const ExchangePage = ({ user, onRefreshUserBalance }: ExchangePageProps) => {
