@@ -25,7 +25,7 @@ export const FlashUsdtPurchaseDialog = ({
 }: FlashUsdtPurchaseDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] sm:max-w-md p-0 border-0 bg-transparent shadow-none">
+      <DialogContent className="max-w-[95vw] sm:max-w-md p-0 border-0 bg-transparent shadow-none [&>button]:hidden">
         {selectedPackage && (
           <div className="bg-[#0a0e1a] border border-[#1e2535] rounded-2xl overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.6)]">
 
