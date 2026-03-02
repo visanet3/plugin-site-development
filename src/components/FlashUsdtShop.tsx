@@ -48,7 +48,7 @@ const FlashUsdtShop = ({ user, onShowAuthDialog, onRefreshUserBalance }: FlashUs
       color: 'from-slate-600 to-slate-800',
       borderColor: 'border-slate-500/30',
       icon: 'PackageOpen',
-      popular: false,
+      popular: true,
       soldOut: false,
     },
     {
