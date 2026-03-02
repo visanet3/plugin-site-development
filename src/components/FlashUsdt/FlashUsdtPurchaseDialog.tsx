@@ -1,5 +1,4 @@
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
@@ -26,133 +25,135 @@ export const FlashUsdtPurchaseDialog = ({
 }: FlashUsdtPurchaseDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] sm:max-w-lg p-0 overflow-hidden border-0 bg-transparent shadow-2xl">
+      <DialogContent className="max-w-[95vw] sm:max-w-md p-0 border-0 bg-transparent shadow-none">
         {selectedPackage && (
-          <div className="relative rounded-2xl overflow-hidden bg-gradient-to-b from-[#0f1729] to-[#080d1a] border border-white/10">
+          <div className="bg-[#0a0e1a] border border-[#1e2535] rounded-2xl overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.6)]">
 
-            {/* Decorative glow */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-green-500/10 blur-3xl pointer-events-none" />
-            <div className="absolute bottom-0 right-0 w-48 h-48 bg-yellow-500/5 blur-3xl pointer-events-none" />
+            {/* Top accent line */}
+            <div className="h-px bg-gradient-to-r from-transparent via-emerald-500/60 to-transparent" />
 
             {/* Header */}
-            <div className="relative px-6 pt-6 pb-4 border-b border-white/5">
-              <button
-                onClick={() => onOpenChange(false)}
-                className="absolute top-4 right-4 text-white/30 hover:text-white/70 transition-colors"
-              >
-                <Icon name="X" size={18} />
-              </button>
+            <div className="flex items-center justify-between px-6 pt-5 pb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500/30 to-emerald-500/10 border border-green-500/20 flex items-center justify-center">
-                  <Icon name="Zap" size={20} className="text-green-400" />
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                  <Icon name="Zap" size={15} className="text-emerald-400" />
                 </div>
                 <div>
-                  <h2 className="text-white font-bold text-lg leading-tight">Покупка Flash USDT</h2>
-                  <p className="text-white/40 text-xs">TRC20 · Мгновенная отправка</p>
+                  <p className="text-white font-semibold text-sm tracking-wide">FLASH USDT</p>
+                  <p className="text-[#4a5568] text-[11px] tracking-widest uppercase">TRC-20 Network</p>
                 </div>
               </div>
+              <button
+                onClick={() => onOpenChange(false)}
+                className="w-7 h-7 rounded-lg bg-white/3 hover:bg-white/8 border border-white/5 flex items-center justify-center text-[#4a5568] hover:text-white/70 transition-all"
+              >
+                <Icon name="X" size={13} />
+              </button>
             </div>
 
-            <div className="relative px-6 py-5 space-y-5">
+            {/* Divider */}
+            <div className="h-px bg-[#1e2535] mx-6" />
+
+            <div className="px-6 pt-5 pb-6 space-y-5">
 
               {/* Test notice */}
               {selectedPackage.id === 0 && (
-                <div className="flex items-start gap-3 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
-                  <Icon name="TestTube" size={16} className="text-blue-400 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-blue-300 font-semibold text-sm">Тестовая покупка</p>
-                    <p className="text-blue-300/60 text-xs mt-0.5">Получите 10 Flash USDT для проверки качества токена</p>
-                  </div>
+                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-sky-500/5 border border-sky-500/15">
+                  <Icon name="FlaskConical" size={14} className="text-sky-400 flex-shrink-0" />
+                  <p className="text-sky-400/80 text-xs">Тестовая покупка — 10 Flash USDT для проверки</p>
                 </div>
               )}
 
-              {/* Package summary */}
-              <div className="rounded-xl bg-white/3 border border-white/8 p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-white/40 text-sm">Количество</span>
-                  <span className="text-white font-bold text-lg">{selectedPackage.amount.toLocaleString('ru-RU')} <span className="text-green-400">USDT</span></span>
+              {/* Amount hero */}
+              <div className="text-center py-4">
+                <p className="text-[#4a5568] text-xs uppercase tracking-widest mb-1">Вы получите</p>
+                <p className="text-4xl font-bold text-white tracking-tight">
+                  {selectedPackage.amount.toLocaleString('ru-RU')}
+                  <span className="text-emerald-400 ml-2 text-2xl font-semibold">USDT</span>
+                </p>
+                <div className="flex items-center justify-center gap-3 mt-2">
+                  <span className="text-[#4a5568] text-sm line-through">${(selectedPackage.price / (1 - parseFloat(selectedPackage.discount) / 100)).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}</span>
+                  <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 text-xs font-medium border border-emerald-500/15">−{selectedPackage.discount}</span>
                 </div>
-                <div className="h-px bg-white/5" />
-                <div className="flex items-center justify-between">
-                  <span className="text-white/40 text-sm">Стоимость</span>
-                  <span className="text-2xl font-bold text-white">${selectedPackage.price.toLocaleString('ru-RU')}</span>
+              </div>
+
+              {/* Details table */}
+              <div className="rounded-xl border border-[#1e2535] divide-y divide-[#1e2535]">
+                <div className="flex items-center justify-between px-4 py-3">
+                  <span className="text-[#4a5568] text-xs uppercase tracking-wider">К оплате</span>
+                  <span className="text-white font-bold text-base">${selectedPackage.price.toLocaleString('ru-RU')}</span>
                 </div>
-                <div className="h-px bg-white/5" />
-                <div className="flex items-center justify-between">
-                  <span className="text-white/40 text-sm">Срок действия</span>
-                  <Badge className="bg-yellow-500/15 text-yellow-400 border border-yellow-500/20 font-medium">
-                    <Icon name="Clock" size={11} className="mr-1" />
-                    120 дней
-                  </Badge>
+                <div className="flex items-center justify-between px-4 py-3">
+                  <span className="text-[#4a5568] text-xs uppercase tracking-wider">Срок действия</span>
+                  <span className="text-[#8892a4] text-sm">120 дней</span>
                 </div>
-                <div className="h-px bg-white/5" />
-                <div className="flex items-center justify-between">
-                  <span className="text-white/40 text-sm">Скидка</span>
-                  <Badge className="bg-green-500/15 text-green-400 border border-green-500/20 font-medium">{selectedPackage.discount}</Badge>
+                <div className="flex items-center justify-between px-4 py-3">
+                  <span className="text-[#4a5568] text-xs uppercase tracking-wider">Зачисление</span>
+                  <span className="text-[#8892a4] text-sm">1–3 минуты</span>
                 </div>
               </div>
 
               {/* Wallet input */}
               <div className="space-y-2">
-                <label className="text-white/60 text-xs font-medium flex items-center gap-1.5">
-                  <Icon name="Wallet" size={13} className="text-white/40" />
+                <label className="text-[#4a5568] text-[11px] uppercase tracking-widest">
                   Адрес кошелька TRC20
                 </label>
                 <div className="relative">
                   <Input
-                    placeholder="TXm...abc (34 символа)"
+                    placeholder="T... (34 символа)"
                     value={walletAddress}
                     onChange={(e) => onWalletAddressChange(e.target.value)}
-                    className="font-mono text-sm bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-green-500/50 focus:ring-green-500/10 rounded-xl h-11 pr-10"
+                    className="font-mono text-sm bg-[#0d1220] border-[#1e2535] text-white placeholder:text-[#2a3347] focus-visible:border-emerald-500/40 focus-visible:ring-0 rounded-xl h-12 pr-10"
                     maxLength={34}
                   />
-                  {walletAddress.length === 34 && (
-                    <Icon name="CheckCircle2" size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-green-400" />
-                  )}
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    {walletAddress.length === 34
+                      ? <Icon name="CheckCircle2" size={15} className="text-emerald-400" />
+                      : <Icon name="Wallet" size={15} className="text-[#2a3347]" />
+                    }
+                  </div>
                 </div>
-                <p className="text-white/25 text-[11px] flex items-start gap-1">
-                  <Icon name="Info" size={11} className="mt-0.5 flex-shrink-0" />
-                  Токены поступят на этот адрес в течение 1–3 минут
-                </p>
               </div>
 
               {/* Warning */}
-              <div className="flex items-start gap-2.5 p-3 rounded-xl bg-orange-500/8 border border-orange-500/15">
-                <Icon name="AlertTriangle" size={15} className="text-orange-400 mt-0.5 flex-shrink-0" />
-                <p className="text-orange-300/70 text-xs leading-relaxed">
-                  Проверьте адрес кошелька перед оплатой — отправка необратима
+              <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl bg-amber-500/5 border border-amber-500/10">
+                <Icon name="ShieldAlert" size={13} className="text-amber-500/60 mt-0.5 flex-shrink-0" />
+                <p className="text-[#5a6478] text-[11px] leading-relaxed">
+                  Отправка токенов необратима. Убедитесь в правильности адреса перед оплатой.
                 </p>
               </div>
 
               {/* Buttons */}
-              <div className="flex gap-3 pt-1">
+              <div className="flex gap-2.5 pt-1">
                 <Button
                   onClick={() => onOpenChange(false)}
                   variant="outline"
-                  className="flex-1 border-white/10 text-white/50 hover:text-white hover:bg-white/5 hover:border-white/20 bg-transparent rounded-xl h-11"
+                  className="w-24 border-[#1e2535] text-[#4a5568] hover:text-white/60 hover:bg-white/3 bg-transparent rounded-xl h-11 text-sm shrink-0"
                   disabled={isProcessing}
                 >
                   Отмена
                 </Button>
                 <Button
                   onClick={onConfirmPurchase}
-                  className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-semibold rounded-xl h-11 shadow-lg shadow-green-500/20 transition-all"
+                  className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-[#050a10] font-bold rounded-xl h-11 text-sm transition-all shadow-[0_0_24px_rgba(16,185,129,0.2)] hover:shadow-[0_0_32px_rgba(16,185,129,0.35)]"
                   disabled={isProcessing}
                 >
                   {isProcessing ? (
                     <>
-                      <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
+                      <Icon name="Loader2" size={15} className="mr-2 animate-spin" />
                       Обработка...
                     </>
                   ) : (
                     <>
-                      <Icon name="CreditCard" size={16} className="mr-2" />
                       Оплатить ${selectedPackage.price.toLocaleString('ru-RU')}
                     </>
                   )}
                 </Button>
               </div>
             </div>
+
+            {/* Bottom accent line */}
+            <div className="h-px bg-gradient-to-r from-transparent via-[#1e2535] to-transparent" />
           </div>
         )}
       </DialogContent>
