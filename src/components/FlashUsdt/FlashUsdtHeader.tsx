@@ -64,38 +64,38 @@ export const FlashUsdtHeader = ({ onTestPurchase }: FlashUsdtHeaderProps) => {
         </Button>
         
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-3 sm:gap-4 md:gap-6">
-          <Card className="p-3 sm:p-4 md:p-6 bg-card/30 backdrop-blur-sm border-border/50 hover:border-emerald-500/30 transition-all">
-            <div className="flex items-center gap-2 sm:gap-4 mb-2 sm:mb-4">
-              <div className="flex items-center justify-center w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-500/10 shrink-0">
-                <Icon name="TrendingDown" size={18} className="text-emerald-400 sm:w-6 sm:h-6" />
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-6">
+          <Card className="p-3 sm:p-4 md:p-6 bg-card/30 backdrop-blur-sm border-border/50 hover:border-emerald-500/30 transition-all overflow-hidden">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-4 mb-2 sm:mb-4">
+              <div className="flex items-center justify-center w-7 h-7 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl bg-emerald-500/10 shrink-0">
+                <Icon name="TrendingDown" size={14} className="text-emerald-400" />
               </div>
-              <h3 className="text-sm sm:text-base md:text-lg font-semibold">Скидка</h3>
+              <h3 className="text-xs sm:text-base md:text-lg font-semibold leading-tight">Скидка</h3>
             </div>
-            <p className="text-2xl sm:text-3xl md:text-4xl font-bold">84%</p>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-2">от номинала</p>
+            <p className="text-xl sm:text-3xl md:text-4xl font-bold">84%</p>
+            <p className="text-[10px] sm:text-sm text-muted-foreground mt-1 sm:mt-2 leading-tight">от номинала</p>
           </Card>
           
-          <Card className="p-3 sm:p-4 md:p-6 bg-card/30 backdrop-blur-sm border-border/50 hover:border-teal-500/30 transition-all">
-            <div className="flex items-center gap-2 sm:gap-4 mb-2 sm:mb-4">
-              <div className="flex items-center justify-center w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-teal-500/10 shrink-0">
-                <Icon name="Package" size={18} className="text-teal-400 sm:w-6 sm:h-6" />
+          <Card className="p-3 sm:p-4 md:p-6 bg-card/30 backdrop-blur-sm border-border/50 hover:border-teal-500/30 transition-all overflow-hidden">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-4 mb-2 sm:mb-4">
+              <div className="flex items-center justify-center w-7 h-7 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl bg-teal-500/10 shrink-0">
+                <Icon name="Package" size={14} className="text-teal-400" />
               </div>
-              <h3 className="text-sm sm:text-base md:text-lg font-semibold">Минимум</h3>
+              <h3 className="text-xs sm:text-base md:text-lg font-semibold leading-tight">Минимум</h3>
             </div>
-            <p className="text-2xl sm:text-3xl md:text-4xl font-bold">9.8K</p>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-2">Flash USDT</p>
+            <p className="text-xl sm:text-3xl md:text-4xl font-bold">9.8K</p>
+            <p className="text-[10px] sm:text-sm text-muted-foreground mt-1 sm:mt-2 leading-tight">Flash USDT</p>
           </Card>
           
-          <Card className="p-3 sm:p-4 md:p-6 bg-card/30 backdrop-blur-sm border-border/50 hover:border-cyan-500/30 transition-all">
-            <div className="flex items-center gap-2 sm:gap-4 mb-2 sm:mb-4">
-              <div className="flex items-center justify-center w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-cyan-500/10 shrink-0">
-                <Icon name="Clock" size={18} className="text-cyan-400 sm:w-6 sm:h-6" />
+          <Card className="p-3 sm:p-4 md:p-6 bg-card/30 backdrop-blur-sm border-border/50 hover:border-cyan-500/30 transition-all overflow-hidden">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-4 mb-2 sm:mb-4">
+              <div className="flex items-center justify-center w-7 h-7 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl bg-cyan-500/10 shrink-0">
+                <Icon name="Clock" size={14} className="text-cyan-400" />
               </div>
-              <h3 className="text-sm sm:text-base md:text-lg font-semibold">Срок</h3>
+              <h3 className="text-xs sm:text-base md:text-lg font-semibold leading-tight">Срок</h3>
             </div>
-            <p className="text-2xl sm:text-3xl md:text-4xl font-bold">120</p>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-2">дней</p>
+            <p className="text-xl sm:text-3xl md:text-4xl font-bold">120</p>
+            <p className="text-[10px] sm:text-sm text-muted-foreground mt-1 sm:mt-2 leading-tight">дней</p>
           </Card>
         </div>
       </div>

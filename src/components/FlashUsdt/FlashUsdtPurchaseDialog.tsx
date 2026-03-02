@@ -67,29 +67,29 @@ export const FlashUsdtPurchaseDialog = ({
               {/* Amount hero */}
               <div className="text-center py-4">
                 <p className="text-[#4a5568] text-xs uppercase tracking-widest mb-1">Вы получите</p>
-                <p className="text-4xl font-bold text-white tracking-tight">
+                <p className="text-3xl sm:text-4xl font-bold text-white tracking-tight break-all">
                   {selectedPackage.amount.toLocaleString('ru-RU')}
-                  <span className="text-emerald-400 ml-2 text-2xl font-semibold">USDT</span>
+                  <span className="text-emerald-400 ml-2 text-xl sm:text-2xl font-semibold">USDT</span>
                 </p>
-                <div className="flex items-center justify-center gap-3 mt-2">
-                  <span className="text-[#4a5568] text-sm line-through">${(selectedPackage.price / (1 - parseFloat(selectedPackage.discount) / 100)).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}</span>
+                <div className="flex items-center justify-center gap-2 mt-2 flex-wrap">
+                  <span className="text-[#4a5568] text-xs sm:text-sm line-through">${(selectedPackage.price / (1 - parseFloat(selectedPackage.discount) / 100)).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}</span>
                   <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 text-xs font-medium border border-emerald-500/15">−{selectedPackage.discount}</span>
                 </div>
               </div>
 
               {/* Details table */}
               <div className="rounded-xl border border-[#1e2535] divide-y divide-[#1e2535]">
-                <div className="flex items-center justify-between px-4 py-3">
-                  <span className="text-[#4a5568] text-xs uppercase tracking-wider">К оплате</span>
-                  <span className="text-white font-bold text-base">${selectedPackage.price.toLocaleString('ru-RU')}</span>
+                <div className="flex items-center justify-between gap-3 px-4 py-3">
+                  <span className="text-[#4a5568] text-xs uppercase tracking-wider shrink-0">К оплате</span>
+                  <span className="text-white font-bold text-sm sm:text-base text-right">${selectedPackage.price.toLocaleString('ru-RU')}</span>
                 </div>
-                <div className="flex items-center justify-between px-4 py-3">
-                  <span className="text-[#4a5568] text-xs uppercase tracking-wider">Срок действия</span>
-                  <span className="text-[#8892a4] text-sm">120 дней</span>
+                <div className="flex items-center justify-between gap-3 px-4 py-3">
+                  <span className="text-[#4a5568] text-xs uppercase tracking-wider shrink-0">Срок действия</span>
+                  <span className="text-[#8892a4] text-sm text-right">120 дней</span>
                 </div>
-                <div className="flex items-center justify-between px-4 py-3">
-                  <span className="text-[#4a5568] text-xs uppercase tracking-wider">Зачисление</span>
-                  <span className="text-[#8892a4] text-sm">1–3 минуты</span>
+                <div className="flex items-center justify-between gap-3 px-4 py-3">
+                  <span className="text-[#4a5568] text-xs uppercase tracking-wider shrink-0">Зачисление</span>
+                  <span className="text-[#8892a4] text-sm text-right">1–3 минуты</span>
                 </div>
               </div>
 

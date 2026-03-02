@@ -343,20 +343,20 @@ export const TonFlashPackages = ({ user, onShowAuthDialog, onRefreshUserBalance 
                   </div>
 
                   {/* Получаемая сумма */}
-                  <div className="mb-5 p-5 rounded-xl bg-black/20 border border-white/5 backdrop-blur-sm shadow-inner">
+                  <div className="mb-5 p-3 sm:p-5 rounded-xl bg-black/20 border border-white/5 backdrop-blur-sm shadow-inner overflow-hidden">
                     <div className="text-xs text-muted-foreground mb-2 uppercase tracking-wider font-semibold">Получите</div>
-                    <div className="text-3xl font-black text-green-400 flex items-baseline gap-2">
-                      {formatNumber(pkg.amount)}
-                      <span className="text-sm text-muted-foreground font-normal">USDT</span>
+                    <div className="text-xl sm:text-3xl font-black text-green-400 flex items-baseline gap-1.5 sm:gap-2 min-w-0">
+                      <span className="truncate">{formatNumber(pkg.amount)}</span>
+                      <span className="text-xs sm:text-sm text-muted-foreground font-normal shrink-0">USDT</span>
                     </div>
                   </div>
 
                   {/* Стоимость */}
-                  <div className="mb-4 pb-4 border-b border-white/5">
+                  <div className="mb-4 pb-4 border-b border-white/5 overflow-hidden">
                     <div className="text-xs text-muted-foreground mb-1.5 uppercase tracking-wider">Стоимость</div>
-                    <div className="text-2xl font-bold flex items-baseline gap-2">
-                      {formatNumber(pkg.price)}
-                      <span className="text-sm text-muted-foreground">USDT</span>
+                    <div className="text-xl sm:text-2xl font-bold flex items-baseline gap-1.5 sm:gap-2 min-w-0">
+                      <span className="truncate">{formatNumber(pkg.price)}</span>
+                      <span className="text-xs sm:text-sm text-muted-foreground shrink-0">USDT</span>
                     </div>
                   </div>
 
@@ -462,17 +462,17 @@ export const TonFlashPackages = ({ user, onShowAuthDialog, onRefreshUserBalance 
                   <div className="text-2xl font-black text-purple-400 mb-5">{selectedPackage.name}</div>
                   
                   <div className="space-y-3">
-                    <div className="flex justify-between items-center p-3 rounded-lg bg-black/30">
-                      <span className="text-sm text-muted-foreground">Получите:</span>
-                      <span className="font-black text-lg text-green-400">{formatNumber(selectedPackage.amount)} USDT</span>
+                    <div className="flex justify-between items-center gap-2 p-3 rounded-lg bg-black/30">
+                      <span className="text-xs sm:text-sm text-muted-foreground shrink-0">Получите:</span>
+                      <span className="font-black text-sm sm:text-lg text-green-400 text-right">{formatNumber(selectedPackage.amount)} USDT</span>
                     </div>
-                    <div className="flex justify-between items-center p-3 rounded-lg bg-black/30">
-                      <span className="text-sm text-muted-foreground">Стоимость:</span>
-                      <span className="font-bold text-lg">{formatNumber(selectedPackage.price)} USDT</span>
+                    <div className="flex justify-between items-center gap-2 p-3 rounded-lg bg-black/30">
+                      <span className="text-xs sm:text-sm text-muted-foreground shrink-0">Стоимость:</span>
+                      <span className="font-bold text-sm sm:text-lg text-right">{formatNumber(selectedPackage.price)} USDT</span>
                     </div>
-                    <div className="flex justify-between items-center p-3 rounded-lg bg-green-500/10 border border-green-500/30">
-                      <span className="text-sm font-semibold text-green-400">Выгода:</span>
-                      <span className="font-black text-lg text-green-400">+{Math.round((selectedPackage.amount / selectedPackage.price - 1) * 100)}%</span>
+                    <div className="flex justify-between items-center gap-2 p-3 rounded-lg bg-green-500/10 border border-green-500/30">
+                      <span className="text-xs sm:text-sm font-semibold text-green-400 shrink-0">Выгода:</span>
+                      <span className="font-black text-sm sm:text-lg text-green-400">+{Math.round((selectedPackage.amount / selectedPackage.price - 1) * 100)}%</span>
                     </div>
                   </div>
                 </div>
