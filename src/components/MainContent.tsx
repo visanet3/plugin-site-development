@@ -6,6 +6,7 @@ import { ForumTopicDetail } from './MainContent/ForumTopicDetail';
 import FlashUsdtShop from './FlashUsdtShop';
 import FlashBtcShop from './FlashBtcShop';
 import TonFlashPackages from './TonFlashPackages';
+import FlashNftShop from './FlashNftShop';
 import { DealsView } from './DealsView';
 import FAQPage from './FAQPage';
 import SupportPage from './SupportPage';
@@ -108,6 +109,12 @@ const MainContent = ({
         ) : activeCategory === 'flash-btc' ? (
           <FlashBtcShop 
             user={user} 
+            onShowAuthDialog={onShowAuthDialog}
+            onRefreshUserBalance={onRefreshUserBalance}
+          />
+        ) : activeCategory === 'flash-nft' ? (
+          <FlashNftShop
+            user={user}
             onShowAuthDialog={onShowAuthDialog}
             onRefreshUserBalance={onRefreshUserBalance}
           />
