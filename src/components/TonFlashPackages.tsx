@@ -25,7 +25,6 @@ interface Package {
 
 const packages: Package[] = [
   { id: 0, name: 'Тестовый', price: 100, amount: 10, badge: '🧪 ТЕСТ', color: 'cyan', isTest: true },
-  { id: -1, name: 'Мини', price: 2650, amount: 9800, popular: true, badge: '🔥 ХИТ', color: 'blue' },
   { id: 1, name: 'Стартовый', price: 2470, amount: 10000, color: 'blue' },
   { id: 2, name: 'Базовый', price: 4850, amount: 25000, color: 'blue' },
   { id: 3, name: 'Стандарт', price: 9500, amount: 50000, popular: true, color: 'purple' },
