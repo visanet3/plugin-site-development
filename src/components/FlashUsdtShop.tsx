@@ -294,8 +294,8 @@ const FlashUsdtShop = ({ user, onShowAuthDialog, onRefreshUserBalance }: FlashUs
       {/* Background gradient */}
       <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-background to-teal-500/5"></div>
-        <div className="absolute top-20 right-20 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px]"></div>
-        <div className="absolute bottom-20 left-20 w-[600px] h-[600px] bg-teal-500/10 rounded-full blur-[120px]"></div>
+        <div className="absolute top-10 sm:top-20 right-0 sm:right-20 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-emerald-500/10 rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-10 sm:bottom-20 left-0 sm:left-20 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-teal-500/10 rounded-full blur-[120px]"></div>
       </div>
 
       {/* Content поверх эффекта */}

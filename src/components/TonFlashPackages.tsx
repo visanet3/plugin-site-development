@@ -250,23 +250,23 @@ export const TonFlashPackages = ({ user, onShowAuthDialog, onRefreshUserBalance 
     <div className="relative min-h-screen">
       {/* Анимированный фон */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 -left-4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute bottom-20 left-20 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-500"></div>
+        <div className="absolute top-0 -left-4 w-48 sm:w-64 md:w-96 h-48 sm:h-64 md:h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-20 right-10 w-48 sm:w-64 md:w-96 h-48 sm:h-64 md:h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute bottom-20 left-20 w-48 sm:w-64 md:w-96 h-48 sm:h-64 md:h-96 bg-pink-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
+        <div className="absolute bottom-0 right-0 w-48 sm:w-64 md:w-96 h-48 sm:h-64 md:h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
 
       <div className="max-w-7xl mx-auto p-4 md:p-6 animate-fade-in relative">
         {/* Out of Stock Warning */}
-        <div className="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-500/20 via-orange-500/20 to-red-500/20 border-2 border-red-500/50 p-6 animate-pulse">
+        <div className="mb-4 sm:mb-6 md:mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-500/20 via-orange-500/20 to-red-500/20 border-2 border-red-500/50 p-4 sm:p-5 md:p-6 animate-pulse">
           <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-transparent"></div>
-          <div className="relative z-10 flex items-center gap-4">
-            <div className="flex items-center justify-center w-14 h-14 rounded-full bg-red-500/20 border-2 border-red-500/50">
-              <Icon name="AlertTriangle" size={28} className="text-red-400" />
+          <div className="relative z-10 flex items-center gap-3 sm:gap-4">
+            <div className="flex items-center justify-center w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-red-500/20 border-2 border-red-500/50 shrink-0">
+              <Icon name="AlertTriangle" size={20} className="text-red-400 sm:w-7 sm:h-7" />
             </div>
-            <div className="flex-1">
-              <h3 className="text-xl font-bold text-red-400 mb-1">Товар закончился</h3>
-              <p className="text-sm text-red-300/80">Все пакеты TON Flash USDT временно недоступны. Технические специалисты работают над созданием нового товара.</p>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-base sm:text-xl font-bold text-red-400 mb-0.5 sm:mb-1">Товар закончился</h3>
+              <p className="text-xs sm:text-sm text-red-300/80 leading-relaxed">Все пакеты TON Flash USDT временно недоступны. Технические специалисты работают над созданием нового товара.</p>
             </div>
           </div>
         </div>
@@ -278,17 +278,17 @@ export const TonFlashPackages = ({ user, onShowAuthDialog, onRefreshUserBalance 
           <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
           
-          <div className="relative z-10 p-8 sm:p-10 md:p-12 text-center space-y-6">
-            <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-sm font-medium px-4 py-1.5">
-              <Icon name="Gem" size={16} className="mr-2" />
+          <div className="relative z-10 p-4 sm:p-8 md:p-10 lg:p-12 text-center space-y-4 sm:space-y-6">
+            <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-xs sm:text-sm font-medium px-3 sm:px-4 py-1 sm:py-1.5">
+              <Icon name="Gem" size={14} className="mr-1.5 sm:mr-2" />
               Премиум коллекция
             </Badge>
             
-            <div className="space-y-3">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300 bg-clip-text text-transparent leading-tight">
+            <div className="space-y-2 sm:space-y-3">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300 bg-clip-text text-transparent leading-tight">
                 TON Flash USDT
               </h1>
-              <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-sm sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
                 Премиальные пакеты Flash USDT на блокчейне TON
               </p>
               <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-purple-400 font-medium">
@@ -327,7 +327,7 @@ export const TonFlashPackages = ({ user, onShowAuthDialog, onRefreshUserBalance 
                   </div>
                 )}
 
-                <div className="p-6">
+                <div className="p-4 sm:p-5 md:p-6">
                   {/* Иконка и название */}
                   <div className="flex items-center gap-3 mb-4">
                     <div className={`p-3 rounded-xl ${colors.icon} backdrop-blur-sm transition-transform group-hover:scale-110 duration-300`}>

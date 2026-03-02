@@ -44,13 +44,13 @@ export const FlashUsdtPackages = ({ packages, onPurchase, selectedPackageId, use
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div>
-        <h2 className="text-3xl font-bold mb-2">Выберите пакет</h2>
-        <p className="text-muted-foreground">Все пакеты с максимальной скидкой</p>
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">Выберите пакет</h2>
+        <p className="text-muted-foreground text-sm sm:text-base">Все пакеты с максимальной скидкой</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
         {packages.map((pkg) => {
           const accent = getAccentColor(pkg.id);
           const isDisabled = pkg.soldOut || (pkg.vipOnly && !userHasVip);
@@ -63,7 +63,7 @@ export const FlashUsdtPackages = ({ packages, onPurchase, selectedPackageId, use
               } border-border/50 ${!isDisabled && accent.hover}`}
             >
               {/* Badges */}
-              <div className="absolute top-4 left-4 right-4 flex items-start justify-between z-10 gap-2">
+              <div className="absolute top-2 sm:top-3 md:top-4 left-2 sm:left-3 md:left-4 right-2 sm:right-3 md:right-4 flex items-start justify-between z-10 gap-2">
                 {pkg.vipOnly && !pkg.soldOut && (
                   <Badge className="bg-gradient-to-r from-yellow-400 to-orange-400 text-black text-xs font-bold px-2.5 py-1">
                     <Icon name="Crown" size={12} className="mr-1" />
@@ -85,22 +85,22 @@ export const FlashUsdtPackages = ({ packages, onPurchase, selectedPackageId, use
               </div>
 
               {/* Header */}
-              <div className={`relative ${accent.bg} border-b border-border/50 p-8 pt-16`}>
-                <div className="text-center space-y-3">
-                  <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl ${accent.bg} border ${accent.border}`}>
-                    <Icon name={pkg.icon as any} size={28} className={accent.text} />
+              <div className={`relative ${accent.bg} border-b border-border/50 p-4 sm:p-6 md:p-8 pt-10 sm:pt-12 md:pt-16`}>
+                <div className="text-center space-y-2 sm:space-y-3">
+                  <div className={`inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl sm:rounded-2xl ${accent.bg} border ${accent.border}`}>
+                    <Icon name={pkg.icon as string} size={22} className={accent.text} />
                   </div>
                   <div>
-                    <h3 className="text-3xl font-bold">
+                    <h3 className="text-2xl sm:text-3xl font-bold">
                       {pkg.amount >= 1000000 ? `${(pkg.amount / 1000000).toFixed(1)}M` : `${(pkg.amount / 1000).toFixed(0)}K`}
                     </h3>
-                    <p className="text-sm text-muted-foreground mt-1">Flash USDT</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">Flash USDT</p>
                   </div>
                 </div>
               </div>
 
               {/* Content */}
-              <div className="p-6 space-y-6">
+              <div className="p-4 sm:p-5 md:p-6 space-y-4 sm:space-y-5 md:space-y-6">
                 {/* Pricing */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-sm">
