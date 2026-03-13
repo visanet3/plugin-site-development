@@ -41,12 +41,12 @@ const FlashUsdtShop = ({ user, onShowAuthDialog, onRefreshUserBalance }: FlashUs
 
   const packages: Package[] = [
     {
-      id: -1,
-      amount: 9800,
-      price: 2650,
-      discount: '73%',
-      color: 'from-slate-600 to-slate-800',
-      borderColor: 'border-slate-500/30',
+      id: -2,
+      amount: 26875,
+      price: 4300,
+      discount: '84%',
+      color: 'from-emerald-600 to-teal-800',
+      borderColor: 'border-emerald-500/30',
       icon: 'PackageOpen',
       popular: true,
       soldOut: false,
