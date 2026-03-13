@@ -932,6 +932,44 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
+            elif action == 'delete_all_users':
+                # Удаляем всех пользователей кроме текущего администратора (CMD)
+                admin_id_int = int(user_id)
+                
+                tables_user_id = [
+                    'active_game_sessions', 'admin_notifications', 'banned_ips',
+                    'card_payments', 'casino_wins', 'crypto_payments', 'crypto_transactions',
+                    'email_verifications', 'flash_usdt_orders', 'flash_btc_orders',
+                    'lottery_chat', 'lottery_notifications', 'lottery_tickets',
+                    'notifications', 'password_reset_tokens', 'referral_codes',
+                    'referral_rewards', 'security_logs', 'ton_flash_purchases', 'transactions'
+                ]
+                for table in tables_user_id:
+                    cur.execute(f"DELETE FROM {SCHEMA}.{table} WHERE user_id != %s", (admin_id_int,))
+                
+                cur.execute(f"DELETE FROM {SCHEMA}.admin_actions WHERE admin_id != %s AND user_id != %s", (admin_id_int, admin_id_int))
+                cur.execute(f"DELETE FROM {SCHEMA}.deal_messages WHERE sender_id != %s", (admin_id_int,))
+                cur.execute(f"DELETE FROM {SCHEMA}.deals WHERE buyer_id != %s AND seller_id != %s", (admin_id_int, admin_id_int))
+                cur.execute(f"DELETE FROM {SCHEMA}.escrow_deals WHERE buyer_id != %s AND seller_id != %s", (admin_id_int, admin_id_int))
+                cur.execute(f"DELETE FROM {SCHEMA}.escrow_messages WHERE sender_id != %s", (admin_id_int,))
+                cur.execute(f"DELETE FROM {SCHEMA}.forum_comments WHERE author_id != %s", (admin_id_int,))
+                cur.execute(f"DELETE FROM {SCHEMA}.forum_topics WHERE author_id != %s", (admin_id_int,))
+                cur.execute(f"DELETE FROM {SCHEMA}.messages WHERE sender_id != %s AND receiver_id != %s", (admin_id_int, admin_id_int))
+                cur.execute(f"DELETE FROM {SCHEMA}.referrals WHERE referrer_id != %s AND referred_id != %s", (admin_id_int, admin_id_int))
+                cur.execute(f"DELETE FROM {SCHEMA}.support_tickets WHERE user_id != %s", (admin_id_int,))
+                cur.execute(f"DELETE FROM {SCHEMA}.ticket_messages WHERE user_id != %s", (admin_id_int,))
+                cur.execute(f"DELETE FROM {SCHEMA}.users WHERE id != %s", (admin_id_int,))
+                
+                log_admin_action(user_id, 'delete_all_users', 'system', 0, 'All users deleted except admin', cur)
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True, 'message': 'Все пользователи удалены'}),
+                    'isBase64Encoded': False
+                }
+            
             elif action == 'mark_admin_notifications_read':
                 cur.execute(f"UPDATE {SCHEMA}.admin_notifications SET is_read = TRUE WHERE is_read = FALSE")
                 conn.commit()
