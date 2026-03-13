@@ -1012,6 +1012,8 @@ ${expenses.exchange_transactions.slice(0, 5).map((tx: any) =>
           setShowNotifications={setShowNotifications}
           adminNotifications={adminNotifications}
           onMarkNotificationsRead={markNotificationsRead}
+          userId={currentUser.id.toString()}
+          onUsersDeleted={fetchUsers}
         />
 
         <AdminPanelTabs 
